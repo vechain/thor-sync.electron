@@ -34,5 +34,9 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "files": [
+    "typings/shims-tsx.d.ts",
+    "typings/shims-vue.d.ts"
   ]
 }
