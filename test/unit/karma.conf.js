@@ -5,10 +5,6 @@ const merge = require('webpack-merge')
 const webpack = require('webpack')
 
 const baseConfig = require('../../.electron-vue/webpack.renderer.config')
-const projectRoot = path.resolve(__dirname, '../../src/renderer')
-
-// Set BABEL_ENV to use proper preset config
-process.env.BABEL_ENV = 'test'
 
 let webpackConfig = merge(baseConfig, {
   devtool: '#inline-source-map',
@@ -24,22 +20,11 @@ delete webpackConfig.entry
 delete webpackConfig.externals
 delete webpackConfig.output.libraryTarget
 
-// apply vue option to apply isparta-loader on js
-webpackConfig.module.rules
-  .find(rule => rule.use.loader === 'vue-loader').use.options.loaders.js = 'ts-loader'
-
 module.exports = config => {
   config.set({
     browsers: ['visibleElectron'],
     client: {
       useIframe: false
-    },
-    coverageReporter: {
-      dir: './coverage',
-      reporters: [
-        { type: 'lcov', subdir: '.' },
-        { type: 'text-summary' }
-      ]
     },
     customLaunchers: {
       'visibleElectron': {
@@ -48,11 +33,17 @@ module.exports = config => {
       }
     },
     frameworks: ['mocha', 'chai'],
-    files: ['./index.js'],
+    files: [
+      './index.ts',
+    ],
     preprocessors: {
-      './index.js': ['webpack']
+      './index.ts': ['webpack'],
+
     },
-    reporters: ['spec', 'coverage'],
+    mime: {
+      'text/x-typescript': ['ts', "tsx"]
+    },
+    reporters: ['spec'],
     singleRun: true,
     webpack: webpackConfig,
     webpackMiddleware: {
