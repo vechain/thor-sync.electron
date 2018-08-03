@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2015",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
@@ -34,5 +34,9 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "files": [
+    "typings/shims-tsx.d.ts",
+    "typings/shims-vue.d.ts"
   ]
 }

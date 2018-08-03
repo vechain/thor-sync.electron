@@ -6,10 +6,10 @@ const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 /**
@@ -44,18 +44,6 @@ let rendererConfig = {
         exclude: /node_modules/
       },
       {
-        test: /\.ts$/,
-        enforce: 'pre',
-        use: {
-          loader: 'tslint-loader',
-          options: {
-            configFile: path.join(__dirname, '../tslint.json'),
-            failOnHint: false
-          }
-        },
-        exclude: /node_modules/
-      },
-      {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
@@ -66,11 +54,6 @@ let rendererConfig = {
         test: /\.html$/,
         use: 'vue-html-loader'
       },
-      // {
-      //   test: /\.js$/,
-      //   use: 'babel-loader',
-      //   exclude: /node_modules/
-      // },
       {
         test: /\.node$/,
         use: 'node-loader'
@@ -187,7 +170,9 @@ if (process.env.NODE_ENV === 'production') {
   rendererConfig.devtool = ''
 
   rendererConfig.plugins.push(
-    new BabiliWebpackPlugin(),
+    new UglifyJsPlugin({
+      include: /\.js$/g
+    }),
     new CopyWebpackPlugin([
       {
         from: path.join(__dirname, '../static'),
