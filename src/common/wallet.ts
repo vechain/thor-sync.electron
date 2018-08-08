@@ -1,29 +1,27 @@
 import { cry } from 'thor-devkit'
 
-type Keystore = cry.Keystore
-
 export const exportPrivateKey = function(
-  keystore: Keystore,
+  keystore: object,
   pwd: string
 ): Promise<string> {
-  return cry.Keystore.decrypt(keystore, pwd).then(privateKey => {
+  return cry.Keystore.decrypt(keystore as cry.Keystore, pwd).then(privateKey => {
     return privateKey.toString('hex')
   })
 }
 export const generateMnemonic = function(): string[] {
   return cry.mnemonic.generate()
 }
-export const create = function(pwd: string): Promise<Keystore> {
+export const create = function(pwd: string): Promise<object> {
   let privateKey = cry.secp256k1.generatePrivateKey()
   return cry.Keystore.encrypt(privateKey, pwd)
 }
 
 export const resetPwdByAddress = function(
-  keystore: Keystore,
+  keystore: object,
   oldPwd: string,
   newPwd: string
-): Promise<Keystore> {
-  return cry.Keystore.decrypt(keystore, oldPwd).then(privateKey => {
+): Promise<object> {
+  return cry.Keystore.decrypt(keystore as cry.Keystore, oldPwd).then(privateKey => {
     return cry.Keystore.encrypt(privateKey, newPwd)
   })
 }
@@ -34,7 +32,7 @@ export const checkPwdByKeyStore = function(
 ): Promise<boolean> {
   return new Promise(resolve => {
     try {
-      cry.Keystore.decrypt(keyStore as Keystore, pwd).then(() => {
+      cry.Keystore.decrypt(keyStore as cry.Keystore, pwd).then(() => {
         resolve(true)
       })
     } catch (e) {

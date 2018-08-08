@@ -27,13 +27,14 @@ function createMainWin(): Electron.BrowserWindow {
 
 function createProxyWin(): Electron.BrowserWindow {
   return new BrowserWindow({
-    show: false
+    show: false,
+    titleBarStyle: 'default'
   })
 }
 
 export const createWin = function() {
-  mainWin = createMainWin()
   proxyWin = createProxyWin()
+  mainWin = createMainWin()
 
   proxyWin.loadURL(proxyUrl)
 

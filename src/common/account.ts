@@ -1,8 +1,6 @@
-import { cry } from 'thor-devkit'
 import { Account } from '../base/types'
 import * as DB from '../base/db'
-const fs = require('file-system')
-type Keystore = cry.Keystore
+import * as File from '../base/file'
 
 export const list = function(): Account[] {
   return DB.getAccounts()
@@ -20,7 +18,7 @@ export const update = function(address: string, account: Account): void {
   DB.updateAccount(address, account)
 }
 
-export const getKeystore = function(address: string): Keystore {
+export const getKeystore = function(address: string): object {
   let filename = DB.getFilenameByAddress(address)
-
+  return File.getKeystoreByFilename(filename)
 }

@@ -24,7 +24,8 @@ let whiteListedModules = ['vue']
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    renderer: path.join(__dirname, '../src/renderer/main.ts')
+    renderer: path.join(__dirname, '../src/renderer/main.ts'),
+    proxy: path.join(__dirname, '../src/proxy/index.ts')
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
