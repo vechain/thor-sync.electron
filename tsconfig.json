@@ -29,14 +29,11 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "typings/**/*.ts"
   ],
   "exclude": [
     "node_modules"
-  ],
-  "files": [
-    "typings/shims-tsx.d.ts",
-    "typings/shims-vue.d.ts"
   ]
 }
