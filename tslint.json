@@ -10,10 +10,13 @@
   },
   "rules": {
     "quotemark": [true, "single"],
-    "indent": [true, "spaces", 2],
+    "semicolon": [true, "never"],
     "interface-name": false,
     "ordered-imports": false,
     "object-literal-sort-keys": false,
-    "no-consecutive-blank-lines": false
+    "no-consecutive-blank-lines": false,
+    "no-namespace": false,
+    "max-classes-per-file": false,
+    "arrow-parens": false
   }
 }
