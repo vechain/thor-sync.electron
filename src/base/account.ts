@@ -1,6 +1,6 @@
-import { Account } from '../base/types'
-import * as DB from '../base/db'
-import * as File from '../base/file'
+import { Account } from './types'
+import * as DB from './db'
+import * as File from './file'
 
 export const list = function(): Account[] {
   return DB.getAccounts()
