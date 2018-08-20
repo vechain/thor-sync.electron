@@ -11,7 +11,8 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 let mainConfig = {
   entry: {
-    main: path.join(__dirname, '../src/main/index.ts')
+    main: path.join(__dirname, '../src/main/index.ts'),
+    preload: path.join(__dirname, '../src/preload.ts')
   },
   externals: [
     ...Object.keys(dependencies || {})

@@ -11,6 +11,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
+process.env.DIST_PATH = path.join(__dirname, '../dist')
 
 let electronProcess = null
 let manualRestart = false
