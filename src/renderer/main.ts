@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { Vue } from 'vue-property-decorator'
 import App from './App.vue'
 import router from '@/renderer/router'
 import store from '@/renderer/store'
@@ -10,5 +10,3 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
-
-
