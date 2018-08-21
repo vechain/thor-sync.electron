@@ -1,4 +1,4 @@
-import { Account } from './account'
+import { Account } from '@/base/types/account'
 
 export {
   Account

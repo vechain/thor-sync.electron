@@ -1,5 +1,5 @@
-import { BasePath } from './index'
-import { generateKSFilename } from '../common/utils'
+import { BasePath } from '@/base'
+import { generateKSFilename } from '@/base/utils'
 const Fs = require('file-system')
 const Path = require('path')
 

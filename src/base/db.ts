@@ -1,5 +1,5 @@
-import { BasePath } from './index'
-import { Account } from './types'
+import { BasePath } from '@/base'
+import { Account } from '@/base/types'
 const path = require('path')
 const lowdb = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
