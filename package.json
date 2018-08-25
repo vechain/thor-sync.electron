@@ -63,6 +63,7 @@
     "vue-electron": "1.0.6",
     "vue-property-decorator": "7.0.0",
     "vue-router": "3.0.1",
+    "vuetify": "1.1.13",
     "vuex": "3.0.1"
   },
   "devDependencies": {
@@ -92,6 +93,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "^0.0.31",
     "karma-webpack": "^2.0.1",
+    "material-design-icons-iconfont": "3.0.3",
     "mocha": "^5.2.0",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",

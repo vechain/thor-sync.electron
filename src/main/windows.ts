@@ -14,15 +14,25 @@ let mainWin: Electron.BrowserWindow | null
 // let proxyWin: Electron.BrowserWindow | null
 
 function createMainWin(): Electron.BrowserWindow {
-  return new BrowserWindow({
+  let opts: Electron.BrowserWindowConstructorOptions = {
     height: 600,
     useContentSize: true,
     show: false,
     width: 800,
     minWidth: 800,
-    minHeight: 600,
-    titleBarStyle: 'default'
-  })
+    minHeight: 600
+  }
+
+  switch (process.platform) {
+    case 'darwin':
+      opts.titleBarStyle = 'hiddenInset'
+      break
+    default:
+      // TODO No logic for now
+      break
+  }
+
+  return new BrowserWindow(opts)
 }
 
 // function createProxyWin(): Electron.BrowserWindow {
@@ -41,7 +51,7 @@ export const createWin = function() {
   // proxyWin.once('ready-to-show', () => {
   //   ;(mainWin as Electron.BrowserWindow).loadURL(mainUrl)
   // })
-    ;(mainWin as Electron.BrowserWindow).loadURL(mainUrl)
+  ;(mainWin as Electron.BrowserWindow).loadURL(mainUrl)
   // proxyWin.on('closed', () => {
   //   proxyWin = null
   // })
