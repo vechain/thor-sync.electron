@@ -5,7 +5,7 @@
     <div class="sync-container">
       <viewport class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
         :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
-        @new-tab="newTab" />
+        @new-tab="newTab" @switch-view="switchTab" />
     </div>
   </div>
 </template>
@@ -13,6 +13,7 @@
 import Tabbar from './components/tabBar.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import viewport, { portData } from './components/ViewPort.vue'
+
 @Component({
   components: {
     Tabbar,
