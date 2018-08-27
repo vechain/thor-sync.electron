@@ -1,10 +1,10 @@
 <template>
   <div class="sync-tab-bar">
-    <div @click.stop="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}" v-for="item in tabs" :key="item.id">
-      <div class="tab-container">
+    <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}" v-for="item in tabs" :key="item.portId">
+      <div class="tab-container" :title="item.title">
         <img :src="item.icon">
         <span>{{item.title}}</span>
-        <v-icon @click.stop="popClose(item.portId)" class="tab-close">close</v-icon>
+        <v-icon @click.stop.prevent="popClose(item.portId, item.contentId)" class="tab-close">close</v-icon>
       </div>
     </div>
   </div>

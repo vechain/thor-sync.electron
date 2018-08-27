@@ -1,10 +1,11 @@
 <template>
   <div id="app">
-    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId" @close="removeTab"
+    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId" @close="onremove"
     />
     <div class="sync-container">
-      <viewport class="viewport-layout" v-for="item in ports" :key="item.id" :currentPort="currentPortId" :instanceId="item.portId" :url="item.url"
-        @title-updated="updateTitle" @favicon-updated="updateFavicon" @new-tab="newTab" />
+      <viewport class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
+        :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
+        @new-tab="newTab" />
     </div>
   </div>
 </template>
@@ -44,22 +45,19 @@ export default class App extends Vue {
     })
   }
 
-  public removeTab(portId: number) {
+  public onremove(portId: number, contentId: number) {
     let index = this.ports.findIndex(item => {
       return item.portId === portId
     })
-
-    if (index >= 0) {
-      this.ports.splice(index, 1)
-    }
-    if (this.ports.length === 0) {
-      this.ports.push({
-        portId: Date.now(),
-        title: 'New tab'
-      })
+    let tempCuttent: number
+    let temp = this.ports.slice(index + 1)
+    if (temp.length) {
+      tempCuttent = temp[0]['portId'] as number
     } else {
-      this.currentPortId = this.ports[index - 1]['portId']
+      tempCuttent = this.ports[index ? index - 1 : 0]['portId'] as number
     }
+    this.ports.splice(index, 1)
+    this.currentPortId = tempCuttent
   }
 
   public updateFavicon(data: portData) {
