@@ -5,7 +5,7 @@
     <div class="sync-container">
       <viewport class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
         :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
-        @new-tab="newTab" />
+        @new-tab="newTab" @switch-view="switchTab" @close="onremove" />
     </div>
   </div>
 </template>
@@ -13,6 +13,7 @@
 import Tabbar from './components/tabBar.vue'
 import { Component, Vue } from 'vue-property-decorator'
 import viewport, { portData } from './components/ViewPort.vue'
+
 @Component({
   components: {
     Tabbar,
@@ -28,6 +29,7 @@ export default class App extends Vue {
     this.currentPortId = now
     this.ports.push({ portId: data.portId || now, url: data.url })
   }
+
   public updateTitle(data: portData) {
     let index = this.ports.findIndex(item => {
       return item.portId === data.portId
@@ -36,16 +38,18 @@ export default class App extends Vue {
     this.$set(this.ports[index], 'contentId', data.contentId)
     this.$set(this.ports[index], 'title', data.title)
   }
+
   public switchTab(portId: number) {
     this.currentPortId = portId
   }
+
   public newTab(data: portData) {
     this.addPort({
       url: data.url
     })
   }
 
-  public onremove(portId: number, contentId: number) {
+  public onremove(portId: number) {
     let index = this.ports.findIndex(item => {
       return item.portId === portId
     })

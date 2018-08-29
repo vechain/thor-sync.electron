@@ -8,7 +8,7 @@ import router from '@/renderer/router'
 import store from '@/renderer/store'
 
 Vue.use(Vuetify, {
-  iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
+  iconfont: 'mdi', // 'md' || 'mdi' || 'fa' || 'fa4'
 })
 Vue.config.productionTip = false
 
