@@ -26,7 +26,6 @@ export default class Tabbar extends Vue {
 }
 </script>
 
-
 <style lang="scss" scoped>
 .sync-tab-bar {
   padding-top: 10px;
