@@ -1,11 +1,11 @@
 <template>
-  <div v-drag class="sync-viewport-container" :class="{'current': currentPort === instanceId, 'full-size': isFullSize}">
-    <div class="port-title">
+  <div v-drag="draggable" class="sync-viewport-container" :class="{'current': currentPort === instanceId, 'full-size': isFullSize, 'sync-viewport-win': draggable}">
+    <div class="port-title" v-if="draggable">
       <span>
       {{title}}
       </span>
     </div>
-    <v-container fluid class='pa-0 ma-0 port-contral'>
+    <v-container v-if="draggable" fluid class='pa-0 ma-0 port-contral'>
       <v-layout row>
         <v-flex>
           <v-icon @click.stop="toggleFullSize">picture_in_picture_alt</v-icon>
@@ -52,7 +52,11 @@ export interface portData {
         draggie.destroy()
         window.removeEventListener('resize', ctx.onWindowResizeEnd)
       },
-      inserted(ele: any, binding: any, vnode: any) {
+      bind(ele: any, binding: any, vnode: any) {
+        if (!binding.value) {
+          return
+        }
+
         window.addEventListener('resize', vnode.context.onWindowResizeEnd)
         let opts = {
           containment: '.sync-container',
@@ -76,6 +80,8 @@ export default class ViewPort extends Vue {
   @Prop({ default: Date.now() })
   private instanceId!: number
   @Prop() private currentPort!: number
+  @Prop({ default: false })
+  private draggable!: boolean
 
   preload: string = 'file:///' + (window as any).__preload
   origin: string = ''
@@ -166,23 +172,42 @@ export default class ViewPort extends Vue {
 <style lang="scss" scoped>
 .sync-viewport-container {
   overflow: hidden;
-  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.5);
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  height: 100%;
+  width: 100%;
+  transition: height 150ms linear, width 150ms linear, opacity 150ms linear;
+}
+.sync-viewport-container.sync-viewport-win {
   max-height: 100%;
   max-width: 100%;
   height: 550px;
   width: 800px;
   border: 1px solid #eee;
-  transition: height 150ms linear, width 150ms linear;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.5);
 }
-.sync-viewport-container.full-size {
+.sync-viewport-win.is-pointer-down {
+  z-index: 3;
+  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.3);
+  opacity: 0.7;
+}
+.sync-viewport-win.current {
+  resize: both;
+  z-index: 2;
+  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+.sync-viewport-container.sync-viewport-win.full-size {
   top: 0 !important;
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  resize: none;
 }
-.sync-viewport-container::-webkit-resizer {
+.sync-viewport-win::-webkit-resizer {
   background-image: -webkit-gradient(
     linear,
     right bottom,
@@ -191,7 +216,7 @@ export default class ViewPort extends Vue {
     color-stop(0.83, #afafaf)
   );
 }
-.sync-viewport-container:after {
+.sync-viewport-win:after {
   content: ' ';
   display: block;
   width: 10px;
@@ -202,22 +227,22 @@ export default class ViewPort extends Vue {
   border-top-left-radius: 10px;
   right: 0;
 }
-.sync-viewport-container.current:hover:after {
+.sync-viewport-win.current:not(.full-size):hover:after {
   cursor: nwse-resize;
   background-color: rgba(0, 0, 0, 0.3);
 }
-.sync-viewport-container .port-contral {
+.sync-viewport-win .port-contral {
   width: 50px;
   height: 25px;
   position: absolute;
   top: 0;
   right: 0;
 }
-.sync-viewport-container .port-contral .v-icon {
+.sync-viewport-win .port-contral .v-icon {
   font-size: 19px;
   line-height: 20px;
 }
-.sync-viewport-container .port-title {
+.sync-viewport-win .port-title {
   height: 25px;
   left: 20px;
   text-align: center;
@@ -233,23 +258,14 @@ export default class ViewPort extends Vue {
     color-stop(0.83, #afafaf)
   );
 }
-.sync-viewport-container .port-title:hover {
+.sync-viewport-win .port-title:hover {
   cursor: move;
 }
 .sync-viewport-container webview {
   background-color: #fff;
   height: calc(100% - 35px);
 }
-.sync-viewport-container.is-pointer-down {
-  z-index: 3;
-  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.34);
-  opacity: 0.7;
-}
-.sync-viewport-container.current {
-  resize: both;
-  z-index: 2;
-  box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.34);
-}
+
 .sync-viewport-bar {
   height: 35px;
   width: 100%;
