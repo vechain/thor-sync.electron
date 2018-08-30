@@ -27,7 +27,7 @@
         </v-flex>
       </v-layout>
     </v-container>
-    <webview ref="webview" autosize :preload="preload" :src="url"></webview>
+    <webview v-poster autosize :preload="preload" :src="url"></webview>
   </div>
 </template>
 
@@ -47,6 +47,9 @@ export interface portData {
   directives: {
     drag: {
       unbind(ele, binding, vnode) {
+        if (!binding.value) {
+          return
+        }
         let ctx = vnode.context as any
         let draggie = ctx.draggie
         draggie.destroy()
@@ -71,6 +74,28 @@ export interface portData {
           vnode.context.$emit('switch-view', vnode.context.instanceId)
         })
       }
+    },
+    poster: {
+      bind(ele: any, binding: any, vnode: any) {
+        ele.addEventListener('page-title-updated', vnode.context.titleUpdate)
+        ele.addEventListener(
+          'page-favicon-updated',
+          vnode.context.faviconUpdate
+        )
+        ele.addEventListener('new-window', vnode.context.newTab)
+      },
+      unbind(ele, binding, vnode) {
+        let ctx = vnode.context as any
+        ele.removeEventListener('new-window', ctx.newTab)
+        ele.removeEventListener(
+          'page-title-updated',
+          ctx.titleUpdate
+        )
+        ele.removeEventListener(
+          'page-favicon-updated',
+          ctx.faviconUpdate
+        )
+      }
     }
   }
 })
@@ -90,7 +115,6 @@ export default class ViewPort extends Vue {
   isFullSize: boolean = false
 
   draggie: any
-  webview?: WebviewTag
   winResizeEnd: any
 
   back() {
@@ -108,6 +132,7 @@ export default class ViewPort extends Vue {
     }
     this.$emit('new-tab', data)
   }
+
   onWindowResizeEnd(event: any) {
     window.clearTimeout(this.winResizeEnd)
     let _this = this
@@ -124,10 +149,12 @@ export default class ViewPort extends Vue {
       _this.draggie.setPosition(x, y)
     }, 150)
   }
+
   faviconUpdate(event: Electron.PageFaviconUpdatedEvent) {
+    let wv = event.target as WebviewTag
     let data: portData = {
       portId: this.instanceId,
-      contentId: (this.webview as any).getWebContents().id,
+      contentId: wv.getWebContents().id,
       icons: event.favicons
     }
 
@@ -135,36 +162,21 @@ export default class ViewPort extends Vue {
   }
 
   titleUpdate(event: Electron.PageTitleUpdatedEvent) {
+    let wv = event.target as WebviewTag
     let data: portData = {
       portId: this.instanceId,
-      contentId: (this.webview as any).getWebContents().id,
+      contentId: wv.getWebContents().id,
       title: event.title
     }
     this.title = event.title
     this.$emit('title-updated', data)
   }
+
   newTab(evnet: Electron.NewWindowEvent) {
     let data: portData = {
       url: (event as any).url
     }
     this.$emit('new-tab', data)
-  }
-  mounted() {
-    this.webview = this.$refs['webview'] as WebviewTag
-    this.webview.addEventListener('page-title-updated', this.titleUpdate)
-    this.webview.addEventListener('page-favicon-updated', this.faviconUpdate)
-    this.webview.addEventListener('new-window', this.newTab)
-  }
-  destoryed() {
-    ;(this.webview as any).removeEventListfener('new-window', this.newTab)
-    ;(this.webview as any).removeEventListfener(
-      'page-title-updated',
-      this.titleUpdate
-    )
-    ;(this.webview as any).removeEventListfener(
-      'page-favicon-updated',
-      this.faviconUpdate
-    )
   }
 }
 </script>
