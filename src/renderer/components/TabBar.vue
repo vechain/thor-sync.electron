@@ -1,6 +1,7 @@
 <template>
   <div class="sync-tab-bar">
-    <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}" v-for="item in tabs" :key="item.portId">
+    <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}"
+      v-for="item in tabs" :key="item.portId">
       <div class="tab-container" :title="item.title">
         <img :src="item.icon">
         <span>{{item.title}}</span>
@@ -54,8 +55,9 @@ export default class Tabbar extends Vue {
   background-color: rgb(220, 226, 228);
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  // border-color: transparent;
   border: 1px solid #eee;
+  width: 200px;
+  // background-color: #00796b;
   cursor: normal;
 }
 .sync-tab.current-tab {
@@ -78,6 +80,7 @@ export default class Tabbar extends Vue {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  cursor: normal;
 }
 .tab-close {
   color: rgba(0, 0, 0, 0.29);

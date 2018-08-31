@@ -84,12 +84,22 @@ export interface portData {
         ele.addEventListener('page-title-updated', ctx.titleUpdate)
         ele.addEventListener('page-favicon-updated', ctx.faviconUpdate)
         ele.addEventListener('new-window', ctx.newTab)
+        ele.addEventListener('did-start-loading', ctx.updateLoadingStatus)
+        ele.addEventListener('load-commit', ctx.updateLoadingStatus)
+        ele.addEventListener('did-finish-load', ctx.updateLoadingStatus)
+        ele.addEventListener('did-stop-loading', ctx.updateLoadingStatus)
+        ele.addEventListener('did-fail-loading', ctx.updateLoadingStatus)
       },
       unbind(ele: Element, binding: VNodeDirective, vnode: VNode) {
         let ctx = vnode.context as any
         ele.removeEventListener('new-window', ctx.newTab)
         ele.removeEventListener('page-title-updated', ctx.titleUpdate)
         ele.removeEventListener('page-favicon-updated', ctx.faviconUpdate)
+        ele.removeEventListener('did-start-loading', ctx.updateLoadingStatus)
+        ele.removeEventListener('load-commit', ctx.updateLoadingStatus)
+        ele.removeEventListener('did-finish-load', ctx.updateLoadingStatus)
+        ele.removeEventListener('did-stop-loading', ctx.updateLoadingStatus)
+        ele.removeEventListener('did-fail-loading', ctx.updateLoadingStatus) 
       }
     }
   }
@@ -111,6 +121,8 @@ export default class ViewPort extends Vue {
   emitFavUpdate(data: portData) {}
   @Emit('title-updated')
   emitTitleUpdate(data: portData) {}
+  @Emit('load-status-update')
+  emitStatusUpdate(data: portData) {}
 
   preload: string = 'file:///' + (window as any).__preload
   origin: string = ''
@@ -124,10 +136,6 @@ export default class ViewPort extends Vue {
   get partition() {
     let _url = new URL(this.url)
     return `${_url.host}`
-  }
-
-  back() {
-    console.log('back')
   }
 
   toggleFullSize() {
@@ -149,6 +157,10 @@ export default class ViewPort extends Vue {
       }
       _this.draggie.setPosition(x, y)
     }, 150)
+  }
+
+  updateLoadingStatus(event: Electron.Event) {
+    console.log(event)
   }
 
   faviconUpdate(event: Electron.PageFaviconUpdatedEvent) {

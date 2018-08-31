@@ -91,10 +91,6 @@ body {
 .sync-drag-zone {
   -webkit-app-region: drag;
 }
-.sync-tab {
-  width: 200px;
-  background-color: #00796b;
-}
 .sync-container {
   height: calc(100% - 41px);
   position: relative;
