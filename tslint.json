@@ -13,6 +13,8 @@
     "no-consecutive-blank-lines": false,
     "no-namespace": false,
     "max-classes-per-file": false,
-    "arrow-parens": false
+    "arrow-parens": false,
+    "interface-over-type-literal": false,
+    "trailing-comma" : false
   }
 }
