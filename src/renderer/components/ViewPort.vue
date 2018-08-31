@@ -11,7 +11,7 @@
           <v-icon @click.stop="toggleFullSize">picture_in_picture_alt</v-icon>
         </v-flex>
         <v-flex>
-          <v-icon @click.stop="closeWin">close</v-icon>
+          <v-icon @click.stop="emitCloseWin(instanceId)">close</v-icon>
         </v-flex>
       </v-layout>
     </v-container>
@@ -20,21 +20,22 @@
         <v-flex>
         </v-flex>
         <v-flex>
-          <v-text-field v-model="origin" :placeholder="url" @keyup.enter="openTab" background-color="white" prepend-inner-icon="search"
-            single-line class="mt-0" :hide-details="true"></v-text-field>
+          <v-text-field v-model="origin" :placeholder="url" @keyup.enter="emitNewTab({ url: origin })" background-color="white"
+            prepend-inner-icon="search" single-line class="mt-0" :hide-details="true"></v-text-field>
         </v-flex>
         <v-flex>
         </v-flex>
       </v-layout>
     </v-container>
-    <webview v-poster autosize :preload="preload" :src="url"></webview>
+    <webview :partition="partition" v-poster autosize :preload="preload" :src="url"></webview>
   </div>
 </template>
 
 <script lang="ts">
 const Dragable = require('draggabilly')
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator'
 import { WebviewTag } from 'electron'
+import { VNodeDirective, VNode } from 'vue'
 
 export interface portData {
   portId?: number
@@ -46,7 +47,7 @@ export interface portData {
 @Component({
   directives: {
     drag: {
-      unbind(ele, binding, vnode) {
+      unbind(ele: Element, binding: VNodeDirective, vnode: VNode) {
         if (!binding.value) {
           return
         }
@@ -55,46 +56,40 @@ export interface portData {
         draggie.destroy()
         window.removeEventListener('resize', ctx.onWindowResizeEnd)
       },
-      bind(ele: any, binding: any, vnode: any) {
+      bind(ele: Element, binding: VNodeDirective, vnode: VNode) {
         if (!binding.value) {
           return
         }
 
-        window.addEventListener('resize', vnode.context.onWindowResizeEnd)
+        let ctx = vnode.context as any
+
+        window.addEventListener('resize', ctx.onWindowResizeEnd)
         let opts = {
           containment: '.sync-container',
           handle: '.port-title'
         }
-        vnode.context.draggie = new Dragable(ele, opts)
-        vnode.context.draggie.setPosition(20, 20)
-        vnode.context.draggie.on('staticClick', function() {
-          vnode.context.$emit('switch-view', vnode.context.instanceId)
+        ctx.draggie = new Dragable(ele, opts)
+        ctx.draggie.setPosition(20, 20)
+        ctx.draggie.on('staticClick', function() {
+          ctx.$emit('switch-view', ctx.instanceId)
         })
-        vnode.context.draggie.on('dragStart', function() {
-          vnode.context.$emit('switch-view', vnode.context.instanceId)
+        ctx.draggie.on('dragStart', function() {
+          ctx.$emit('switch-view', ctx.instanceId)
         })
       }
     },
     poster: {
-      bind(ele: any, binding: any, vnode: any) {
-        ele.addEventListener('page-title-updated', vnode.context.titleUpdate)
-        ele.addEventListener(
-          'page-favicon-updated',
-          vnode.context.faviconUpdate
-        )
-        ele.addEventListener('new-window', vnode.context.newTab)
+      bind(ele: Element, binding: VNodeDirective, vnode: VNode) {
+        let ctx = vnode.context as any
+        ele.addEventListener('page-title-updated', ctx.titleUpdate)
+        ele.addEventListener('page-favicon-updated', ctx.faviconUpdate)
+        ele.addEventListener('new-window', ctx.newTab)
       },
-      unbind(ele, binding, vnode) {
+      unbind(ele: Element, binding: VNodeDirective, vnode: VNode) {
         let ctx = vnode.context as any
         ele.removeEventListener('new-window', ctx.newTab)
-        ele.removeEventListener(
-          'page-title-updated',
-          ctx.titleUpdate
-        )
-        ele.removeEventListener(
-          'page-favicon-updated',
-          ctx.faviconUpdate
-        )
+        ele.removeEventListener('page-title-updated', ctx.titleUpdate)
+        ele.removeEventListener('page-favicon-updated', ctx.faviconUpdate)
       }
     }
   }
@@ -108,6 +103,15 @@ export default class ViewPort extends Vue {
   @Prop({ default: false })
   private draggable!: boolean
 
+  @Emit('close')
+  emitCloseWin(id: number) {}
+  @Emit('new-tab')
+  emitNewTab(data: portData) {}
+  @Emit('favicon-updated')
+  emitFavUpdate(data: portData) {}
+  @Emit('title-updated')
+  emitTitleUpdate(data: portData) {}
+
   preload: string = 'file:///' + (window as any).__preload
   origin: string = ''
   title: string = ''
@@ -117,20 +121,17 @@ export default class ViewPort extends Vue {
   draggie: any
   winResizeEnd: any
 
+  get partition() {
+    let _url = new URL(this.url)
+    return `${_url.host}`
+  }
+
   back() {
     console.log('back')
   }
+
   toggleFullSize() {
     this.isFullSize = !this.isFullSize
-  }
-  closeWin() {
-    this.$emit('close', this.instanceId)
-  }
-  openTab() {
-    let data: portData = {
-      url: this.origin
-    }
-    this.$emit('new-tab', data)
   }
 
   onWindowResizeEnd(event: any) {
@@ -158,7 +159,7 @@ export default class ViewPort extends Vue {
       icons: event.favicons
     }
 
-    this.$emit('favicon-updated', data)
+    this.emitFavUpdate(data)
   }
 
   titleUpdate(event: Electron.PageTitleUpdatedEvent) {
@@ -169,14 +170,14 @@ export default class ViewPort extends Vue {
       title: event.title
     }
     this.title = event.title
-    this.$emit('title-updated', data)
+    this.emitTitleUpdate(data)
   }
 
   newTab(evnet: Electron.NewWindowEvent) {
     let data: portData = {
       url: (event as any).url
     }
-    this.$emit('new-tab', data)
+    this.emitNewTab(data)
   }
 }
 </script>
