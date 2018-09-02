@@ -6,23 +6,67 @@
       <viewport class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
         :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
         @new-tab="newTab" @switch-view="switchTab" @close="onremove" />
+      <DApps :list="apps" />
     </div>
   </div>
 </template>
 <script lang="ts">
 import Tabbar from './components/tabBar.vue'
 import { Component, Vue } from 'vue-property-decorator'
-import viewport, { portData } from './components/ViewPort.vue'
+import ViewPort, { portData } from './components/ViewPort.vue'
+import DApps from './components/AppList.vue'
 
 @Component({
   components: {
     Tabbar,
-    viewport
+    ViewPort,
+    DApps
   }
 })
 export default class App extends Vue {
-  private ports: portData[] = [{ portId: Date.now() }]
-  private currentPortId?: number = this.ports[0]['portId']
+  private ports: portData[] = []
+  private currentPortId?: number = this.ports.length ? this.ports[0]['portId']: 0
+  private apps: object[] = [
+    {
+      name: 'APP1',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP2',
+      url: 'https://baidu.com',
+      icon: ''
+    },{
+      name: 'APP3',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP4',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP4',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP4',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP4',
+      url: 'https://baidu.com',
+      icon: ''
+    },
+    {
+      name: 'APP4',
+      url: 'https://baidu.com',
+      icon: ''
+    }
+  ]
 
   public addPort(data: portData) {
     let now = Date.now()
