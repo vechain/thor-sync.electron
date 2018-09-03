@@ -1,11 +1,14 @@
 <template>
   <div class="sync-tab-bar">
-    <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}"
-      v-for="item in tabs" :key="item.portId">
-      <div class="tab-container" :title="item.title">
-        <img :src="item.icon">
-        <span>{{item.title}}</span>
-        <v-icon @click.stop.prevent="popClose(item.portId, item.contentId)" class="tab-close">close</v-icon>
+    <slot/>
+    <div class="sync-tabs">
+      <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}"
+        v-for="item in tabs" :key="item.portId">
+        <div class="tab-container" :title="item.title">
+          <img :src="item.icon">
+          <span>{{item.title}}</span>
+          <v-icon @click.stop.prevent="popClose(item.portId, item.contentId)" class="tab-close">close</v-icon>
+        </div>
       </div>
     </div>
   </div>
@@ -38,7 +41,8 @@ export default class Tabbar extends Vue {
   transition: padding-left 300ms ease-in-out;
   border-bottom: 1px solid #eee;
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
+  justify-content: space-between;
 }
 .darwin .sync-tab-bar {
   padding-left: 80px;
@@ -85,5 +89,9 @@ export default class Tabbar extends Vue {
 .tab-close {
   color: rgba(0, 0, 0, 0.29);
   font-size: 18px;
+}
+.sync-tabs {
+  display: grid;
+  grid-auto-columns: 1fr;
 }
 </style>

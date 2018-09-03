@@ -1,12 +1,24 @@
 <template>
   <div id="app">
-    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId" @close="onremove"
-    />
+    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId"
+    @close="onremove">
+    <div class="tab-tools">
+      <span>NOTIFICATIONS</span>
+    </div>
+    </Tabbar>
     <div class="sync-container">
-      <viewport class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
+      <view-port class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
         :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
         @new-tab="newTab" @switch-view="switchTab" @close="onremove" />
-      <DApps :list="apps" />
+      <DApps v-show="!ports.length" class="default-content" :list="apps">
+        <div class="search">
+          <v-text-field @keyup.enter="openTab" v-model="search"
+            label="Solo"
+            placeholder="Placeholder"
+            solo
+          ></v-text-field>
+        </div>
+      </DApps>
     </div>
   </div>
 </template>
@@ -26,6 +38,7 @@ import DApps from './components/AppList.vue'
 export default class App extends Vue {
   private ports: portData[] = []
   private currentPortId?: number = this.ports.length ? this.ports[0]['portId']: 0
+  private search?: string = ''
   private apps: object[] = [
     {
       name: 'APP1',
@@ -87,6 +100,12 @@ export default class App extends Vue {
     this.currentPortId = portId
   }
 
+  public openTab() {
+    this.addPort({
+      url: this.search
+    })
+  }
+
   public newTab(data: portData) {
     this.addPort({
       url: data.url
@@ -141,5 +160,17 @@ body {
 }
 .sync-container .viewport-layout {
   position: absolute;
+}
+.sync-dapp-list.default-content {
+  width: 75%;
+  max-width: 1000px;
+  margin: 50px auto;
+}
+.sync-dapp-list.default-content .search {
+  margin: 50px auto 50px;
+  width: 70%;
+}
+.tab-tools {
+  float: right;
 }
 </style>
