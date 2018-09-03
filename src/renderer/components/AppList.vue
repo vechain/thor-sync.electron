@@ -1,10 +1,14 @@
 <template>
   <div class="sync-dapp-list">
-    <slot/>
-    <div class="dapp-item" @click.stop="openDapp" v-for="item in list" :key="item.id">
-      <div>
-        <img :src="item.icon">
-        <span>{{item.name}}</span>
+    <div>
+      <slot/>
+      <div class="dapp-container">
+        <div class="dapp-item" @click.stop="openDapp" v-for="item in list" :key="item.id">
+          <div>
+            <img :src="item.icon">
+            <span>{{item.name}}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -20,18 +24,14 @@ export interface DApp {
 
 @Component
 export default class DApps extends Vue {
-  @Prop()
-  private list!: DApp[]
+  @Prop() private list!: DApp[]
 
   @Emit('open-dapp')
   openDapp() {}
 }
 </script>
 <style lang="scss" scoped>
-.sync-dapp-list {
-  width: 75%;
-  margin: auto;
-  max-width: 1000px;
+.sync-dapp-list div.dapp-container {
   display: grid;
   grid-template-columns: 160px 160px 160px 160px 160px 160px;
   grid-column-gap: 20px;
@@ -46,6 +46,11 @@ export default class DApps extends Vue {
     display: block;
     border: none;
     outline: none;
+  }
+}
+@media screen and (max-width: 1200px) {
+  .sync-dapp-list div.dapp-container {
+    grid-template-columns: 160px 160px 160px 160px;
   }
 }
 </style>

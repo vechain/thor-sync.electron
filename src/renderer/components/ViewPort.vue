@@ -216,6 +216,12 @@ export default class ViewPort extends Vue {
   box-shadow: 4px 4px 20px 0px rgba(0, 0, 0, 0.3);
   opacity: 0.7;
 }
+.sync-viewport-container:not(.sync-viewport-win) {
+  visibility: hidden;
+}
+.sync-viewport-container:not(.sync-viewport-win).current {
+  visibility: visible;
+}
 .sync-viewport-win.current {
   resize: both;
   z-index: 2;
