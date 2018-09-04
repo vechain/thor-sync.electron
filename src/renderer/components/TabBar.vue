@@ -93,5 +93,6 @@ export default class Tabbar extends Vue {
 .sync-tabs {
   display: grid;
   grid-auto-columns: 1fr;
+  grid-auto-flow: column;
 }
 </style>
