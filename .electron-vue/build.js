@@ -8,9 +8,9 @@ const del = require('del')
 const webpack = require('webpack')
 const Multispinner = require('multispinner')
 
-
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
+const dappsConfig = require('./webpack.dapps.config')
 // const webConfig = require('./webpack.web.config')
 
 const doneLog = chalk.bgGreen.white(' DONE ') + ' '
@@ -33,7 +33,7 @@ function build () {
 
   del.sync(['dist/electron/*', '!.gitkeep'])
 
-  const tasks = ['main', 'renderer']
+  const tasks = ['main', 'DApps', 'renderer']
   const m = new Multispinner(tasks, {
     preText: 'building',
     postText: 'process'
@@ -63,6 +63,16 @@ function build () {
     m.success('renderer')
   }).catch(err => {
     m.error('renderer')
+    console.log(`\n  ${errorLog}failed to build renderer process`)
+    console.error(`\n${err}\n`)
+    process.exit(1)
+  })
+
+  pack(dappsConfig).then(result => {
+    results += result + '\n\n'
+    m.success('DApps')
+  }).catch(err => {
+    m.error('DApps')
     console.log(`\n  ${errorLog}failed to build renderer process`)
     console.error(`\n${err}\n`)
     process.exit(1)
