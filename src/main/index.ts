@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
 import { init } from '@/base'
 import { createWin } from '@/main/windows'
 
