@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const configs = {
   development: {
     dataPath: 'home',
@@ -22,6 +23,19 @@ function getApp() {
     return require('electron').remote.app
   } else {
     return require('electron').app
+  }
+}
+
+export const getDApps = function(): string[] {
+  if (process.env.NODE_ENV === 'development') {
+    return fs.readdirSync(path.join(__dirname, '../dapps'))
+  } else {
+    let apps = fs.readFileSync(path.join(__dirname, '/electron/dapps/'))
+    return apps.filter((item: string) => {
+      return /\.html/.test(item)
+    }).map((item: string) => {
+      return item.split('.')[0]
+    })
   }
 }
 

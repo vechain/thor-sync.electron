@@ -11,11 +11,14 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
+const dappsConfig = require('./webpack.dapps.config')
 process.env.DIST_PATH = path.join(__dirname, '../dist')
+process.env.dappPort = '9090'
 
 let electronProcess = null
 let manualRestart = false
 let hotMiddleware
+let subHotMiddleware
 
 function logStats (proc, data) {
   let log = ''
@@ -39,14 +42,56 @@ function logStats (proc, data) {
   console.log(log)
 }
 
+function startDapps() {
+  return new Promise((resolve, reject) => {
+    Object.keys(dappsConfig.entry).forEach(item => {
+      dappsConfig.entry[item] = [path.join(__dirname, 'dev-client')].concat(dappsConfig.entry[item])
+    })
+
+    const compiler = webpack(dappsConfig)
+
+    subHotMiddleware = webpackHotMiddleware(compiler, {
+      log: false,
+      heartbeat: 2500
+    })
+
+    compiler.plugin('compilation', compilation => {
+      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
+        subHotMiddleware.publish({ action: 'reload' })
+        cb()
+      })
+    })
+
+    compiler.plugin('done', stats => {
+      logStats('Renderer', stats)
+    })
+
+    const server = new WebpackDevServer(
+      compiler,
+      {
+        contentBase: path.join(__dirname, '../'),
+        quiet: true,
+        before(app, ctx) {
+          app.use(subHotMiddleware)
+          ctx.middleware.waitUntilValid(() => {
+            resolve()
+          })
+        }
+      }
+    )
+
+    server.listen(process.env.dappPort)
+  })
+}
+
 function startRenderer () {
   return new Promise((resolve, reject) => {
     rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
 
     const compiler = webpack(rendererConfig)
-    hotMiddleware = webpackHotMiddleware(compiler, { 
-      log: false, 
-      heartbeat: 2500 
+    hotMiddleware = webpackHotMiddleware(compiler, {
+      log: false,
+      heartbeat: 2500
     })
 
     compiler.plugin('compilation', compilation => {
@@ -166,8 +211,7 @@ function greeting () {
 
 function init () {
   greeting()
-
-  Promise.all([startRenderer(), startMain()])
+  Promise.all([startRenderer(), startDapps(), startMain()])
     .then(() => {
       startElectron()
     })
