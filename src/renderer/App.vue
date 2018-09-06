@@ -1,34 +1,42 @@
 <template>
   <div id="app">
-    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId"
-    @close="onremove">
-    <div class="tab-tools">
-      <span>NOTIFICATIONS</span>
-    </div>
+    <Tabbar @switch="switchTab" class="sync-drag-zone" :tabs="ports" :currentTab="currentPortId" @close="onremove">
+      <div class="tab-tools">
+        <span>NOTIFICATIONS</span>
+      </div>
     </Tabbar>
     <div class="sync-container">
       <view-port class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
         :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
         @new-tab="newTab" @switch-view="switchTab" @close="onremove" />
-      <DApps v-show="!ports.length" class="default-content" :list="apps">
+      <DApps @open-dapp="addPort" v-show="!ports.length" class="default-content" :list="apps">
         <div class="search">
-          <v-text-field @keyup.enter="openTab" v-model="search"
-            label="Solo"
-            placeholder="Placeholder"
-            solo
-          ></v-text-field>
+          <v-text-field @keyup.enter="openTab" v-model="search" label="Solo" placeholder="Placeholder" solo></v-text-field>
         </div>
       </DApps>
     </div>
   </div>
 </template>
 <script lang="ts">
-import Tabbar from './components/tabBar.vue'
 import { Component, Vue } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
+import { mapActions, mapState } from 'vuex'
+
+import Tabbar from './components/tabBar.vue'
 import ViewPort, { portData } from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
+import { app } from 'electron'
 
 @Component({
+  created() {
+    ;(this as any).getBuildInDapps().then((apps: object[]) => {
+      // console.log(apps)
+      (this as any).apps = apps
+    })
+  },
+  methods: {
+    ...mapActions(['getBuildInDapps'])
+  },
   components: {
     Tabbar,
     ViewPort,
@@ -37,55 +45,25 @@ import DApps from './components/AppList.vue'
 })
 export default class App extends Vue {
   private ports: portData[] = []
-  private currentPortId?: number = this.ports.length ? this.ports[0]['portId']: 0
+  private currentPortId?: number = this.ports.length
+    ? this.ports[0]['portId']
+    : 0
   private search?: string = ''
-  private apps: object[] = [
-    {
-      name: 'APP1',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP2',
-      url: 'https://baidu.com',
-      icon: ''
-    },{
-      name: 'APP3',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP4',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP4',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP4',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP4',
-      url: 'https://baidu.com',
-      icon: ''
-    },
-    {
-      name: 'APP4',
-      url: 'https://baidu.com',
-      icon: ''
-    }
-  ]
+  private apps: object[] = []
 
+  // @Action('getBuildInDapps') buildinApps: Function
+
+  // public created() {
+  //   console.log(this.getBuildInDapps())
+  // }
   public addPort(data: portData) {
     let now = Date.now()
     this.currentPortId = now
     this.ports.push({ portId: data.portId || now, url: data.url })
   }
+  // public checkout() {
+  //   this.buildinApps()
+  // }
 
   public updateTitle(data: portData) {
     let index = this.ports.findIndex(item => {

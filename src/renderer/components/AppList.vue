@@ -3,7 +3,7 @@
     <div>
       <slot/>
       <div class="dapp-container">
-        <div class="dapp-item" @click.stop="openDapp" v-for="item in list" :key="item.id">
+        <div class="dapp-item" @click.stop="openDapp({url: item.url})" v-for="item in list" :key="item.id">
           <div>
             <img :src="item.icon">
             <span>{{item.name}}</span>
@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
+import { portData } from './ViewPort.vue'
 export interface DApp {
   icon: string
   url: string
@@ -27,7 +28,7 @@ export default class DApps extends Vue {
   @Prop() private list!: DApp[]
 
   @Emit('open-dapp')
-  openDapp() {}
+  openDapp(data: portData) {}
 }
 </script>
 <style lang="scss" scoped>
