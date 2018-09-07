@@ -30,7 +30,7 @@ export const getDApps = function(): string[] {
   if (process.env.NODE_ENV === 'development') {
     return fs.readdirSync(path.join(__dirname, '../dapps'))
   } else {
-    let apps = fs.readFileSync(path.join(__dirname, '/electron/dapps/'))
+    let apps = fs.readdirSync(path.join(__dirname, '/dapps'))
     return apps.filter((item: string) => {
       return /\.html/.test(item)
     }).map((item: string) => {
