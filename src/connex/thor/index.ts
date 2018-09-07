@@ -13,13 +13,21 @@ export function create(
 ): Thor {
 
     const ep = new Endpoint(baseURL)
-    if (!ticker) {
-        ticker = Subscription.create(ep, 'block', {}).next
-    }
-
     return {
         get genesis() { return genesis },
-        nextTick() { return ticker!() },
+        async nextTick() {
+            for (; ;) {
+                if (!ticker) {
+                    ticker = Subscription.create(ep, 'block', {}).next
+                }
+                try {
+                    return await ticker()
+                } catch {
+                    ticker = undefined
+                    await new Promise(resolve => setTimeout(resolve, 10 * 1000))
+                }
+            }
+        },
         account(
             addr: string,
             revision?: string | number) {
