@@ -1,4 +1,3 @@
-
 declare interface Connex {
     readonly user: Connex.User
     readonly thor: Connex.Thor
@@ -6,69 +5,115 @@ declare interface Connex {
 }
 
 declare namespace Connex {
-    export interface User {
+    interface User {
         readonly address: string
-        sign(clauses: Thor.Clause[]): Promise<string>
+        sign<T extends 'tx'>(target: T, clauses: Thor.Clause[]): Promise<string>
     }
 
-    export interface Thor {
+    interface Thor {
         readonly genesis: string
 
-        account(addr: string, revision?: string | number): Thor.AccountVisitor
-        block(revision: string | number): Thor.BlockVisitor
-        tx(id: string, head?: string): Thor.TransactionVisitor
-        log<T extends Thor.Log.Kind>(
-            kind: T, criteria: Array<Thor.Log.Criteria<T>>): Thor.LogVisitor<T>
+        nextTick(): Promise<Thor.Block>
 
-        subscribe<T extends Thor.Subscription.Subject>(
-            subject: T, criteria: Thor.Subscription.Criteria<T>): Thor.Subscription<T>
+        account(
+            addr: string,
+            revision?: string | number
+        ): Thor.AccountVisitor
 
-        exec(clause: Thor.Clause): Promise<Thor.ExecutionOutput>
-        commit(rawTx: string): Promise<Thor.TransactionVisitor>
+        block(
+            revision: string | number
+        ): Thor.BlockVisitor
+
+        transaction(
+            id: string,
+            head?: string
+        ): Thor.TransactionVisitor
+
+        filter<T extends 'event' | 'transfer'>(
+            kind: T,
+            criteriaSet: Array<Thor.Criteria<T>>
+        ): Thor.Filter<T>
+
+        subscribe<T extends 'event' | 'transfer' | 'block'>(
+            subject: T,
+            criteria: Thor.Criteria<T>
+        ): Thor.Subscription<T>
+
+        call(
+            input: Thor.VMInput,
+            revision?: string | number
+        ): Promise<Thor.VMOutput>
+
+        commit(
+            rawTx: string
+        ): Promise<Thor.TransactionVisitor>
     }
 
-    export namespace Thor {
-        export interface AccountVisitor {
+    namespace Thor {
+        interface AccountVisitor {
             readonly address: string
             readonly revision: string | number | undefined
             get(): Promise<Account>
-            exec(clause: Clause): Promise<ExecutionOutput>
+            code(): Promise<string>
+            storage(key: string): Promise<string>
+            call(input: VMInput): Promise<VMOutput>
+            method(abi: object): MethodVisitor
+            event(abi: object): EventVisitor
         }
 
-        export interface BlockVisitor {
+        interface MethodVisitor {
+            asClause(
+                args: any[],
+                value?: string | number): Clause
+            call(
+                args: any[],
+                value?: string | number,
+                caller?: string,
+                gas?: number,
+                gasPrice?: string): Promise<DecodedVMOutput>
+        }
+
+        interface EventVisitor {
+            asCriteria(indexed: object): Event.Criteria
+            filter(indexed: object[]): Filter<'decoded-event'>
+            subscribe(indexed: object): Subscription<'decoded-event'>
+        }
+
+        interface BlockVisitor {
             readonly revision: string | number
             get(): Promise<Block & { isTrunk: boolean }>
         }
 
-        export interface TransactionVisitor {
+        interface TransactionVisitor {
             readonly id: string
             readonly head: string | undefined
             get(): Promise<(Transaction & { meta: Transaction.Meta }) | null>
             receipt(): Promise<(Receipt & { meta: Transaction.Meta }) | null>
         }
 
-        export interface LogVisitor<T extends Log.Kind> {
-            readonly kind: Log.Kind
-            range(unit: 'block' | 'time', from: number, to: number): LogVisitor<T>
-            order(o: 'asc' | 'desc'): LogVisitor<T>
-            limit(offset: number, limit: number): LogVisitor<T>
-            get(): Promise<Array<Log<T>>>
+        interface Filter<T extends 'event' | 'transfer' | 'decoded-event'> {
+            readonly kind: T
+            range(unit: 'block' | 'time', from: number, to: number): Filter<T>
+            order(order: 'asc' | 'desc'): Filter<T>
+            offset(offset: number): Filter<T>
+            next(limit: number): Promise<Log<T>[]>
         }
 
-        export interface Subscription<T extends Subscription.Subject> {
-            readonly subject: Subscription.Subject
+        interface Subscription<T extends 'event' | 'block' | 'transfer' | 'decoded-event'> {
+            readonly subject: T
             next(): Promise<Subscription.Message<T>>
             unsubscribe(): void
         }
-
+    }
+    namespace Thor {
         ///////
-        export type Account = {
+        type Account = {
             balance: string
             energy: string
             hasCode: boolean
         }
 
-        export type Block = {
+        type Block = {
             id: string
             number: number
             size: number
@@ -85,13 +130,13 @@ declare namespace Connex {
             transactions: string[]
         }
 
-        export type Clause = {
+        type Clause = {
             to: string
             value: string
             data: string
         }
 
-        export type Transaction = {
+        type Transaction = {
             id: string
             chainTag: number
             blockRef: string
@@ -104,15 +149,15 @@ declare namespace Connex {
             dependsOn: string | null
             size: number
         }
-        export namespace Transaction {
-            export type Meta = {
+        namespace Transaction {
+            type Meta = {
                 blockID: string
                 blockNumber: number
                 blockTimestamp: number
             }
         }
 
-        export type Receipt = {
+        type Receipt = {
             gasUsed: number
             gasPayer: string
             paid: string
@@ -121,22 +166,23 @@ declare namespace Connex {
             outputs: Receipt.Output[]
         }
 
-        export namespace Receipt {
-            export type Output = {
+        namespace Receipt {
+            type Output = {
                 contractAddress: string | null
                 events: Event[]
                 transfers: Transfer[]
             }
         }
 
-        export type Event = {
+        type Event = {
             address: string
             topics: string[]
             data: string
         }
 
-        export namespace Event {
-            export type Criteria = {
+        namespace Event {
+            type Criteria = {
+                address?: string
                 topic0?: string
                 topic1?: string
                 topic2?: string
@@ -145,56 +191,79 @@ declare namespace Connex {
             }
         }
 
-        export type Transfer = {
+        type DecodedEvent = {
+            decoded: object
+        } & Event
+
+
+        type Transfer = {
             sender: string
             recipient: string
             amount: string
         }
 
-        export namespace Transfer {
-            export type Criteria = {
+        namespace Transfer {
+            type Criteria = {
                 txOrigin?: string
                 sender?: string
                 recipient?: string
             }
         }
 
-        export type Log<T extends Log.Kind> =
-            (T extends 'event' ? Event : Transfer) & { meta: Log.Meta }
+        type Criteria<T extends 'event' | 'transfer' | 'block'> =
+            { position?: string } &
+            (T extends 'event' ? Event.Criteria :
+                T extends 'transfer' ? Transfer.Criteria : {})
 
-        export namespace Log {
-            export type Kind = 'event' | 'transfer'
-            export type Meta = {
+        type Log<T extends 'event' | 'transfer' | 'decoded-event'> =
+            { meta: Log.Meta } & (
+                T extends 'event' ? Event :
+                T extends 'transfer' ? Transfer : DecodedEvent)
+
+        namespace Log {
+            type Meta = {
                 blockID: string
                 blockNumber: number
                 blockTimestamp: number
                 txID: string
                 txOrigin: string
             }
-            export type Criteria<T extends Kind> =
-                T extends 'event' ? Event.Criteria : Transfer.Criteria
         }
-        export namespace Subscription {
-            export type Subject = 'event' | 'transfer' | 'block'
-            export type Criteria<T extends Subject> =
-                (T extends Log.Kind ? Log.Criteria<T> : {}) & { position?: string }
-            export type Message<T extends Subject> =
-                (T extends Log.Kind ? Log<T> : Block) & { obsolete: boolean }
+        namespace Subscription {
+            type Message<T extends 'block' | 'event' | 'transfer' | 'decoded-event'> =
+                { obsolete: boolean } & (
+                    T extends 'block' ? Block :
+                    T extends 'event' ? Event :
+                    T extends 'transfer' ? Transfer : DecodedEvent)
         }
 
-        export type ExecutionOutput = {
-            gasUsed: number
-            reverted: boolean
+        type VMInput = {
+            value?: string
+            data?: string
+            gas?: number
+            gasPrice?: string
+            caller?: string
+        }
+
+        type VMOutput = {
             data: string
             vmError: string
+            gasUsed: number
+            reverted: boolean
             events: Event[]
             transfers: Transfer[]
         }
+
+        type DecodedVMOutput = {
+            decoded: object
+        } & VMOutput
     }
 
-    export interface Toolkit {
+    interface Toolkit {
     }
 
-    export namespace Toolkit {
+    namespace Toolkit {
     }
 }
+
+
