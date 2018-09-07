@@ -51,19 +51,11 @@ export default class App extends Vue {
   private search?: string = ''
   private apps: object[] = []
 
-  // @Action('getBuildInDapps') buildinApps: Function
-
-  // public created() {
-  //   console.log(this.getBuildInDapps())
-  // }
   public addPort(data: portData) {
     let now = Date.now()
     this.currentPortId = now
     this.ports.push({ portId: data.portId || now, url: data.url })
   }
-  // public checkout() {
-  //   this.buildinApps()
-  // }
 
   public updateTitle(data: portData) {
     let index = this.ports.findIndex(item => {

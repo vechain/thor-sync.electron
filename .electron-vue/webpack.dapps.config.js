@@ -4,7 +4,6 @@ const path = require('path')
 const webpack = require('webpack')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const DApps = require('./dapps')
 
@@ -123,12 +122,6 @@ if (process.env.NODE_ENV === 'production') {
   let plugins = [
     new webpack.DefinePlugin({
       'process.env': '"production"'
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      },
-      sourceMap: false
     }),
     new ExtractTextPlugin({
       filename: 'css/[name].[contenthash].css'
