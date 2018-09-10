@@ -12,7 +12,7 @@ declare namespace Connex {
 
     interface Thor {
         readonly genesisBlock: Thor.Block
-        readonly bestBlock: Thor.Block        
+        readonly bestBlock: Thor.Block
         readonly syncProgress: number
         nextTick(): Promise<void>
 
@@ -80,7 +80,7 @@ declare namespace Connex {
 
         interface BlockVisitor {
             readonly revision: string | number
-            get(): Promise<Block & { isTrunk: boolean }>
+            get(): Promise<(Block & { isTrunk: boolean }) | null>
         }
 
         interface TransactionVisitor {

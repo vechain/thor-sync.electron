@@ -7,7 +7,7 @@ export function create(
     return {
         get revision() { return revision },
         get() {
-            return wire.get<Thor.Block & { isTrunk: boolean }>(
+            return wire.get<(Thor.Block & { isTrunk: boolean }) | null>(
                 `blocks/${encodeURIComponent(revision + '')}`)
         }
     }
