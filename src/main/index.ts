@@ -1,8 +1,14 @@
 import { app } from 'electron'
 import { init } from '@/base'
 import { createWin } from '@/main/windows'
+import { Backend } from '@/main/backend'
 
 function start() {
+  Object.defineProperty(app, 'backend', {
+    enumerable: true,
+    value: new Backend()
+  })
+
   init.folder()
   // init.copyThor()
   app.on('ready', createWin)
