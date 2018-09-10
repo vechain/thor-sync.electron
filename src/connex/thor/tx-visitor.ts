@@ -1,8 +1,7 @@
 import Thor = Connex.Thor
-import Endpoint from './endpoint'
 
 export function create(
-    ep: Endpoint,
+    wire: WireInterface,
     id: string,
     head?: string
 ): Thor.TransactionVisitor {
@@ -10,13 +9,13 @@ export function create(
         get id() { return id },
         get head() { return head },
         get() {
-            return ep.get<Thor.Transaction & { meta: Thor.Transaction.Meta }>(
+            return wire.get<Thor.Transaction & { meta: Thor.Transaction.Meta }>(
                 `transactions/${encodeURIComponent(id)}`,
                 { head }
             )
         },
         receipt() {
-            return ep.get<Thor.Receipt & { meta: Thor.Transaction.Meta }>(
+            return wire.get<Thor.Receipt & { meta: Thor.Transaction.Meta }>(
                 `transactions/${encodeURIComponent(id)}/receipt`,
                 { head }
             )

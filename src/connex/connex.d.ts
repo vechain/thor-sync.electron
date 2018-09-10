@@ -11,9 +11,10 @@ declare namespace Connex {
     }
 
     interface Thor {
-        readonly genesis: string
-
-        nextTick(): Promise<Thor.Block>
+        readonly genesisBlock: Thor.Block
+        readonly bestBlock: Thor.Block        
+        readonly syncProgress: number
+        nextTick(): Promise<void>
 
         account(
             addr: string,
@@ -67,10 +68,8 @@ declare namespace Connex {
                 value?: string | number): Clause
             call(
                 args: any[],
-                value?: string | number,
-                caller?: string,
-                gas?: number,
-                gasPrice?: string): Promise<DecodedVMOutput>
+                options?: VMOptions
+            ): Promise<DecodedVMOutput>
         }
 
         interface EventVisitor {
@@ -236,14 +235,16 @@ declare namespace Connex {
                     T extends 'event' ? Event :
                     T extends 'transfer' ? Transfer : DecodedEvent)
         }
-
-        type VMInput = {
+        type VMOptions = {
             value?: string
-            data?: string
             gas?: number
             gasPrice?: string
             caller?: string
         }
+
+        type VMInput = {
+            data?: string
+        } & VMOptions
 
         type VMOutput = {
             data: string

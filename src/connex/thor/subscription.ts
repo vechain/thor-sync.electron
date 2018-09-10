@@ -1,9 +1,9 @@
 import Thor = Connex.Thor
-import Endpoint from './endpoint'
 import * as WebSocket from 'ws'
+import * as URL from 'url'
 
 export function create<T extends 'event' | 'transfer' | 'block'>(
-    ep: Endpoint,
+    wire: WireInterface,
     subject: T,
     criteria: Thor.Criteria<T>
 ): Thor.Subscription<T> {
@@ -34,7 +34,14 @@ export function create<T extends 'event' | 'transfer' | 'block'>(
         throw new Error('invalid subject')
     }
 
-    const ws = ep.websocket(`subscriptions/${subject}`, query)
+    const url = wire.resolve(`subscriptions/${subject}`, query)
+    const parsed = URL.parse(url)
+    parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
+
+    const ws = new WebSocket(URL.format(parsed), {
+        agent: wire.agent,
+        headers: { 'x-genesis-id': wire.genesisId }
+    })
     return {
         get subject() { return subject },
         next() {

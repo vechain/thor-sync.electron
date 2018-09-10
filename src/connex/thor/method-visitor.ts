@@ -1,19 +1,18 @@
 import Thor = Connex.Thor
-import Endpoint from './endpoint'
 import { abi } from 'thor-devkit'
 
 export function create(
-    ep: Endpoint,
+    wire: WireInterface,
     addr: string,
     abiDef: object,
     revision?: string | number
 ): Thor.MethodVisitor {
-    const fn = new abi.Function(abiDef as any)
+    const coder = new abi.Function(abiDef as any)
     return {
         asClause(
             args: any[],
             value?: string | number): Thor.Clause {
-            const data = fn.encode(...args)
+            const data = coder.encode(...args)
             return {
                 to: addr,
                 value: value ? value.toString() : '0x0',
@@ -22,24 +21,19 @@ export function create(
         },
         call(
             args: any[],
-            value?: string | number,
-            caller?: string,
-            gas?: number,
-            gasPrice?: string
+            options?: Thor.VMOptions
         ) {
-            const data = fn.encode(...args)
-            const input: Thor.VMInput = {
-                value: value ? value.toString() : '0x0',
-                data,
-                caller,
-                gas,
-                gasPrice,
+            options = options || {}
+            const data = coder.encode(...args)
+            const input = {
+                ...options, data
             }
-            return ep.post<Thor.VMOutput>(
+            return wire.post<Thor.VMOutput>(
                 `accounts/${encodeURIComponent(addr)}`,
                 input,
-                { revision }).then(output => {
-                    const decoded = fn.decode(output.data)
+                { revision })
+                .then(output => {
+                    const decoded = coder.decode(output.data)
                     return { ...output, decoded }
                 })
         }

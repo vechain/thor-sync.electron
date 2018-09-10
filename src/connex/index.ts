@@ -1,20 +1,16 @@
-import * as Thor from './thor'
+import { create as createThor } from './thor'
 
-export function create(options: {
-    userAddr: string,
-    genesis: string,
-    apiBaseURL: string,
-    signer: Connex.User['sign']
-}): Connex {
-
-    const thor = Thor.create(options.apiBaseURL, options.genesis)
+export function create(
+    userAddress: string,
+    signer: Connex.User['sign'],
+    wire: WireInterface,
+    network: NetworkInterface
+): Connex {
+    const thor = createThor(wire, network)
     const user = {
-        get address() { return options.userAddr },
-        sign<T extends 'tx'>(
-            target: T,
-            clauses: Connex.Thor.Clause[]
-        ): Promise<string> {
-            return {} as any
+        get address() { return userAddress },
+        get sign() {
+            return signer
         }
     }
     const toolkit = {}
@@ -24,3 +20,6 @@ export function create(options: {
         get toolkit() { return toolkit }
     }
 }
+
+export { Network } from './network'
+export { Wire } from './wire'
