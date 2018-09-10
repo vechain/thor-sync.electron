@@ -1,8 +1,7 @@
 import Thor = Connex.Thor
-import Endpoint from './endpoint'
 
 export function create<T extends 'event' | 'transfer'>(
-    ep: Endpoint,
+    wire: WireInterface,
     kind: T,
     criteriaSet: Array<Thor.Criteria<T>>
 ): Thor.Filter<T> {
@@ -24,24 +23,23 @@ export function create<T extends 'event' | 'transfer'>(
     }
     const query = { order: 'asc' }
 
-    const filter: Thor.Filter<T> = {
+    return {
         get kind() { return kind },
         range(unit: 'block' | 'time', from: number, to: number) {
             filterBody.range = { unit, from, to }
-            return filter
+            return this
         },
         order(order: 'asc' | 'desc') {
             query.order = order
-            return filter
+            return this
         },
         offset(offset: number) {
             filterBody.options.offset = offset
-            return filter
+            return this
         },
         next(limit: number) {
             filterBody.options.limit = limit
-            return ep.post<Array<Thor.Log<T>>>(`logs/${kind}`, filter, query)
+            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, this, query)
         }
     }
-    return filter
 }
