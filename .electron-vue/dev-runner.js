@@ -63,7 +63,7 @@ function startDapps() {
     })
 
     compiler.plugin('done', stats => {
-      logStats('Renderer', stats)
+      logStats('Dapps', stats)
     })
 
     const server = new WebpackDevServer(
