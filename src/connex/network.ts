@@ -7,7 +7,7 @@ import { EventEmitter } from 'events'
 export class Network implements NetworkInterface {
     public static async create(wire: WireInterface) {
         const genesis = await createBlockVisitor(wire, 0).get()
-        return new Network(genesis, wire)
+        return new Network(genesis!, wire)
     }
 
     private _best: Thor.Block
@@ -55,8 +55,8 @@ export class Network implements NetworkInterface {
                 } else {
                     try {
                         const best = await createBlockVisitor(this.wire, 'best').get()
-                        if (best.number !== this._best.number) {
-                            this._best = best
+                        if (best!.number !== this._best.number) {
+                            this._best = best!
                             this.emitter.emit('next')
                         }
                         await sleep(2 * 1000)
