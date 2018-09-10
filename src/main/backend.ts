@@ -24,23 +24,21 @@ export class Backend {
     }
 }
 
-
-
 type Environment = {
     user: string
-    network: NetworkConfig
-}
+} & NetworkConfig
 
 class Endpoint {
     private static networks: { [index: string]: NetworkInterface } = {}
     private network: NetworkInterface
     private agent?: Agent
     constructor(readonly env: Environment, readonly webContentsId: number) {
-        const networkKey = env.network.genesis.id + env.network.url
+        const networkKey = env.genesis.id + env.url
         let network = Endpoint.networks[networkKey]
         if (!network) {
-            const wire = new Wire(env.network.genesis.id, env.network.url)
-            network = new Network(env.network.genesis, wire)
+            network = new Network(
+                env.genesis,
+                new Wire(env.genesis.id, env.url))
             Endpoint.networks[networkKey] = network
         }
         this.network = network
@@ -55,8 +53,11 @@ class Endpoint {
             maxSockets: 20
         })
 
-        const wire = new Wire(this.env.network.genesis.id, this.env.network.url, this.agent)
-        return createConnex(this.env.user, {} as any, wire, this.network)
+        return createConnex(
+            this.env.user,
+            {} as any,
+            new Wire(this.env.genesis.id, this.env.url, this.agent),
+            this.network)
     }
 
     public destroy() {
@@ -96,5 +97,5 @@ const networkConfigs: NetworkConfig[] = [
 
 const defaultEnv: Environment = {
     user: '0xa4aDAfAef9Ec07BC4Dc6De146934C7119341eE25',
-    network: networkConfigs[0]
+    ...networkConfigs[0]
 }
