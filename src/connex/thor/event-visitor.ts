@@ -4,7 +4,7 @@ import * as Filter from './filter'
 import * as Subscription from './subscription'
 
 export function create(
-    wire: WireInterface,
+    wire: Network.Wire,
     abiDef: object,
     addr: string): Thor.EventVisitor {
 
