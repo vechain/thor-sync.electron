@@ -2,7 +2,7 @@ import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 
 export function create(
-    wire: WireInterface,
+    wire: Network.Wire,
     addr: string,
     abiDef: object,
     revision?: string | number

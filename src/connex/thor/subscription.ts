@@ -1,9 +1,7 @@
 import Thor = Connex.Thor
-import * as WebSocket from 'ws'
-import * as URL from 'url'
 
 export function create<T extends 'event' | 'transfer' | 'block'>(
-    wire: WireInterface,
+    wire: Network.Wire,
     subject: T,
     criteria: Thor.Criteria<T>
 ): Thor.Subscription<T> {
@@ -34,51 +32,12 @@ export function create<T extends 'event' | 'transfer' | 'block'>(
         throw new Error('invalid subject')
     }
 
-    const url = wire.resolve(`subscriptions/${subject}`, query)
-    const parsed = URL.parse(url)
-    parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
-
-    const ws = new WebSocket(URL.format(parsed), {
-        agent: wire.agent,
-        headers: { 'x-genesis-id': wire.genesisId }
-    })
+    const ws = wire.ws(`subscriptions/${subject}`, query)
     return {
         get subject() { return subject },
-        next() {
-            return new Promise<Thor.Subscription.Message<T>>((resolve, reject) => {
-                if (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) {
-                    return reject(new Error('closing or closed'))
-                }
-                if ((ws as any)._socket) {
-                    (ws as any)._socket.resume()
-                }
-
-                const onMsg = (msg: WebSocket.Data) => {
-                    if ((ws as any)._socket) {
-                        (ws as any)._socket.pause()
-                    }
-                    try {
-                        resolve(JSON.parse(msg.toString()))
-                    } catch (err) {
-                        reject(err)
-                    }
-                    ws.removeListener('error', onError)
-                    ws.removeListener('close', onClose)
-                }
-                const onError = (err: Error) => {
-                    reject(err)
-                    ws.removeListener('message', onMsg)
-                    ws.removeListener('close', onClose)
-                }
-                const onClose = () => {
-                    reject(new Error('closed'))
-                    ws.removeListener('message', onMsg)
-                    ws.removeListener('error', onError)
-                }
-                ws.once('message', onMsg)
-                    .once('error', onError)
-                    .once('close', onClose)
-            })
+        async next() {
+            const data = await ws.read()
+            return JSON.parse(data.toString()) as Thor.Subscription.Message<T>
         },
         unsubscribe() {
             ws.close()

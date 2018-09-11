@@ -1,7 +1,7 @@
 import Thor = Connex.Thor
 
 export function create(
-    wire: WireInterface,
+    wire: Network.Wire,
     id: string,
     head?: string
 ): Thor.TransactionVisitor {

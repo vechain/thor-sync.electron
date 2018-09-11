@@ -3,7 +3,7 @@ import * as MethodVisitor from './method-visitor'
 import * as EventVisitor from './event-visitor'
 
 export function create(
-    wire: WireInterface,
+    wire: Network.Wire,
     addr: string,
     revision?: string | number): Thor.AccountVisitor {
 

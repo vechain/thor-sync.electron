@@ -1,6 +1,7 @@
-import { create as createConnex, Network, Wire } from '@/connex'
+import { create as createConnex } from '@/connex'
 import { webContents } from 'electron'
 import { Agent } from 'http'
+import { NetworkImpl } from './network'
 
 export class Backend {
     public currentEnv = defaultEnv
@@ -29,27 +30,27 @@ type Environment = {
 } & NetworkConfig
 
 class Connection {
-    private static networks: { [index: string]: NetworkInterface } = {}
-    private network: NetworkInterface
-    private agent?: Agent
+    private static networks: { [index: string]: Network } = {}
+    private network: Network
+    private wireAgent?: Agent
     constructor(readonly env: Environment, readonly webContentsId: number) {
         const networkKey = env.genesis.id + env.url
         let network = Connection.networks[networkKey]
         if (!network) {
-            network = new Network(
-                env.genesis,
-                new Wire(env.genesis.id, env.url))
+            network = new NetworkImpl(
+                env.url,
+                env.genesis)
             Connection.networks[networkKey] = network
         }
         this.network = network
     }
 
     public createConnex() {
-        if (this.agent) {
-            this.agent.destroy()
+        if (this.wireAgent) {
+            this.wireAgent.destroy()
         }
 
-        this.agent = new Agent({
+        this.wireAgent = new Agent({
             maxSockets: 20
         })
 
@@ -58,17 +59,16 @@ class Connection {
             async () => {
                 throw new Error('not implemented')
             },
-            new Wire(this.env.genesis.id, this.env.url, this.agent),
-            this.network,
+            this.network.withWireAgent(this.wireAgent),
             {
                 name: 'thor-sync'
             })
     }
 
     public destroy() {
-        if (this.agent) {
-            this.agent.destroy()
-            this.agent = undefined
+        if (this.wireAgent) {
+            this.wireAgent.destroy()
+            this.wireAgent = undefined
         }
     }
 }

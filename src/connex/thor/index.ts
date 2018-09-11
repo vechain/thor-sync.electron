@@ -6,19 +6,19 @@ import * as Filter from './filter'
 import * as Subscription from './subscription'
 
 export function create(
-    wire: WireInterface,
-    network: NetworkInterface
+    network: Network
 ): Thor {
+    const wire = network.createWire()
     return {
-        get genesisBlock() { return network.genesis },
-        get bestBlock() { return network.best },
+        get genesisBlock() { return network.genesisBlock },
+        get bestBlock() { return network.bestBlock },
         get syncProgress() {
             const nowTs = Date.now()
-            const bestBlockTs = network.best.timestamp * 1000
+            const bestBlockTs = network.bestBlock.timestamp * 1000
             if (nowTs - bestBlockTs < 30 * 1000) {
                 return 1
             }
-            const genesisBlockTs = network.genesis.timestamp * 1000
+            const genesisBlockTs = network.genesisBlock.timestamp * 1000
             const progress = (bestBlockTs - genesisBlockTs) / (nowTs - genesisBlockTs)
             return progress < 0 ? NaN : progress
         },

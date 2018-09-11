@@ -1,7 +1,7 @@
 import Thor = Connex.Thor
 
 export function create(
-    wire: WireInterface,
+    wire: Network.Wire,
     revision: string | number
 ): Thor.BlockVisitor {
     return {
