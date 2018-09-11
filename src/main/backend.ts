@@ -4,23 +4,23 @@ import { Agent } from 'http'
 
 export class Backend {
     public currentEnv = defaultEnv
-    private endpoints: { [index: number]: Endpoint } = {}
+    private conns: { [index: number]: Connection } = {}
 
-    public connect(webContentsId: number): Endpoint {
-        let ep = this.endpoints[webContentsId]
-        if (!ep) {
-            ep = new Endpoint(this.currentEnv, webContentsId)
-            this.endpoints[webContentsId] = ep
-            console.log('Endpoint created', '#' + webContentsId)
+    public connect(webContentsId: number): Connection {
+        let conn = this.conns[webContentsId]
+        if (!conn) {
+            conn = new Connection(this.currentEnv, webContentsId)
+            this.conns[webContentsId] = conn
+            console.log('Connection created', '#' + webContentsId)
             const wc = webContents.fromId(webContentsId)
             wc.once('destroyed', () => {
-                ep.destroy()
-                delete this.endpoints[webContentsId]
-                console.log('Endpoint deleted', '#' + webContentsId)
+                conn.destroy()
+                delete this.conns[webContentsId]
+                console.log('Connection deleted', '#' + webContentsId)
             })
         }
-        console.log('Endpoint connected', '#' + webContentsId)
-        return ep
+        console.log('Connection connected', '#' + webContentsId)
+        return conn
     }
 }
 
@@ -28,18 +28,18 @@ type Environment = {
     user: string
 } & NetworkConfig
 
-class Endpoint {
+class Connection {
     private static networks: { [index: string]: NetworkInterface } = {}
     private network: NetworkInterface
     private agent?: Agent
     constructor(readonly env: Environment, readonly webContentsId: number) {
         const networkKey = env.genesis.id + env.url
-        let network = Endpoint.networks[networkKey]
+        let network = Connection.networks[networkKey]
         if (!network) {
             network = new Network(
                 env.genesis,
                 new Wire(env.genesis.id, env.url))
-            Endpoint.networks[networkKey] = network
+            Connection.networks[networkKey] = network
         }
         this.network = network
     }
@@ -55,7 +55,9 @@ class Endpoint {
 
         return createConnex(
             this.env.user,
-            {} as any,
+            async () => {
+                throw new Error('not implemented')
+            },
             new Wire(this.env.genesis.id, this.env.url, this.agent),
             this.network)
     }
