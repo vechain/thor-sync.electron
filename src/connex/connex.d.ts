@@ -1,7 +1,7 @@
 declare interface Connex {
-    readonly user: Connex.User
+    readonly user?: Connex.User
     readonly thor: Connex.Thor
-    readonly toolkit: Connex.Toolkit
+    readonly vendor: Connex.Vendor
 }
 
 declare namespace Connex {
@@ -260,11 +260,7 @@ declare namespace Connex {
         } & VMOutput
     }
 
-    interface Toolkit {
-    }
-
-    namespace Toolkit {
+    interface Vendor {
+        name: string
     }
 }
-
-

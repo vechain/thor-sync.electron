@@ -4,7 +4,8 @@ export function create(
     userAddress: string,
     signer: Connex.User['sign'],
     wire: WireInterface,
-    network: NetworkInterface
+    network: NetworkInterface,
+    vendor: Connex.Vendor
 ): Connex {
     const thor = createThor(wire, network)
     const user = {
@@ -13,11 +14,10 @@ export function create(
             return signer
         }
     }
-    const toolkit = {}
     return {
         get user() { return user },
         get thor() { return thor },
-        get toolkit() { return toolkit }
+        get vendor() { return vendor }
     }
 }
 
