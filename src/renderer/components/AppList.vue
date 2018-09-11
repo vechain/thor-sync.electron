@@ -17,11 +17,6 @@
 <script lang="ts">
 import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
 import { portData } from './ViewPort.vue'
-export interface DApp {
-  icon: string
-  url: string
-  name: string
-}
 
 @Component
 export default class DApps extends Vue {
@@ -31,6 +26,7 @@ export default class DApps extends Vue {
   openDapp(data: portData) {}
 }
 </script>
+
 <style lang="scss" scoped>
 .sync-dapp-list div.dapp-container {
   display: grid;
