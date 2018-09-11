@@ -59,7 +59,10 @@ class Connection {
                 throw new Error('not implemented')
             },
             new Wire(this.env.genesis.id, this.env.url, this.agent),
-            this.network)
+            this.network,
+            {
+                name: 'thor-sync'
+            })
     }
 
     public destroy() {
