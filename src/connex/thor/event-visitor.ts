@@ -1,10 +1,7 @@
-import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
-import * as Filter from './filter'
-import * as Subscription from './subscription'
 
-export function create(
-    wire: Network.Wire,
+export function createEventVisitor(
+    wire: Thor.Site.Wire,
     abiDef: object,
     addr: string): Thor.EventVisitor {
 
@@ -23,7 +20,7 @@ export function create(
         },
         filter(indexed: object[]) {
             const criteriaSet = indexed.map(i => this.asCriteria(i))
-            const filter = Filter.create(wire, 'event', criteriaSet)
+            const filter = createFilter(wire, 'event', criteriaSet)
 
             const transformed: Thor.Filter<'decoded-event'> = {
                 kind: 'decoded-event',
@@ -52,7 +49,7 @@ export function create(
         },
         subscribe(indexed: object) {
             const criteria = this.asCriteria(indexed)
-            const sub = Subscription.create(wire, 'event', criteria)
+            const sub = createSubscription(wire, 'event', criteria)
             return {
                 subject: 'decoded-event',
                 next() {

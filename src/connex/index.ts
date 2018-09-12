@@ -1,20 +1,17 @@
 import { create as createThor } from './thor'
 
 export function create(
-    userAddress: string,
-    signer: Connex.User['sign'],
-    network: Network,
+    user: Connex.User | undefined,
+    site: Connex.Thor.Site,
     vendor: Connex.Vendor,
 ): Connex {
-    const thor = createThor(network)
-    const user = {
-        get address() { return userAddress },
-        get sign() {
-            return signer
-        }
-    }
+    const thor = createThor(site)
     return {
-        get user() { return user },
+        get user() {
+            if (user) {
+                return { ...user }
+            }
+        },
         get thor() { return thor },
         get vendor() { return vendor }
     }

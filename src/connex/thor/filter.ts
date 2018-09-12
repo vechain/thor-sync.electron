@@ -1,7 +1,5 @@
-import Thor = Connex.Thor
-
-export function create<T extends 'event' | 'transfer'>(
-    wire: Network.Wire,
+function createFilter<T extends 'event' | 'transfer'>(
+    wire: Thor.Site.Wire,
     kind: T,
     criteriaSet: Array<Thor.Criteria<T>>
 ): Thor.Filter<T> {
