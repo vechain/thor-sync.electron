@@ -6,7 +6,7 @@ import * as QS from 'qs'
 import * as WebSocket from 'ws'
 import { EventEmitter } from 'events'
 
-class WireImpl implements Network.Wire {
+class Wire implements Connex.Thor.Site.Wire {
     private readonly axios: AxiosInstance
     constructor(
         readonly url: string,
@@ -30,7 +30,7 @@ class WireImpl implements Network.Wire {
         return result.data
     }
 
-    public ws(path: string, query?: object): Network.WebSocket {
+    public ws(path: string, query?: object): Connex.Thor.Site.WebSocket {
         const url = this.resolve(path, query)
         const parsed = URL.parse(url)
         parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
@@ -87,10 +87,10 @@ class WireImpl implements Network.Wire {
     }
 }
 
-export class NetworkImpl implements Network {
+export class Site implements Connex.Thor.Site {
     public bestBlock: Connex.Thor.Block
     private readonly emitter = new EventEmitter()
-    private readonly wire: Network.Wire
+    private readonly mainWire: Connex.Thor.Site.Wire
 
     constructor(
         readonly url: string,
@@ -98,7 +98,7 @@ export class NetworkImpl implements Network {
         private readonly agent?: any
     ) {
         this.bestBlock = genesisBlock
-        this.wire = new WireImpl(url, genesisBlock.id, agent)
+        this.mainWire = new Wire(url, genesisBlock.id, agent)
         this.emitter.setMaxListeners(2 ** 32 - 1)
         this.loop()
     }
@@ -111,9 +111,20 @@ export class NetworkImpl implements Network {
         })
     }
 
-    public withWireAgent(agent?: any): Network {
+    public get syncProgress() {
+        const nowTs = Date.now()
+        const bestBlockTs = this.bestBlock.timestamp * 1000
+        if (nowTs - bestBlockTs < 30 * 1000) {
+            return 1
+        }
+        const genesisBlockTs = this.genesisBlock.timestamp * 1000
+        const progress = (bestBlockTs - genesisBlockTs) / (nowTs - genesisBlockTs)
+        return progress < 0 ? NaN : progress
+    }
+
+    public withWireAgent(agent?: any): Connex.Thor.Site {
         const overriddenCreateWire = () => {
-            return new WireImpl(this.url, this.genesisBlock.id, agent)
+            return new Wire(this.url, this.genesisBlock.id, agent)
         }
         const nameOfCreateWire = this.createWire.name
 
@@ -128,11 +139,11 @@ export class NetworkImpl implements Network {
     }
 
     public createWire() {
-        return new WireImpl(this.url, this.genesisBlock.id, this.agent)
+        return new Wire(this.url, this.genesisBlock.id, this.agent)
     }
 
     private async loop() {
-        let ws: Network.WebSocket | undefined
+        let ws: Connex.Thor.Site.WebSocket | undefined
         for (; ;) {
             if (ws) {
                 try {
@@ -146,10 +157,10 @@ export class NetworkImpl implements Network {
             } else {
                 const now = Date.now()
                 if (now - this.bestBlock.timestamp * 1000 < 30 * 1000) {
-                    ws = this.wire.ws('subscriptions/block')
+                    ws = this.mainWire.ws('subscriptions/block')
                 } else {
                     try {
-                        const best = await this.wire.get<Connex.Thor.Block | null>('blocks/best')
+                        const best = await this.mainWire.get<Connex.Thor.Block | null>('blocks/best')
                         if (best!.number !== this.bestBlock.number) {
                             this.bestBlock = best!
                             this.emitter.emit('next')
