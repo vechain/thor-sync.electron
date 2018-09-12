@@ -1,21 +1,32 @@
-import { app } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { init } from '@/base'
 import { createWin } from '@/main/windows'
-import { Backend } from '@/main/backend'
+import { Backend, SiteConfig } from '@/main/backend'
+
+declare module 'electron' {
+    interface App {
+        backend: Backend
+        createNovaWindow(
+            siteConfig: SiteConfig,
+            options?: BrowserWindowConstructorOptions): BrowserWindow
+    }
+}
 
 function start() {
-  Object.defineProperty(app, 'backend', {
-    enumerable: true,
-    value: new Backend()
-  })
+    app.backend = new Backend()
+    app.createNovaWindow = (siteConfig, options) => {
+        const win = new BrowserWindow(options)
+        app.backend.bindSiteConfig(win.webContents.id, siteConfig)
+        return win
+    }
 
-  init.folder()
-  // init.copyThor()
-  app.on('ready', createWin)
+    init.folder()
+    // init.copyThor()
+    app.on('ready', createWin)
 
-  app.on('window-all-closed', () => {
-    app.quit()
-  })
+    app.on('window-all-closed', () => {
+        app.quit()
+    })
 }
 
 start()
@@ -38,3 +49,4 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
+

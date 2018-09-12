@@ -1,12 +1,28 @@
 import { remote } from 'electron'
-const webContentsId = remote.getCurrentWebContents().id
-const conn = remote.app.backend.connect(webContentsId)
+
+declare module 'electron' {
+    interface WebContents {
+        getWebPreferences(): WebPreferences
+    }
+}
+
+declare global {
+    interface Window {
+        readonly connex: Connex
+    }
+    const connex: Connex
+}
 
 if (process.env.NODE_ENV === 'development') {
-  remote.getCurrentWebContents().openDevTools()
+    remote.getCurrentWebContents().openDevTools()
 }
+
+const webContents = remote.getCurrentWebContents()
+const partition = webContents.getWebPreferences().partition
+
+const userAddr = partition ? new URL(partition).pathname.split('/').pop() : undefined
 
 Object.defineProperty(window, 'connex', {
     enumerable: true,
-    value: conn.createConnex()
+    value: remote.app.backend.connect(webContents.id, userAddr)
 })
