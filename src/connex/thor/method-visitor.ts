@@ -1,8 +1,7 @@
-import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 
-export function create(
-    wire: Network.Wire,
+export function createMethodVisitor(
+    wire: Thor.Site.Wire,
     addr: string,
     abiDef: object,
     revision?: string | number

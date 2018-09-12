@@ -1,7 +1,5 @@
-import Thor = Connex.Thor
-
-export function create<T extends 'event' | 'transfer' | 'block'>(
-    wire: Network.Wire,
+function createSubscription<T extends 'event' | 'transfer' | 'block'>(
+    wire: Thor.Site.Wire,
     subject: T,
     criteria: Thor.Criteria<T>
 ): Thor.Subscription<T> {

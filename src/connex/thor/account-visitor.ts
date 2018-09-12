@@ -1,9 +1,9 @@
 import Thor = Connex.Thor
-import * as MethodVisitor from './method-visitor'
-import * as EventVisitor from './event-visitor'
+import { createEventVisitor } from './event-visitor'
+import { createMethodVisitor } from './method-visitor'
 
-export function create(
-    wire: Network.Wire,
+export function createAccountVisitor(
+    wire: Thor.Site.Wire,
     addr: string,
     revision?: string | number): Thor.AccountVisitor {
 
@@ -34,10 +34,10 @@ export function create(
                 { revision })
         },
         method(abiDef: object) {
-            return MethodVisitor.create(wire, addr, abiDef, revision)
+            return createMethodVisitor(wire, addr, abiDef, revision)
         },
         event(abiDef: object) {
-            return EventVisitor.create(wire, abiDef, addr)
+            return createEventVisitor(wire, abiDef, addr)
         }
     }
 }

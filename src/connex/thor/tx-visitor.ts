@@ -1,7 +1,5 @@
-import Thor = Connex.Thor
-
-export function create(
-    wire: Network.Wire,
+function createTxVisitor(
+    wire: Thor.Site.Wire,
     id: string,
     head?: string
 ): Thor.TransactionVisitor {
