@@ -5,11 +5,12 @@ import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
 import App from './App.vue'
 import router from '@/renderer/router'
-import store from '@/renderer/store'
+import store from '@/renderer/vuex/store'
 
 Vue.use(Vuetify, {
-  iconfont: 'mdi', // 'md' || 'mdi' || 'fa' || 'fa4'
+  iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })
+
 Vue.config.productionTip = false
 
 new Vue({
