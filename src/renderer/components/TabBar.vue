@@ -37,11 +37,8 @@ export default class Tabbar extends Vue {
   height: 41px;
   width: 100%;
   -webkit-user-select: none;
-  background-color: #cfd8dc;
   transition: padding-left 300ms ease-in-out;
-  border-bottom: 1px solid #eee;
   display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
 }
 .darwin .sync-tab-bar {
@@ -56,7 +53,7 @@ export default class Tabbar extends Vue {
   height: 30px;
   -webkit-user-select: none;
   -webkit-app-region: no-drag;
-  background-color: rgb(220, 226, 228);
+  // background-color: rgb(220, 226, 228);
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
   border: 1px solid #eee;

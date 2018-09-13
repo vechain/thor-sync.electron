@@ -1,11 +1,13 @@
 import { Vue } from 'vue-property-decorator'
 import Vuex from 'vuex'
-import * as actions from './vuex/actions'
+import * as actions from './actions'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {},
+  state: {
+    currentContentId: null,
+  },
   mutations: {},
   actions: actions
 })
