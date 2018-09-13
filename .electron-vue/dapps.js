@@ -18,7 +18,6 @@ function getDappsEntries (dapps) {
 }
 
 function getHtmlPlugin (dapp) {
-  console.log(process.env.NODE_ENV)
   if (process.env.NODE_ENV === 'production') {
     return new HtmlWebpackPlugin({
       title: dapp,
@@ -29,10 +28,7 @@ function getHtmlPlugin (dapp) {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
         removeComments: true
-      },
-      nodeModules: process.env.NODE_ENV !== 'production'
-        ? path.resolve(__dirname, '../node_modules')
-        : false,
+      },      
       chunks: ['manifest', 'vendor', dapp],
       nodeModules: false
     })
@@ -42,6 +38,7 @@ function getHtmlPlugin (dapp) {
       filename: `${dapp}.html`,
       inject: true,
       chunks: [dapp],
+      nodeModules: path.resolve(__dirname, '../node_modules'),
       template: path.resolve(__dirname, '../src/dapp.ejs')
     })
   }
