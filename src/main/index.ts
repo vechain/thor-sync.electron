@@ -1,35 +1,35 @@
-import { app, BrowserWindow } from 'electron'
-import { init } from '@/base'
-import { createWin } from '@/main/windows'
-import { Backend, SiteConfig } from '@/main/backend'
+import { app, BrowserWindow, } from 'electron'
+import { Backend, SiteConfig } from './backend'
+import { setupMenu } from './menu'
+import { createWindow } from './window'
 
 declare module 'electron' {
     interface App {
         backend: Backend
-        createNovaWindow(
-            siteConfig: SiteConfig,
+        createWindow(
+            siteConfig?: SiteConfig,
             options?: BrowserWindowConstructorOptions): BrowserWindow
     }
 }
 
-function start() {
-    app.backend = new Backend()
-    app.createNovaWindow = (siteConfig, options) => {
-        const win = new BrowserWindow(options)
-        app.backend.bindSiteConfig(win.webContents.id, siteConfig)
-        return win
+app.backend = new Backend()
+app.createWindow = createWindow
+
+app.once('ready', () => {
+    setupMenu()
+    createWindow()
+}).on('activate', () => {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow()
     }
-
-    init.folder()
-    // init.copyThor()
-    app.on('ready', createWin)
-
-    app.on('window-all-closed', () => {
+}).on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
         app.quit()
-    })
-}
+    }
+})
 
-start()
 /**
  * Auto Updater
  *
