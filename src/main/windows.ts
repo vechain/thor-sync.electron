@@ -1,5 +1,4 @@
 import { BrowserWindow, app } from 'electron'
-import { siteConfigs } from './backend'
 
 const mainUrl =
     process.env.NODE_ENV === 'development'
@@ -33,7 +32,7 @@ function createMainWin(): Electron.BrowserWindow {
             break
     }
 
-    return app.createNovaWindow(siteConfigs[0], opts)
+    return app.createNovaWindow(app.backend.siteConfigs[0], opts)
 }
 
 // function createProxyWin(): Electron.BrowserWindow {

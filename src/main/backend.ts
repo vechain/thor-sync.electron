@@ -76,6 +76,10 @@ export class Backend {
                 name: 'thor-sync'
             })
     }
+
+    public get siteConfigs() {
+        return siteConfigs
+    }
 }
 
 
@@ -84,7 +88,7 @@ export type SiteConfig = {
     genesis: Connex.Thor.Block
 }
 
-export const siteConfigs: SiteConfig[] = [{
+const siteConfigs: SiteConfig[] = [{
     url: 'http://localhost:8669',
     genesis: {
         number: 0,
