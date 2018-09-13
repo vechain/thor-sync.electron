@@ -7,9 +7,9 @@ const webpack = require('webpack')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
-let mainConfig = {
+let preloadConfig = {
   entry: {
-    main: path.join(__dirname, '../src/main/index.ts')
+    preload: path.join(__dirname, '../src/preload.ts')
   },
   externals: [
     ...Object.keys(dependencies || {})
@@ -65,14 +65,14 @@ let mainConfig = {
       })
     ]
   },
-  target: 'electron-main'
+  target: 'electron-renderer'
 }
 
 /**
- * Adjust mainConfig for development settings
+ * Adjust preloadConfig for development settings
  */
 if (process.env.NODE_ENV !== 'production') {
-  mainConfig.plugins.push(
+    preloadConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
     })
@@ -80,10 +80,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 /**
- * Adjust mainConfig for production settings
+ * Adjust preloadConfig for production settings
  */
 if (process.env.NODE_ENV === 'production') {
-  mainConfig.plugins.push(
+    preloadConfig.plugins.push(
      new UglifyJsPlugin({
        include: /\.js$/g
      }),
@@ -93,4 +93,4 @@ if (process.env.NODE_ENV === 'production') {
   )
 }
 
-module.exports = mainConfig
+module.exports = preloadConfig
