@@ -1,17 +1,15 @@
 import { getDApps } from '@/renderer/../base/'
-const win = window as any
-const appPath = win.__dappsHost
 
 export const getBuildInDapps = () => {
-  const result: object[] = []
-  const names = getDApps()
+    const result: object[] = []
+    const names = getDApps()
 
-  names.forEach(name => {
-    result.push({
-      name: name,
-      url: `${appPath}${name}.html`
+    names.forEach(name => {
+        result.push({
+            name: name,
+            url: new URL(`${name}.html`, window.ENV.dapps).href
+        })
     })
-  })
 
-  return result
+    return result
 }

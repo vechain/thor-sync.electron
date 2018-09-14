@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import env from '@/env'
 
 declare module 'electron' {
     interface WebContents {
@@ -13,7 +14,7 @@ declare global {
     const connex: Connex
 }
 
-if (process.env.NODE_ENV === 'development') {
+if (env.devMode) {
     remote.getCurrentWebContents().openDevTools()
 }
 
@@ -21,10 +22,6 @@ const webContents = remote.getCurrentWebContents()
 const partition = webContents.getWebPreferences().partition
 
 const userAddr = partition ? new URL(partition).pathname.split('/').pop() : undefined
-
-if (process.env.NODE_ENV === 'development') {
-  remote.getCurrentWebContents().openDevTools()
-}
 
 Object.defineProperty(window, 'connex', {
     enumerable: true,
