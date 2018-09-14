@@ -124,7 +124,7 @@ export default class ViewPort extends Vue {
   @Emit('load-status-update')
   emitStatusUpdate(data: portData) {}
 
-  preload: string = 'file:///' + (window as any).__preload
+  preload = window.ENV.preload
   origin: string = ''
   title: string = ''
 

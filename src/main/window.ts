@@ -1,5 +1,6 @@
 import { app, BrowserWindowConstructorOptions, BrowserWindow } from 'electron'
 import { SiteConfig } from './backend'
+import env from '@/env'
 
 const activeWindows: { [index: number]: BrowserWindow } = {}
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
@@ -11,10 +12,6 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
     minHeight: 600,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined
 }
-const url =
-    process.env.NODE_ENV === 'development'
-        ? `http://localhost:9080`
-        : `file://${__dirname}/index.html`
 
 export function createWindow(
     siteConfig?: SiteConfig,
@@ -32,6 +29,6 @@ export function createWindow(
         win.show()
     })
     app.backend.bindSiteConfig(win.webContents.id, siteConfig || app.backend.siteConfigs[0])
-    win.loadURL(url)
+    win.loadURL(env.index)
     return win
 }

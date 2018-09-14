@@ -14,9 +14,6 @@ const rendererConfig = require('./webpack.renderer.config')
 const dappsConfig = require('./webpack.dapps.config')
 const preloadConfig = require('./webpack.preload.config')
 
-process.env.DIST_PATH = path.join(__dirname, '../dist')
-process.env.dappPort = '9090'
-
 let electronProcess = null
 let manualRestart = false
 let hotMiddleware
@@ -82,7 +79,7 @@ function startDapps() {
             }
         )
 
-        server.listen(process.env.dappPort)
+        server.listen(9090)
     })
 }
 

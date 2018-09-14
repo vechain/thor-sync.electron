@@ -13,21 +13,6 @@
 
 <body>
   <div id="app"></div>
-  <!-- Set `__static` path to static files in production -->
-  <script>
-    if (process.env.NODE_ENV !== 'development') {
-      window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-      window.__preload = require('path').join(__dirname, '/preload.js').replace(/\\/g, '\\\\')
-      window.__dappsPath = require('path').join(__dirname, '/dapps/').replace(/\\/g, '\\\\')
-      let temp = new URL('file:///')
-      temp.pathname = window.__dappsPath
-      window.__dappsHost = temp.toString()
-    } else {
-      window.__dappsHost = `http://localhost:${process.env.dappPort}/`
-      window.__preload = require('path').join(process.env.DIST_PATH, '/electron', 'preload.js').replace(/\\/g, '\\\\')
-    }
-  </script>
-
   <!-- webpack builds are automatically injected -->
 </body>
 

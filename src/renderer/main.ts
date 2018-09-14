@@ -6,15 +6,23 @@ import { Vue } from 'vue-property-decorator'
 import App from './App.vue'
 import router from '@/renderer/router'
 import store from '@/renderer/vuex/store'
+import env from '@/env'
+
+declare global {
+    interface Window {
+        ENV: typeof env
+    }
+}
+window.ENV = env
 
 Vue.use(Vuetify, {
-  iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
+    iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })
 
 Vue.config.productionTip = false
 
 new Vue({
-  router,
-  store,
-  render: h => h(App)
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')
