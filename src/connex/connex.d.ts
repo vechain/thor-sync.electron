@@ -12,7 +12,6 @@ declare namespace Connex {
 
     interface Thor {
         readonly genesisBlock: Thor.Block
-        readonly bestBlock: Thor.Block
         readonly syncProgress: number
         nextTick(): Promise<void>
 
@@ -268,7 +267,6 @@ declare namespace Connex {
         interface Site {
             readonly url: string
             readonly genesisBlock: Connex.Thor.Block
-            readonly bestBlock: Connex.Thor.Block
             readonly syncProgress: number
             nextTick(): Promise<void>
 

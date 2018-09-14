@@ -1,4 +1,6 @@
-function createTxVisitor(
+import Thor = Connex.Thor
+
+export function createTxVisitor(
     wire: Thor.Site.Wire,
     id: string,
     head?: string
