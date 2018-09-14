@@ -1,13 +1,17 @@
 import Thor = Connex.Thor
 import { createAccountVisitor } from './account-visitor'
+import { createBlockVisitor } from './block-visitor'
+import { createTxVisitor } from './tx-visitor'
+import { createSubscription } from './subscription'
+import { createFilter } from './filter'
+
 export function create(
     site: Thor.Site
 ): Thor {
     const wire = site.createWire()
     return {
         get genesisBlock() { return site.genesisBlock },
-        get bestBlock() { return site.bestBlock },
-        get syncProgress() { return site.syncProgress},
+        get syncProgress() { return site.syncProgress },
         nextTick() {
             return site.nextTick()
         },

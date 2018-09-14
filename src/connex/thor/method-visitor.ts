@@ -1,3 +1,4 @@
+import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 
 export function createMethodVisitor(

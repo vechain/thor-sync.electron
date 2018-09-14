@@ -1,4 +1,7 @@
+import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
+import { createFilter } from './filter'
+import { createSubscription } from './subscription'
 
 export function createEventVisitor(
     wire: Thor.Site.Wire,
