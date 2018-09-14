@@ -88,7 +88,7 @@ class Wire implements Connex.Thor.Site.Wire {
 }
 
 export class Site implements Connex.Thor.Site {
-    public bestBlock: Connex.Thor.Block
+    private bestBlock: Connex.Thor.Block
     private readonly emitter = new EventEmitter()
     private readonly mainWire: Connex.Thor.Site.Wire
 
