@@ -1,7 +1,7 @@
 import { cry } from 'thor-devkit'
 import * as LocalForage from 'localforage'
 import 'localforage-observable'
-import { Deferred } from '@/base/deferred'
+import Deferred from '@/base/deferred'
 const ZenObservable = require('zen-observable')
 
 LocalForage.newObservable.factory = (subscribeFn) => {
@@ -102,28 +102,28 @@ namespace Wallet {
         public subscribe(onChange: (event: ChangeEvent) => void): { unsubscribe(): void } {
             const deferredUnsubscribe = new Deferred<void>();
             (async () => {
-                await this.storage.ready()
-                if (!this.observable) {
-                    this.observable = this.storage.newObservable()
-                }
-                const subscription = this.observable.subscribe({
-                    next(v) {
-                        onChange({
-                            address: v.key,
-                            method: v.methodName
-                        })
+                try {
+                    await this.storage.ready()
+                    if (!this.observable) {
+                        this.observable = this.storage.newObservable()
                     }
-                })
-                await deferredUnsubscribe.promise
-                subscription.unsubscribe()
-            })().catch(err => {
-                console.log(err)
-            })
+                    const subscription = this.observable.subscribe({
+                        next(v) {
+                            onChange({
+                                address: v.key,
+                                method: v.methodName
+                            })
+                        }
+                    })
+                    await deferredUnsubscribe
+                    subscription.unsubscribe()
+                } catch (err) {
+                    console.log(err)
+                }
+            })()
 
             return {
-                unsubscribe() {
-                    deferredUnsubscribe.resolve()
-                }
+                unsubscribe() { deferredUnsubscribe.resolve() }
             }
         }
     }

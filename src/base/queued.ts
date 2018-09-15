@@ -1,6 +1,6 @@
-import { Deferred } from './deferred'
+import Deferred from './deferred'
 
-export class Queued {
+export default class Queued {
     private _size = 0
     private prev?: Deferred<void>
     constructor(readonly maxSize?: number) {
@@ -23,7 +23,7 @@ export class Queued {
         this.prev = cur
 
         if (prev) {
-            await prev.promise
+            await prev
         }
 
         try {
