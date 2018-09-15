@@ -18,7 +18,7 @@ const env = {
 
     dapps: devMode ?
         'http://localhost:9090/' :
-        filePathToUrl(Path.resolve(__dirname, 'dapps/'))
+        filePathToUrl(Path.resolve(__dirname, 'dapps')) + '/'
 }
 
 export default env
