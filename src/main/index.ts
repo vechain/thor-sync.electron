@@ -2,6 +2,10 @@ import { app, BrowserWindow, } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
 import { createWindow } from './window'
+require('electron-unhandled')({
+    //    logger: console.error,
+    showDialog: false
+})
 
 declare module 'electron' {
     interface App {
