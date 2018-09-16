@@ -5,21 +5,26 @@
  *  environment.
  */
 
+import { app } from 'electron'
+
 // Install `electron-debug` with `devtron`
+// tslint:disable-next-line:no-var-requires
 require('electron-debug')({ showDevTools: true })
 
 // Install `vue-devtools`
-require('electron').app.on('ready', () => {
+app.on('ready', () => {
     const installExtension = require('electron-devtools-installer')
     installExtension
         .default(installExtension.VUEJS_DEVTOOLS)
         .then(() => {
+            // tslint:disable-next-line:no-console
             console.log('install vue-devtools')
         })
         .catch((err: Error) => {
+            // tslint:disable-next-line:no-console
             console.log('Unable to install `vue-devtools`: \n', err)
         })
 })
 
 // Require `main` process to boot app
-require('./index')
+import './index'
