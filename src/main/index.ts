@@ -2,6 +2,8 @@ import { app, BrowserWindow, } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
 import { createWindow } from './window'
+
+// tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
     //    logger: console.error,
     showDialog: false
