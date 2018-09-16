@@ -25,25 +25,6 @@ class Wallet {
         })
     }
 
-    public static async generate(
-        name: string,
-        password: string):
-        Promise<{ wallet: Wallet, mnemonic: string[] }> {
-
-        const mnemonic = cry.mnemonic.generate()
-        const keystore = await cry.Keystore.encrypt(
-            cry.mnemonic.derivePrivateKey(mnemonic),
-            password)
-        return {
-            wallet: new Wallet({
-                address: keystore.address,
-                name,
-                keystore
-            }),
-            mnemonic
-        }
-    }
-
     constructor(readonly entity: Wallet.Entity) { }
 
     public decrypt(password: string) {
