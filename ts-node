@@ -1,2 +1,2 @@
 #!/bin/sh
-node_modules/.bin/ts-node -O '{"module": "commonjs"}' --files $1
+node_modules/.bin/ts-node -O '{"module": "commonjs"}' -r tsconfig-paths/register --files $1
