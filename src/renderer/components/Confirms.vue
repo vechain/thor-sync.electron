@@ -14,39 +14,52 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-let _resolve: <T>(value?: T | PromiseLike<T>) => void
-let _reject: <T>(value?: T | PromiseLike<T>) => void
+import { Deferred } from '@/base/deferred'
+
+declare interface ILib {
+    sign(contentId: number, Clouse?: object[]): Promise<string>
+}
+
+declare global {
+    interface Window {
+        Lib: ILib
+    }
+}
+
 @Component
 export default class Comfirm extends Vue {
     private name: string = 'component'
     private dialog: boolean = false
-    private resolve?: Promise<any>
-
+    private deferred = new Deferred<string>()
     created() {
-        Object.defineProperty(window, 'sign', {
-            enumerable: true,
-            value: this.sign
-        })
+        window.Lib = {
+            sign: this.sign
+        }
     }
 
-    async sign(contentId: number) {
+    async sign(contentId: number, Clouse?: object[]) {
         this.dialog = true
-        return new Promise((resolve, reject) => {
-            _resolve = resolve
-            _reject = reject
-        })
+        try {
+            return await this.deferred.promise
+        } finally {
+            this.deferred = new Deferred<string>()
+        }
     }
+
     cancel() {
-        this.dialog = false
-        _reject(1)
+        if (this.dialog) {
+            this.dialog = false
+            this.deferred.reject(new Error('cancel'))
+            this.deferred = new Deferred<string>()
+        }
     }
 
     ok() {
-        this.dialog = false
-        _resolve(2)
+        if (this.dialog) {
+            this.dialog = false
+            this.deferred.resolve('ok')
+            this.deferred = new Deferred<string>()
+        }
     }
-    // async showDialog() {
-
-    // }
 }
 </script>
