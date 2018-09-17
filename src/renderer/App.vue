@@ -1,13 +1,13 @@
 <template>
     <v-app>
-        <v-toolbar dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
-            <Tabbar @switch="switchTab" :tabs="ports" :currentTab="currentPortId" @close="onremove">
+        <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
+            <Tabbar @new-tab="newTab" @switch="switchTab" :tabs="ports" :currentTab="currentPortId" @close="onremove">
             </Tabbar>
         </v-toolbar>
         <v-content>
             <view-port class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
                 :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
-                @new-tab="newTab" @switch-view="switchTab" @close="onremove" />
+                @new-tab="newTab" @switch-view="switchTab" @updata-url="updateUrl" @close="onremove" />
             <DApps @open-dapp="addPort" v-show="!ports.length" class="default-content" :list="apps">
                 <div class="search">
                     <v-text-field @keyup.enter="openTab" v-model="search" label="Solo" placeholder="Placeholder" solo></v-text-field>
@@ -68,6 +68,15 @@ export default class App extends Vue {
         this.$set(this.ports[index], 'title', data.title)
     }
 
+    public updateUrl(data: portData) {
+        let index = this.ports.findIndex(item => {
+            return item.portId === data.portId
+        })
+
+        this.$set(this.ports[index], 'contentId', data.contentId)
+        this.$set(this.ports[index], 'url', data.url)
+    }
+
     public switchTab(portId: number) {
         this.currentPortId = portId
     }
@@ -80,7 +89,7 @@ export default class App extends Vue {
 
     public newTab(data: portData) {
         this.addPort({
-            url: data.url
+            url: data.url || ''
         })
     }
 
