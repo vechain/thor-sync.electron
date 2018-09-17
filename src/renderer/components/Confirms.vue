@@ -14,7 +14,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { Deferred } from '@/base/deferred'
+import Deferred from '@/base/deferred'
 
 declare interface ILib {
     sign(contentId: number, Clouse?: object[]): Promise<string>
@@ -40,7 +40,7 @@ export default class Comfirm extends Vue {
     async sign(contentId: number, Clouse?: object[]) {
         this.dialog = true
         try {
-            return await this.deferred.promise
+            return await this.deferred
         } finally {
             this.deferred = new Deferred<string>()
         }
