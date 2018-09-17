@@ -37,16 +37,7 @@ export default class DApps extends Vue {
     grid-row-gap: 30px;
     justify-content: center;
 }
-// .dapp-item {
-//     img {
-//         width: 100px;
-//         height: 100px;
-//         margin: auto;
-//         display: block;
-//         border: none;
-//         outline: none;
-//     }
-// }
+
 @media screen and (max-width: 1200px) {
     .sync-dapp-list div.dapp-container {
         grid-template-columns: 160px 160px 160px 160px;
