@@ -8,7 +8,7 @@
                     </v-img>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn @click.stop="openDapp({url: item.url})" flat>{{item.name}}</v-btn>
+                        <v-btn @click.stop="openDapp({src: item.url, name: item.name})" flat>{{item.name}}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-container>
@@ -18,14 +18,13 @@
 
 <script lang="ts">
 import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
-import { portData } from './ViewPort.vue'
 
 @Component
 export default class DApps extends Vue {
-    @Prop() private list!: DApp[]
+    @Prop() private list!: object[]
 
     @Emit('open-dapp')
-    openDapp(data: portData) {}
+    openDapp(data: DApp.Item) {}
 }
 </script>
 
