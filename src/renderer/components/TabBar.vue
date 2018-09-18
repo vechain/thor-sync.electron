@@ -1,38 +1,47 @@
 <template>
-  <div class="sync-tab-bar">
-    <slot/>
-    <div class="sync-tabs">
-      <div @click.stop.prevent="switchTab(item.portId)" class="sync-tab" :class="{'current-tab': item.portId === currentTab}"
-        v-for="item in tabs" :key="item.portId">
-        <div class="tab-container" :title="item.title">
-          <img :src="item.icon">
-          <span>{{item.title}}</span>
-          <v-icon @click.stop.prevent="popClose(item.portId, item.contentId)" class="tab-close">close</v-icon>
+    <div class="sync-tab-bar">
+        <slot/>
+        <div class="sync-tabs">
+            <div @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab': item[current.key] === current.value}"
+                v-for="(item, index) in tabs" :key="index">
+                <div class="tab-container" :title="item.title">
+                    <img :src="item.iconUrl">
+                    <span>{{item.title}}</span>
+                    <v-icon @click.stop.prevent="popClose(item)" class="tab-close">close</v-icon>
+                </div>
+            </div>
+            <div class="add-tab">
+                <v-btn icon @click.stop="addTab({title: 'New tab'})">
+                    <v-icon>add</v-icon>
+                </v-btn>
+            </div>
         </div>
-      </div>
-      <div class="add-tab">
-        <v-btn @click.stop="addTab({title: 'New tab'})" icon>
-          <v-icon>add</v-icon>
-        </v-btn>
-      </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator'
-import { portData } from '@/renderer/components/ViewPort.vue';
+
 @Component
 export default class Tabbar extends Vue {
-    @Prop() private tabs!: any[]
-    @Prop() private currentTab!: number
+    @Prop({ default: [] })
+    private tabs!: TabBar.Item[]
+
+    @Prop({default: {
+        key: 'id',
+        value: null
+    }})
+    private current: {
+        key: string,
+        value: string | number
+    }
 
     @Emit('close')
-    public popClose(portId: number) {}
+    public popClose(item: TabBar.Item) {}
     @Emit('switch')
-    public switchTab(portId: number) {}
+    public switchTab(item: TabBar.Item) {}
     @Emit('new-tab')
-    public addTab(data: portData) {}
+    public addTab(item: TabBar.Item) {}
 }
 </script>
 
@@ -97,7 +106,7 @@ export default class Tabbar extends Vue {
     grid-auto-flow: column;
 }
 .sync-tabs .add-tab {
-  width: 45px;
+    width: 45px;
     // background-color: #48bbc7;
 }
 .add-tab .v-btn {
