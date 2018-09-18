@@ -2,7 +2,7 @@
     <div class="sync-tab-bar">
         <slot/>
         <div class="sync-tabs">
-            <div @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab': item[current.key] === current.value}"
+            <div @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab elevation-5': item[current.key] === current.value}"
                 v-for="(item, index) in tabs" :key="index">
                 <div class="tab-container" :title="item.title">
                     <img :src="item.iconUrl">
@@ -23,7 +23,7 @@
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator'
 
 @Component
-export default class Tabbar extends Vue {
+export default class TabBar extends Vue {
     @Prop({ default: [] })
     private tabs!: TabBar.Item[]
 
@@ -75,6 +75,7 @@ export default class Tabbar extends Vue {
     cursor: normal;
 }
 .sync-tab.current-tab {
+    z-index: 5;
     background-color: rgb(154, 236, 218);
 }
 .sync-tab img {
@@ -107,7 +108,6 @@ export default class Tabbar extends Vue {
 }
 .sync-tabs .add-tab {
     width: 45px;
-    // background-color: #48bbc7;
 }
 .add-tab .v-btn {
     margin: 0;
