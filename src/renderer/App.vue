@@ -1,8 +1,8 @@
 <template>
     <v-app>
         <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
-            <Tabbar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
-            </Tabbar>
+            <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
+            </tab-bar>
         </v-toolbar>
         <v-content class="sync-container">
             <view-port class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
@@ -24,7 +24,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { mapActions, mapState } from 'vuex'
 
-import Tabbar from './components/TabBar.vue'
+import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import { app } from 'electron'
@@ -46,7 +46,7 @@ type Current = {
         ...mapActions(['getBuildInDapps'])
     },
     components: {
-        Tabbar,
+        TabBar,
         ViewPort,
         DApps,
         Comfirm
@@ -100,6 +100,9 @@ export default class App extends Vue {
         })
 
         this.ports.splice(index, 1)
+        this.current.value = this.ports[this.ports.length - 1]
+            ? this.ports[this.ports.length - 1]['id']
+            : ''
     }
 
     public onSwitchTab(item: PortTab) {
