@@ -1,7 +1,8 @@
-import { app, BrowserWindow, } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
 import { createWindow } from './window'
+import { getDApps } from '../base'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -14,27 +15,32 @@ declare module 'electron' {
         backend: Backend
         createWindow(
             siteConfig?: SiteConfig,
-            options?: BrowserWindowConstructorOptions): BrowserWindow
+            options?: BrowserWindowConstructorOptions
+        ): BrowserWindow
+        DApps?: string[]
     }
 }
 
 app.backend = new Backend()
 app.createWindow = createWindow
+app.DApps = getDApps()
 
 app.once('ready', () => {
     setupMenu()
     createWindow()
-}).on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow()
-    }
-}).on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
 })
+    .on('activate', () => {
+        // On OS X it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow()
+        }
+    })
+    .on('window-all-closed', () => {
+        if (process.platform !== 'darwin') {
+            app.quit()
+        }
+    })
 
 /**
  * Auto Updater
@@ -55,4 +61,3 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
-
