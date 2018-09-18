@@ -1,14 +1,17 @@
 <template>
     <v-app>
         <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
-            <Tabbar @new-tab="newTab" @switch="switchTab" :tabs="ports" :currentTab="currentPortId" @close="onremove">
+            <Tabbar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </Tabbar>
         </v-toolbar>
-        <v-content>
-            <view-port class="viewport-layout" v-for="item in ports" :key="item.portId" :currentPort="currentPortId"
-                :instanceId="item.portId" :url="item.url" @title-updated="updateTitle" @favicon-updated="updateFavicon"
-                @new-tab="newTab" @switch-view="switchTab" @updata-url="updateUrl" @close="onremove" />
-            <DApps @open-dapp="addPort" v-show="!ports.length" class="default-content" :list="apps">
+        <v-content class="sync-container">
+            <view-port class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
+                :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
+                <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content"
+                    :list="apps">
+                </DApps>
+            </view-port>
+            <DApps @open-dapp="onOpenDapp" v-if="!ports.length" class="default-content" :list="apps">
                 <div class="search">
                     <v-text-field @keyup.enter="openTab" v-model="search" label="Solo" placeholder="Placeholder" solo></v-text-field>
                 </div>
@@ -19,14 +22,19 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-// import { Getter, Action } from 'vuex-class'
 import { mapActions, mapState } from 'vuex'
 
-import Tabbar from './components/tabBar.vue'
-import ViewPort, { portData } from './components/ViewPort.vue'
+import Tabbar from './components/TabBar.vue'
+import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import { app } from 'electron'
 import Comfirm from './components/Confirms.vue'
+
+type PortTab = TabBar.Item & { id: string | number }
+type Current = {
+    key: string
+    value: string | number
+}
 
 @Component({
     created() {
@@ -45,75 +53,72 @@ import Comfirm from './components/Confirms.vue'
     }
 })
 export default class App extends Vue {
-    private a: boolean = true
-    private ports: portData[] = []
-    private currentPortId?: number = this.ports.length
-        ? this.ports[0]['portId']
-        : 0
+    private counter: number = 0
+    private ports: PortTab[] = []
+    private current: Current = {
+        key: 'id',
+        value: 0
+    }
+
     private search?: string = ''
     private apps: object[] = []
 
-    public addPort(data: portData) {
-        let now = Date.now()
-        this.currentPortId = now
-        this.ports.push({ portId: data.portId || now, url: data.url })
-    }
-
-    public updateTitle(data: portData) {
-        let index = this.ports.findIndex(item => {
-            return item.portId === data.portId
-        })
-
-        this.$set(this.ports[index], 'contentId', data.contentId)
-        this.$set(this.ports[index], 'title', data.title)
-    }
-
-    public updateUrl(data: portData) {
-        let index = this.ports.findIndex(item => {
-            return item.portId === data.portId
-        })
-
-        this.$set(this.ports[index], 'contentId', data.contentId)
-        this.$set(this.ports[index], 'url', data.url)
-    }
-
-    public switchTab(portId: number) {
-        this.currentPortId = portId
-    }
-
-    public openTab() {
-        this.addPort({
-            url: this.search
-        })
-    }
-
-    public newTab(data: portData) {
-        this.addPort({
-            url: data.url || ''
-        })
-    }
-
-    public onremove(portId: number) {
-        let index = this.ports.findIndex(item => {
-            return item.portId === portId
-        })
-        let tempCuttent: number
-        let temp = this.ports.slice(index + 1)
-        if (temp.length) {
-            tempCuttent = temp[0]['portId'] as number
-        } else {
-            tempCuttent = this.ports[index ? index - 1 : 0]['portId'] as number
+    public onOpenDapp(app: PortTab) {
+        let item: PortTab = {
+            title: app.title,
+            iconUrl: '',
+            id: Date.now() + this.counter,
+            src: app.src,
+            status: 'new'
         }
-        this.ports.splice(index, 1)
-        this.currentPortId = tempCuttent
+        this.current.value = item.id
+        ++this.counter
+        this.ports.push(item)
     }
 
-    public updateFavicon(data: portData) {
+    public onOpenDappInCurrentPort(app: Dapp.Item, index: number) {
+        this.$set(this.ports[index], 'src', app.src)
+        this.$set(this.ports[index], 'title', app.name)
+    }
+
+    public onAddTAb() {
+        let item: PortTab = {
+            title: 'New tab',
+            iconUrl: '',
+            id: Date.now() + this.counter,
+            src: '',
+            status: 'new'
+        }
+        ++this.counter
+        this.current.value = item.id
+        this.ports.push(item)
+    }
+
+    public onTabRemove(tab: PortTab) {
         let index = this.ports.findIndex(item => {
-            return item.portId === data.portId
+            return item.id === tab.id
         })
-        this.$set(this.ports[index], 'contentId', data.contentId)
-        this.$set(this.ports[index], 'icon', data.icons[0])
+
+        this.ports.splice(index, 1)
+    }
+
+    public onSwitchTab(item: PortTab) {
+        this.current.value = item.id
+    }
+
+    public onDataUpdated(event: ViewPort.DataUpdateEvent, index: number) {
+        let type = event.type
+        let value = event.value
+        if (type === 'title') {
+            this.$set(this.ports[index], 'title', value)
+        } else if (type === 'icon') {
+            this.$set(this.ports[index], 'iconUrl', value)
+        } else {
+        }
+    }
+
+    public onStatusUpdated(event: ViewPort.StatusUpdateEvent, index: number) {
+        this.$set(this.ports[index], 'status', event.status)
     }
 }
 </script>
@@ -135,12 +140,10 @@ body {
 .sync-drag-zone {
     -webkit-app-region: drag;
 }
-.sync-container {
-    height: calc(100% - 41px);
-    position: relative;
-}
+
 .sync-container .viewport-layout {
     position: absolute;
+    top: 0;
 }
 .sync-dapp-list.default-content {
     width: 75%;
@@ -153,5 +156,13 @@ body {
 }
 .tab-tools {
     float: right;
+}
+.sync-viewport-container {
+    visibility: hidden;
+    z-index: 0;
+}
+.sync-viewport-container.current {
+    visibility: visible;
+    z-index: 2;
 }
 </style>
