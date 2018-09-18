@@ -16,25 +16,13 @@
 import { Vue, Component } from 'vue-property-decorator'
 import Deferred from '@/base/deferred'
 
-declare interface ILib {
-    sign(contentId: number, Clouse?: object[]): Promise<string>
-}
-
-declare global {
-    interface Window {
-        Lib: ILib
-    }
-}
-
 @Component
 export default class Comfirm extends Vue {
     private name: string = 'component'
     private dialog: boolean = false
     private deferred = new Deferred<string>()
     created() {
-        window.Lib = {
-            sign: this.sign
-        }
+        window.Lib.sign = this.sign
     }
 
     async sign(contentId: number, Clouse?: object[]) {

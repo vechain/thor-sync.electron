@@ -7,11 +7,10 @@
         <v-content class="sync-container">
             <view-port class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
                 :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
-                <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content"
-                    :list="apps">
+                <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content">
                 </DApps>
             </view-port>
-            <DApps @open-dapp="onOpenDapp" v-if="!ports.length" class="default-content" :list="apps">
+            <DApps @open-dapp="onOpenDapp" v-if="!ports.length" class="default-content">
                 <div class="search">
                     <v-text-field @keyup.enter="openTab" v-model="search" label="Solo" placeholder="Placeholder" solo></v-text-field>
                 </div>
@@ -22,7 +21,6 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { mapActions, mapState } from 'vuex'
 
 import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
@@ -37,14 +35,6 @@ type Current = {
 }
 
 @Component({
-    created() {
-        ;(this as any).getBuildInDapps().then((apps: object[]) => {
-            ;(this as any).apps = apps
-        })
-    },
-    methods: {
-        ...mapActions(['getBuildInDapps'])
-    },
     components: {
         TabBar,
         ViewPort,
