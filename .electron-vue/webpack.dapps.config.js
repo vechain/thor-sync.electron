@@ -97,6 +97,7 @@ let dappsConfig = {
     ]
   },
   plugins: [
+    new ExtractTextPlugin('styles.css'),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     ...DApps.plugins
@@ -104,6 +105,9 @@ let dappsConfig = {
   output: {
     filename: '[name].js',
     path: '/'
+  },
+  node:{
+    fs: 'empty'
   },
   resolve: {
     alias: {
