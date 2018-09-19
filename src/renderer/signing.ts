@@ -35,7 +35,7 @@ export class TxSigning {
 
         const tx = new Transaction({
             chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
-            blockRef: best!.id.slice(0, 8),
+            blockRef: best!.id.slice(0, 18),
             expiration: options.expiration,
             clauses: this.clauses,
             gasPriceCoef: options.gasPriceCoef,
