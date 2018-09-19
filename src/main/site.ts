@@ -104,9 +104,9 @@ export class Site implements Connex.Thor.Site {
     }
 
     public nextTick() {
-        return new Promise<void>(resolve => {
-            this.emitter.once('next', () => {
-                resolve()
+        return new Promise<boolean>(resolve => {
+            this.emitter.once('next', hasNewBlock => {
+                resolve(hasNewBlock)
             })
         })
     }
@@ -148,7 +148,8 @@ export class Site implements Connex.Thor.Site {
             if (ws) {
                 try {
                     this.bestBlock = JSON.parse((await ws.read()).toString())
-                    this.emitter.emit('next')
+                    this.emitter.emit('next', true)
+                    continue
                 } catch (e) {
                     ws.close()
                     ws = undefined
@@ -163,7 +164,8 @@ export class Site implements Connex.Thor.Site {
                         const best = await this.mainWire.get<Connex.Thor.Block | null>('blocks/best')
                         if (best!.number !== this.bestBlock.number) {
                             this.bestBlock = best!
-                            this.emitter.emit('next')
+                            this.emitter.emit('next', true)
+                            continue
                         }
                         await sleep(2 * 1000)
                     } catch (e) {
@@ -171,6 +173,7 @@ export class Site implements Connex.Thor.Site {
                     }
                 }
             }
+            this.emitter.emit('next', false)
         }
     }
 }

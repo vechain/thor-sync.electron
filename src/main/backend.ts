@@ -84,11 +84,13 @@ export class Backend {
 
 
 export type SiteConfig = {
+    name: string
     url: string
     genesis: Connex.Thor.Block
 }
 
 const siteConfigs: SiteConfig[] = [{
+    name: 'Mainnet',
     url: 'http://localhost:8669',
     genesis: {
         number: 0,

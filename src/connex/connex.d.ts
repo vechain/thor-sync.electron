@@ -13,7 +13,7 @@ declare namespace Connex {
     interface Thor {
         readonly genesisBlock: Thor.Block
         readonly syncProgress: number
-        nextTick(): Promise<void>
+        nextTick(): Promise<boolean>
 
         account(
             addr: string,
