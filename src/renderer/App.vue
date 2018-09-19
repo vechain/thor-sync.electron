@@ -46,9 +46,6 @@ export default class App extends Vue {
         key: 'id',
         value: 0
     }
-    created() {
-        console.log(123)
-    }
     private search?: string = ''
     private apps: object[] = []
 
