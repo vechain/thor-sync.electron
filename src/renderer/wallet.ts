@@ -65,11 +65,15 @@ namespace Wallet {
             return entities
         }
 
+        public get(address: string) {
+            return this.storage.getItem<Entity | null>(address)
+        }
+
         public async save(
             entity: Entity,
             force?: boolean) {
             if (!force) {
-                if (await this.storage.getItem<Entity>(entity.address)) {
+                if (await this.get(entity.address)) {
                     throw new Error('wallet exists')
                 }
             }
@@ -99,6 +103,7 @@ namespace Wallet {
                     await deferredUnsubscribe
                     subscription.unsubscribe()
                 } catch (err) {
+                    // tslint:disable-next-line:no-console
                     console.log(err)
                 }
             })()
