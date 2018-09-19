@@ -7,7 +7,7 @@ declare interface Connex {
 declare namespace Connex {
     interface User {
         readonly address: string
-        sign<T extends 'tx'>(target: T, clauses: Thor.Clause[]): Promise<string>
+        sign<T extends 'tx'>(kind: T, clauses: Thor.Clause[]): Promise<string>
     }
 
     interface Thor {
