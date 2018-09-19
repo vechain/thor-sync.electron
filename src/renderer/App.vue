@@ -5,7 +5,7 @@
             </tab-bar>
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
+            <view-port :address-bar="item.addressBar" class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
                 :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
                 <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content">
                 </DApps>
@@ -26,7 +26,7 @@ import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import { app } from 'electron'
 
-type PortTab = TabBar.Item & { id: string | number }
+type PortTab = TabBar.Item & { id: string | number, addressBar: boolean }
 type Current = {
     key: string
     value: string | number
@@ -58,7 +58,8 @@ export default class App extends Vue {
             iconUrl: '',
             id: Date.now() + this.counter,
             src: app.src,
-            status: 'new'
+            status: 'new',
+            addressBar: app.addressBar
         }
         this.current.value = item.id
         ++this.counter
@@ -68,6 +69,7 @@ export default class App extends Vue {
     public onOpenDappInCurrentPort(app: Dapp.Item, index: number) {
         this.$set(this.ports[index], 'src', app.src)
         this.$set(this.ports[index], 'title', app.name)
+        this.$set(this.ports[index], 'addressBar', app.addressBar)
     }
 
     public onAddTAb() {

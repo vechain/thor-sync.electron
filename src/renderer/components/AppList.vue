@@ -8,7 +8,7 @@
                     </v-img>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn @click.stop="openDapp({src: item.src, name: item.name})" flat>{{item.name}}</v-btn>
+                        <v-btn @click.stop="openDapp({src: item.src, name: item.name, addressBar: item.needAddress})" flat>{{item.name}}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-container>
@@ -21,13 +21,14 @@ import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
 
 @Component
 export default class DApps extends Vue {
-    private apps = ['insight', 'wallet']
+    private apps = !window.ENV.devMode ? ['insight', 'wallet'] : ['insight', 'wallet', 'api']
 
     get list() {
         return this.apps.map<Dapp.Item>(item => {
             return {
                 name: item,
-                src: new URL(`${item}.html`, window.ENV.dapps).href
+                src: new URL(`${item}.html`, window.ENV.dapps).href,
+                needAddress: item !== 'api'
             }
         })
     }
