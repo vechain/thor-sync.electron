@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app id="frame">
         <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </tab-bar>
@@ -16,7 +16,6 @@
                 </div>
             </DApps>
         </v-content>
-        <Comfirm />
     </v-app>
 </template>
 <script lang="ts">
@@ -26,7 +25,6 @@ import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import { app } from 'electron'
-import Comfirm from './components/Confirms.vue'
 
 type PortTab = TabBar.Item & { id: string | number }
 type Current = {
@@ -38,8 +36,7 @@ type Current = {
     components: {
         TabBar,
         ViewPort,
-        DApps,
-        Comfirm
+        DApps
     }
 })
 export default class App extends Vue {
@@ -49,7 +46,9 @@ export default class App extends Vue {
         key: 'id',
         value: 0
     }
-
+    created() {
+        console.log(123)
+    }
     private search?: string = ''
     private apps: object[] = []
 

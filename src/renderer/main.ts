@@ -7,12 +7,14 @@ import App from './App.vue'
 import env from '@/env'
 import Wallet from './wallet'
 import { remote } from 'electron'
+import UIX from './UIX.vue'
 
 declare global {
     interface Window {
         readonly ENV: typeof env
         readonly walletStore: Wallet.Store
         readonly thor: Connex.Thor
+        readonly uix: any
     }
     const ENV: typeof env
     const thor: Connex.Thor
@@ -27,9 +29,7 @@ Object.defineProperty(window, 'walletStore', {
     enumerable: true
 })
 Object.defineProperty(window, 'thor', {
-    value: remote.app.backend.connect(
-        remote.getCurrentWebContents().id
-    ).thor,
+    value: remote.app.backend.connect(remote.getCurrentWebContents().id).thor,
     enumerable: true
 })
 
@@ -41,4 +41,15 @@ Vue.config.productionTip = false
 
 new Vue({
     render: h => h(App)
-}).$mount('#app')
+}).$mount('#frame')
+
+// new Vue({
+//     render: h => h(UIX)
+// }).$mount('#uix')
+
+
+
+Object.defineProperty(window, 'uix', {
+    value: new UIX().$mount('#uix'),
+    enumerable: true
+})
