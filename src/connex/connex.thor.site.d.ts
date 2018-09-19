@@ -4,7 +4,7 @@ declare namespace Connex{
             readonly url: string
             readonly genesisBlock: Connex.Thor.Block
             readonly syncProgress: number
-            nextTick(): Promise<void>
+            nextTick(): Promise<boolean>
 
             withWireAgent(agent?: any): Site
             createWire(): Site.Wire
