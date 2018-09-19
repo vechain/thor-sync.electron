@@ -31,7 +31,7 @@ export default class TabBar extends Vue {
         key: 'id',
         value: null
     }})
-    private current: {
+    private current!: {
         key: string,
         value: string | number
     }
@@ -52,6 +52,7 @@ export default class TabBar extends Vue {
     height: 45px;
     width: 100%;
     -webkit-user-select: none;
+    user-select: none;
     transition: padding-left 300ms ease-in-out;
     display: flex;
     justify-content: space-between;
@@ -67,6 +68,7 @@ export default class TabBar extends Vue {
     width: 150x;
     height: 32px;
     -webkit-user-select: none;
+    user-select: none;
     -webkit-app-region: no-drag;
     border-top-left-radius: 7px;
     border-top-right-radius: 7px;

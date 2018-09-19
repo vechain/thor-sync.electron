@@ -1,43 +1,44 @@
 import env from '@/env'
 import Wallet from './wallet'
-const remote = require('electron').remote
+import { remote } from 'electron'
+
 const win = remote.getCurrentWindow()
 const style = 'full-screen'
-let bodyEle = document.body
-let platform = process.platform
+const bodyEle = document.body
+const platform = process.platform
 
 declare interface ILib {
-  sign?(contentId: number, Clouse?: object[]): Promise<string>
-  DApps?: string[]
+    DApps?: string[]
+    sign?(contentId: number, clause?: object[]): Promise<string>
 }
 
 declare global {
-  interface Window {
-    ENV: typeof env
-    walletStore: Wallet.Store
-    Lib: ILib
-  }
+    interface Window {
+        ENV: typeof env
+        walletStore: Wallet.Store
+        Lib: ILib
+    }
 }
 
 window.ENV = env
 window.walletStore = new Wallet.Store()
 window.Lib = {
-  DApps: remote.app.DApps
+    DApps: remote.app.DApps
 }
 
 function init() {
-  bodyEle.classList.add(platform)
-  if (win.isFullScreen()) {
-    bodyEle.classList.add(style)
-  } else {
-    bodyEle.classList.remove(style)
-  }
+    bodyEle.classList.add(platform)
+    if (win.isFullScreen()) {
+        bodyEle.classList.add(style)
+    } else {
+        bodyEle.classList.remove(style)
+    }
 
-  win.on('enter-full-screen', function() {
-    bodyEle.classList.add(style)
-  })
-  win.on('leave-full-screen', function() {
-    bodyEle.classList.remove(style)
-  })
+    win.on('enter-full-screen', () => {
+        bodyEle.classList.add(style)
+    })
+    win.on('leave-full-screen', () => {
+        bodyEle.classList.remove(style)
+    })
 }
 init()
