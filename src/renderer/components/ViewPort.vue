@@ -1,6 +1,6 @@
 <template>
-    <div class="sync-viewport-container">
-        <v-container fluid class='pa-0 ma-0 sync-viewport-bar'>
+    <div class="sync-viewport-container" :class="{'full-height': !addressBar}">
+        <v-container v-if="addressBar" fluid class='pa-0 ma-0 sync-viewport-bar'>
             <v-layout row>
                 <v-flex>
                 </v-flex>
@@ -28,6 +28,9 @@ export default class ViewPort extends Vue {
 
     @Prop({ default: false })
     private draggable!: boolean
+
+    @Prop({ default: true })
+    private addressBar!: boolean
 
     @Emit('data-updated')
     emitUpdateData(event: ViewPort.DataUpdateEvent) {}
@@ -95,7 +98,7 @@ export default class ViewPort extends Vue {
     }
 
     updateLoadingStatus(event: any) {
-        this.emitStatus({status: event.type})
+        this.emitStatus({ status: event.type })
     }
 
     faviconUpdate(event: Electron.PageFaviconUpdatedEvent) {
@@ -218,7 +221,9 @@ export default class ViewPort extends Vue {
     background-color: #fff;
     height: calc(100% - 35px);
 }
-
+.sync-viewport-container.full-height webview {
+    height: 100%;
+}
 .sync-viewport-bar {
     height: 35px;
     width: 100%;
