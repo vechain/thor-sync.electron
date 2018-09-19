@@ -2,7 +2,6 @@ import { app, BrowserWindow } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
 import { createWindow } from './window'
-import { getDApps } from '../base'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -17,13 +16,11 @@ declare module 'electron' {
             siteConfig?: SiteConfig,
             options?: BrowserWindowConstructorOptions
         ): BrowserWindow
-        DApps?: string[]
     }
 }
 
 app.backend = new Backend()
 app.createWindow = createWindow
-app.DApps = getDApps()
 
 app.once('ready', () => {
     setupMenu()
