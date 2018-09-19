@@ -2,6 +2,7 @@ import { cry } from 'thor-devkit'
 import * as LocalForage from 'localforage'
 import 'localforage-observable'
 import Deferred from '@/base/deferred'
+// tslint:disable-next-line:no-var-requires variable-name
 const ZenObservable = require('zen-observable')
 
 LocalForage.newObservable.factory = (subscribeFn) => {
