@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-toolbar flat color="white">
-            <v-toolbar-title>Sign Clause</v-toolbar-title>
+            <v-toolbar-title>Clause</v-toolbar-title>
             <v-divider class="mx-2" inset vertical></v-divider>
             <v-spacer></v-spacer>
             <v-dialog v-model="dialog" max-width="500px">
@@ -53,10 +53,24 @@
         <div class="text-xs-center pt-2">
             <v-btn color="primary" @click.native="sign">Sign</v-btn>
         </div>
+        <v-container fluid grid-list-md>
+            <v-layout row wrap>
+                <v-flex xs6>
+                    <v-textarea outline label="rlp code" :value="signCode"></v-textarea>
+                </v-flex>
+                <v-flex xs6>
+                    <v-btn color="primary" @click.native="sendTx">Send</v-btn>
+                </v-flex>
+                <v-flex xs6>
+                    <pre>{{response}}</pre>
+                </v-flex>
+            </v-layout>
+        </v-container>
     </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import { connect } from 'tls'
 @Component
 export default class ClauseSign extends Vue {
     public editedIndex: number = -1
@@ -71,6 +85,9 @@ export default class ClauseSign extends Vue {
         value: ''
     }
     public dialog: boolean = false
+
+    public signCode: string = ''
+    public response: object = {}
 
     public headers: any[] = [
         { text: 'To', align: 'left', sortable: false, value: 'address' },
@@ -107,7 +124,28 @@ export default class ClauseSign extends Vue {
 
     public sign() {
         let cnx = window.connex
-        cnx.user!.sign('tx', this.clauses).then(r => console.log(r))
+        let clauses = this.clauses.map(item => {
+            return {
+                to: item.to,
+                value: '0x' + parseInt(item.value).toString(16),
+                data: '0x' + item.data
+            }
+        })
+        cnx.user!.sign('tx', clauses).then(signCode => {
+            this.signCode = signCode
+        })
+    }
+
+    public sendTx() {
+        connex.thor
+            .commit(this.signCode)
+            .then(r => {
+                this.response = r
+                // console.log(r)
+            })
+            .catch(e => {
+                console.error(e)
+            })
     }
 
     public save() {

@@ -20,7 +20,7 @@
                         </v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile active-class="test-class" v-for="(child, i) in item.children" :key="i" :to="{name: 'thor.clause'}">
+                <v-list-tile active-class="side-list-active" v-for="(child, i) in item.children" :key="i" :to="child.path">
                     <v-list-tile-action v-if="child.icon">
                         <v-icon>{{ child.icon }}</v-icon>
                     </v-list-tile-action>
@@ -62,9 +62,9 @@ export default class SideList extends Vue {
             text: 'Connex',
             model: false,
             children: [
-                { icon: 'person', text: 'User' },
-                { icon: 'leak_add', text: 'Thor' },
-                { icon: 'details', text: 'Vendor' }
+                { icon: 'person', text: 'User', path: {name: 'user.index'} },
+                { icon: 'leak_add', text: 'Thor', path: {name: 'thor.clause'} },
+                { icon: 'details', text: 'Vendor', path: {name: 'vendor.index'} }
             ]
         },
         { icon: 'chat_bubble', text: 'Send feedback' },
@@ -72,8 +72,9 @@ export default class SideList extends Vue {
     ]
 }
 </script>
-<style lang="scss" scoped>
-.side-list-active {
-    background-color: #eee;
+<style lang="scss">
+.side-list-active.v-list__tile--active {
+    background-color: #dedede;
+    color: #FF8F00;
 }
 </style>
