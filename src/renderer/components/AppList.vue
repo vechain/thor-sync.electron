@@ -34,9 +34,9 @@ import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
 
 @Component
 export default class DApps extends Vue {
-    private apps = !window.ENV.devMode
-        ? ['insight', 'wallet']
-        : ['insight', 'wallet', 'api']
+    private apps = ENV.devMode ?
+        ['insight', 'wallet', 'api'] :
+        ['insight', 'wallet']
 
     // private accounts: any[] = []
 
@@ -55,30 +55,30 @@ export default class DApps extends Vue {
         return this.apps.map<Dapp.Item>(item => {
             return {
                 name: item,
-                src: new URL(`${item}.html`, window.ENV.dapps).href,
+                src: new URL(`${item}.html`, ENV.dapps).href,
                 needAddress: item !== 'api'
             }
         })
     }
 
     @Emit('open-dapp')
-    openDapp(data: Dapp.Item) {}
+    openDapp(data: Dapp.Item) { }
 }
 </script>
 
 <style lang="scss" scoped>
 .sync-dapp-list div.dapp-container {
-    display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px;
-    grid-column-gap: 20px;
-    grid-row-gap: 30px;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: 160px 160px 160px 160px 160px 160px;
+  grid-column-gap: 20px;
+  grid-row-gap: 30px;
+  justify-content: center;
 }
 
 @media screen and (max-width: 1200px) {
-    .sync-dapp-list div.dapp-container {
-        grid-template-columns: 160px 160px 160px 160px;
-    }
+  .sync-dapp-list div.dapp-container {
+    grid-template-columns: 160px 160px 160px 160px;
+  }
 }
 </style>
 

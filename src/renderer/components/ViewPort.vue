@@ -41,12 +41,12 @@ export default class ViewPort extends Vue {
     @Emit('status-update')
     emitStatus(event: ViewPort.StatusUpdateEvent) {}
 
-    preload = window.ENV.preload
+    preload = ENV.preload
     origin: string = ''
     title: string = ''
 
     get partition() {
-        return `persist:${thor.genesis.id}/${this.account}`
+        return `persist:${THOR.genesis.id}/${this.account}`
     }
 
     @Watch('url')

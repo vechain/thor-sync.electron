@@ -14,16 +14,16 @@ import Confirm from './components/Confirms.vue'
         Confirm
     }
 })
-export default class UIX extends Vue {
+export default class UIX extends Vue implements UIXMethods {
     name: string = 'uix'
-    sign(address: string, clauses: Connex.Thor.Clause[] | string) {
-        return this.$refs['sign'].sign(JSON.parse(clauses), address)
+    signTx(address: string, clauses: Connex.Thor.Clause[]) {
+        return (this.$refs['sign'] as any).sign(clauses, address)
     }
 }
 </script>
 <style lang="scss" scoped>
 #uix {
-    position: absolute;
+  position: absolute;
 }
 </style>
 

@@ -68,11 +68,11 @@ export class Backend {
                 ? {
                       address: userAddr,
                       sign: (kind, clauses) => {
-                          let clausesStr = JSON.stringify(clauses)
+                          const clausesStr = JSON.stringify(clauses)
                           return webContents
                               .fromId(webContentsId)
                               .hostWebContents.executeJavaScript(
-                                  `uix.sign('${userAddr}', '${clausesStr}')`
+                                  `UIX.signTx('${userAddr}', ${clausesStr})`
                               )
                           // throw new Error('not implemented')
                       }

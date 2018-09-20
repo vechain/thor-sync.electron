@@ -3,35 +3,11 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import './window.init'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
-import App from './App.vue'
 import env from '@/env'
 import Wallet from './wallet'
 import { remote } from 'electron'
+import Nova from './Nova.vue'
 import UIX from './UIX.vue'
-
-declare global {
-    interface Window {
-        readonly ENV: typeof env
-        readonly walletStore: Wallet.Store
-        readonly thor: Connex.Thor
-        readonly uix: any
-    }
-    const ENV: typeof env
-    const thor: Connex.Thor
-    const walletStore: Wallet.Store
-}
-Object.defineProperty(window, 'ENV', {
-    value: env,
-    enumerable: true
-})
-Object.defineProperty(window, 'walletStore', {
-    value: new Wallet.Store(),
-    enumerable: true
-})
-Object.defineProperty(window, 'thor', {
-    value: remote.app.backend.connect(remote.getCurrentWebContents().id).thor,
-    enumerable: true
-})
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
@@ -39,21 +15,51 @@ Vue.use(Vuetify, {
 
 Vue.config.productionTip = false
 
-new Vue({
-    render: h => h(App)
-}).$mount('#frame')
+// widgets to be bound onto window.
+// widgets names should be full caps.
+declare global {
+    interface Window {
+        readonly ENV: typeof env
+        readonly WALLETS: Wallet.Store
+        readonly THOR: Connex.Thor
+        readonly UIX: UIXMethods
+    }
+    const ENV: typeof env
+    const WALLETS: Wallet.Store
+    const THOR: Connex.Thor
+    const UIX: UIXMethods
+}
 
-// new Vue({
-//     render: h => h(UIX)
-// }).$mount('#uix')
-
-Object.defineProperty(window, 'uix', {
-    value: new UIX().$mount('#uix'),
+// bind widgets
+Object.defineProperty(window, 'ENV', {
+    value: env,
+    enumerable: true
+})
+Object.defineProperty(window, 'WALLETS', {
+    value: new Wallet.Store(),
+    enumerable: true
+})
+Object.defineProperty(window, 'THOR', {
+    value: remote.app.backend.connect(remote.getCurrentWebContents().id).thor,
     enumerable: true
 })
 
-if (window.ENV.devMode) {
-    walletStore.save({
+// the portal root
+new Nova().$mount('#nova')
+// user interaction proxy root
+const uix = new UIX().$mount('#uix') as (UIX & UIXMethods)
+const uixMethods: UIXMethods = {
+    signTx(address, clauses) {
+        return uix.signTx(address, clauses)
+    }
+}
+Object.defineProperty(window, 'UIX', {
+    value: uixMethods,
+    enumerable: true
+})
+
+if (ENV.devMode) {
+    WALLETS.save({
         address: '0xf6e78a5584c06e2dec5c675d357f050a5402a730',
         name: 'Test',
         keystore: {

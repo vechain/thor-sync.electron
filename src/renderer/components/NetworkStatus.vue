@@ -16,11 +16,11 @@ export default class NetworkStatus extends Vue {
         .backend
         .getSiteConfig(remote.getCurrentWebContents().id)!.name
 
-    progress = thor.status.progress
+    progress = THOR.status.progress
 
     created() {
         const timer = setInterval(() => {
-            this.progress = thor.status.progress
+            this.progress = THOR.status.progress
         }, 5000)
 
         this.beforeDestroy = () => {
