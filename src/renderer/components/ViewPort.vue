@@ -46,7 +46,7 @@ export default class ViewPort extends Vue {
     title: string = ''
 
     get partition() {
-        return `persist:${thor.genesisBlock.id}/${this.account}`
+        return `persist:${thor.genesis.id}/${this.account}`
     }
 
     @Watch('url')
