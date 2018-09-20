@@ -30,12 +30,12 @@ export class TxSigning {
     }
 
     public async sign(password: string, options: TxSigning.Options) {
-        const genesis = thor.genesisBlock
-        const best = await thor.block('best').get()
+        const genesis = thor.genesis
+        const bestId = thor.status.id
 
         const tx = new Transaction({
             chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
-            blockRef: best!.id.slice(0, 18),
+            blockRef: bestId.slice(0, 18),
             expiration: options.expiration,
             clauses: this.clauses,
             gasPriceCoef: options.gasPriceCoef,
