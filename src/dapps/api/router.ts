@@ -1,6 +1,8 @@
 import { Vue } from 'vue-property-decorator'
 import VueRouter from 'vue-router'
 import Clause from './components/Clause.vue'
+import Account from './components/Account.vue'
+import Vendor from './components/Vendor.vue'
 
 Vue.use(VueRouter)
 export default new VueRouter({
@@ -13,16 +15,12 @@ export default new VueRouter({
         {
             name: 'user.index',
             path: '/user/index',
-            component: {
-                template: '<div>User</div>'
-            }
+            component: Account
         },
         {
             name: 'vendor.index',
             path: '/vendor/index',
-            component: {
-                template: '<div>Vendow</div>'
-            }
+            component: Vendor
         }
     ]
 })
