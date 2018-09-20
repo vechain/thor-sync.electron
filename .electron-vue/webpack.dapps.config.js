@@ -5,6 +5,7 @@ const webpack = require('webpack')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const DApps = require('./dapps')
 
 let dappsConfig = {
@@ -100,6 +101,9 @@ let dappsConfig = {
     new ExtractTextPlugin('styles.css'),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+        vue: true
+      }),
     ...DApps.plugins
   ],
   output: {

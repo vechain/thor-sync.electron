@@ -6,6 +6,7 @@ const webpack = require('webpack')
 
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 let preloadConfig = {
   entry: {
@@ -55,7 +56,10 @@ let preloadConfig = {
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+        vue: true
+      })
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json', '.node'],
