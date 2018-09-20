@@ -23,13 +23,13 @@
                         </v-layout>
                     </v-container>
                     <v-card-actions>
-                         <v-spacer></v-spacer>
-                         <v-btn>
-                             cancel
-                         </v-btn>
-                         <v-btn>
-                             ok
-                         </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn>
+                            cancel
+                        </v-btn>
+                        <v-btn>
+                            ok
+                        </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -90,7 +90,10 @@ export default class App extends Vue {
         this.ports.push(item)
     }
 
-    public onOpenDappInCurrentPort(app: Dapp.Item, index: number) {
+    public onOpenDappInCurrentPort(
+        app: Dapp.Item & { addressBar: boolean; account: string },
+        index: number
+    ) {
         this.$set(this.ports[index], 'src', app.src)
         this.$set(this.ports[index], 'title', app.name)
         this.$set(this.ports[index], 'addressBar', app.addressBar)
@@ -104,7 +107,8 @@ export default class App extends Vue {
             id: Date.now() + this.counter,
             src: '',
             status: 'new',
-            account: ''
+            account: '',
+            addressBar: true
         }
         ++this.counter
         this.current.value = item.id
