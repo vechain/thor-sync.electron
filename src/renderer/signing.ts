@@ -30,8 +30,8 @@ export class TxSigning {
     }
 
     public async sign(password: string, options: TxSigning.Options) {
-        const genesis = thor.genesis
-        const bestId = thor.status.id
+        const genesis = THOR.genesis
+        const bestId = THOR.status.id
 
         const tx = new Transaction({
             chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
@@ -44,7 +44,7 @@ export class TxSigning {
             nonce: '0x' + randomBytes(8).toString('hex')
         })
 
-        const entity = await walletStore.get(this.origin)
+        const entity = await WALLETS.get(this.origin)
         if (!entity) {
             throw new Error('wallet not found')
         }
@@ -64,11 +64,11 @@ export class TxSigning {
             }
             let output
             if (clause.to) {
-                output = await thor
+                output = await THOR
                     .account(clause.to)
                     .call(input)
             } else {
-                output = await thor
+                output = await THOR
                     .call(input)
             }
             gasUsed += output.gasUsed

@@ -61,7 +61,7 @@ type Current = {
         DApps
     }
 })
-export default class App extends Vue {
+export default class Nova extends Vue {
     private counter: number = 0
     private ports: PortTab[] = []
     private current: Current = {
@@ -73,7 +73,7 @@ export default class App extends Vue {
     private accounts: any[] = []
 
     public getAccounts() {
-        return window.walletStore.list().then(list => {
+        return WALLETS.list().then(list => {
             this.accounts = list
         })
     }
