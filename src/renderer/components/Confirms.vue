@@ -45,26 +45,10 @@ export default class Comfirm extends Vue {
 
     private tx: TxSigning | null = null
 
-    public async sign(
-        contentId: number,
-        clause: Connex.Thor.Clause[],
-        origin: string
-    ) {
-        this.tx = new TxSigning(
-            [],
-            '0xf6e78a5584c06e2dec5c675d357f050a5402a730'
-        )
-        // let estimateGas = await this.tx.estimateGas()
-        // // if (estimateGas.reverted) {
-        // // }
-        // let password = ''
-
-        // this.tx.sign(password, {
-        //     expiration: 720,
-        //     gasPriceCoef: 0,
-        //     gas: estimateGas.gas
-        // })
+    public async sign(clause: Connex.Thor.Clause[], origin: string) {
         this.open = true
+        this.tx = new TxSigning(clause, origin)
+
         try {
             return await this.deferred
         } finally {
@@ -104,10 +88,10 @@ export default class Comfirm extends Vue {
                     this.deferred.resolve(result)
                     this.deferred = new Deferred<string>()
                 })
-                .catch((err) => {
-                    console.error(err)
+                .catch(err => {
                     this.open = false
                     this.signing = false
+                    console.error(err)
                 })
         }
     }

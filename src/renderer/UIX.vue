@@ -1,7 +1,7 @@
 <template>
     <v-app id="uix">
         <v-content>
-            <Confirm ref="sign"/>
+            <Confirm ref="sign" />
         </v-content>
     </v-app>
 </template>
@@ -16,8 +16,8 @@ import Confirm from './components/Confirms.vue'
 })
 export default class UIX extends Vue {
     name: string = 'uix'
-    sign() {
-        return this.$refs['sign'].sign()
+    sign(address: string, clauses: Connex.Thor.Clause[] | string) {
+        return this.$refs['sign'].sign(JSON.parse(clauses), address)
     }
 }
 </script>
