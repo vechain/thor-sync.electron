@@ -11,9 +11,10 @@ declare namespace Connex {
     }
 
     interface Thor {
-        readonly genesisBlock: Thor.Block
-        readonly syncProgress: number
-        nextTick(): Promise<boolean>
+        readonly genesis: Thor.Block
+        readonly status: Thor.Status
+
+        nextTick(): Promise<void>
 
         account(
             addr: string,
@@ -105,6 +106,13 @@ declare namespace Connex {
     }
     namespace Thor {
         ///////
+        type Status = {
+            readonly progress: number
+            readonly id: string
+            readonly timestamp: number
+            readonly number: number
+        }
+
         type Account = {
             balance: string
             energy: string
