@@ -5,16 +5,34 @@
             </tab-bar>
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port :address-bar="item.addressBar" class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports"
-                :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
+            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}"
+                v-for="(item, index) in ports" :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)"
+                @status-update="onStatusUpdated($event, index)">
                 <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content">
                 </DApps>
             </view-port>
             <DApps @open-dapp="onOpenDapp" v-if="!ports.length" class="default-content">
-                <div class="search">
-                    <v-text-field @keyup.enter="openTab" v-model="search" label="Solo" placeholder="Placeholder" solo></v-text-field>
-                </div>
             </DApps>
+            <v-dialog>
+                <v-card>
+                    <v-container>
+                        <v-layout>
+                            <v-flex>
+                                <v-select :items="[]"></v-select>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                    <v-card-actions>
+                         <v-spacer></v-spacer>
+                         <v-btn>
+                             cancel
+                         </v-btn>
+                         <v-btn>
+                             ok
+                         </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-content>
     </v-app>
 </template>
@@ -26,7 +44,11 @@ import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import { app } from 'electron'
 
-type PortTab = TabBar.Item & { id: string | number, addressBar: boolean }
+type PortTab = TabBar.Item & {
+    id: string | number
+    addressBar: boolean
+    account: string
+}
 type Current = {
     key: string
     value: string | number
@@ -49,6 +71,10 @@ export default class App extends Vue {
     private search?: string = ''
     private apps: object[] = []
 
+    public accounts() {
+        return window.walletStore.list()
+    }
+
     public onOpenDapp(app: PortTab) {
         let item: PortTab = {
             title: app.title,
@@ -56,7 +82,8 @@ export default class App extends Vue {
             id: Date.now() + this.counter,
             src: app.src,
             status: 'new',
-            addressBar: app.addressBar
+            addressBar: app.addressBar,
+            account: app.account
         }
         this.current.value = item.id
         ++this.counter
@@ -67,6 +94,7 @@ export default class App extends Vue {
         this.$set(this.ports[index], 'src', app.src)
         this.$set(this.ports[index], 'title', app.name)
         this.$set(this.ports[index], 'addressBar', app.addressBar)
+        this.$set(this.ports[index], 'account', app.account)
     }
 
     public onAddTAb() {
@@ -75,7 +103,8 @@ export default class App extends Vue {
             iconUrl: '',
             id: Date.now() + this.counter,
             src: '',
-            status: 'new'
+            status: 'new',
+            account: ''
         }
         ++this.counter
         this.current.value = item.id

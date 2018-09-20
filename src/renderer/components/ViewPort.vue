@@ -32,6 +32,9 @@ export default class ViewPort extends Vue {
     @Prop({ default: true })
     private addressBar!: boolean
 
+    @Prop({default: ''})
+    private account!: string
+
     @Emit('data-updated')
     emitUpdateData(event: ViewPort.DataUpdateEvent) {}
 
@@ -43,12 +46,7 @@ export default class ViewPort extends Vue {
     title: string = ''
 
     get partition() {
-        if (this.url) {
-            let _url = new URL(this.url)
-            return `${_url.host}`
-        } else {
-            return ''
-        }
+        return `persist:${thor.genesisBlock.id}/${this.account}`
     }
 
     @Watch('url')
