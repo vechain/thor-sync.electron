@@ -2,9 +2,9 @@ declare namespace Connex{
     namespace Thor {
         interface Site {
             readonly url: string
-            readonly genesisBlock: Connex.Thor.Block
-            readonly syncProgress: number
-            nextTick(): Promise<boolean>
+            readonly genesis: Thor.Block
+            readonly status: Thor.Status
+            nextTick(): Promise<void>
 
             withWireAgent(agent?: any): Site
             createWire(): Site.Wire

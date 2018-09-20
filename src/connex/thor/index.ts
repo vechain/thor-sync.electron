@@ -10,8 +10,8 @@ export function create(
 ): Thor {
     const wire = site.createWire()
     return {
-        get genesisBlock() { return site.genesisBlock },
-        get syncProgress() { return site.syncProgress },
+        get genesis() { return site.genesis },
+        get status() { return site.status },
         nextTick() {
             return site.nextTick()
         },

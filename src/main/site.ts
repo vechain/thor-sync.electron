@@ -5,6 +5,7 @@ import * as URL from 'url'
 import * as QS from 'qs'
 import * as WebSocket from 'ws'
 import { EventEmitter } from 'events'
+import { Lazy } from '@/base/deferred'
 
 class Wire implements Connex.Thor.Site.Wire {
     private readonly axios: AxiosInstance
@@ -94,37 +95,45 @@ export class Site implements Connex.Thor.Site {
 
     constructor(
         readonly url: string,
-        readonly genesisBlock: Connex.Thor.Block,
+        readonly genesis: Connex.Thor.Block,
         private readonly agent?: any
     ) {
-        this.bestBlock = genesisBlock
-        this.mainWire = new Wire(url, genesisBlock.id, agent)
+        this.bestBlock = genesis
+        this.mainWire = new Wire(url, genesis.id, agent)
         this.emitter.setMaxListeners(2 ** 32 - 1)
         this.loop()
     }
 
     public nextTick() {
-        return new Promise<boolean>(resolve => {
-            this.emitter.once('next', hasNewBlock => {
-                resolve(hasNewBlock)
+        return new Lazy<void>(resolve => {
+            this.emitter.once('next', () => {
+                resolve()
             })
         })
     }
 
-    public get syncProgress() {
-        const nowTs = Date.now()
-        const bestBlockTs = this.bestBlock.timestamp * 1000
-        if (nowTs - bestBlockTs < 30 * 1000) {
-            return 1
+    public get status(): Connex.Thor.Status {
+        const _this = this
+        return {
+            get progress() {
+                const nowTs = Date.now()
+                const bestTs = _this.bestBlock.timestamp * 1000
+                if (nowTs - bestTs < 30 * 1000) {
+                    return 1
+                }
+                const genesisTs = _this.genesis.timestamp * 1000
+                const progress = (bestTs - genesisTs) / (nowTs - genesisTs)
+                return progress < 0 ? NaN : progress
+            },
+            get id() { return _this.bestBlock.id },
+            get timestamp() { return _this.bestBlock.timestamp },
+            get number() { return _this.bestBlock.number }
         }
-        const genesisBlockTs = this.genesisBlock.timestamp * 1000
-        const progress = (bestBlockTs - genesisBlockTs) / (nowTs - genesisBlockTs)
-        return progress < 0 ? NaN : progress
     }
 
     public withWireAgent(agent?: any): Connex.Thor.Site {
         const overriddenCreateWire = () => {
-            return new Wire(this.url, this.genesisBlock.id, agent)
+            return new Wire(this.url, this.genesis.id, agent)
         }
         const nameOfCreateWire = this.createWire.name
 
@@ -139,7 +148,7 @@ export class Site implements Connex.Thor.Site {
     }
 
     public createWire() {
-        return new Wire(this.url, this.genesisBlock.id, this.agent)
+        return new Wire(this.url, this.genesis.id, this.agent)
     }
 
     private async loop() {
@@ -148,8 +157,7 @@ export class Site implements Connex.Thor.Site {
             if (ws) {
                 try {
                     this.bestBlock = JSON.parse((await ws.read()).toString())
-                    this.emitter.emit('next', true)
-                    continue
+                    this.emitter.emit('next')
                 } catch (e) {
                     ws.close()
                     ws = undefined
@@ -164,7 +172,7 @@ export class Site implements Connex.Thor.Site {
                         const best = await this.mainWire.get<Connex.Thor.Block | null>('blocks/best')
                         if (best!.number !== this.bestBlock.number) {
                             this.bestBlock = best!
-                            this.emitter.emit('next', true)
+                            this.emitter.emit('next')
                             continue
                         }
                         await sleep(2 * 1000)
@@ -173,7 +181,6 @@ export class Site implements Connex.Thor.Site {
                     }
                 }
             }
-            this.emitter.emit('next', false)
         }
     }
 }
