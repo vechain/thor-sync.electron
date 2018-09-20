@@ -3,14 +3,14 @@
         <v-navigation-drawer dense fixed :clipped="$vuetify.breakpoint.mdAndUp" app v-model="drawer">
             <side-list />
         </v-navigation-drawer>
-        <v-toolbar color="blue darken-3" dark app :clipped-left="$vuetify.breakpoint.mdAndUp" fixed>
+        <v-toolbar color="blue-grey lighten-1" dark app :clipped-left="$vuetify.breakpoint.mdAndUp" fixed>
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
                 <span class="hidden-sm-and-down">Api Demo</span>
             </v-toolbar-title>
         </v-toolbar>
         <v-content>
-            <v-container fluid fill-height>
+            <v-container>
                 <router-view></router-view>
             </v-container>
         </v-content>
