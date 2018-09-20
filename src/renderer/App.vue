@@ -70,11 +70,16 @@ export default class App extends Vue {
     }
     private search?: string = ''
     private apps: object[] = []
+    private accounts: any[] = []
 
-    public accounts() {
-        return window.walletStore.list()
+    public getAccounts() {
+        return window.walletStore.list().then(list => {
+            this.accounts = list
+        })
     }
-
+    created() {
+        this.getAccounts()
+    }
     public onOpenDapp(app: PortTab) {
         let item: PortTab = {
             title: app.title,
@@ -83,7 +88,7 @@ export default class App extends Vue {
             src: app.src,
             status: 'new',
             addressBar: app.addressBar,
-            account: app.account
+            account: app.account || this.accounts[0]['address']
         }
         this.current.value = item.id
         ++this.counter
@@ -97,7 +102,7 @@ export default class App extends Vue {
         this.$set(this.ports[index], 'src', app.src)
         this.$set(this.ports[index], 'title', app.name)
         this.$set(this.ports[index], 'addressBar', app.addressBar)
-        this.$set(this.ports[index], 'account', app.account)
+        this.$set(this.ports[index], 'account', app.account || this.accounts[0]['address'])
     }
 
     public onAddTAb() {
