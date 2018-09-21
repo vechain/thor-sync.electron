@@ -31,7 +31,7 @@ export class TxSigning {
 
     public async sign(password: string, options: TxSigning.Options) {
         const genesis = THOR.genesis
-        const bestId = THOR.status.id
+        const bestId = THOR.status.head.id
 
         const tx = new Transaction({
             chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
