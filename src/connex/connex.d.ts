@@ -107,10 +107,12 @@ declare namespace Connex {
     namespace Thor {
         ///////
         type Status = {
-            readonly progress: number
-            readonly id: string
-            readonly timestamp: number
-            readonly number: number
+            progress: number
+            head: {
+                id: string
+                number: number
+                timestamp: number
+            }
         }
 
         type Account = {

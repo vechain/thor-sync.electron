@@ -125,9 +125,11 @@ export class Site implements Connex.Thor.Site {
                 const progress = (bestTs - genesisTs) / (nowTs - genesisTs)
                 return progress < 0 ? NaN : progress
             },
-            get id() { return _this.bestBlock.id },
-            get timestamp() { return _this.bestBlock.timestamp },
-            get number() { return _this.bestBlock.number }
+            head: {
+                id: _this.bestBlock.id,
+                number: _this.bestBlock.number,
+                timestamp: _this.bestBlock.timestamp
+            }
         }
     }
 
