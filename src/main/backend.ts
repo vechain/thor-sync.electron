@@ -34,6 +34,10 @@ export class Backend {
     }
 
     public connect(webContentsId: number, userAddr?: string): Connex {
+        const wc = webContents.fromId(webContentsId)
+        if (!wc) {
+            throw new Error('no such webContents')
+        }
         const config = this.getSiteConfig(webContentsId)
         if (!config) {
             throw new Error('host not registered')
@@ -54,8 +58,7 @@ export class Backend {
             maxSockets: 20
         })
         this.activeConns[webContentsId] = conn
-
-        webContents.fromId(webContentsId).once('destroyed', () => {
+        wc.once('destroyed', () => {
             const remained = this.activeConns[webContentsId]
             if (remained) {
                 remained.destroy()
@@ -63,26 +66,29 @@ export class Backend {
             }
         })
 
+        let user: Connex.User | undefined
+        if (userAddr) {
+            user = {
+                address: userAddr,
+                sign: (kind, clauses) => {
+                    if (kind === 'tx') {
+                        const clausesStr = JSON.stringify(clauses)
+                        return (wc.hostWebContents || wc)
+                            .executeJavaScript(
+                                `UIX.signTx('${userAddr}', ${clausesStr})`
+                            )
+                    }
+                    throw new Error('not implemented')
+                }
+            }
+        }
+
         return connex.create(
-            userAddr
-                ? {
-                      address: userAddr,
-                      sign: (kind, clauses) => {
-                          const clausesStr = JSON.stringify(clauses)
-                          return webContents
-                              .fromId(webContentsId)
-                              .hostWebContents.executeJavaScript(
-                                  `UIX.signTx('${userAddr}', ${clausesStr})`
-                              )
-                          // throw new Error('not implemented')
-                      }
-                  }
-                : undefined,
+            user,
             site.withWireAgent(conn),
             {
                 name: 'thor-sync'
-            }
-        )
+            })
     }
 
     public get siteConfigs() {
