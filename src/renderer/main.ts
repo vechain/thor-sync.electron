@@ -22,15 +22,17 @@ declare global {
         readonly ENV: typeof env
         readonly WALLETS: Wallet.Store
         readonly THOR: Connex.Thor
-        readonly UIX: UIXMethods
+        readonly UIX: {
+            signTx(address: string, clauses: Connex.Thor.Clause[]): Promise<string>
+        }
     }
     const ENV: typeof env
     const WALLETS: Wallet.Store
     const THOR: Connex.Thor
-    const UIX: UIXMethods
+    const UIX: Window['UIX']
 }
 
-// bind widgets
+// bind widgets, UIX will be bound inside UIX root
 Object.defineProperty(window, 'ENV', {
     value: env,
     enumerable: true
@@ -44,19 +46,6 @@ Object.defineProperty(window, 'THOR', {
     enumerable: true
 })
 
-// the portal root
-new Nova().$mount('#nova')
-// user interaction proxy root
-const uix = new UIX().$mount('#uix') as (UIX & UIXMethods)
-const uixMethods: UIXMethods = {
-    signTx(address, clauses) {
-        return uix.signTx(address, clauses)
-    }
-}
-Object.defineProperty(window, 'UIX', {
-    value: uixMethods,
-    enumerable: true
-})
 
 if (ENV.devMode) {
     WALLETS.save({
@@ -86,3 +75,8 @@ if (ENV.devMode) {
         }
     }, true)
 }
+
+// the portal root
+new Nova().$mount('#nova')
+// user interaction proxy root
+new UIX().$mount('#uix')

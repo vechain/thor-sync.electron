@@ -1,23 +1,46 @@
 <template>
     <v-app id="uix">
         <v-content>
-            <Confirm ref="sign" />
+            <SignTxDialog :data="signTxData" />
         </v-content>
     </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Confirm from './components/Confirms.vue'
+import SignTxDialog from './components/SignTxDialog.vue'
 @Component({
     components: {
-        Confirm
+        SignTxDialog
     }
 })
-export default class UIX extends Vue implements UIXMethods {
+export default class UIX extends Vue {
     name: string = 'uix'
-    signTx(address: string, clauses: Connex.Thor.Clause[]) {
-        return (this.$refs['sign'] as any).sign(clauses, address)
+    signTxData: SignTxDialog.Data | null = null
+
+    created() {
+        const _this = this
+        const uix: (typeof window.UIX) = {
+            signTx(origin: string, clauses: Connex.Thor.Clause[]) {
+                return _this.signTx(origin, clauses)
+            }
+        }
+        Object.defineProperty(window, 'UIX', {
+            value: uix,
+            enumerable: true
+        })
+    }
+
+    signTx(origin: string, clauses: Connex.Thor.Clause[]) {
+        return new Promise<string>((resolve, reject) => {
+            this.signTxData = {
+                origin,
+                clauses,
+                callback(err, result) {
+                    err ? reject(err) : resolve(result)
+                }
+            }
+        })
     }
 }
 </script>
