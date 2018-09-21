@@ -9,6 +9,8 @@ declare module 'vue/types/vue' {
         mounted(): void
         beforeUpdate(): void
         updated(): void
+        activated(): void
+        deactivated(): void
         beforeDestroy(): void
         destroyed(): void
     }
