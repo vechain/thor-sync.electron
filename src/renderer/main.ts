@@ -3,16 +3,18 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import './window.init'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
+import Vuex from 'vuex'
 import env from '@/env'
 import Wallet from './wallet'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
 import UIX from './UIX.vue'
+import RootStore from './store'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })
-
+Vue.use(Vuex)
 Vue.config.productionTip = false
 
 // widgets to be bound onto window.
@@ -20,14 +22,14 @@ Vue.config.productionTip = false
 declare global {
     interface Window {
         readonly ENV: typeof env
-        readonly WALLETS: Wallet.Store
+        readonly WALLETS: Wallet.Persist
         readonly THOR: Connex.Thor
         readonly UIX: {
             signTx(address: string, clauses: Connex.Thor.Clause[]): Promise<string>
         }
     }
     const ENV: typeof env
-    const WALLETS: Wallet.Store
+    const WALLETS: Wallet.Persist
     const THOR: Connex.Thor
     const UIX: Window['UIX']
 }
@@ -38,7 +40,7 @@ Object.defineProperty(window, 'ENV', {
     enumerable: true
 })
 Object.defineProperty(window, 'WALLETS', {
-    value: new Wallet.Store(),
+    value: new Wallet.Persist(),
     enumerable: true
 })
 Object.defineProperty(window, 'THOR', {
@@ -77,6 +79,6 @@ if (ENV.devMode) {
 }
 
 // the portal root
-new Nova().$mount('#nova')
+new Nova({ store: new RootStore() }).$mount('#nova')
 // user interaction proxy root
 new UIX().$mount('#uix')

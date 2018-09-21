@@ -50,7 +50,7 @@ namespace Wallet {
         method: string
     }
 
-    export class Store {
+    export class Persist {
         private readonly storage = LocalForage.createInstance({
             driver: LocalForage.INDEXEDDB,
             name: 'sync',
