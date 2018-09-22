@@ -27,21 +27,17 @@ export function createEventVisitor(
 
             const transformed: Thor.Filter<'decoded-event'> = {
                 kind: 'decoded-event',
-                range(unit: 'block' | 'time', from: number, to: number) {
-                    filter.range(unit, from, to)
+                range(range: Thor.Range) {
+                    filter.range(range)
                     return transformed
                 },
                 order(order: 'asc' | 'desc') {
                     filter.order(order)
                     return transformed
                 },
-                offset(offset: number) {
-                    filter.offset(offset)
-                    return transformed
-                },
-                next(limit: number) {
+                next(offset: number, limit: number) {
                     return filter
-                        .next(limit)
+                        .next(offset, limit)
                         .then(events => events.map(event => {
                             const decoded = coder.decode(event.data, event.topics)
                             return { ...event, decoded }
