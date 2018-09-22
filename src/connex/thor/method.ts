@@ -1,12 +1,12 @@
 import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 
-export function createMethodVisitor(
+export function createMethod(
     wire: Thor.Site.Wire,
     addr: string,
     abiDef: object,
     revision?: string | number
-): Thor.MethodVisitor {
+): Thor.Method {
     const coder = new abi.Function(abiDef as any)
     return {
         asClause(

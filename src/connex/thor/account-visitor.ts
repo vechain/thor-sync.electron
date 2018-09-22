@@ -1,6 +1,6 @@
 import Thor = Connex.Thor
 import { createEventVisitor } from './event-visitor'
-import { createMethodVisitor } from './method-visitor'
+import { createMethod } from './method'
 
 export function createAccountVisitor(
     wire: Thor.Site.Wire,
@@ -15,17 +15,15 @@ export function createAccountVisitor(
                 `accounts/${encodeURIComponent(addr)}`,
                 { revision })
         },
-        code() {
-            return wire.get<{ code: string }>(
+        getCode() {
+            return wire.get<Thor.Account.Code>(
                 `accounts/${encodeURIComponent(addr)}/code`,
                 { revision })
-                .then(r => r.code)
         },
-        storage(key: string) {
-            return wire.get<{ value: string }>(
+        getStorage(key: string) {
+            return wire.get<Thor.Account.Storage>(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision })
-                .then(r => r.value)
         },
         call(input: Thor.VMInput) {
             return wire.post<Thor.VMOutput>(
@@ -34,7 +32,7 @@ export function createAccountVisitor(
                 { revision })
         },
         method(abiDef: object) {
-            return createMethodVisitor(wire, addr, abiDef, revision)
+            return createMethod(wire, addr, abiDef, revision)
         },
         event(abiDef: object) {
             return createEventVisitor(wire, abiDef, addr)

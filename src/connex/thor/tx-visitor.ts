@@ -9,13 +9,13 @@ export function createTxVisitor(
         get id() { return id },
         get head() { return head },
         get() {
-            return wire.get<(Thor.Transaction & { meta: Thor.Transaction.Meta }) | null>(
+            return wire.get<(Thor.Transaction & Thor.Transaction.Meta) | null>(
                 `transactions/${encodeURIComponent(id)}`,
                 { head }
             )
         },
-        receipt() {
-            return wire.get<(Thor.Receipt & { meta: Thor.Transaction.Meta }) | null>(
+        getReceipt() {
+            return wire.get<(Thor.Receipt & Thor.Transaction.Meta) | null>(
                 `transactions/${encodeURIComponent(id)}/receipt`,
                 { head }
             )
