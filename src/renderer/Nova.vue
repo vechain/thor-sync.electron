@@ -1,8 +1,9 @@
 <template>
     <v-app id="frame">
-        <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" dark fixed app>
+        <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" fixed app>
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </tab-bar>
+            <NetworkStatus></NetworkStatus>
         </v-toolbar>
         <v-content class="sync-container">
             <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}"
@@ -42,7 +43,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
-import { app } from 'electron'
+import NetworkStatus from './components/NetworkStatus.vue'
 
 type PortTab = TabBar.Item & {
     id: string | number
@@ -58,7 +59,8 @@ type Current = {
     components: {
         TabBar,
         ViewPort,
-        DApps
+        DApps,
+        NetworkStatus
     }
 })
 export default class Nova extends Vue {
