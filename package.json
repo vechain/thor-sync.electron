@@ -77,6 +77,7 @@
     "zen-observable": "^0.8.9"
   },
   "devDependencies": {
+    "@mdi/font": "^2.8.94",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.5",
