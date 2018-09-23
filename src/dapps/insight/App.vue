@@ -16,10 +16,11 @@ export default class App extends Vue {
 
     created() {
         ; (async () => {
+            const ticker = connex.thor.ticker()
             for (; ;) {
                 try {
                     this.block = JSON.stringify(await connex.thor.block('best').get(), null, 4)
-                    await connex.thor.nextTick()
+                    await ticker.next()
                 } catch{
                 }
 
