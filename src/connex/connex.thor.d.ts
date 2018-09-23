@@ -3,7 +3,7 @@ declare namespace Connex {
         readonly genesis: Thor.Block
         readonly status: Thor.Status
 
-        nextTick(): Promise<void>
+        ticker(): Thor.Ticker
 
         account(
             addr: string,
@@ -47,6 +47,10 @@ declare namespace Connex {
                 number: number
                 timestamp: number
             }
+        }
+
+        interface Ticker {
+            next(): Promise<void>
         }
 
         interface BlockVisitor {
