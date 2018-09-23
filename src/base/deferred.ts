@@ -28,6 +28,21 @@ interface Deferred<T> {
 
 
 let _lazyCallingThen = false
+function proxy(fn: any, extra?: () => void) {
+    return new Proxy(fn, {
+        apply(target, thisArg: any, argArray?: any) {
+            if (extra) {
+                extra()
+            }
+            try {
+                _lazyCallingThen = true
+                return Reflect.apply(target, thisArg, argArray)
+            } finally {
+                _lazyCallingThen = false
+            }
+        }
+    })
+}
 
 export class Lazy<T> extends Promise<T> {
     constructor(
@@ -38,6 +53,9 @@ export class Lazy<T> extends Promise<T> {
         if (_lazyCallingThen) {
             // fallback to Promise constructor
             super(executor)
+
+            this.then = proxy(this.then)
+            this.catch = proxy(this.catch)
             return
         }
 
@@ -54,27 +72,8 @@ export class Lazy<T> extends Promise<T> {
             }
         })
 
-        const _then = super.then
-        this.then = function() {
-            setImmediate(delayed)
-            try {
-                _lazyCallingThen = true
-                return _then.apply(this, arguments)
-            } finally {
-                _lazyCallingThen = false
-            }
-        }
-
-        const _catch = super.catch
-        this.catch = function() {
-            setImmediate(delayed)
-            try {
-                _lazyCallingThen = true
-                return _catch.apply(this, arguments)
-            } finally {
-                _lazyCallingThen = false
-            }
-        }
+        this.then = proxy(this.then, () => setImmediate(delayed))
+        this.catch = proxy(this.catch, () => setImmediate(delayed))
     }
 }
 
