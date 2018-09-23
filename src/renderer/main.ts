@@ -10,7 +10,7 @@ import Wallet from './wallet'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
 import UIX from './UIX.vue'
-import RootStore from './store'
+import Store from './store'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
@@ -80,6 +80,6 @@ if (ENV.devMode) {
 }
 
 // the portal root
-new Nova({ store: new RootStore() }).$mount('#nova')
+new Nova({ store: new Store() }).$mount('#nova')
 // user interaction proxy root
 new UIX().$mount('#uix')
