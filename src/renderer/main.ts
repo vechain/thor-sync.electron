@@ -1,5 +1,6 @@
 import 'vuetify/dist/vuetify.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
+import '@mdi/font/css/materialdesignicons.css'
 import './window.init'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
