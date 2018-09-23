@@ -12,8 +12,19 @@ export function create(
     return {
         get genesis() { return site.genesis },
         get status() { return site.status },
-        nextTick() {
-            return site.nextTick()
+        ticker() {
+            let lastKnownBlockNum = site.status.head.number
+            return {
+                next() {
+                    if (lastKnownBlockNum !== site.status.head.number) {
+                        lastKnownBlockNum = site.status.head.number
+                        return Promise.resolve()
+                    }
+                    return site.nextTick().then(() => {
+                        lastKnownBlockNum = site.status.head.number
+                    })
+                }
+            }
         },
         account(
             addr: string,
