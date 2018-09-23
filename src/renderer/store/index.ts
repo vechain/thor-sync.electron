@@ -24,8 +24,10 @@ class RootStore extends Vuex.Store<RootStore.Model> {
         });
 
         (async () => {
+            this.commit('updateStatus')
+            const ticker = THOR.ticker()
             for (; ;) {
-                await THOR.nextTick()
+                await ticker.next()
                 this.commit('updateStatus')
             }
         })()
