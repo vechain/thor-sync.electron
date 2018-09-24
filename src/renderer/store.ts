@@ -16,9 +16,9 @@ namespace Store {
         updateTime: number
     }
 
-    export interface WatchedAccount {
+    export interface TrackedAccount {
         readonly account: Account
-        unwatch(): void
+        untrack(): void
     }
 }
 
@@ -29,7 +29,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_ACCOUNT = 'updateAccount'
 
     constructor() {
-        const accountWatcher = new AccountWatcher()
+        const accountTracker = new AccountTracker()
         super({
             state: {
                 chainStatus: THOR.status,
@@ -43,9 +43,9 @@ class Store extends Vuex.Store<Store.Model> {
                         if (!acc) {
                             acc = { data: null, updateTime: 0 }
                             Vue.set(state.accounts, addr, acc)
-                            accountWatcher.requestUpdate(addr)
+                            accountTracker.requestUpdate(addr)
                         }
-                        return accountWatcher.watch(addr, acc)
+                        return accountTracker.track(addr, acc)
                     }
                 },
             },
@@ -68,7 +68,7 @@ class Store extends Vuex.Store<Store.Model> {
 
         this.monitorChain()
         this.monitorWallets()
-        accountWatcher.run((addr, data) => {
+        accountTracker.run((addr, data) => {
             this.commit(Store.UPDATE_ACCOUNT, { addr, data })
         })
     }
@@ -102,26 +102,26 @@ class Store extends Vuex.Store<Store.Model> {
     }
 }
 
-class AccountWatcher {
+class AccountTracker {
     private readonly refCounts: { [addr: string]: number } = {}
     private emitter = new EventEmitter()
 
-    public watch(addr: string, acc: Store.Account): Store.WatchedAccount {
+    public track(addr: string, acc: Store.Account): Store.TrackedAccount {
         if (this.refCounts[addr]) {
             this.refCounts[addr]++
         } else {
             this.refCounts[addr] = 1
         }
-        let unwatched = false
+        let tracked = true
         return {
             get account() {
                 return acc
             },
-            unwatch: () => {
-                if (unwatched) {
+            untrack: () => {
+                if (!tracked) {
                     return
                 }
-                unwatched = true
+                tracked = false
                 this.refCounts[addr]--
             }
         }
