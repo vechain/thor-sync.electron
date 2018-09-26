@@ -5,7 +5,7 @@ import * as URL from 'url'
 import * as QS from 'qs'
 import * as WebSocket from 'ws'
 import { EventEmitter } from 'events'
-import { Lazy } from '@/base/deferred'
+import { Lazy } from '@/common/deferred'
 
 class Wire implements Connex.Thor.Site.Wire {
     private readonly axios: AxiosInstance
