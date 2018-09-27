@@ -1,6 +1,8 @@
 import 'vuetify/dist/vuetify.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import '@mdi/font/css/materialdesignicons.css'
+import 'typeface-roboto/index.css'
+import 'typeface-roboto-mono'
 import './window.init'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
