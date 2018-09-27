@@ -1,8 +1,8 @@
 <template>
-    <v-menu dark :close-on-content-click="false" offset-y>
-        <v-chip slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'" disabled text-color="white" small>
-            {{siteName}}
-        </v-chip>
+    <v-menu dark left offset-y :close-on-content-click="false" v-model="opened">
+        <v-btn flat light small slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'">
+            {{siteConfig.name}}
+        </v-btn>
         <v-card flat>
             <v-container>
                 <v-layout column>
@@ -18,7 +18,7 @@
             </v-container>
             <v-divider></v-divider>
             <v-list>
-                <v-list-tile v-for="site in siteConfigs" two-line :key="site.genesis.id +'@' + site.url">
+                <v-list-tile v-for="site in siteConfigs" two-line :key="site.genesis.id +'@' + site.url" @click="openWindow(site)">
                     <v-list-tile-content>
                         <v-list-tile-title>
                             {{site.name}}
@@ -27,11 +27,6 @@
                             {{site.url}}
                         </v-list-tile-sub-title>
                     </v-list-tile-content>
-                    <v-list-tile-action>
-                        <v-btn icon ripple>
-                            <v-icon small>launch</v-icon>
-                        </v-btn>
-                    </v-list-tile-action>
                 </v-list-tile>
             </v-list>
         </v-card>
@@ -43,18 +38,21 @@ import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
 
+
 type Status = Connex.Thor.Status
 
 @Component
 export default class NetworkStatus extends Vue {
-    siteName = remote
+    siteConfig = remote
         .app
         .backend
-        .getSiteConfig(remote.getCurrentWebContents().id)!.name
+        .getSiteConfig(remote.getCurrentWebContents().id)!
 
     siteConfigs = remote.app.backend.siteConfigs
 
+
     @State chainStatus!: Status
+    opened = false
 
     get progressText() {
         return (Math.round(this.chainStatus.progress * 10000) / 100).toString() + '%'
@@ -62,6 +60,11 @@ export default class NetworkStatus extends Vue {
 
     get headNumberText() {
         return '#' + this.chainStatus.head.number.toLocaleString()
+    }
+
+    openWindow(config: any) {
+        remote.app.createWindow(config)
+        this.opened = false
     }
 }
 </script>
