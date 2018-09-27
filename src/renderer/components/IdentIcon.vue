@@ -36,7 +36,7 @@ function generateIcon(seed: number, diameter: number) {
     return elem
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .identicon {
   overflow: hidden;
 }
