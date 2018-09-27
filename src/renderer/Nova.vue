@@ -1,14 +1,22 @@
 <template>
     <v-app id="frame">
-        <v-toolbar height="40px" dense flat class="sync-drag-zone" color="#0097A7" fixed app>
+        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app>
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </tab-bar>
+            <AccountSwitch v-model="selected"></AccountSwitch>
             <NetworkStatus></NetworkStatus>
+
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}"
-                v-for="(item, index) in ports" :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)"
-                @status-update="onStatusUpdated($event, index)">
+            <v-container grid-list-xl>
+                <v-layout row wrap>
+                    <v-flex wrap xs4 v-for="wallet in wallets" :key="wallet.address">
+                        <account-card :track="true" :name="wallet.name" :address="wallet.address" flat class="elevation-6" tile> </account-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
                 <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content">
                 </DApps>
             </view-port>
@@ -44,7 +52,10 @@ import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import DApps from './components/AppList.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
-
+import { State } from 'vuex-class'
+import Wallet from './wallet'
+import AccountCard from './components/AccountCard.vue'
+import AccountSwitch from './components/AccountSwitch.vue'
 type PortTab = TabBar.Item & {
     id: string | number
     addressBar: boolean
@@ -60,10 +71,14 @@ type Current = {
         TabBar,
         ViewPort,
         DApps,
-        NetworkStatus
+        NetworkStatus,
+        AccountCard,
+        AccountSwitch
     }
 })
 export default class Nova extends Vue {
+    selected: string | null = null
+    @State wallets!: Wallet.Entity[]
     private counter: number = 0
     private ports: PortTab[] = []
     private current: Current = {
@@ -156,44 +171,44 @@ export default class Nova extends Vue {
 
 <style lang="scss">
 body {
-    background: #fff;
-    height: 100vh;
-    width: 100vw;
+  background: #fff;
+  height: 100vh;
+  width: 100vw;
 }
 #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-align: center;
-    color: #2c3e50;
-    height: 100%;
-    width: 100%;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+  color: #2c3e50;
+  height: 100%;
+  width: 100%;
 }
 .sync-drag-zone {
-    -webkit-app-region: drag;
+  -webkit-app-region: drag;
 }
 
 .sync-container .viewport-layout {
-    position: absolute;
-    top: 0;
+  position: absolute;
+  top: 0;
 }
 .sync-dapp-list.default-content {
-    width: 75%;
-    max-width: 1000px;
-    margin: 50px auto;
+  width: 75%;
+  max-width: 1000px;
+  margin: 50px auto;
 }
 .sync-dapp-list.default-content .search {
-    margin: 50px auto 50px;
-    width: 70%;
+  margin: 50px auto 50px;
+  width: 70%;
 }
 .tab-tools {
-    float: right;
+  float: right;
 }
 .sync-viewport-container {
-    visibility: hidden;
-    z-index: 0;
+  visibility: hidden;
+  z-index: 0;
 }
 .sync-viewport-container.current {
-    visibility: visible;
-    z-index: 2;
+  visibility: visible;
+  z-index: 2;
 }
 </style>
