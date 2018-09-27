@@ -17,7 +17,9 @@ export function createWindow(
     siteConfig?: SiteConfig,
     options?: BrowserWindowConstructorOptions
 ): BrowserWindow {
+    siteConfig = siteConfig || app.backend.siteConfigs[0]
     options = { ...defaultWindowOptions, ...(options || {}) }
+    options.webPreferences = { ...(options.webPreferences || {}), partition: siteConfig.genesis.id }
     const win = new BrowserWindow(options)
 
     const id = win.id
@@ -28,7 +30,7 @@ export function createWindow(
     }).once('ready-to-show', () => {
         win.show()
     })
-    app.backend.bindSiteConfig(win.webContents.id, siteConfig || app.backend.siteConfigs[0])
+    app.backend.bindSiteConfig(win.webContents.id, siteConfig)
     win.loadURL(env.index)
     return win
 }
