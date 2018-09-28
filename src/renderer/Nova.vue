@@ -11,7 +11,9 @@
             <v-container grid-list-xl>
                 <v-layout row wrap>
                     <v-flex wrap xs4 v-for="wallet in wallets" :key="wallet.address">
-                        <account-card :track="true" :name="wallet.name" :address="wallet.address" flat class="elevation-6" tile> </account-card>
+                        <v-hover :close-delay="0">
+                            <account-card slot-scope="{ hover }" :class="`elevation-${hover ? 8 : 2}`" :track="true" :name="wallet.name" :address="wallet.address" flat tile> </account-card>
+                        </v-hover>
                     </v-flex>
                 </v-layout>
             </v-container>
@@ -56,6 +58,8 @@ import { State } from 'vuex-class'
 import Wallet from './wallet'
 import AccountCard from './components/AccountCard.vue'
 import AccountSwitch from './components/AccountSwitch.vue'
+import { cry } from 'thor-devkit'
+import { randomBytes } from 'crypto';
 type PortTab = TabBar.Item & {
     id: string | number
     addressBar: boolean

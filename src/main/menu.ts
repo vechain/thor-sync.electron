@@ -51,18 +51,18 @@ export function setupMenu() {
     ]
 
     if (process.platform === 'darwin') {
-        template.unshift({
-            label: 'File',
-            submenu: app.backend.siteConfigs.map<MenuItemConstructorOptions>((config, i) => {
-                return {
-                    label: `New Window '${config.name}'`,
-                    accelerator: i === 0 ? 'Cmd+N' : undefined,
-                    click() {
-                        app.createWindow(config)
-                    }
-                }
-            })
-        })
+        // template.unshift({
+        //     label: 'File',
+        //     submenu: app.backend.siteConfigs.map<MenuItemConstructorOptions>((config, i) => {
+        //         return {
+        //             label: `New Window '${config.name}'`,
+        //             accelerator: i === 0 ? 'Cmd+N' : undefined,
+        //             click() {
+        //                 app.createWindow(config)
+        //             }
+        //         }
+        //     })
+        // })
 
         template.unshift({
             label: app.getName(),
@@ -80,7 +80,7 @@ export function setupMenu() {
         });
 
         // Edit menu
-        (template[2].submenu as MenuItemConstructorOptions[]).push(
+        (template[1].submenu as MenuItemConstructorOptions[]).push(
             { type: 'separator' },
             {
                 label: 'Speech',
@@ -101,17 +101,17 @@ export function setupMenu() {
         ]
     }
 
-    const dockTemplate = app.backend.siteConfigs.map<MenuItemConstructorOptions>(config => {
-        return {
-            label: `New Window '${config.name}'`,
-            click() {
-                app.createWindow(config)
-            }
-        }
-    })
+    // const dockTemplate = app.backend.siteConfigs.map<MenuItemConstructorOptions>(config => {
+    //     return {
+    //         label: `New Window '${config.name}'`,
+    //         click() {
+    //             app.createWindow(config)
+    //         }
+    //     }
+    // })
 
-    if (process.platform === 'darwin') {
-        app.dock.setMenu(Menu.buildFromTemplate(dockTemplate))
-    }
+    // if (process.platform === 'darwin') {
+    //     app.dock.setMenu(Menu.buildFromTemplate(dockTemplate))
+    // }
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
