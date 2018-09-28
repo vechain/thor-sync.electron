@@ -1,6 +1,6 @@
 <template>
-    <v-menu dark left offset-y :close-on-content-click="false" max-width="280px" v-model="opened">
-        <v-btn light flat slot="activator">
+    <v-menu dark left offset-y :close-on-content-click="false" max-width="280px" min-width= "240px" v-model="opened">
+        <v-btn light flat slot="activator" @blur="opened=false">
             <div v-if="selectedEntity">
                 <IdentIcon :size="14" :address="selectedEntity.address" style="display: inline-block; border-radius:3px"></IdentIcon> {{selectedEntity && selectedEntity.name}}
             </div>
@@ -15,7 +15,7 @@
             <template v-for="entity in unselectedEntities">
                 <v-divider :key="entity.address+'-divider'">
                 </v-divider>
-                <AccountCard @click="onClickAccountItem(entity.address)" :key="entity.address" :name="entity.name" :address="entity.address" track listitem>
+                <AccountCard @click="()=>{}" @mousedown="onClickAccountItem(entity.address)" :key="entity.address" :name="entity.name" :address="entity.address" track listitem>
                 </AccountCard>
             </template>
         </v-list>

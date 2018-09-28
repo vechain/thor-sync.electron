@@ -1,6 +1,6 @@
 <template>
-    <v-menu dark left offset-y :close-on-content-click="false" v-model="opened">
-        <v-btn flat light small slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'">
+    <v-menu dark left offset-y :close-on-content-click="false" max-width="200px" min-width="180px" v-model="opened">
+        <v-btn flat light small slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'" @blur="opened=false">
             {{siteConfig.name}}
         </v-btn>
         <v-card flat>
@@ -16,18 +16,20 @@
                     </v-flex>
                 </v-layout>
             </v-container>
-            <v-divider></v-divider>
             <v-list>
-                <v-list-tile v-for="site in siteConfigs" two-line :key="site.genesis.id +'@' + site.url" @click="openWindow(site)">
-                    <v-list-tile-content>
-                        <v-list-tile-title>
-                            {{site.name}}
-                        </v-list-tile-title>
-                        <v-list-tile-sub-title class="caption">
-                            {{site.url}}
-                        </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                <template v-for="site in siteConfigs">
+                    <v-divider :key="`${site.genesis.id}@${site.url}-divider`"></v-divider>
+                    <v-list-tile two-line :key="`${site.genesis.id}@${site.url}`" @click="()=>{}" @mousedown="activateOrOpenWindow(site)">
+                        <v-list-tile-content>
+                            <v-list-tile-title>
+                                {{site.name}}
+                            </v-list-tile-title>
+                            <v-list-tile-sub-title class="caption">
+                                {{site.url}}
+                            </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </template>
             </v-list>
         </v-card>
     </v-menu>
@@ -37,7 +39,6 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
-
 
 type Status = Connex.Thor.Status
 
@@ -62,9 +63,17 @@ export default class NetworkStatus extends Vue {
         return '#' + this.chainStatus.head.number.toLocaleString()
     }
 
-    openWindow(config: any) {
-        remote.app.createWindow(config)
+    activateOrOpenWindow(config: (typeof remote.app.backend.siteConfigs)[number]) {
         this.opened = false
+        const wins = remote.BrowserWindow.getAllWindows()
+        for (const w of wins) {
+            const c = remote.app.backend.getSiteConfig(w.webContents.id)
+            if (c && c.url === config.url && c.genesis.id === config.genesis.id) {
+                w.show()
+                return
+            }
+        }
+        remote.app.createWindow(config)
     }
 }
 </script>
