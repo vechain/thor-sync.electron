@@ -1,5 +1,5 @@
 <template>
-    <div class="identicon" v-html="iconHTML" :style="{width:size + 'px', height:size+'px'}">
+    <div v-html="iconHTML" :style="{width:size + 'px', height:size+'px'}">
     </div>
 </template>
 <script lang="ts">
@@ -31,13 +31,13 @@ function generateIconHtmlCached(addr: string, diameter: number) {
 }
 function generateIcon(seed: number, diameter: number) {
     const elem = (jazzicon(diameter, seed) as Element).firstElementChild!
-    // remove buggy style
-    elem.attributes.removeNamedItem('style')
+    elem.removeAttribute('style')
     return elem
 }
 </script>
 <style lang="scss" scoped>
-.identicon {
+div {
   overflow: hidden;
+  display: inline-block
 }
 </style>
