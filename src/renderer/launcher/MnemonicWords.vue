@@ -13,7 +13,7 @@ import { cry } from 'thor-devkit'
 export default class MnemonicWords extends Vue {
     @Model('change') value !: string[]
 
-    readonly words = cry.mnemonic.generate()
+    readonly words = generateWords()
 
     created() {
         this.enforceValue()
@@ -22,6 +22,23 @@ export default class MnemonicWords extends Vue {
     enforceValue() {
         if (this.words !== this.value) {
             this.$emit('change', this.words)
+        }
+    }
+}
+
+function generateWords() {
+    for (; ;) {
+        // to avoid duplicated words
+        const words = cry.mnemonic.generate()
+        const map: { [i: string]: any } = []
+        if (words.every(w => {
+            if (map[w]) {
+                return false
+            }
+            map[w] = 1
+            return true
+        })) {
+            return words
         }
     }
 }
