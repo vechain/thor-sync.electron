@@ -1,6 +1,6 @@
 <template>
     <v-app id="frame">
-        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app>
+        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDbClickTitleBar">
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </tab-bar>
             <AccountSwitch v-model="selected"></AccountSwitch>
@@ -60,6 +60,7 @@ import AccountCard from './components/AccountCard.vue'
 import AccountSwitch from './components/AccountSwitch.vue'
 import { cry } from 'thor-devkit'
 import { randomBytes } from 'crypto';
+import { remote } from 'electron'
 type PortTab = TabBar.Item & {
     id: string | number
     addressBar: boolean
@@ -169,6 +170,15 @@ export default class Nova extends Vue {
 
     public onStatusUpdated(event: ViewPort.StatusUpdateEvent, index: number) {
         this.$set(this.ports[index], 'status', event.status)
+    }
+
+    onDbClickTitleBar() {
+        const win = remote.getCurrentWindow()
+        if (win.isMaximized()) {
+            win.unmaximize()
+        } else {
+            win.maximize()
+        }
     }
 }
 </script>
