@@ -61,8 +61,10 @@ export default class DApps extends Vue {
         })
     }
 
-    @Emit('open-dapp')
-    openDapp(data: Dapp.Item) { }
+
+    openDapp(data: Dapp.Item) {
+        BUS.$emit('open-dapp', data)
+     }
 }
 </script>
 
