@@ -7,6 +7,7 @@ import './window.init'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
 import Vuex from 'vuex'
+import VueRouter from 'vue-router'
 import env from '@/env'
 import Wallet from './wallet'
 import { remote } from 'electron'
@@ -18,6 +19,7 @@ Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })
 Vue.use(Vuex)
+Vue.use(VueRouter)
 Vue.config.productionTip = false
 
 // widgets to be bound onto window.
@@ -30,11 +32,14 @@ declare global {
         readonly UIX: {
             signTx(address: string, clauses: Connex.Thor.Clause[]): Promise<string>
         }
+        // event bus
+        readonly BUS: Vue
     }
     const ENV: typeof env
     const WALLETS: Wallet.Persist
     const THOR: Connex.Thor
     const UIX: Window['UIX']
+    const BUS: Vue
 }
 
 // bind widgets, UIX will be bound inside UIX root
@@ -50,6 +55,10 @@ Object.defineProperty(window, 'THOR', {
     value: remote.app.backend.connect(remote.getCurrentWebContents().id).thor,
     enumerable: true
 })
+Object.defineProperty(window, 'BUS', {
+    value : new Vue()
+})
+
 
 // the portal root
 new Nova({ store: new Store() }).$mount('#nova')
