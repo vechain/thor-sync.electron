@@ -8,22 +8,9 @@
 
         </v-toolbar>
         <v-content class="sync-container">
-            <v-container grid-list-xl>
-                <v-layout row wrap>
-                    <v-flex wrap xs4 v-for="wallet in wallets" :key="wallet.address">
-                        <v-hover :close-delay="0">
-                            <account-card slot-scope="{ hover }" :class="`elevation-${hover ? 8 : 2}`" :track="true" :name="wallet.name" :address="wallet.address" flat tile> </account-card>
-                        </v-hover>
-                    </v-flex>
-                </v-layout>
-            </v-container>
-
             <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
-                <DApps slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content">
-                </DApps>
+                <Launcher slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content" path="/" />
             </view-port>
-            <DApps @open-dapp="onOpenDapp" v-if="!ports.length" class="default-content">
-            </DApps>
             <v-dialog>
                 <v-card>
                     <v-container>
@@ -52,15 +39,12 @@ import { Component, Vue } from 'vue-property-decorator'
 
 import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
-import DApps from './components/AppList.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
-import { State } from 'vuex-class'
-import Wallet from './wallet'
-import AccountCard from './components/AccountCard.vue'
 import AccountSwitch from './components/AccountSwitch.vue'
-import { cry } from 'thor-devkit'
-import { randomBytes } from 'crypto';
 import { remote } from 'electron'
+import Launcher from './launcher'
+
+
 type PortTab = TabBar.Item & {
     id: string | number
     addressBar: boolean
@@ -75,15 +59,13 @@ type Current = {
     components: {
         TabBar,
         ViewPort,
-        DApps,
         NetworkStatus,
-        AccountCard,
-        AccountSwitch
+        AccountSwitch,
+        Launcher
     }
 })
 export default class Nova extends Vue {
     selected: string | null = null
-    @State wallets!: Wallet.Entity[]
     private counter: number = 0
     private ports: PortTab[] = []
     private current: Current = {
@@ -101,6 +83,7 @@ export default class Nova extends Vue {
     }
     created() {
         this.getAccounts()
+        BUS.$on('open-dapp', (data: any) => { this.onOpenDapp(data) })
     }
     public onOpenDapp(app: PortTab) {
         let item: PortTab = {
