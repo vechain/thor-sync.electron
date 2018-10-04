@@ -1,6 +1,6 @@
 <template>
-    <v-menu dark left offset-y :close-on-content-click="false" max-width="200px" min-width="180px" v-model="opened">
-        <v-btn flat light small slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'" @blur="opened=false">
+    <OverlayedMenu dark left offset-y :close-on-content-click="false" max-height="500px" max-width="200px" min-width="180px" v-model="opened">
+        <v-btn flat light small slot="activator" :color="chainStatus.progress === 1 ? 'green' : 'red'">
             {{siteConfig.name}}
         </v-btn>
         <v-card flat>
@@ -17,9 +17,9 @@
                 </v-layout>
             </v-container>
             <v-list>
-                <template v-for="site in siteConfigs">
+                <template v-for="site in otherSiteConfigs">
                     <v-divider :key="`${site.genesis.id}@${site.url}-divider`"></v-divider>
-                    <v-list-tile two-line :key="`${site.genesis.id}@${site.url}`" @click="()=>{}" @mousedown="activateOrOpenWindow(site)">
+                    <v-list-tile two-line :key="`${site.genesis.id}@${site.url}`" @click="activateOrOpenWindow(site)">
                         <v-list-tile-content>
                             <v-list-tile-title>
                                 {{site.name}}
@@ -32,25 +32,31 @@
                 </template>
             </v-list>
         </v-card>
-    </v-menu>
-
+    </OverlayedMenu>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
+import OverlayedMenu from './OverlayedMenu.vue'
 
 type Status = Connex.Thor.Status
 
-@Component
+const backend = remote.app.backend
+const siteConfig = backend.getSiteConfig(remote.getCurrentWebContents().id)!
+const otherSiteConfigs = backend
+    .siteConfigs
+    .filter(
+        c => c !== siteConfig)
+
+@Component({
+    components: {
+        OverlayedMenu
+    }
+})
 export default class NetworkStatus extends Vue {
-    siteConfig = remote
-        .app
-        .backend
-        .getSiteConfig(remote.getCurrentWebContents().id)!
-
-    siteConfigs = remote.app.backend.siteConfigs
-
+    siteConfig = siteConfig
+    otherSiteConfigs = otherSiteConfigs
 
     @State chainStatus!: Status
     opened = false
