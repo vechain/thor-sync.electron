@@ -104,13 +104,13 @@ class Store extends Vuex.Store<Store.Model> {
                 keystore: JSON.parse('{"version":3,"id":"3efc9991-b02c-4615-bb66-87ddecbeac95","address":"40d9b870df290c582f71d48bb208c6fa275ac6be","crypto":{"kdf":"scrypt","kdfparams":{"dklen":32,"salt":"1b6ace1df4c3696cb47fb743186333a3e3860353f287f64f518e2fb024e65c3c","n":262144,"r":8,"p":1},"cipher":"aes-128-ctr","ciphertext":"f27d7546182e8be49f400150f92352babe165299e0ce08a81d4def441591d24e","cipherparams":{"iv":"4e7ab13269770caf71fc68a230ddc963"},"mac":"876edfd59def69b73baabfaa5d01f96cfa7ba38e60dc5c98fc637f815b3a1760"}}')
             }, true)
         }
-        WALLETS.list().then(entries => {
+        WALLETS.listSorted().then(entries => {
             this.commit(Store.UPDATE_WALLETS, entries)
             // tslint:disable-next-line:no-console
         }).catch(console.log)
 
         WALLETS.subscribe(() => {
-            WALLETS.list().then(entries => {
+            WALLETS.listSorted().then(entries => {
                 this.commit(Store.UPDATE_WALLETS, entries)
                 // tslint:disable-next-line:no-console
             }).catch(console.log)
