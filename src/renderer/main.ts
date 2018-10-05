@@ -10,6 +10,7 @@ import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import env from '@/env'
 import Wallet from './wallet'
+import Preferences from './preferences'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
 import UIX from './UIX.vue'
@@ -28,6 +29,7 @@ declare global {
     interface Window {
         readonly ENV: typeof env
         readonly WALLETS: Wallet.Persist
+        readonly PREFERENCES: Preferences
         readonly THOR: Connex.Thor
         readonly UIX: {
             signTx(address: string, clauses: Connex.Thor.Clause[]): Promise<string>
@@ -37,6 +39,7 @@ declare global {
     }
     const ENV: typeof env
     const WALLETS: Wallet.Persist
+    const PREFERENCES: Preferences
     const THOR: Connex.Thor
     const UIX: Window['UIX']
     const BUS: Vue
@@ -49,6 +52,10 @@ Object.defineProperty(window, 'ENV', {
 })
 Object.defineProperty(window, 'WALLETS', {
     value: new Wallet.Persist(),
+    enumerable: true
+})
+Object.defineProperty(window, 'PREFERENCES', {
+    value: new Preferences(),
     enumerable: true
 })
 Object.defineProperty(window, 'THOR', {
