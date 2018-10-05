@@ -1,13 +1,5 @@
 import { cry } from 'thor-devkit'
-import * as LocalForage from 'localforage'
-import 'localforage-observable'
-import Deferred from '@/common/deferred'
-// tslint:disable-next-line:no-var-requires variable-name
-const ZenObservable = require('zen-observable')
-
-LocalForage.newObservable.factory = (subscribeFn) => {
-    return new ZenObservable(subscribeFn)
-}
+import LocalDB from './local_db'
 
 class Wallet {
     public static async encrypt(
@@ -40,78 +32,37 @@ class Wallet {
 
 namespace Wallet {
     export interface Entity {
-        readonly address: string
-        readonly name: string
-        readonly keystore: cry.Keystore
-    }
-
-    export interface ChangeEvent {
         address: string
-        method: string
+        name: string
+        keystore: cry.Keystore
+        createdTime?: number
+        order?: number
     }
 
-    export class Persist {
-        private readonly storage = LocalForage.createInstance({
-            driver: LocalForage.INDEXEDDB,
-            name: 'sync',
-            storeName: 'wallet_store'
-        })
-        private observable?: Observable<LocalForageObservableChange>
-
-        public async list() {
-            const entities: Entity[] = []
-            await this.storage.iterate<Entity, void>(v => {
-                entities.push(v)
-            })
-            return entities
+    export class Persist extends LocalDB<Entity> {
+        constructor() {
+            super('sync', 'wallet_store')
+        }
+        public listSorted() {
+            return this.list()
+                .then(all => all.map(e => e[1]))
+                .then(all => all.sort((a, b) => {
+                    if (a.order !== b.order) {
+                        return a.order! - b.order!
+                    }
+                    return a.createdTime! - b.createdTime!
+                }))
         }
 
-        public get(address: string) {
-            return this.storage.getItem<Entity | null>(address)
-        }
-
-        public async save(
+        public save(
             entity: Entity,
             force?: boolean) {
-            if (!force) {
-                if (await this.get(entity.address)) {
-                    throw new Error('wallet exists')
-                }
+            entity = {
+                ...entity,
+                createdTime: entity.createdTime || Date.now(),
+                order: entity.order || 0
             }
-            await this.storage.setItem(entity.address, entity)
-        }
-
-        public async remove(address: string) {
-            await this.storage.removeItem(address)
-        }
-
-        public subscribe(onChange: (event: ChangeEvent) => void): { unsubscribe(): void } {
-            const deferredUnsubscribe = new Deferred<void>();
-            (async () => {
-                try {
-                    await this.storage.ready()
-                    if (!this.observable) {
-                        this.observable = this.storage.newObservable()
-                    }
-                    const subscription = this.observable.subscribe({
-                        next(v) {
-                            onChange({
-                                address: v.key,
-                                method: v.methodName
-                            })
-                        }
-                    })
-                    await deferredUnsubscribe
-                    subscription.unsubscribe()
-                } catch (err) {
-                    // tslint:disable-next-line:no-console
-                    console.log(err)
-                }
-            })()
-
-            return {
-                unsubscribe() { deferredUnsubscribe.resolve() }
-            }
+            return this.set(entity.address, entity, force)
         }
     }
 }
