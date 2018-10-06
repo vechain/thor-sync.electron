@@ -19,7 +19,7 @@
                             <NameAndPass v-model="nameAndPass" v-if="opened" />
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <MnemonicWords v-model="words" v-if="opened" />
+                            <MnemonicWords :words="words" v-if="opened" />
                         </v-stepper-content>
                         <v-stepper-content step="3">
                             <WordPuzzle :words="words" v-model="puzzleSovled" v-if="opened" />
@@ -71,7 +71,7 @@
     </v-dialog>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Model } from 'vue-property-decorator'
 import NameAndPass from './NameAndPass.vue'
 import MnemonicWords from './MnemonicWords.vue'
 import WordPuzzle from './WordPuzzle.vue'
@@ -91,10 +91,16 @@ import IdentIcon from '../components/IdentIcon.vue'
     }
 })
 export default class NewWalletDialog extends Vue {
+    @Model('input') value!: boolean
+    @Watch('value')
+    valueChanged() {
+        this.opened = this.value
+    }
+
     opened = false
     step = 1
     nameAndPass: NameAndPass.Value = { name: "", password: "" }
-    words: string[] = []
+    words = generateWords()
     puzzleSovled = false
     result: Result | null = null
 
@@ -102,7 +108,7 @@ export default class NewWalletDialog extends Vue {
     reset() {
         this.step = 1
         this.nameAndPass = { name: "", password: "" }
-        this.words = []
+        this.words = generateWords()
         this.result = null
     }
 
@@ -212,6 +218,24 @@ type BtnState = {
 type Result = {
     err?: Error
     entity?: Wallet.Entity
+}
+
+
+function generateWords() {
+    for (; ;) {
+        // to avoid duplicated words
+        const words = cry.mnemonic.generate()
+        const map: { [i: string]: any } = []
+        if (words.every(w => {
+            if (map[w]) {
+                return false
+            }
+            map[w] = 1
+            return true
+        })) {
+            return words
+        }
+    }
 }
 
 </script>

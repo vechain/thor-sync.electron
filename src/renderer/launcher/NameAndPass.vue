@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-text-field validate-on-blur label="Wallet name" v-model="name" :rules="[
+        <v-text-field autofocus validate-on-blur label="Wallet name" v-model="name" :rules="[
                             nameRule]"></v-text-field>
         <v-text-field validate-on-blur label="Password" type="password" v-model="password" :rules="[
                             passwordRule]"></v-text-field>
@@ -13,37 +13,35 @@ import { Vue, Component, Prop, Model, Watch } from 'vue-property-decorator'
 
 @Component
 export default class NameAndPass extends Vue {
-    @Model('change', { default: {} }) value !: NameAndPass.Value
-
-    emitChange() {
-        this.$emit('change', {
-            name: this.name,
-            password: this.password,
-            valid: this.nameRule() === true &&
-                this.passwordRule() === true &&
-                this.repeatedPasswordRule() === true
-        })
-    }
-
     name = ""
     password = ""
     repeatedPassword = ""
 
-    created() {
-        this.name = this.value.name
-        this.password = this.value.password
+    @Model('update', { default: {} }) value !: NameAndPass.Value
+
+    @Watch('name') @Watch('password') @Watch('repeatedPassword')
+    emitUpdate() {
+        this.$emit('update', {
+            name: this.name,
+            password: this.password,
+            valid: this.valid
+        })
     }
 
-    @Watch('name')
-    nameChanged() { this.emitChange() }
-    @Watch('password')
-    passwordChanged() { this.emitChange() }
-    @Watch('repeatedPassword')
-    repeatedPasswordChanged() { this.emitChange() }
     @Watch('value')
     valueChanged() {
         this.name = this.value.name || ''
         this.password = this.value.password || ''
+    }
+
+    get valid() {
+        return this.nameRule() === true &&
+            this.passwordRule() === true &&
+            this.repeatedPasswordRule() === true
+    }
+
+    created() {
+        this.valueChanged()
     }
 
     nameRule() { return !!this.name || 'Requires non-empty name' }
