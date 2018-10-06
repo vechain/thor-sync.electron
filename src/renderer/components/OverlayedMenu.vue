@@ -1,18 +1,20 @@
 <template>
-    <v-menu ref="menu" v-bind="$attrs" v-on="$listeners" :value="opened" @input="update" :close-on-click="false">
+    <v-menu ref="menu" v-bind="$attrs" v-on="$listeners" v-model="opened" :close-on-click="false">
         <slot slot="activator" name="activator" />
         <slot />
     </v-menu>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch, Model, Emit } from 'vue-property-decorator'
+import { Vue, Component, Watch, Model } from 'vue-property-decorator'
 
 @Component
 export default class OverlayedMenu extends Vue {
-    @Model('update') opened = false
+    @Model('input') value!: boolean
+    opened = false
 
-    @Emit('update')
-    update(newValue: boolean) {
+    @Watch('value')
+    valueChanged() {
+        this.opened = this.value
     }
 
     @Watch('opened')
@@ -26,12 +28,13 @@ export default class OverlayedMenu extends Vue {
             this.overlay.style.display = 'none'
         }
     }
+
     overlay = document.createElement('div')
     mounted() {
         this.overlay.className = 'sync-menu-overlay'
         this.overlay.style.display = 'none'
         this.overlay.onclick = () => {
-            this.update(false)
+            this.opened = false
         }
         document.body.appendChild(this.overlay)
     }

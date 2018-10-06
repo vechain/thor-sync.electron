@@ -27,13 +27,13 @@ import { Vue, Component, Model, Prop, Watch } from 'vue-property-decorator'
 export default class WordPuzzle extends Vue {
     @Prop(Array) words!: string[]
 
-    @Model('change') value !: boolean
+    @Model('update') value !: boolean
 
     @Watch('value')
     enforceValue() {
         const newValue = this.resolved
         if (newValue !== this.value) {
-            this.$emit('change', newValue)
+            this.$emit('update', newValue)
         }
     }
     @Watch('words')

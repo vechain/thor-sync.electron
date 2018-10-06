@@ -6,42 +6,13 @@
     </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Model, Watch } from 'vue-property-decorator'
-import { cry } from 'thor-devkit'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
 export default class MnemonicWords extends Vue {
-    @Model('change') value !: string[]
-
-    readonly words = generateWords()
-
-    created() {
-        this.enforceValue()
-    }
-    @Watch('value')
-    enforceValue() {
-        if (this.words !== this.value) {
-            this.$emit('change', this.words)
-        }
-    }
+    @Prop(Array) words!: string[]
 }
 
-function generateWords() {
-    for (; ;) {
-        // to avoid duplicated words
-        const words = cry.mnemonic.generate()
-        const map: { [i: string]: any } = []
-        if (words.every(w => {
-            if (map[w]) {
-                return false
-            }
-            map[w] = 1
-            return true
-        })) {
-            return words
-        }
-    }
-}
 </script>
 <style lang="css" scoped>
 span {
