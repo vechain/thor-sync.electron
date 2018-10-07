@@ -13,6 +13,7 @@ const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
 const dappsConfig = require('./webpack.dapps.config')
 const preloadConfig = require('./webpack.preload.config')
+const xWorkerConfig = require('./webpack.x-worker.config')
 
 let electronProcess = null
 let manualRestart = false
@@ -134,6 +135,18 @@ function startPreload() {
     })
 }
 
+function startXWorker() {
+    return new Promise((resolve, reject) => {
+        webpack(xWorkerConfig).run((err, stats) => {
+            if (err) {
+                return reject(err)
+            }
+            logStats('XWorker', stats)
+            resolve()
+        })
+    })
+}
+
 function startMain() {
     return new Promise(resolve => {
         mainConfig.entry.main = path.join(__dirname, '../src/main/index.dev.ts')
@@ -196,7 +209,7 @@ function greeting() {
 async function init() {
     greeting()
     try {
-        await Promise.all([startRenderer(), startDapps(), startMain(), startPreload()])
+        await Promise.all([startRenderer(), startDapps(), startMain(), startPreload(), startXWorker()])
         startElectron()
     } catch (err) {
         console.log(err)

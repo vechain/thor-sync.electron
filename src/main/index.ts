@@ -1,7 +1,7 @@
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
-import { createWindow } from './window'
+import WindowManager from './window-manager'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -12,6 +12,7 @@ require('electron-unhandled')({
 declare module 'electron' {
     interface App {
         backend: Backend
+        xWorker: XWorker
         createWindow(
             siteConfig?: SiteConfig,
             options?: BrowserWindowConstructorOptions
@@ -19,25 +20,35 @@ declare module 'electron' {
     }
 }
 
+const winMgr = new WindowManager()
+
 app.backend = new Backend()
-app.createWindow = createWindow
+app.createWindow = (siteConfig, options) => winMgr.create(siteConfig, options)
+
+let _xWorker: XWorker
+Object.defineProperty(app, 'xWorker', {
+    set(val: any) {
+        _xWorker = val
+    },
+    get() {
+        return _xWorker
+    },
+    enumerable: true
+})
 
 app.once('ready', () => {
     setupMenu()
-    createWindow()
+
+    winMgr.initXWorker().webContents.once('dom-ready', () => {
+        winMgr.create()
+    })
+}).on('activate', () => {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (winMgr.activeCount === 0) {
+        winMgr.create()
+    }
 })
-    .on('activate', () => {
-        // On OS X it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow()
-        }
-    })
-    .on('window-all-closed', () => {
-        if (process.platform !== 'darwin') {
-            app.quit()
-        }
-    })
 
 /**
  * Auto Updater
