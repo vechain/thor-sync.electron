@@ -1,6 +1,6 @@
 <template>
     <v-app id="frame">
-        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDbClickTitleBar">
+        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
             </tab-bar>
             <AccountSwitch v-model="selected"></AccountSwitch>
@@ -155,18 +155,34 @@ export default class Nova extends Vue {
         this.$set(this.ports[index], 'status', event.status)
     }
 
-    onDbClickTitleBar() {
+    onDblClickTitleBar() {
+        const action = (() => {
+            if (process.platform === 'darwin') {
+                return remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string') as string
+            }
+        })()
         const win = remote.getCurrentWindow()
-        if (win.isMaximized()) {
-            win.unmaximize()
-        } else {
-            win.maximize()
+        switch (action) {
+            case 'Minimize':
+                remote.app.xWorker.minimizeWindow(win.id)
+                break;
+            case 'None':
+                break;
+            default:
+                if (win.isMaximized()) {
+                    remote.app.xWorker.unmaximizeWindow(win.id)
+                } else {
+                    remote.app.xWorker.maximizeWindow(win.id)
+                }
         }
     }
 }
 </script>
 
 <style lang="scss">
+html {
+  overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+}
 body {
   background: #fff;
   height: 100vh;
