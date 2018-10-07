@@ -1,5 +1,5 @@
 import { cry } from 'thor-devkit'
-import LocalDB from './local_db'
+import LocalDB from './local-db'
 
 class Wallet {
     public static async encrypt(

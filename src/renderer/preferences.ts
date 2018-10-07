@@ -1,4 +1,4 @@
-import LocalDB from './local_db'
+import LocalDB from './local-db'
 
 class Preferences extends LocalDB<any> {
     constructor() {
