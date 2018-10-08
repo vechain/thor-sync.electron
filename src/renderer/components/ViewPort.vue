@@ -1,17 +1,5 @@
 <template>
     <div class="sync-viewport-container" :class="{'full-height': !addressBar}">
-        <v-container v-if="addressBar" fluid class='pa-0 ma-0 sync-viewport-bar'>
-            <v-layout row>
-                <v-flex>
-                </v-flex>
-                <v-flex>
-                    <v-text-field class="custom-field mt-0" height="34px" v-model="origin" :placeholder="url" background-color="white"
-                        prepend-inner-icon="search" single-line :hide-details="true"></v-text-field>
-                </v-flex>
-                <v-flex>
-                </v-flex>
-            </v-layout>
-        </v-container>
         <webview v-if="url" ref="viewport" :partition="partition" autosize :preload="preload" :src="url"></webview>
         <slot name="content" />
     </div>
@@ -20,6 +8,7 @@
 <script lang="ts">
 const Dragable = require('draggabilly')
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
+import { watch } from 'fs';
 
 @Component
 export default class ViewPort extends Vue {
@@ -117,7 +106,7 @@ export default class ViewPort extends Vue {
 <style lang="scss" scoped>
 .sync-viewport-container {
     overflow: hidden;
-    height: 100%;
+    // height: 100%;
     width: 100%;
     background-color: #fff;
     // transition: height 150ms linear, width 150ms linear, opacity 150ms linear;
@@ -217,17 +206,17 @@ export default class ViewPort extends Vue {
 // }
 .sync-viewport-container webview {
     background-color: #fff;
-    height: calc(100% - 35px);
+    // height: calc(100% - 35px);
 }
 .sync-viewport-container.full-height webview {
     height: 100%;
 }
-.sync-viewport-bar {
-    height: 35px;
-    width: 100%;
-    background-color: #cfd8dc;
-}
-.sync-viewport-bar .custom-field {
-    padding-top: 0;
-}
+// .sync-viewport-bar {
+//     height: 35px;
+//     width: 100%;
+//     background-color: #cfd8dc;
+// }
+// .sync-viewport-bar .custom-field {
+//     padding-top: 0;
+// }
 </style>
