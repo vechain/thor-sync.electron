@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { Backend, SiteConfig } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
+import { promisify } from 'util'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -9,13 +10,19 @@ require('electron-unhandled')({
     showDialog: false
 })
 
+type StdCallback<R> = (err?: Error, result?: R) => void
+type Promisifiable<R, T1 = never, T2 = never, T3 = never, T4 = never> =
+    ((arg1: T1, callback: StdCallback<R>) => void) |
+    ((arg1: T1, arg2: T2, callback: StdCallback<R>) => void) |
+    ((arg1: T1, arg2: T2, arg3: T3, callback: StdCallback<R>) => void) |
+    ((arg1: T1, arg2: T2, arg3: T3, arg4: T4, callback: StdCallback<R>) => void)
+
 declare module 'electron' {
     interface App {
         backend: Backend
 
         inject(name: string, obj?: {
-            // last arg must be callback
-            [prop: string]: (...args: any[]) => void
+            [prop: string]: Promisifiable<any>
         }): void
 
         createWindow(
@@ -33,17 +40,7 @@ app.inject = (name, obj) => {
         const injects = {} as any
         // tslint:disable-next-line:forin
         for (const key in obj) {
-            const fn = obj[key]
-            injects[key] = (...args: any[]) => {
-                return new Promise<any>((resolve, reject) => {
-                    fn(...args, (err: any, result: any) => {
-                        if (err) {
-                            return reject(err)
-                        }
-                        resolve(result)
-                    })
-                })
-            }
+            injects[key] = promisify(obj[key])
         }
         (app as any)[name] = injects
     } else {

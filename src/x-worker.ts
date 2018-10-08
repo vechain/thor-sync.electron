@@ -11,15 +11,15 @@ declare module 'electron' {
 }
 
 remote.app.inject('xWorker', {
-    maximizeWindow(id, cb) {
+    maximizeWindow: (id: number, cb: () => void) => {
         remote.BrowserWindow.fromId(id).maximize()
         cb()
     },
-    unmaximizeWindow(id, cb) {
+    unmaximizeWindow: (id: number, cb: () => void) => {
         remote.BrowserWindow.fromId(id).unmaximize()
         cb()
     },
-    minimizeWindow(id, cb) {
+    minimizeWindow: (id: number, cb: () => void) => {
         remote.BrowserWindow.fromId(id).minimize()
         cb()
     }
