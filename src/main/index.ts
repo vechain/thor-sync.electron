@@ -12,7 +12,12 @@ require('electron-unhandled')({
 declare module 'electron' {
     interface App {
         backend: Backend
-        xWorker: XWorker
+
+        inject(name: string, obj?: {
+            // last arg must be callback
+            [prop: string]: (...args: any[]) => void
+        }): void
+
         createWindow(
             siteConfig?: SiteConfig,
             options?: BrowserWindowConstructorOptions
@@ -23,23 +28,35 @@ declare module 'electron' {
 const winMgr = new WindowManager()
 
 app.backend = new Backend()
-app.createWindow = (siteConfig, options) => winMgr.create(siteConfig, options)
+app.inject = (name, obj) => {
+    if (obj) {
+        const injects = {} as any
+        // tslint:disable-next-line:forin
+        for (const key in obj) {
+            const fn = obj[key]
+            injects[key] = (...args: any[]) => {
+                return new Promise<any>((resolve, reject) => {
+                    fn(...args, (err: any, result: any) => {
+                        if (err) {
+                            return reject(err)
+                        }
+                        resolve(result)
+                    })
+                })
+            }
+        }
+        (app as any)[name] = injects
+    } else {
+        delete (app as any)[name]
+    }
+}
 
-let _xWorker: XWorker
-Object.defineProperty(app, 'xWorker', {
-    set(val: any) {
-        _xWorker = val
-    },
-    get() {
-        return _xWorker
-    },
-    enumerable: true
-})
+app.createWindow = (siteConfig, options) => winMgr.create(siteConfig, options)
 
 app.once('ready', () => {
     setupMenu()
 
-    winMgr.initXWorker().webContents.once('dom-ready', () => {
+    winMgr.initXWorker().webContents.once('did-finish-load', () => {
         winMgr.create()
     })
 }).on('activate', () => {
