@@ -1,15 +1,20 @@
 <template>
     <v-app id="frame">
         <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
-            <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports" @close="onTabRemove">
+            <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports"
+                @close="onTabRemove">
             </tab-bar>
-            <AccountSwitch v-model="selected"></AccountSwitch>
             <NetworkStatus></NetworkStatus>
-
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout" :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index" :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
-                <Launcher slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src" class="default-content" path="/" />
+            <search-bar flat light dense class="search-bar" v-if="ports.length">
+                <AccountSwitch v-model="selectedAccount" @change="onAccountChange"></AccountSwitch>
+            </search-bar>
+            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout"
+                :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index"
+                :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
+                <Launcher slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src"
+                    class="default-content" path="/" />
             </view-port>
             <v-dialog>
                 <v-card>
@@ -43,12 +48,12 @@ import NetworkStatus from './components/NetworkStatus.vue'
 import AccountSwitch from './components/AccountSwitch.vue'
 import { remote } from 'electron'
 import Launcher from './launcher'
-
+import SearchBar from './components/SearchBar.vue'
 
 type PortTab = TabBar.Item & {
-    id: string | number
+    id: number
     addressBar: boolean
-    account: string
+    account?: string
 }
 type Current = {
     key: string
@@ -61,11 +66,12 @@ type Current = {
         ViewPort,
         NetworkStatus,
         AccountSwitch,
-        Launcher
+        Launcher,
+        SearchBar
     }
 })
 export default class Nova extends Vue {
-    selected: string | null = null
+    selectedAccount: string | null = null
     private counter: number = 0
     private ports: PortTab[] = []
     private current: Current = {
@@ -81,9 +87,18 @@ export default class Nova extends Vue {
             this.accounts = list
         })
     }
+
+    // get currentAccount() {
+    //     const currentPort = this.ports.find(item => {
+    //         return item.id === this.current.value
+    //     })
+    //     return currentPort!.account
+    // }
     created() {
         this.getAccounts()
-        BUS.$on('open-dapp', (data: any) => { this.onOpenDapp(data) })
+        BUS.$on('open-dapp', (data: any) => {
+            this.onOpenDapp(data)
+        })
     }
     public onOpenDapp(app: PortTab) {
         let item: PortTab = {
@@ -92,11 +107,12 @@ export default class Nova extends Vue {
             id: Date.now() + this.counter,
             src: app.src,
             status: 'new',
-            addressBar: app.addressBar,
-            account: app.account || this.accounts[0]['address']
+            addressBar: app.addressBar
+            // account: app.account || this.accounts[0]['address']
         }
         this.current.value = item.id
         ++this.counter
+        // this.ports.set(item.id, item)
         this.ports.push(item)
     }
 
@@ -107,9 +123,18 @@ export default class Nova extends Vue {
         this.$set(this.ports[index], 'src', app.src)
         this.$set(this.ports[index], 'title', app.name)
         this.$set(this.ports[index], 'addressBar', app.addressBar)
-        this.$set(this.ports[index], 'account', app.account || this.accounts[0]['address'])
+        // this.$set(
+        //     this.ports[index],
+        //     'account',
+        //     app.account || this.accounts[0]['address']
+        // )
     }
-
+    public onAccountChange(addr: string) {
+        const index = this.ports.findIndex(item => {
+            return item.id === this.current.value
+        })
+        this.$set(this.ports[index], 'account', addr)
+    }
     public onAddTAb() {
         let item: PortTab = {
             title: 'New tab',
@@ -123,21 +148,33 @@ export default class Nova extends Vue {
         ++this.counter
         this.current.value = item.id
         this.ports.push(item)
+        this.selectedAccount = null
     }
 
     public onTabRemove(tab: PortTab) {
         let index = this.ports.findIndex(item => {
             return item.id === tab.id
         })
-
         this.ports.splice(index, 1)
-        this.current.value = this.ports[this.ports.length - 1]
-            ? this.ports[this.ports.length - 1]['id']
-            : ''
+        if (this.ports[this.ports.length - 1]) {
+            this.selectedAccount = this.ports[this.ports.length - 1]['account'] || null
+            this.current.value = this.ports[this.ports.length - 1]['id']
+        } else {
+            this.selectedAccount = null
+            this.current.value = ''
+        }
     }
 
     public onSwitchTab(item: PortTab) {
         this.current.value = item.id
+        const currentItem = this.ports.find(item => {
+            return this.current.value === item.id
+        })
+        this.selectedAccount = currentItem
+            ? currentItem.account
+                ? currentItem.account
+                : null
+            : null
     }
 
     public onDataUpdated(event: ViewPort.DataUpdateEvent, index: number) {
@@ -158,16 +195,19 @@ export default class Nova extends Vue {
     onDblClickTitleBar() {
         const action = (() => {
             if (process.platform === 'darwin') {
-                return remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string') as string
+                return remote.systemPreferences.getUserDefault(
+                    'AppleActionOnDoubleClick',
+                    'string'
+                ) as string
             }
         })()
         const win = remote.getCurrentWindow()
         switch (action) {
             case 'Minimize':
                 remote.app.xWorker.minimizeWindow(win.id)
-                break;
+                break
             case 'None':
-                break;
+                break
             default:
                 if (win.isMaximized()) {
                     remote.app.xWorker.unmaximizeWindow(win.id)
@@ -181,47 +221,56 @@ export default class Nova extends Vue {
 
 <style lang="scss">
 html {
-  overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+    overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
 body {
-  background: #fff;
-  height: 100vh;
-  width: 100vw;
+    background: #fff;
+    height: 100vh;
+    width: 100vw;
 }
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-align: center;
-  color: #2c3e50;
-  height: 100%;
-  width: 100%;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-align: center;
+    color: #2c3e50;
+    height: 100%;
+    width: 100%;
 }
 .sync-drag-zone {
-  -webkit-app-region: drag;
+    -webkit-app-region: drag;
+}
+
+.search-bar {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    background-color: #fff;
 }
 
 .sync-container .viewport-layout {
-  position: absolute;
-  top: 0;
+    position: absolute;
+    top: 48px;
+    height: calc(100% - 48px);
 }
+
 .sync-dapp-list.default-content {
-  width: 75%;
-  max-width: 1000px;
-  margin: 50px auto;
+    width: 75%;
+    max-width: 1000px;
+    margin: 50px auto;
 }
 .sync-dapp-list.default-content .search {
-  margin: 50px auto 50px;
-  width: 70%;
+    margin: 50px auto 50px;
+    width: 70%;
 }
 .tab-tools {
-  float: right;
+    float: right;
 }
 .sync-viewport-container {
-  visibility: hidden;
-  z-index: 0;
+    visibility: hidden;
+    z-index: 0;
 }
 .sync-viewport-container.current {
-  visibility: visible;
-  z-index: 2;
+    visibility: visible;
+    z-index: 2;
 }
 </style>
