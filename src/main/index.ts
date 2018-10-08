@@ -21,7 +21,7 @@ declare module 'electron' {
     interface App {
         backend: Backend
 
-        inject(name: string, obj?: {
+        inject(path: string, obj?: {
             [prop: string]: Promisifiable<any>
         }): void
 
@@ -35,16 +35,25 @@ declare module 'electron' {
 const winMgr = new WindowManager()
 
 app.backend = new Backend()
-app.inject = (name, obj) => {
+app.inject = (path, obj) => {
+    const paths = path.split('.')
+    let dest = app as any
+    for (let i = 0; i < paths.length - 1; i++) {
+        if (dest[paths[i]]) {
+            dest = dest[paths[i]]
+        } else {
+            dest = dest[paths[i]] = {}
+        }
+    }
     if (obj) {
         const injects = {} as any
         // tslint:disable-next-line:forin
         for (const key in obj) {
             injects[key] = promisify(obj[key])
         }
-        (app as any)[name] = injects
+        dest[paths[paths.length - 1]] = injects
     } else {
-        delete (app as any)[name]
+        delete dest[paths[paths.length - 1]]
     }
 }
 
