@@ -1,21 +1,26 @@
 import { remote } from 'electron'
 
-declare global {
-    interface XWorker {
-        maximizeWindow(id: number): Promise<void>
-        unmaximizeWindow(id: number): Promise<void>
-        minimizeWindow(id: number): Promise<void>
+declare module 'electron' {
+    interface App {
+        xWorker: {
+            maximizeWindow(id: number): Promise<void>
+            unmaximizeWindow(id: number): Promise<void>
+            minimizeWindow(id: number): Promise<void>
+        }
     }
 }
 
-remote.app.xWorker = {
-    async maximizeWindow(id: number) {
+remote.app.inject('xWorker', {
+    maximizeWindow(id, cb) {
         remote.BrowserWindow.fromId(id).maximize()
+        cb()
     },
-    async unmaximizeWindow(id: number) {
+    unmaximizeWindow(id, cb) {
         remote.BrowserWindow.fromId(id).unmaximize()
+        cb()
     },
-    async minimizeWindow(id: number) {
+    minimizeWindow(id, cb) {
         remote.BrowserWindow.fromId(id).minimize()
+        cb()
     }
-}
+})
