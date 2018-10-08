@@ -10,7 +10,7 @@
                     <v-icon @click.stop.prevent="popClose(item)" class="tab-close">close</v-icon>
                 </div>
             </div>
-            <div class="add-tab">
+            <div class="add-tab ml-2">
                 <v-btn icon @click.stop="addTab({title: 'New tab'})">
                     <v-icon>add</v-icon>
                 </v-btn>

@@ -15,7 +15,7 @@ import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
 
 @Component
-export default class Router extends Vue {    
+export default class Router extends Vue {
     public static create(target: Vue) {
         return new Router({
             store: target.$store,
