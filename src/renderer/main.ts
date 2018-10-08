@@ -13,7 +13,6 @@ import Wallet from './wallet'
 import Preferences from './preferences'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
-import UIX from './UIX.vue'
 import Store from './store'
 
 Vue.use(Vuetify, {
@@ -31,9 +30,6 @@ declare global {
         readonly WALLETS: Wallet.Persist
         readonly PREFERENCES: Preferences
         readonly THOR: Connex.Thor
-        readonly UIX: {
-            signTx(address: string, clauses: Connex.Thor.Clause[]): Promise<string>
-        }
         // event bus
         readonly BUS: Vue
     }
@@ -41,7 +37,6 @@ declare global {
     const WALLETS: Wallet.Persist
     const PREFERENCES: Preferences
     const THOR: Connex.Thor
-    const UIX: Window['UIX']
     const BUS: Vue
 }
 
@@ -69,5 +64,3 @@ Object.defineProperty(window, 'BUS', {
 
 // the portal root
 new Nova({ store: new Store() }).$mount('#nova')
-// user interaction proxy root
-new UIX().$mount('#uix')

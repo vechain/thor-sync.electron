@@ -1,35 +1,35 @@
 import * as connex from '@/connex'
-import { webContents } from 'electron'
+import { webContents, app } from 'electron'
 import { Agent } from 'http'
 import { Site } from '@/main/site'
 
 export class Backend {
-    private activeConfigs: { [wcId: number]: SiteConfig } = {}
-    private activeSites: { [index: string]: Site } = {}
-    private activeConns: { [wcId: number]: Agent } = {}
+    private activeConfigs = new Map<number, SiteConfig>()
+    private activeSites = new Map<string, Site>()
+    private activeConns = new Map<number, Agent>()
 
     public bindSiteConfig(webContentsId: number, config: SiteConfig) {
         const wc = webContents.fromId(webContentsId)
         if (!wc) {
             throw new Error('failed to get webContents instance')
         }
-        if (this.activeConfigs[webContentsId]) {
+        if (this.activeConfigs.get(webContentsId)) {
             throw new Error('host already registered')
         }
-        this.activeConfigs[webContentsId] = config
+        this.activeConfigs.set(webContentsId, config)
         wc.once('destroyed', () => {
-            delete this.activeConfigs[webContentsId]
+            this.activeConfigs.delete(webContentsId)
         })
     }
 
-    public getSiteConfig(webContentsId: number): SiteConfig | undefined {
-        const config = this.activeConfigs[webContentsId]
+    public getSiteConfig(webContentsId: number) {
+        const config = this.activeConfigs.get(webContentsId)
         if (config) {
             return config
         }
         const wc = webContents.fromId(webContentsId)
         if (wc && wc.hostWebContents) {
-            return this.activeConfigs[wc.hostWebContents.id]
+            return this.activeConfigs.get(wc.hostWebContents.id)
         }
     }
 
@@ -44,25 +44,25 @@ export class Backend {
         }
 
         const siteKey = config.genesis + '@' + config.url
-        let site = this.activeSites[siteKey]
+        let site = this.activeSites.get(siteKey)
         if (!site) {
             site = new Site(config.url, config.genesis)
-            this.activeSites[siteKey] = site
+            this.activeSites.set(siteKey, site)
         }
 
-        let conn = this.activeConns[webContentsId]
+        let conn = this.activeConns.get(webContentsId)
         if (conn) {
             conn.destroy()
         }
         conn = new Agent({
             maxSockets: 20
         })
-        this.activeConns[webContentsId] = conn
+        this.activeConns.set(webContentsId, conn)
         wc.once('destroyed', () => {
-            const remained = this.activeConns[webContentsId]
+            const remained = this.activeConns.get(webContentsId)
             if (remained) {
                 remained.destroy()
-                delete this.activeConns[webContentsId]
+                this.activeConns.delete(webContentsId)
             }
         })
 
@@ -72,11 +72,7 @@ export class Backend {
                 address: userAddr,
                 sign: (kind, clauses) => {
                     if (kind === 'tx') {
-                        const clausesStr = JSON.stringify(clauses)
-                        return (wc.hostWebContents || wc)
-                            .executeJavaScript(
-                                `UIX.signTx('${userAddr}', ${clausesStr})`
-                            )
+                        return app.uix[(wc.hostWebContents || wc).id].signTx(userAddr, clauses)
                     }
                     throw new Error('not implemented')
                 }

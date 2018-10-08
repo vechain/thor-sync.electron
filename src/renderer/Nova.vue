@@ -1,5 +1,6 @@
 <template>
     <v-app id="frame">
+        <UIXRoot />
         <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
             <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports"
                 @close="onTabRemove">
@@ -49,6 +50,7 @@ import AccountSwitch from './components/AccountSwitch.vue'
 import { remote } from 'electron'
 import Launcher from './launcher'
 import SearchBar from './components/SearchBar.vue'
+import UIXRoot from './components/UIXRoot.vue'
 
 type PortTab = TabBar.Item & {
     id: number
@@ -67,7 +69,8 @@ type Current = {
         NetworkStatus,
         AccountSwitch,
         Launcher,
-        SearchBar
+        SearchBar,
+        UIXRoot
     }
 })
 export default class Nova extends Vue {
