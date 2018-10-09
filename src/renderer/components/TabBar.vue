@@ -2,7 +2,7 @@
     <div class="sync-tab-bar">
         <slot/>
         <div class="sync-tabs">
-            <div @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab elevation-5': item[current.key] === current.value}"
+            <div @dblclick.stop.prevent @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab elevation-5': item[current.key] === current.value}"
                 v-for="(item, index) in tabs" :key="index">
                 <div class="tab-container" :title="item.title">
                     <img :src="item.iconUrl">
