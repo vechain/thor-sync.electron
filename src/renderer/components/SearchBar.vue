@@ -9,13 +9,14 @@
         <v-btn @click.stop="onBtnClick('refresh')" :disabled="!opt.url" icon>
             <v-icon>refresh</v-icon>
         </v-btn>
-        <v-text-field @focus="urlString = opt.url" @blur="urlString = ''" v-model="urlString" @keyup.enter="onUrl" :placeholder="urlOrigin"></v-text-field>
+        <v-text-field @focus="urlString = opt.editing || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
         <slot />
     </v-toolbar>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator'
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
+import NewWalletDialog from '@/renderer/launcher/NewWalletDialog.vue';
 
 @Component
 export default class SearchBar extends Vue {
@@ -25,10 +26,16 @@ export default class SearchBar extends Vue {
         default: {
             canGoBack: false,
             canGoForward: false,
-            url: ''
+            url: '',
+            editing: ''
         }
     })
     private opt!: SearchBar.Opt
+
+    @Watch('opt')
+    onOptChange(newValue: SearchBar.Opt) {
+        this.urlString = newValue.editing || ''
+    }
 
     get urlOrigin() {
         if (this.opt.url) {
@@ -38,6 +45,10 @@ export default class SearchBar extends Vue {
             return
         }
     }
+
+    @Emit('change')
+    onChange(str: string) {}
+
     @Emit('operate')
     onBtnClick(action: string) { }
 
