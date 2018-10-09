@@ -8,8 +8,8 @@
             <NetworkStatus></NetworkStatus>
         </v-toolbar>
         <v-content class="sync-container">
-            <search-bar @operate="onOperate" @urlRequest="onUrlRequest" :opt="searchOpt" flat light dense
-                class="search-bar" v-if="ports.length">
+            <search-bar @operate="onOperate" @change="onSearchChange" @urlRequest="onUrlRequest"
+                :opt="searchOpt" flat light dense class="search-bar" v-if="ports.length">
                 <AccountSwitch v-model="selectedAccount" @change="onAccountChange"></AccountSwitch>
             </search-bar>
             <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout"
@@ -58,6 +58,7 @@ type PortTab = TabBar.Item & {
     addressBar: boolean
     account?: string
     contentId?: number
+    editUrl?: string
 }
 type Current = {
     key: string
@@ -77,16 +78,19 @@ type Current = {
 })
 export default class Nova extends Vue {
     private selectedAccount: string | null = null
+    private editingUrl?: string = ''
     private counter: number = 0
     private ports: PortTab[] = []
     private current: Current = {
         key: 'id',
         value: 0
     }
+    // private currentIndex?: number
     private searchOpt: SearchBar.Opt = {
         canGoBack: false,
         canGoForward: false,
-        url: ''
+        url: '',
+        editing: ''
     }
     private apps: object[] = []
     private accounts: any[] = []
@@ -103,12 +107,21 @@ export default class Nova extends Vue {
             this.onOpenDapp(data)
         })
     }
+
+    public onSearchChange(str: string) {
+        const index = this.ports.findIndex(item => {
+            return item.id === this.current.value
+        })
+
+        this.$set(this.ports[index], 'editUrl', str)
+    }
     public onUrlRequest(url: string) {
         const index = this.ports.findIndex(item => {
             return item.id === this.current.value
         })
 
         this.$set(this.ports[index], 'src', url)
+        this.$set(this.ports[index], 'editUrl', '')
     }
 
     public onOperate(action: string) {
@@ -158,19 +171,21 @@ export default class Nova extends Vue {
         this.$set(this.ports[index], 'addressBar', app.addressBar)
     }
 
-    public updateSearchOpts(contentId?: number) {
+    public updateSearchOpts(contentId?: number, index?: number) {
         if (contentId) {
             let contents = remote.webContents.fromId(contentId)
             this.searchOpt = {
                 canGoBack: contents.canGoBack(),
                 canGoForward: contents.canGoForward(),
-                url: contents.getURL()
+                url: contents.getURL(),
+                editing: index !== undefined && index >= 0 ? this.ports[index]['editUrl'] || '' : ''
             }
         } else {
             this.searchOpt = {
                 canGoBack: false,
                 canGoForward: false,
-                url: ''
+                url: '',
+                editing: index !== undefined && index >= 0 ? this.ports[index]['editUrl'] || '' : ''
             }
         }
     }
@@ -196,6 +211,7 @@ export default class Nova extends Vue {
         this.ports.push(item)
         this.selectedAccount = null
         this.updateSearchOpts()
+        // this.currentIndex = this.ports.length - 1
     }
 
     public onTabRemove(tab: PortTab) {
@@ -208,27 +224,34 @@ export default class Nova extends Vue {
                 this.ports[this.ports.length - 1]['account'] || null
             this.current.value = this.ports[this.ports.length - 1]['id']
             this.updateSearchOpts(
-                this.ports[this.ports.length - 1]['contentId']
+                this.ports[this.ports.length - 1]['contentId'],
+                index
             )
+
+            // this.currentIndex = this.ports.length - 1
         } else {
             this.selectedAccount = null
             this.updateSearchOpts()
             this.current.value = ''
+
+            // this.currentIndex = undefined
         }
     }
 
     public onSwitchTab(item: PortTab) {
         this.current.value = item.id
-        const currentItem = this.ports.find(item => {
+        const index = this.ports.findIndex(item => {
             return this.current.value === item.id
         })
+        // this.currentIndex = index
+        const currentItem = this.ports[index]
 
         if (currentItem) {
             this.selectedAccount = currentItem.account || null
-            this.updateSearchOpts(currentItem['contentId'])
+            this.updateSearchOpts(currentItem['contentId'], index)
         } else {
             this.selectedAccount = null
-            this.updateSearchOpts()
+            this.updateSearchOpts(undefined, index)
         }
         this.selectedAccount = currentItem
             ? currentItem.account
@@ -246,11 +269,13 @@ export default class Nova extends Vue {
             this.$set(this.ports[index], 'iconUrl', value)
         } else if (type === 'contentId') {
             this.$set(this.ports[index], 'contentId', value)
+        } else if (type === 'url') {
+            this.$set(this.ports[index], 'src', value)
         } else {
         }
 
         if (this.ports[index].id === this.current.value) {
-            this.updateSearchOpts(this.ports[index].contentId)
+            this.updateSearchOpts(this.ports[index].contentId, index)
         }
     }
 

@@ -3,5 +3,6 @@ declare namespace SearchBar {
         canGoBack: boolean
         canGoForward: boolean
         url: string
+        editing: string
     }
 }
