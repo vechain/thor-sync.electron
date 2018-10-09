@@ -50,8 +50,10 @@ export default class ViewPort extends Vue {
 
     @Watch('url')
     onUrlChange(newValue: any, oldValue: any) {
-        if (!oldValue) {
-            this.webviewEventBind()
+        if (!oldValue || oldValue === '') {
+            this.$nextTick(() => {
+                this.webviewEventBind()
+            })
         }
     }
 
