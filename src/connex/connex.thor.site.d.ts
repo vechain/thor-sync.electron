@@ -1,8 +1,7 @@
-declare namespace Connex{
+declare namespace Connex {
     namespace Thor {
         interface Site {
-            readonly url: string
-            readonly genesis: Thor.Block
+            readonly config: Site.Config
             readonly status: Thor.Status
             nextTick(): Promise<void>
 
@@ -11,7 +10,6 @@ declare namespace Connex{
         }
         namespace Site {
             interface Wire {
-                readonly url: string
                 get<T>(path: string, query?: object): Promise<T>
                 post<T>(path: string, data: object, query?: object): Promise<T>
                 ws(path: string, query?: object): WebSocket
@@ -20,6 +18,12 @@ declare namespace Connex{
             interface WebSocket {
                 close(): void
                 read(): Promise<string | Buffer | ArrayBuffer | Buffer[]>
+            }
+
+            type Config = {
+                name: string
+                url: string
+                genesis: Connex.Thor.Block
             }
         }
     }

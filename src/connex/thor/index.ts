@@ -10,7 +10,7 @@ export function create(
 ): Thor {
     const wire = site.createWire()
     return {
-        get genesis() { return site.genesis },
+        get genesis() { return site.config.genesis },
         get status() { return site.status },
         ticker() {
             let lastKnownBlockNum = site.status.head.number
