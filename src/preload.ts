@@ -1,12 +1,6 @@
 import { remote } from 'electron'
 import env from '@/env'
 
-declare module 'electron' {
-    interface WebContents {
-        getWebPreferences(): WebPreferences
-    }
-}
-
 declare global {
     interface Window {
         readonly connex: Connex
@@ -14,16 +8,20 @@ declare global {
     const connex: Connex
 }
 
+const contents = remote.getCurrentWebContents()
+
 if (env.devMode) {
-    remote.getCurrentWebContents().openDevTools()
+    contents.openDevTools()
 }
 
-const webContents = remote.getCurrentWebContents()
-const partition = webContents.getWebPreferences().partition
-
-const userAddr = partition ? new URL(partition).pathname.split('/').pop() : undefined
+const hostClientId = contents.hostWebContents.getWebPreferences()['xargs.clientId']!
+const config = contents.hostWebContents.getWebPreferences()['xargs.config']!
 
 Object.defineProperty(window, 'connex', {
     enumerable: true,
-    value: remote.app.backend.connect(webContents.id, userAddr)
+    value: remote.app.EXTENSION.connect(
+        contents.id,
+        config,
+        `${hostClientId}.${env.clientId!}`
+    )
 })
