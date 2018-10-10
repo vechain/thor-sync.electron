@@ -10,7 +10,6 @@
         <v-content class="sync-container">
             <search-bar @operate="onOperate" @change="onSearchChange" @urlRequest="onUrlRequest"
                 :opt="searchOpt" flat light dense class="search-bar" v-if="ports.length">
-                <!-- <AccountSwitch v-model="selectedAccount" @change="onAccountChange"></AccountSwitch> -->
             </search-bar>
             <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout"
                 :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index"
@@ -47,7 +46,6 @@ import { Component, Vue } from 'vue-property-decorator'
 import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
-import AccountSwitch from './components/AccountSwitch.vue'
 import { remote, Event } from 'electron'
 import Launcher from './launcher'
 import SearchBar from './components/SearchBar.vue'
@@ -70,14 +68,12 @@ type Current = {
         TabBar,
         ViewPort,
         NetworkStatus,
-        AccountSwitch,
         Launcher,
         SearchBar,
         UIXRoot
     }
 })
 export default class Nova extends Vue {
-    // private selectedAccount: string | null = null
     private editingUrl?: string = ''
     private counter: number = 0
     private ports: PortTab[] = []
@@ -85,7 +81,6 @@ export default class Nova extends Vue {
         key: 'id',
         value: 0
     }
-    // private currentIndex?: number
     private searchOpt: SearchBar.Opt = {
         canGoBack: false,
         canGoForward: false,
@@ -190,12 +185,6 @@ export default class Nova extends Vue {
         }
     }
 
-    // public onAccountChange(addr: string) {
-    //     const index = this.ports.findIndex(item => {
-    //         return item.id === this.current.value
-    //     })
-    //     this.$set(this.ports[index], 'account', addr)
-    // }
     public onAddTAb() {
         let item: PortTab = {
             title: 'New tab',
@@ -209,9 +198,7 @@ export default class Nova extends Vue {
         ++this.counter
         this.current.value = item.id
         this.ports.push(item)
-        // this.selectedAccount = null
         this.updateSearchOpts()
-        // this.currentIndex = this.ports.length - 1
     }
 
     public onTabRemove(tab: PortTab) {
@@ -220,21 +207,14 @@ export default class Nova extends Vue {
         })
         this.ports.splice(index, 1)
         if (this.ports[this.ports.length - 1]) {
-            // this.selectedAccount =
-                // this.ports[this.ports.length - 1]['account'] || null
             this.current.value = this.ports[this.ports.length - 1]['id']
             this.updateSearchOpts(
                 this.ports[this.ports.length - 1]['contentId'],
                 this.ports.length - 1
             )
-
-            // this.currentIndex = this.ports.length - 1
         } else {
-            // this.selectedAccount = null
             this.updateSearchOpts()
             this.current.value = ''
-
-            // this.currentIndex = undefined
         }
     }
 
@@ -243,21 +223,13 @@ export default class Nova extends Vue {
         const index = this.ports.findIndex(item => {
             return this.current.value === item.id
         })
-        // this.currentIndex = index
         const currentItem = this.ports[index]
 
         if (currentItem) {
-            // this.selectedAccount = currentItem.account || null
             this.updateSearchOpts(currentItem['contentId'], index)
         } else {
-            // this.selectedAccount = null
             this.updateSearchOpts(undefined, index)
         }
-        // this.selectedAccount = currentItem
-        //     ? currentItem.account
-        //         ? currentItem.account
-        //         : null
-        //     : null
     }
 
     public onDataUpdated(event: ViewPort.DataUpdateEvent, index: number) {
