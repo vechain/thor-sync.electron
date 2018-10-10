@@ -49,7 +49,7 @@ import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
 import Launcher from './launcher'
 import SearchBar from './components/SearchBar.vue'
-import UIXRoot from './components/UIXRoot.vue'
+import UIXRoot from './uix'
 
 type PortTab = TabBar.Item & {
     id: number

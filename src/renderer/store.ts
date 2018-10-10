@@ -9,6 +9,7 @@ namespace Store {
         chainStatus: Connex.Thor.Status
         wallets: Wallet.Entity[]
         accounts: { [address: string]: Account }
+        activeViewport: Viewport | null
     }
 
     export type Account = {
@@ -20,6 +21,13 @@ namespace Store {
         readonly account: Account
         untrack(): void
     }
+
+    export type Viewport = {
+        id: number
+        domain: string
+        title: string
+        iconURL: string
+    }
 }
 
 class Store extends Vuex.Store<Store.Model> {
@@ -27,14 +35,16 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
     public static readonly UPDATE_WALLETS = 'updateWallets'
     public static readonly UPDATE_ACCOUNT = 'updateAccount'
+    public static readonly UPDATE_ACTIVE_VIEW_PORT = 'updateActiveViewPort'
 
     constructor() {
         const accountTracker = new AccountTracker()
         super({
             state: {
-                chainStatus: THOR.status,
+                chainStatus: connex.thor.status,
                 wallets: [],
-                accounts: {}
+                accounts: {},
+                activeViewport: null,
             },
             getters: {
                 account(state) {
@@ -50,7 +60,7 @@ class Store extends Vuex.Store<Store.Model> {
             },
             mutations: {
                 [Store.UPDATE_CHAIN_STATUS](state) {
-                    state.chainStatus = THOR.status
+                    state.chainStatus = connex.thor.status
                 },
                 [Store.UPDATE_WALLETS](state, wallets) {
                     state.wallets = wallets
@@ -61,6 +71,9 @@ class Store extends Vuex.Store<Store.Model> {
                         acc.updateTime = Date.now()
                         acc.data = payload.data
                     }
+                },
+                [Store.UPDATE_ACTIVE_VIEW_PORT](state, viewport) {
+                    state.activeViewport = viewport
                 }
             }
         })
@@ -79,7 +92,7 @@ class Store extends Vuex.Store<Store.Model> {
         }, 60 * 1000)
 
         this.commit(Store.UPDATE_CHAIN_STATUS)
-        const ticker = THOR.ticker()
+        const ticker = connex.thor.ticker()
         for (; ;) {
             await ticker.next()
             this.commit(Store.UPDATE_CHAIN_STATUS)
@@ -150,19 +163,19 @@ class AccountTracker {
 
     public run(commit: (addr: string, data: Connex.Thor.Account) => void) {
         this.emitter.on('fetch', (addr: string) => {
-            THOR.account(addr).get()
+            connex.thor.account(addr).get()
                 .then(data => commit(addr, data))
                 // tslint:disable-next-line:no-console
                 .catch(console.log)
         });
         (async () => {
-            const ticker = THOR.ticker()
+            const ticker = connex.thor.ticker()
             for (; ;) {
                 await ticker.next()
                 // tslint:disable-next-line:forin
                 for (const addr in this.refCounts) {
                     if (this.refCounts[addr] > 0) {
-                        THOR.account(addr).get()
+                        connex.thor.account(addr).get()
                             .then(data => commit(addr, data))
                             // tslint:disable-next-line:no-console
                             .catch(console.log)

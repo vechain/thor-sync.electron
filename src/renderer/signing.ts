@@ -1,12 +1,9 @@
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
+import Wallet from './wallet'
 
 export class TxSigning {
-    constructor(
-        readonly clauses: Connex.Thor.Clause[],
-        readonly origin: string
-    ) {
-        // for validation
+    public static validate(clauses: Connex.Thor.Clause[]) {
         new Transaction({
             chainTag: 0,
             blockRef: '0x0000000000000000',
@@ -19,8 +16,12 @@ export class TxSigning {
         }).encode()
     }
 
-    public async estimateGas() {
-        const execGas = await this.computeExecGas()
+    constructor(
+        readonly clauses: Connex.Thor.Clause[],
+    ) { }
+
+    public async estimateGas(origin: string) {
+        const execGas = await this.computeExecGas(origin)
 
         return {
             gas: Transaction.intrinsicGas(this.clauses) +
@@ -29,9 +30,9 @@ export class TxSigning {
         }
     }
 
-    public async sign(password: string, options: TxSigning.Options) {
-        const genesis = THOR.genesis
-        const bestId = THOR.status.head.id
+    public async sign(wallet: Wallet, password: string, options: TxSigning.Options) {
+        const genesis = connex.thor.genesis
+        const bestId = connex.thor.status.head.id
 
         const tx = new Transaction({
             chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
@@ -44,31 +45,26 @@ export class TxSigning {
             nonce: '0x' + randomBytes(8).toString('hex')
         })
 
-        const entity = await WALLETS.get(this.origin)
-        if (!entity) {
-            throw new Error('wallet not found')
-        }
-        const privateKey = await cry.Keystore.decrypt(entity.keystore, password)
-        tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
+        tx.signature = await wallet.sign(cry.blake2b256(tx.encode()), password)
         return '0x' + tx.encode().toString('hex')
     }
 
-    private async computeExecGas() {
+    private async computeExecGas(origin: string) {
         let gasUsed = 0
         for (const clause of this.clauses) {
             const input = {
                 value: clause.value,
                 data: clause.data,
                 gas: 50000000,
-                caller: this.origin
+                caller: origin
             }
             let output
             if (clause.to) {
-                output = await THOR
+                output = await connex.thor
                     .account(clause.to)
                     .call(input)
             } else {
-                output = await THOR
+                output = await connex.thor
                     .call(input)
             }
             gasUsed += output.gasUsed
