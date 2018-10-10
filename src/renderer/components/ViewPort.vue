@@ -1,6 +1,6 @@
 <template>
     <div class="sync-viewport-container" :class="{'full-height': !addressBar}">
-        <webview v-if="url && norefresh" ref="viewport" :partition="partition" autosize :preload="preload"
+        <webview v-if="url && norefresh" ref="viewport" :partition="partition" autosize :preload="preload" webpreferences="xargs.clientId=todo"
             :src="url" />
         <slot name="content" />
     </div>
@@ -36,7 +36,7 @@ export default class ViewPort extends Vue {
     preload = ENV.preload
 
     get partition() {
-        return `persist:${THOR.genesis.id}/${this.account}`
+        return `persist:${connex.thor.genesis.id}`
     }
 
     @Watch('url')
