@@ -10,7 +10,7 @@
         <v-content class="sync-container">
             <search-bar @operate="onOperate" @change="onSearchChange" @urlRequest="onUrlRequest"
                 :opt="searchOpt" flat light dense class="search-bar" v-if="ports.length">
-                <AccountSwitch v-model="selectedAccount" @change="onAccountChange"></AccountSwitch>
+                <!-- <AccountSwitch v-model="selectedAccount" @change="onAccountChange"></AccountSwitch> -->
             </search-bar>
             <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout"
                 :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index"
@@ -77,7 +77,7 @@ type Current = {
     }
 })
 export default class Nova extends Vue {
-    private selectedAccount: string | null = null
+    // private selectedAccount: string | null = null
     private editingUrl?: string = ''
     private counter: number = 0
     private ports: PortTab[] = []
@@ -190,12 +190,12 @@ export default class Nova extends Vue {
         }
     }
 
-    public onAccountChange(addr: string) {
-        const index = this.ports.findIndex(item => {
-            return item.id === this.current.value
-        })
-        this.$set(this.ports[index], 'account', addr)
-    }
+    // public onAccountChange(addr: string) {
+    //     const index = this.ports.findIndex(item => {
+    //         return item.id === this.current.value
+    //     })
+    //     this.$set(this.ports[index], 'account', addr)
+    // }
     public onAddTAb() {
         let item: PortTab = {
             title: 'New tab',
@@ -209,7 +209,7 @@ export default class Nova extends Vue {
         ++this.counter
         this.current.value = item.id
         this.ports.push(item)
-        this.selectedAccount = null
+        // this.selectedAccount = null
         this.updateSearchOpts()
         // this.currentIndex = this.ports.length - 1
     }
@@ -220,17 +220,17 @@ export default class Nova extends Vue {
         })
         this.ports.splice(index, 1)
         if (this.ports[this.ports.length - 1]) {
-            this.selectedAccount =
-                this.ports[this.ports.length - 1]['account'] || null
+            // this.selectedAccount =
+                // this.ports[this.ports.length - 1]['account'] || null
             this.current.value = this.ports[this.ports.length - 1]['id']
             this.updateSearchOpts(
                 this.ports[this.ports.length - 1]['contentId'],
-                index
+                this.ports.length - 1
             )
 
             // this.currentIndex = this.ports.length - 1
         } else {
-            this.selectedAccount = null
+            // this.selectedAccount = null
             this.updateSearchOpts()
             this.current.value = ''
 
@@ -247,17 +247,17 @@ export default class Nova extends Vue {
         const currentItem = this.ports[index]
 
         if (currentItem) {
-            this.selectedAccount = currentItem.account || null
+            // this.selectedAccount = currentItem.account || null
             this.updateSearchOpts(currentItem['contentId'], index)
         } else {
-            this.selectedAccount = null
+            // this.selectedAccount = null
             this.updateSearchOpts(undefined, index)
         }
-        this.selectedAccount = currentItem
-            ? currentItem.account
-                ? currentItem.account
-                : null
-            : null
+        // this.selectedAccount = currentItem
+        //     ? currentItem.account
+        //         ? currentItem.account
+        //         : null
+        //     : null
     }
 
     public onDataUpdated(event: ViewPort.DataUpdateEvent, index: number) {
