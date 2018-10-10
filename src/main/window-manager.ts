@@ -1,6 +1,6 @@
 import { app, BrowserWindowConstructorOptions, BrowserWindow } from 'electron'
-import { SiteConfig } from './backend'
 import env from '@/env'
+import siteConfigs from '../site-configs'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 600,
@@ -15,14 +15,19 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
 class WindowManager {
     private readonly actives = new Map<number, BrowserWindow>()
     private xWorkerWin?: BrowserWindow
+    private nextClientId = 0
 
     public create(
-        siteConfig?: SiteConfig,
+        config?: Connex.Thor.Site.Config,
         options?: BrowserWindowConstructorOptions
     ) {
-        siteConfig = siteConfig || app.backend.siteConfigs[0]
+        config = config || siteConfigs[0]
         options = { ...defaultWindowOptions, ...(options || {}) }
-        options.webPreferences = { ...(options.webPreferences || {}), partition: 'persist:' + siteConfig.genesis.id }
+        options.webPreferences = options.webPreferences || {}
+        options.webPreferences.partition =              'persist:' + config.genesis.id
+        options.webPreferences['xargs.clientId']           = 'host-' + this.nextClientId++
+        options.webPreferences['xargs.config'] = config
+
         const win = new BrowserWindow(options)
 
         const id = win.id
@@ -38,7 +43,6 @@ class WindowManager {
         }).once('ready-to-show', () => {
             win.show()
         })
-        app.backend.bindSiteConfig(win.webContents.id, siteConfig)
         win.loadURL(env.index)
         return win
     }

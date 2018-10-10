@@ -10,13 +10,12 @@ import { Lazy } from '@/common/deferred'
 class Wire implements Connex.Thor.Site.Wire {
     private readonly axios: AxiosInstance
     constructor(
-        readonly url: string,
-        private readonly genesisId: string,
+        private readonly config: Connex.Thor.Site.Config,
         private readonly agent?: Agent) {
         this.axios = Axios.create({
             validateStatus: status => status >= 200 && status < 300,
             httpAgent: agent,
-            headers: { 'x-genesis-id': genesisId }
+            headers: { 'x-genesis-id': config.genesis.id }
         })
     }
 
@@ -37,7 +36,7 @@ class Wire implements Connex.Thor.Site.Wire {
         parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
         const ws = new WebSocket(URL.format(parsed), {
             agent: this.agent,
-            headers: { 'x-genesis-id': this.genesisId }
+            headers: { 'x-genesis-id': this.config.genesis.id }
         })
         return {
             read() {
@@ -84,24 +83,32 @@ class Wire implements Connex.Thor.Site.Wire {
         if (qs) {
             qs = '?' + qs
         }
-        return URL.resolve(this.url, `${path}${qs}`)
+        return URL.resolve(this.config.url, `${path}${qs}`)
     }
 }
 
 export class Site implements Connex.Thor.Site {
     private bestBlock: Connex.Thor.Block
     private readonly emitter = new EventEmitter()
-    private readonly mainWire: Connex.Thor.Site.Wire
+    private readonly agent: Agent
+    private stop = false
 
     constructor(
-        readonly url: string,
-        readonly genesis: Connex.Thor.Block,
-        private readonly agent?: any
+        readonly config: Connex.Thor.Site.Config,
+        agent?: Agent
     ) {
-        this.bestBlock = genesis
-        this.mainWire = new Wire(url, genesis.id, agent)
+        this.bestBlock = config.genesis
         this.emitter.setMaxListeners(2 ** 32 - 1)
+        this.agent = agent || new Agent({ maxSockets: 20 })
         this.loop()
+    }
+
+    public shutdown() {
+        if (this.stop) {
+            return
+        }
+        this.stop = true
+        this.agent.destroy()
     }
 
     public nextTick() {
@@ -121,7 +128,7 @@ export class Site implements Connex.Thor.Site {
                 if (nowTs - bestTs < 30 * 1000) {
                     return 1
                 }
-                const genesisTs = _this.genesis.timestamp * 1000
+                const genesisTs = _this.config.genesis.timestamp * 1000
                 const progress = (bestTs - genesisTs) / (nowTs - genesisTs)
                 return progress < 0 ? NaN : progress
             },
@@ -133,9 +140,9 @@ export class Site implements Connex.Thor.Site {
         }
     }
 
-    public withWireAgent(agent?: any): Connex.Thor.Site {
+    public withWireAgent(agent?: Agent): Connex.Thor.Site {
         const overriddenCreateWire = () => {
-            return new Wire(this.url, this.genesis.id, agent)
+            return new Wire(this.config, agent)
         }
         const nameOfCreateWire = this.createWire.name
 
@@ -150,12 +157,13 @@ export class Site implements Connex.Thor.Site {
     }
 
     public createWire() {
-        return new Wire(this.url, this.genesis.id, this.agent)
+        return new Wire(this.config, this.agent)
     }
 
     private async loop() {
+        const wire = new Wire(this.config, this.agent)
         let ws: Connex.Thor.Site.WebSocket | undefined
-        for (; ;) {
+        while (!this.stop) {
             if (ws) {
                 try {
                     this.bestBlock = JSON.parse((await ws.read()).toString())
@@ -163,23 +171,29 @@ export class Site implements Connex.Thor.Site {
                 } catch (e) {
                     ws.close()
                     ws = undefined
-                    await sleep(10 * 1000)
+                    if (!this.stop) {
+                        await sleep(10 * 1000)
+                    }
                 }
             } else {
                 const now = Date.now()
                 if (now - this.bestBlock.timestamp * 1000 < 30 * 1000) {
-                    ws = this.mainWire.ws('subscriptions/block')
+                    ws = wire.ws('subscriptions/block')
                 } else {
                     try {
-                        const best = await this.mainWire.get<Connex.Thor.Block | null>('blocks/best')
+                        const best = await wire.get<Connex.Thor.Block | null>('blocks/best')
                         if (best!.number !== this.bestBlock.number) {
                             this.bestBlock = best!
                             this.emitter.emit('next')
                             continue
                         }
-                        await sleep(2 * 1000)
+                        if (!this.stop) {
+                            await sleep(2 * 1000)
+                        }
                     } catch (e) {
-                        await sleep(10 * 1000)
+                        if (!this.stop) {
+                            await sleep(10 * 1000)
+                        }
                     }
                 }
             }
