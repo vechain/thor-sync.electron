@@ -1,8 +1,8 @@
-import { app } from 'electron'
-import { Backend, SiteConfig } from './backend'
+import { app, webContents } from 'electron'
+import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
-import { promisify } from 'util'
+import inject from './inject'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -10,54 +10,44 @@ require('electron-unhandled')({
     showDialog: false
 })
 
-type StdCallback<R> = (err?: Error, result?: R) => void
-type Promisifiable<R, T1 = never, T2 = never, T3 = never, T4 = never> =
-    ((arg1: T1, callback: StdCallback<R>) => void) |
-    ((arg1: T1, arg2: T2, callback: StdCallback<R>) => void) |
-    ((arg1: T1, arg2: T2, arg3: T3, callback: StdCallback<R>) => void) |
-    ((arg1: T1, arg2: T2, arg3: T3, arg4: T4, callback: StdCallback<R>) => void)
-
 declare module 'electron' {
     interface App {
-        backend: Backend
+        EXTENSION: {
+            connect(
+                contentsId: number,
+                config: Connex.Thor.Site.Config,
+                fullClientId: string
+            ): Connex
 
-        inject(path: string, obj?: {
-            [prop: string]: Promisifiable<any>
-        }): void
+            inject(
+                contentsId: number,
+                path: string,
+                obj: {
+                    [prop: string]: (...args: any[]) => void
+                }): void
 
-        createWindow(
-            siteConfig?: SiteConfig,
-            options?: BrowserWindowConstructorOptions
-        ): BrowserWindow
+            createWindow(
+                config?: Connex.Thor.Site.Config,
+                options?: BrowserWindowConstructorOptions
+            ): BrowserWindow
+        }
     }
 }
 
 const winMgr = new WindowManager()
+const backend = new Backend()
 
-app.backend = new Backend()
-app.inject = (path, obj) => {
-    const paths = path.split('.')
-    let dest = app as any
-    for (let i = 0; i < paths.length - 1; i++) {
-        if (dest[paths[i]]) {
-            dest = dest[paths[i]]
-        } else {
-            dest = dest[paths[i]] = {}
-        }
-    }
-    if (obj) {
-        const injects = {} as any
-        // tslint:disable-next-line:forin
-        for (const key in obj) {
-            injects[key] = promisify(obj[key])
-        }
-        dest[paths[paths.length - 1]] = injects
-    } else {
-        delete dest[paths[paths.length - 1]]
-    }
+app.EXTENSION = {
+    connect: (contentsId, config, fullClientId) => backend.connect(config, fullClientId, contentsId),
+    inject: (contentsId, path, obj) => {
+        webContents.fromId(contentsId).once('destroyed', () => {
+            inject(app, path)
+        })
+        inject(app, path, obj)
+    },
+    createWindow: (config, options) => winMgr.create(config, options)
 }
 
-app.createWindow = (siteConfig, options) => winMgr.create(siteConfig, options)
 
 app.once('ready', () => {
     setupMenu()
