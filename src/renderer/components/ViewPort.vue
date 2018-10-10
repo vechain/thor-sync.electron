@@ -39,15 +39,6 @@ export default class ViewPort extends Vue {
         return `persist:${THOR.genesis.id}/${this.account}`
     }
 
-    // @Watch('account')
-    // webviewRefresh() {
-    //     // TODO Comfirmation Alert
-    //     this.norefresh = false
-    //     this.$nextTick(() => {
-    //         this.norefresh = true
-    //     })
-    // }
-
     @Watch('url')
     onUrlChange(newValue: any, oldValue: any) {
         if (!oldValue || oldValue === '') {
