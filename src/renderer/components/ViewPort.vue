@@ -1,36 +1,49 @@
 <template>
-    <div class="sync-viewport-container" :class="{'full-height': !addressBar}">
-        <webview v-if="url && norefresh" ref="viewport" 
-            :src="url" />
-        <slot name="content" />
+    <div class="sync-viewport-container">
+        <search-bar :opt="searchBarOpt" class="elevation-0" />
+        <template v-if="opt.src">
+            <webview ref="viewport" :partition="partition" autosize :preload="preload" :src="opt.src" />
+        </template>
+        <Launcher v-if="!opt.src"></Launcher>
     </div>
 </template>
 
 <script lang="ts">
-const Dragable = require('draggabilly')
+import SearchBar from './SearchBar.vue'
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
 import { WebviewTag } from 'electron'
+import Launcher from '../launcher'
 
-@Component
+@Component({
+    components: {
+        SearchBar,
+        Launcher
+    }
+})
 export default class ViewPort extends Vue {
     @Prop({ default: '' })
     private url!: string
 
+    @Prop({
+        default: {
+            src: ''
+        }
+    })
+    private opt!: ViewPort.Opt
+
     @Prop({ default: false })
     private draggable!: boolean
 
-    @Prop({ default: true })
-    private addressBar!: boolean
-
-    @Prop({ default: '' })
-    private account!: string
-
-    private norefresh: boolean = true
+    private searchBarOpt: SearchBar.Opt = {
+        canGoBack: false,
+        canGoForward: false,
+        url: ''
+    }
 
     @Emit('data-updated')
     emitUpdateData(event: ViewPort.DataUpdateEvent) {}
 
-    @Emit('status-update')
+    @Emit('status-updated')
     emitStatus(event: ViewPort.StatusUpdateEvent) {}
 
     preload = ENV.preload
@@ -39,14 +52,14 @@ export default class ViewPort extends Vue {
         return `persist:${connex.thor.genesis.id}`
     }
 
-    @Watch('url')
-    onUrlChange(newValue: any, oldValue: any) {
-        if (!oldValue || oldValue === '') {
-            this.$nextTick(() => {
-                this.webviewEventBind()
-            })
-        }
-    }
+    // @Watch('url')
+    // onUrlChange(newValue: any, oldValue: any) {
+    //     if (!oldValue || oldValue === '') {
+    //         this.$nextTick(() => {
+    //             this.webviewEventBind()
+    //         })
+    //     }
+    // }
 
     mounted() {
         this.webviewEventBind()
@@ -60,11 +73,11 @@ export default class ViewPort extends Vue {
             wv.addEventListener('page-title-updated', this.titleUpdate)
             wv.addEventListener('page-favicon-updated', this.faviconUpdate)
             wv.addEventListener('new-window', this.onNewWindow)
-            wv.addEventListener('did-navigate', this.pageOnNavigate)
-            wv.addEventListener(
-                'did-navigate-in-page',
-                this.pageOnNavigateInPage
-            )
+            // wv.addEventListener('did-navigate', this.pageOnNavigate)
+            // wv.addEventListener(
+            //     'did-navigate-in-page',
+            //     this.pageOnNavigateInPage
+            // )
             wv.addEventListener('did-start-loading', this.updateLoadingStatus)
 
             wv.addEventListener('load-commit', this.updateLoadingStatus)
@@ -84,11 +97,11 @@ export default class ViewPort extends Vue {
                 'did-start-loading',
                 this.updateLoadingStatus
             )
-            wv.removeEventListener('did-navigate', this.pageOnNavigate)
-            wv.removeEventListener(
-                'did-navigate-in-page',
-                this.pageOnNavigateInPage
-            )
+            // wv.removeEventListener('did-navigate', this.pageOnNavigate)
+            // wv.removeEventListener(
+            //     'did-navigate-in-page',
+            //     this.pageOnNavigateInPage
+            // )
             wv.removeEventListener('load-commit', this.updateLoadingStatus)
             wv.removeEventListener('did-finish-load', this.updateLoadingStatus)
             wv.removeEventListener('did-stop-loading', this.updateLoadingStatus)
@@ -100,12 +113,12 @@ export default class ViewPort extends Vue {
         this.emitStatus({ status: event.type })
     }
 
-    pageOnNavigate(event: Electron.DidNavigateEvent) {
-        this.emitUpdateData({ type: 'url', value: event.url })
-    }
-    pageOnNavigateInPage(event: Electron.DidNavigateInPageEvent) {
-        this.emitUpdateData({ type: 'url', value: event.url })
-    }
+    // pageOnNavigate(event: Electron.DidNavigateEvent) {
+    //     this.emitUpdateData({ type: 'url', value: event.url })
+    // }
+    // pageOnNavigateInPage(event: Electron.DidNavigateInPageEvent) {
+    //     this.emitUpdateData({ type: 'url', value: event.url })
+    // }
 
     faviconUpdate(event: Electron.PageFaviconUpdatedEvent) {
         this.emitUpdateData({ type: 'icon', value: event.favicons[0] })
@@ -113,14 +126,14 @@ export default class ViewPort extends Vue {
 
     titleUpdate(event: Electron.PageTitleUpdatedEvent) {
         this.emitUpdateData({ type: 'title', value: event.title })
-        this.emitUpdateData({
-            type: 'contentId',
-            value: (this.$refs['viewport'] as WebviewTag).getWebContents().id
-        })
+        // this.emitUpdateData({
+        //     type: 'contentId',
+        //     value: (this.$refs['viewport'] as WebviewTag).getWebContents().id
+        // })
     }
 
     onNewWindow(event: Electron.NewWindowEvent) {
-        this.emitUpdateData({ type: 'new-window', value: event.url })
+        // this.emitUpdateData({ type: 'new-window', value: event.url })
     }
 }
 </script>
