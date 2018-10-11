@@ -1,5 +1,5 @@
 <template>
-    <v-toolbar v-bind="$attrs">
+    <v-toolbar height="40px" v-bind="$attrs">
         <v-btn @click.stop="onBtnClick('back')" :disabled="!opt.canGoBack" icon>
             <v-icon>arrow_back</v-icon>
         </v-btn>
@@ -9,7 +9,7 @@
         <v-btn @click.stop="onBtnClick('refresh')" :disabled="!opt.url" icon>
             <v-icon>refresh</v-icon>
         </v-btn>
-        <v-text-field @focus="urlString = opt.editing || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
+        <v-text-field @focus="urlString || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
         <slot />
     </v-toolbar>
 </template>
@@ -26,16 +26,10 @@ export default class SearchBar extends Vue {
         default: {
             canGoBack: false,
             canGoForward: false,
-            url: '',
-            editing: ''
+            url: ''
         }
     })
     private opt!: SearchBar.Opt
-
-    @Watch('opt')
-    onOptChange(newValue: SearchBar.Opt) {
-        this.urlString = newValue.editing || ''
-    }
 
     get urlOrigin() {
         if (this.opt.url) {
