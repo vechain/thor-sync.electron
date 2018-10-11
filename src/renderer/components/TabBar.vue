@@ -1,81 +1,80 @@
 <template>
     <div class="sync-tab-bar">
-        <slot/>
-        <div class="sync-tabs">
-            <div @dblclick.stop.prevent @click.stop.prevent="switchTab(item)" class="sync-tab" :class="{'current-tab elevation-5': item[current.key] === current.value}"
-                v-for="(item, index) in tabs" :key="index">
-                <div class="tab-container" :title="item.title">
+        <v-tabs class="cus-v-tabs" show-arrows color="#f5f5f5" left height="35px" v-model="tab">
+            <v-tab dark class="cus-tab-item" v-for="(item, index) in tabs" :key="index" active-class="active-tab" @dblclick.stop.prevent>
+                <template v-if="item.iconUrl">
                     <img :src="item.iconUrl">
-                    <span>{{item.title}}</span>
-                    <v-icon @click.stop.prevent="popClose(item)" class="tab-close">close</v-icon>
-                </div>
-            </div>
-            <div class="add-tab ml-2">
-                <v-btn icon @click.stop="addTab({title: 'New tab'})">
-                    <v-icon>add</v-icon>
-                </v-btn>
-            </div>
-        </div>
+                </template>
+                <div>{{item.title || 'New tab'}}</div>
+                <v-icon @click.stop.prevent="popClose(index)" class="tab-close">close</v-icon>
+            </v-tab>
+        </v-tabs>
+        <v-btn class="sync-add-tab" @dblclick.stop.prevent @click="addTab" icon>
+            <v-icon>
+                add
+            </v-icon>
+        </v-btn>
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from 'vue-property-decorator'
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
 
 @Component
 export default class TabBar extends Vue {
+    private tab: number | null = null
+
     @Prop({ default: [] })
     private tabs!: TabBar.Item[]
 
-    @Prop({default: {
-        key: 'id',
-        value: null
-    }})
-    private current!: {
-        key: string,
-        value: string | number
+    @Watch('tab')
+    tabChange(newVal: number | null) {
+        this.ontabChanged(newVal)
     }
 
-    @Emit('close')
-    public popClose(item: TabBar.Item) {}
     @Emit('switch')
-    public switchTab(item: TabBar.Item) {}
+    ontabChanged(index: number | null) {}
+
+    @Emit('close')
+    popClose(item: TabBar.Item) {}
+
     @Emit('new-tab')
-    public addTab(item: TabBar.Item) {}
+    addTab(item: TabBar.Item) {}
 }
 </script>
 
 <style lang="scss" scoped>
 .sync-tab-bar {
-    padding-top: 10px;
+    padding-top: 5px;
     padding-right: 5px;
-    height: 45px;
+    height: 40px;
     width: 100%;
-    -webkit-user-select: none;
-    user-select: none;
+    // -webkit-user-select: none;
+    // user-select: none;
     transition: padding-left 300ms ease-in-out;
     display: flex;
-    justify-content: space-between;
+    // justify-content: space-between;
 }
 .darwin .sync-tab-bar {
     padding-left: 55px;
+    overflow: hidden;
 }
 .full-screen .sync-tab-bar {
     padding-left: 5px;
 }
-.sync-tab {
-    padding-top: 8px;
-    width: 150x;
-    height: 32px;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-app-region: no-drag;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-    width: 200px;
-    background-color: #48bbc7;
-    cursor: normal;
-}
+// .sync-tab {
+//     padding-top: 8px;
+//     width: 150x;
+//     height: 32px;
+//     -webkit-user-select: none;
+//     user-select: none;
+//     -webkit-app-region: no-drag;
+//     border-top-left-radius: 7px;
+//     border-top-right-radius: 7px;
+//     width: 200px;
+//     background-color: #48bbc7;
+//     cursor: normal;
+// }
 .sync-tab.current-tab {
     z-index: 5;
     background-color: rgb(154, 236, 218);
@@ -100,20 +99,26 @@ export default class TabBar extends Vue {
     cursor: normal;
 }
 .tab-close {
-    color: rgba(0, 0, 0, 0.29);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 18px;
 }
-.sync-tabs {
-    display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
+.sync-tab-bar .cus-tab-item {
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    background-color: rgb(24, 78, 82);
+    -webkit-app-region: no-drag;
+    color: #fff;
+    height: 35px;
+    width: 200px;
 }
-.sync-tabs .add-tab {
-    width: 45px;
+
+.sync-tab-bar .v-tabs.cus-v-tabs {
+    max-width: calc(100% - 50px);
 }
-.add-tab .v-btn {
+.sync-tab-bar .sync-add-tab {
     margin: 0;
-    height: 30px;
-    width: 30px;
+    width: 35px;
+    height: 35px;
 }
+
 </style>

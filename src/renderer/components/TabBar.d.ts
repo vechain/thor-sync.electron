@@ -1,5 +1,6 @@
 declare namespace TabBar {
     type Item = {
+        id? : number
         title: string
         iconUrl: string
         src: string
