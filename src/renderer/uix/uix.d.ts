@@ -2,7 +2,7 @@ import { } from 'electron'
 
 type UIXMethods = {
     signTx(
-        clientId: string,
+        clientId: string [],
         clauses: Connex.Thor.Clause[],
         options?: Connex.Vendor.Options<'tx'>
     ): Promise<Connex.Vendor.Signed<'tx'>>

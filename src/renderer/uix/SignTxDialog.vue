@@ -55,9 +55,10 @@ export default class SignTxDialog extends Vue {
 
     created() {
         remote.app.EXTENSION.inject(
-            ENV.contentsId!,
-            `uix.${ENV.clientId}`, {
-                signTx: (clientId: string,
+            ENV.contents!.id,
+            `uix.${ENV.xargs!.clientId![0]}`, {
+                signTx: (
+                    clientId: string[],
                     clauses: Connex.Thor.Clause[],
                     options: Connex.Vendor.Options<'tx'> | undefined,
                     callback: (err?: Error, result?: Connex.Vendor.Signed<'tx'>) => void
@@ -70,7 +71,7 @@ export default class SignTxDialog extends Vue {
     }
 
     async signTx(
-        clientId: string,
+        clientId: string[],
         clauses: Connex.Thor.Clause[],
         options?: Connex.Vendor.Options<'tx'>) {
         // TODO check whether clientId is current viewport
