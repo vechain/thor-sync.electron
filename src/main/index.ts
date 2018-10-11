@@ -50,7 +50,7 @@ app.EXTENSION = {
 }
 
 app.on('web-contents-created', (_, contents) => {
-    contents.once('will-attach-webview', (__, webPreferences: WebPreferences) => {
+    contents.on('will-attach-webview', (__, webPreferences: WebPreferences) => {
         const hostWebPreferences = BrowserWindow.fromWebContents(contents).webContents.getWebPreferences()
         webPreferences.preloadURL = env.preload
         // derive host's partition
