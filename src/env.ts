@@ -10,9 +10,9 @@ function filePathToUrl(path: string) {
 
 const env = {
     devMode,
-    clientId: remote ? remote.getCurrentWebContents().getWebPreferences()['xargs.clientId'] : undefined,
-    config: remote ? remote.getCurrentWebContents().getWebPreferences()['xargs.config'] : undefined,
-    contentsId: remote ? remote.getCurrentWebContents().id : undefined,
+
+    xargs: remote ? remote.getCurrentWebContents().getWebPreferences().xargs : undefined,
+    contents: remote ? remote.getCurrentWebContents() : undefined,
 
     index: devMode ?
         'http://localhost:9080/' :

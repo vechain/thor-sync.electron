@@ -40,9 +40,9 @@ declare global {
 
 Object.defineProperty(window, 'connex', {
     value: remote.app.EXTENSION.connect(
-        env.contentsId!,
-        env.config!,
-        env.clientId!),
+        env.contents!.id,
+        env.xargs!.config!,
+        env.xargs!.clientId!),
     enumerable: true
 })
 // bind widgets, UIX will be bound inside UIX root

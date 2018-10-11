@@ -1,6 +1,6 @@
 <template>
     <div class="sync-viewport-container" :class="{'full-height': !addressBar}">
-        <webview v-if="url && norefresh" ref="viewport" :partition="partition" autosize :preload="preload" webpreferences="xargs.clientId=todo"
+        <webview v-if="url && norefresh" ref="viewport" 
             :src="url" />
         <slot name="content" />
     </div>

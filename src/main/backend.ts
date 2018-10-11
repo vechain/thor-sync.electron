@@ -8,30 +8,37 @@ export class Backend {
     private activeSites = new Map<string, { site: Site, refCount: number }>()
 
     public connect(
+        contentsId: number,
         config: Connex.Thor.Site.Config,
-        fullClientId: string,
-        contentsId: number
+        clientId: string[]
     ) {
         const wireAgent = new Agent({
             maxSockets: 10
         })
         const site = this.acquireSite(config).withWireAgent(wireAgent)
-        const segments = fullClientId.split('.')
-
         console.log('connex connected')
 
-        webContents.fromId(contentsId).once('destroyed', () => {
+        const contents = webContents.fromId(contentsId)
+        const disconnect = () => {
+            contents.removeListener('devtools-reload-page', disconnect)
+            contents.removeListener('crashed', disconnect)
+            contents.removeListener('destroyed', disconnect)
+
             wireAgent.destroy()
             console.log('connex disconnected')
             this.releaseSite(config)
-        })
+        }
+
+        contents.once('devtools-reload-page', disconnect)
+        contents.once('crashed', disconnect)
+        contents.once('destroyed', disconnect)
 
         return connex.create(site, {
             name: 'thor-sync',
             sign: (kind, message, options) => {
                 if (kind === 'tx') {
-                    return app.uix[segments[0]].signTx(
-                        segments[1],
+                    return app.uix[clientId[0]].signTx(
+                        clientId,
                         message,
                         options)
                 }
