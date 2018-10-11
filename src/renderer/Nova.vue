@@ -2,20 +2,13 @@
     <v-app id="frame">
         <UIXRoot />
         <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
-            <tab-bar @new-tab="onAddTAb" :current="current" @switch="onSwitchTab" :tabs="ports"
-                @close="onTabRemove">
+            <tab-bar @new-tab="onAddTAb" @switch="onSwitchTab" :tabs="tabs" @close="onTabRemove">
             </tab-bar>
             <NetworkStatus></NetworkStatus>
         </v-toolbar>
         <v-content class="sync-container">
-            <search-bar @operate="onOperate" @change="onSearchChange" @urlRequest="onUrlRequest"
-                :opt="searchOpt" flat light dense class="search-bar" v-if="ports.length">
-            </search-bar>
-            <view-port :address-bar="item.addressBar" :account="item.account" class="viewport-layout"
-                :class="{current: item.id === current.value}" v-for="(item, index) in ports" :key="index"
-                :url="item.src" @data-updated="onDataUpdated($event, index)" @status-update="onStatusUpdated($event, index)">
-                <Launcher slot="content" @open-dapp="onOpenDappInCurrentPort($event, index)" v-if="!item.src"
-                    class="default-content" path="/" />
+            <view-port class="viewport-layout" :opt="item" @data-updated="onDataUpdate($event, index)" @status-updated="onStatusUpdate($event, index)"
+                :class="{current: currentIndex === index}" v-for="(item, index) in tabs" :key="index">
             </view-port>
             <v-dialog>
                 <v-card>
@@ -47,20 +40,23 @@ import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
-import Launcher from './launcher'
-import SearchBar from './components/SearchBar.vue'
 import UIXRoot from './uix'
 
-type PortTab = TabBar.Item & {
-    id: number
-    addressBar: boolean
-    account?: string
-    contentId?: number
-    editUrl?: string
+let counter = 0
+
+function portIdGenerator(): number {
+    ++counter
+    return Date.now() + counter
 }
-type Current = {
-    key: string
-    value: string | number
+
+function getDefaultTab(): TabBar.Item {
+    return {
+        title: 'New tab',
+        iconUrl: '',
+        src: '',
+        id: portIdGenerator(),
+        status: 'new'
+    }
 }
 
 @Component({
@@ -68,191 +64,45 @@ type Current = {
         TabBar,
         ViewPort,
         NetworkStatus,
-        Launcher,
-        SearchBar,
         UIXRoot
     }
 })
 export default class Nova extends Vue {
-    private editingUrl?: string = ''
-    private counter: number = 0
-    private ports: PortTab[] = []
-    private current: Current = {
-        key: 'id',
-        value: 0
-    }
-    private searchOpt: SearchBar.Opt = {
-        canGoBack: false,
-        canGoForward: false,
-        url: '',
-        editing: ''
-    }
-    private apps: object[] = []
-    private accounts: any[] = []
-
-    public getAccounts() {
-        return WALLETS.list().then(list => {
-            this.accounts = list
-        })
-    }
+    private tabs: TabBar.Item[] = [getDefaultTab()]
+    private currentIndex: number | null = null
 
     created() {
-        this.getAccounts()
         BUS.$on('open-dapp', (data: any) => {
-            this.onOpenDapp(data)
+            let tab = getDefaultTab()
+            tab.src = data.src
+            tab.title = data.name
+            this.tabs.push(tab)
         })
     }
 
-    public onSearchChange(str: string) {
-        const index = this.ports.findIndex(item => {
-            return item.id === this.current.value
-        })
-
-        this.$set(this.ports[index], 'editUrl', str)
-    }
-    public onUrlRequest(url: string) {
-        const index = this.ports.findIndex(item => {
-            return item.id === this.current.value
-        })
-
-        this.$set(this.ports[index], 'src', url)
-        this.$set(this.ports[index], 'editUrl', '')
+    onAddTAb() {
+        this.tabs.push(getDefaultTab())
     }
 
-    public onOperate(action: string) {
-        const index = this.ports.findIndex(item => {
-            return item.id === this.current.value
-        })
-        const contentId = this.ports[index]['contentId']
-        if (contentId) {
-            const contents = remote.webContents.fromId(contentId)
-            switch (action) {
-                case 'back':
-                    contents.goBack()
-                    break
-                case 'forward':
-                    contents.goForward()
-                    break
-                case 'refresh':
-                    contents.reload()
-                    break
+    onSwitchTab(index: number) {
+        this.currentIndex = index
+        console.log(index)
+    }
+    onTabRemove(index: number) {
+        console.log(index)
+    }
 
-                default:
-                    break
-            }
+    onDataUpdate(event: ViewPort.DataUpdateEvent, index: number) {
+        let mapping: any = {
+            url:'src',
+            icon: 'iconUrl',
+            title: 'title',
         }
+        this.$set(this.tabs[index], mapping[event.type], event.value)
     }
 
-    public onOpenDapp(app: PortTab) {
-        let item: PortTab = {
-            title: app.title,
-            iconUrl: '',
-            id: Date.now() + this.counter,
-            src: app.src,
-            status: 'new',
-            addressBar: app.addressBar
-        }
-        this.current.value = item.id
-        ++this.counter
-        this.ports.push(item)
-    }
-
-    public onOpenDappInCurrentPort(
-        app: Dapp.Item & { addressBar: boolean; account: string },
-        index: number
-    ) {
-        this.$set(this.ports[index], 'src', app.src)
-        this.$set(this.ports[index], 'title', app.name)
-        this.$set(this.ports[index], 'addressBar', app.addressBar)
-    }
-
-    public updateSearchOpts(contentId?: number, index?: number) {
-        if (contentId) {
-            let contents = remote.webContents.fromId(contentId)
-            this.searchOpt = {
-                canGoBack: contents.canGoBack(),
-                canGoForward: contents.canGoForward(),
-                url: contents.getURL(),
-                editing: index !== undefined && index >= 0 ? this.ports[index]['editUrl'] || '' : ''
-            }
-        } else {
-            this.searchOpt = {
-                canGoBack: false,
-                canGoForward: false,
-                url: '',
-                editing: index !== undefined && index >= 0 ? this.ports[index]['editUrl'] || '' : ''
-            }
-        }
-    }
-
-    public onAddTAb() {
-        let item: PortTab = {
-            title: 'New tab',
-            iconUrl: '',
-            id: Date.now() + this.counter,
-            src: '',
-            status: 'new',
-            account: '',
-            addressBar: true
-        }
-        ++this.counter
-        this.current.value = item.id
-        this.ports.push(item)
-        this.updateSearchOpts()
-    }
-
-    public onTabRemove(tab: PortTab) {
-        let index = this.ports.findIndex(item => {
-            return item.id === tab.id
-        })
-        this.ports.splice(index, 1)
-        if (this.ports[this.ports.length - 1]) {
-            this.current.value = this.ports[this.ports.length - 1]['id']
-            this.updateSearchOpts(
-                this.ports[this.ports.length - 1]['contentId'],
-                this.ports.length - 1
-            )
-        } else {
-            this.updateSearchOpts()
-            this.current.value = ''
-        }
-    }
-
-    public onSwitchTab(item: PortTab) {
-        this.current.value = item.id
-        const index = this.ports.findIndex(item => {
-            return this.current.value === item.id
-        })
-        const currentItem = this.ports[index]
-
-        if (currentItem) {
-            this.updateSearchOpts(currentItem['contentId'], index)
-        } else {
-            this.updateSearchOpts(undefined, index)
-        }
-    }
-
-    public onDataUpdated(event: ViewPort.DataUpdateEvent, index: number) {
-        let type = event.type
-        let value = event.value
-        if (type === 'title') {
-            this.$set(this.ports[index], 'title', value)
-        } else if (type === 'icon') {
-            this.$set(this.ports[index], 'iconUrl', value)
-        } else if (type === 'contentId') {
-            this.$set(this.ports[index], 'contentId', value)
-        } else if (type === 'url') {
-            this.$set(this.ports[index], 'src', value)
-        } else {
-        }
-
-        if (this.ports[index].id === this.current.value) {
-            this.updateSearchOpts(this.ports[index].contentId, index)
-        }
-    }
-
-    public onStatusUpdated(event: ViewPort.StatusUpdateEvent, index: number) {
-        this.$set(this.ports[index], 'status', event.status)
+    onStatusUpdate(event: ViewPort.StatusUpdateEvent, index: number) {
+        console.log(event, index)
     }
 
     onDblClickTitleBar() {
@@ -312,8 +162,9 @@ body {
 
 .sync-container .viewport-layout {
     position: absolute;
-    top: 48px;
-    height: calc(100% - 48px);
+    // top: 48px;
+
+    height: 100%;
 }
 
 .sync-dapp-list.default-content {
@@ -329,11 +180,12 @@ body {
     float: right;
 }
 .sync-viewport-container {
-    visibility: hidden;
     z-index: 0;
 }
 .sync-viewport-container.current {
-    visibility: visible;
     z-index: 2;
+}
+.darwin .sync-tab-bar {
+    max-width: calc(100% - 100px);
 }
 </style>
