@@ -1,17 +1,17 @@
 <template>
     <div class="sync-viewport-container">
-        <search-bar :opt="searchBarOpt" class="elevation-0" />
-        <template v-if="opt.src">
-            <webview ref="viewport" :partition="partition" autosize :preload="preload" :src="opt.src" />
+        <search-bar @operate="onOperate" @urlRequest="onUrlRequest" :opt="searchBarOpt" class="elevation-0" />
+        <template v-if="url">
+            <webview ref="viewport" :partition="partition" autosize :preload="preload" :src="url" />
         </template>
-        <Launcher v-if="!opt.src"></Launcher>
+        <Launcher ref="launcher" v-if="!url"></Launcher>
     </div>
 </template>
 
 <script lang="ts">
 import SearchBar from './SearchBar.vue'
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
-import { WebviewTag } from 'electron'
+// import { WebviewTag } from 'electron'
 import Launcher from '../launcher'
 
 @Component({
@@ -21,9 +21,6 @@ import Launcher from '../launcher'
     }
 })
 export default class ViewPort extends Vue {
-    @Prop({ default: '' })
-    private url!: string
-
     @Prop({
         default: {
             src: ''
@@ -34,10 +31,12 @@ export default class ViewPort extends Vue {
     @Prop({ default: false })
     private draggable!: boolean
 
+    private url: string = this.opt.src
+
     private searchBarOpt: SearchBar.Opt = {
-        canGoBack: false,
-        canGoForward: false,
-        url: ''
+        canGoBack: this.opt.src ? false : true,
+        canGoForward: this.opt.src ? false : true,
+        url: this.opt.src || ''
     }
 
     @Emit('data-updated')
@@ -52,14 +51,51 @@ export default class ViewPort extends Vue {
         return `persist:${connex.thor.genesis.id}`
     }
 
-    // @Watch('url')
-    // onUrlChange(newValue: any, oldValue: any) {
-    //     if (!oldValue || oldValue === '') {
-    //         this.$nextTick(() => {
-    //             this.webviewEventBind()
-    //         })
-    //     }
-    // }
+    @Watch('url')
+    onUrlChange(newValue: any, oldValue: any) {
+        if (oldValue === '') {
+            this.$nextTick(() => {
+                this.webviewEventBind()
+            })
+        }
+    }
+
+    searchBarOptUpdate() {
+        const wv = this.$refs.viewport as Electron.WebviewTag
+        this.searchBarOpt = {
+            canGoBack: wv.canGoBack(),
+            canGoForward: wv.canGoForward(),
+            url: wv.getURL()
+        }
+    }
+
+    doSearchBarAction(action: string) {
+        const target = this.url
+            ? (this.$refs.viewport as Electron.WebviewTag)
+            : this.$refs.launcher as Launcher
+
+        switch (action) {
+            case 'back':
+                target.goBack()
+                break
+            case 'forward':
+                target.goForward()
+                break
+            case 'refresh':
+                target.reload()
+                break
+            default:
+                break
+        }
+    }
+
+    onOperate(action: string) {
+        this.doSearchBarAction(action)
+    }
+
+    onUrlRequest(url: string) {
+        this.url = url
+    }
 
     mounted() {
         this.webviewEventBind()
@@ -126,6 +162,7 @@ export default class ViewPort extends Vue {
 
     titleUpdate(event: Electron.PageTitleUpdatedEvent) {
         this.emitUpdateData({ type: 'title', value: event.title })
+        this.searchBarOptUpdate()
         // this.emitUpdateData({
         //     type: 'contentId',
         //     value: (this.$refs['viewport'] as WebviewTag).getWebContents().id
