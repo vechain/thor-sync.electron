@@ -1,12 +1,13 @@
 <template>
     <div class="sync-tab-bar">
         <v-tabs class="cus-v-tabs" show-arrows color="#f5f5f5" left height="35px" v-model="tab">
-            <v-tab dark class="cus-tab-item" v-for="(item, index) in tabs" :key="index" active-class="active-tab" @dblclick.stop.prevent>
+            <v-tab dark class="cus-tab-item" v-for="(item, index) in tabs" :key="index"
+                active-class="active-tab" @dblclick.stop.prevent>
                 <template v-if="item.iconUrl">
                     <img :src="item.iconUrl">
                 </template>
-                <div>{{item.title || 'New tab'}}</div>
-                <v-icon @click.stop.prevent="popClose(index)" class="tab-close">close</v-icon>
+                    <div>{{item.title || 'New tab'}}</div>
+                    <v-icon @click.stop.prevent="popClose(index)" class="tab-close">close</v-icon>
             </v-tab>
         </v-tabs>
         <v-btn class="sync-add-tab" @dblclick.stop.prevent @click="addTab" icon>
@@ -22,24 +23,46 @@ import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
 
 @Component
 export default class TabBar extends Vue {
-    private tab: number | null = null
+    @Prop({ default: 0 })
+    private value!: number | null
+
+    private tab: number | null = this.value
 
     @Prop({ default: [] })
     private tabs!: TabBar.Item[]
 
     @Watch('tab')
     tabChange(newVal: number | null) {
-        this.ontabChanged(newVal)
+        this.updateValue(newVal)
+    }
+    @Watch('value')
+    onValueChange(val: number | null) {
+        this.tab = val
     }
 
-    @Emit('switch')
-    ontabChanged(index: number | null) {}
+    @Emit('input')
+    updateValue(val: number | null) {}
 
     @Emit('close')
-    popClose(item: TabBar.Item) {}
+    popClose(index: number) {
+        const isCurrent = index === this.tab
+        this.$nextTick(() => {
+            if (this.tab === this.tabs.length) {
+                this.tab = this.tabs.length - 1
+            }
+
+            if (this.tabs.length === 0) {
+                this.tab = null
+            }
+        })
+    }
 
     @Emit('new-tab')
-    addTab(item: TabBar.Item) {}
+    addTab(item: TabBar.Item) {
+        this.$nextTick(() => {
+            this.tab = this.tabs.length - 1
+        })
+    }
 }
 </script>
 
@@ -120,5 +143,4 @@ export default class TabBar extends Vue {
     width: 35px;
     height: 35px;
 }
-
 </style>

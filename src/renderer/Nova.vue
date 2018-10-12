@@ -2,13 +2,14 @@
     <v-app id="frame">
         <UIXRoot />
         <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
-            <tab-bar @new-tab="onAddTAb" @switch="onSwitchTab" :tabs="tabs" @close="onTabRemove">
+            <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove">
             </tab-bar>
             <NetworkStatus></NetworkStatus>
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port class="viewport-layout" :opt="item" @data-updated="onDataUpdate($event, index)" @status-updated="onStatusUpdate($event, index)"
-                :class="{current: currentIndex === index}" v-for="(item, index) in tabs" :key="index">
+            <view-port class="viewport-layout" :opt="item" @data-updated="onDataUpdate($event, index)"
+                @status-updated="onStatusUpdate($event, index)" :class="{current: currentIndex === index}"
+                v-for="(item, index) in tabs" :key="index">
             </view-port>
             <v-dialog>
                 <v-card>
@@ -77,6 +78,7 @@ export default class Nova extends Vue {
             tab.src = data.src
             tab.title = data.name
             this.tabs.push(tab)
+            this.currentIndex = this.tabs.length - 1
         })
     }
 
@@ -84,19 +86,17 @@ export default class Nova extends Vue {
         this.tabs.push(getDefaultTab())
     }
 
-    onSwitchTab(index: number) {
-        this.currentIndex = index
-        console.log(index)
-    }
     onTabRemove(index: number) {
-        console.log(index)
+        if (this.tabs.length > 1) {
+            this.tabs.splice(index, 1)
+        }
     }
 
     onDataUpdate(event: ViewPort.DataUpdateEvent, index: number) {
         let mapping: any = {
-            url:'src',
+            url: 'src',
             icon: 'iconUrl',
-            title: 'title',
+            title: 'title'
         }
         this.$set(this.tabs[index], mapping[event.type], event.value)
     }
