@@ -1,16 +1,17 @@
 <template>
     <div class="sync-tab-bar">
-        <v-tabs class="cus-v-tabs" show-arrows color="#f5f5f5" left height="35px" v-model="tab">
-            <v-tab dark class="cus-tab-item" v-for="(item, index) in tabs" :key="index"
-                active-class="active-tab" @dblclick.stop.prevent>
+        <v-tabs slider-color="#37474F" class="cus-v-tabs" show-arrows color="#f5f5f5" left height="35px"
+            v-model="tab">
+            <v-tab dark :class="{'active-tab': tab === index}" class="cus-tab-item" v-for="(item, index) in tabs"
+                :key="index" @dblclick.stop.prevent>
                 <div>
                     <template v-if="item.iconUrl">
                         <img :src="item.iconUrl">
                     </template>
-                    <div class="tab-title">{{item.title || 'New tab'}}</div>
-                    <v-btn dark @click.stop.prevent="popClose(index)" icon class="tab-close">
-                        <v-icon>close</v-icon>
-                    </v-btn>
+                        <div class="tab-title">{{item.title || 'New tab'}}</div>
+                        <v-btn dark @click.stop.prevent="popClose(index)" icon class="tab-close">
+                            <v-icon>close</v-icon>
+                        </v-btn>
                 </div>
             </v-tab>
         </v-tabs>
@@ -86,9 +87,18 @@ export default class TabBar extends Vue {
     padding-left: 55px;
     overflow: hidden;
 }
-.cus-tab-item .v-tabs__item.active-tab {
+.sync-tab-bar .cus-tab-item {
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    background-color: #90a4ae;
+    -webkit-app-region: no-drag;
+    color: #fff;
+    height: 35px;
+    width: 200px;
+}
+.sync-tab-bar .cus-tab-item.active-tab {
     z-index: 5;
-    background-color: rgb(154, 236, 218);
+    background-color: #546e7a;
 }
 
 .cus-tab-item .v-tabs__item > div {
@@ -128,16 +138,6 @@ export default class TabBar extends Vue {
     color: rgba(255, 255, 255, 0.8);
     font-size: 18px;
 }
-.sync-tab-bar .cus-tab-item {
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-    background-color: rgb(24, 78, 82);
-    // background-color: rgb(154, 236, 218);
-    -webkit-app-region: no-drag;
-    color: #fff;
-    height: 35px;
-    width: 200px;
-}
 
 .sync-tab-bar .v-tabs.cus-v-tabs {
     max-width: calc(100% - 50px);
@@ -146,5 +146,33 @@ export default class TabBar extends Vue {
     margin: 0;
     width: 35px;
     height: 35px;
+}
+</style>
+<style lang="scss">
+.sync-tab-bar .cus-v-tabs .v-tabs__slider-wrapper {
+    z-index: 6;
+}
+.sync-tab-bar .v-tabs__wrapper.v-tabs__wrapper--show-arrows {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 40px;
+    padding-right: 40px;
+    overflow: visible;
+}
+.sync-tab-bar .v-tabs__icon--prev,
+.sync-tab-bar .v-tabs__icon--next {
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 7;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+.sync-tab-bar .v-tabs__container.v-tabs__container--overflow {
+    margin-left: -40px;
+}
+.sync-tab-bar .v-tabs__icon--prev:hover,
+.sync-tab-bar .v-tabs__icon--next:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+
 }
 </style>
