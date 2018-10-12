@@ -9,7 +9,7 @@
         <v-btn @click.stop="onBtnClick('refresh')" :disabled="!opt.url" icon>
             <v-icon>refresh</v-icon>
         </v-btn>
-        <v-text-field @focus="urlString || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
+        <v-text-field @focus="urlString = urlString || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
         <slot />
     </v-toolbar>
 </template>
@@ -44,7 +44,9 @@ export default class SearchBar extends Vue {
     onChange(str: string) {}
 
     @Emit('operate')
-    onBtnClick(action: string) { }
+    onBtnClick(action: string) {
+        this.urlString = ''
+    }
 
     @Emit('urlRequest')
     onInoputed(url: string) { }
