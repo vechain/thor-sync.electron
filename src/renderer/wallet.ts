@@ -65,6 +65,12 @@ namespace Wallet {
             return this.set(entity.address, entity, force)
         }
     }
+
+    export function isEntity(v: any): v is Entity {
+        return v &&
+            cry.isAddress(v.address) &&
+            cry.Keystore.wellFormed(v.keystore)
+    }
 }
 
 export default Wallet

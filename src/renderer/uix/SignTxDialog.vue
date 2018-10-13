@@ -1,28 +1,42 @@
 <template>
-    <v-dialog persistent v-model="open" max-width="500px">
+    <v-dialog content-class="bottom-right" persistent v-model="open" max-width="600px">
         <v-card>
-            <v-card-title>
-                <span class="headline">
-                    Sign
-                </span>
-            </v-card-title>
-            <v-form>
-                <AccountSwitch v-model="origin" />
-                <v-container fluid>
-                    <v-layout row justify-center>
-                        <v-flex sm8>
-                            <v-text-field solo v-model="password" type="password">
-                            </v-text-field>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
-            </v-form>
+            <v-layout row style="height:350px">
+                <v-flex xs6>
+                    <v-container text-xs-center v-if="!!selectedWallet">
+                        <v-layout column>
+                            <v-flex>
+                                <WalletSelection offset-overflow fixed right offset-y :wallets="wallets" v-model="selectedWallet" max-height="400px">
+                                    <v-btn large flat slot="activator" :disabled="signing">
+                                        <AddressLabel icon :size="30" class="ml-2">{{selectedWallet.address}}</AddressLabel>
+                                        <span class="px-2 subheading">{{selectedWallet.name}}</span>
+                                        <v-spacer />
+                                        <v-icon class="mr-2">mdi-menu-down</v-icon>
+                                    </v-btn>
+                                </WalletSelection>
+                            </v-flex>
+                            <AddressLabel abbrev class="ml-2">{{selectedWallet.address}}</AddressLabel>
+                            <v-text-field v-model="password" label="Password" type="password" :error-messages="passwordError" />
+                        </v-layout>
+                    </v-container>
+                </v-flex>
+                <v-divider vertical />
+                <v-flex xs6>
+                    <v-container text-xs-center>
+                        domain
+                    </v-container>
+                    <v-list>
+                    </v-list>
+                </v-flex>
+            </v-layout>
+            <v-progress-linear class="ma-0" :style="{visibility: signing?'visible': 'hidden'}" height="2" color="success" indeterminate />
+            <v-divider />
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn :disabled="signing" color="green darken-1" flat="flat" @click="onAction(false)">
                     Cancel
                 </v-btn>
-                <v-btn :disabled="signing" color="green darken-1" flat="flat" @click="onAction(true)">
+                <v-btn :disabled="signing || !selectedWallet" color="green darken-1" flat="flat" @click="onAction(true)">
                     Ok
                 </v-btn>
             </v-card-actions>
@@ -35,39 +49,54 @@ import { State } from 'vuex-class'
 import { TxSigning } from '../signing'
 import { remote } from 'electron'
 import Deferred from '@/common/deferred';
-import AccountSwitch from '../components/AccountSwitch.vue'
 import Wallet from '../wallet'
-import serializeError from 'serialize-error'
+import WalletSelection from '../components/WalletSelection.vue'
+import AddressLabel from '../components/AddressLabel.vue'
+
+interface SignTx {
+    signTx(
+        clientId: string[],
+        clauses: Connex.Thor.Clause[],
+        options?: Connex.Vendor.Options<'tx'>): Promise<Connex.Vendor.Signed<'tx'>>
+}
+
 @Component({
     components: {
-        AccountSwitch
+        WalletSelection,
+        AddressLabel
     }
 })
-export default class SignTxDialog extends Vue {
+export default class SignTxDialog extends Vue implements SignTx {
     private name: string = 'SignTxDialog'
 
     @State wallets!: Wallet.Entity[]
 
+    selectedWallet: Wallet.Entity | null = null
+
     open = false
     password = ''
     signing = false
-    origin = ""
+    passwordError = ''
+
+    @Watch('open')
+    openUpdated(val: boolean) {
+        if (!val) {
+            this.onAction = () => { }
+            this.signing = false
+            this.password = ''
+            this.selectedWallet = null
+            this.passwordError = ''
+        }
+    }
+    @Watch('password')
+    passwordUpdated() {
+        this.passwordError = ''
+    }
 
     created() {
-        remote.app.EXTENSION.inject(
-            ENV.contents!.id,
-            `uix.${ENV.xargs!.clientId![0]}`, {
-                signTx: (
-                    clientId: string[],
-                    clauses: Connex.Thor.Clause[],
-                    options: Connex.Vendor.Options<'tx'> | undefined,
-                    callback: (err?: Error, result?: Connex.Vendor.Signed<'tx'>) => void
-                ) => {
-                    this.signTx(clientId, clauses, options)
-                        .then(r => callback(undefined, r))
-                        .catch(err => callback(serializeError(err)))
-                }
-            })
+        if (this.wallets.length > 0) {
+            this.selectedWallet = this.wallets[0]
+        }
     }
 
     async signTx(
@@ -79,48 +108,49 @@ export default class SignTxDialog extends Vue {
             throw new Error('busy')
         }
         if (this.wallets.length === 0) {
-            throw new Error('no wallet')
+            throw new Error('rejected')
         }
         TxSigning.validate(clauses)
 
         options = options || {}
         this.open = true
-        this.origin = options.origin || this.wallets[0].address
+        if (options.origin) {
+            const opt = options.origin.toUpperCase()
+            this.selectedWallet = this.wallets.find(w => w.address.toUpperCase() === opt) || null
+        } else {
+            this.selectedWallet = this.wallets[0]
+        }
         const tx = new TxSigning(clauses)
 
         const deferred = new Deferred<Connex.Vendor.Signed<'tx'>>()
         this.onAction = async confirmed => {
             try {
                 if (!confirmed) {
-                    throw new Error('user rejected')
+                    throw new Error('rejected')
                 }
                 this.signing = true
-                const estGas = await tx.estimateGas(this.origin)
+                const estGas = await tx.estimateGas(this.selectedWallet!.address)
 
-                const entity = this.wallets.find(w => w.address === this.origin)
-                if (!entity) {
-                    throw new Error('wallet lost')
-                }
-
-                const signedTx = await tx.sign(new Wallet(entity), this.password, {
+                const signedTx = await tx.sign(new Wallet(this.selectedWallet!), this.password, {
                     expiration: 720,
                     gasPriceCoef: 0,
                     gas: estGas.gas
                 })
 
                 deferred.resolve({
-                    signer: entity.address,
+                    signer: this.selectedWallet!.address,
                     message: signedTx
                 })
             } catch (err) {
+                if (err.message === 'message authentication code mismatch') {
+                    this.passwordError = 'Incorrect password'
+                    return
+                }
                 deferred.reject(err)
             } finally {
-                this.open = false
-                this.onAction = () => { }
                 this.signing = false
-                this.password = ''
-                this.origin = ''
             }
+            this.open = false
         }
         return deferred
     }
@@ -128,3 +158,10 @@ export default class SignTxDialog extends Vue {
     onAction(confirmed: boolean) { }
 }
 </script>
+<style scoped>
+div >>> .bottom-right {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}
+</style>
