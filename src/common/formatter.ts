@@ -2,6 +2,9 @@ import { BigNumber } from 'bignumber.js'
 import { cry } from 'thor-devkit'
 
 export namespace Address {
+    export function isValid(addr: any): addr is string {
+        return cry.isAddress(addr)
+    }
     export function abbrev(addr: string) {
         if (!cry.isAddress(addr)) {
             return null
