@@ -1,0 +1,73 @@
+<script lang="ts">
+
+import { Vue } from 'vue-property-decorator'
+import { Num } from '@/common/formatter'
+
+export default Vue.extend({
+    props: {
+        dec: {
+            type: Number,
+            default: 2
+        },
+        sym: String
+    },
+    render(h) {
+        if (!this.$slots.default) {
+            return h('span')
+        }
+
+        const numStr = (this.$slots.default[0].text || '').trim()
+        const parts = splitNum(numStr, this.dec)
+
+        const children = [
+            h('span', {
+                domProps: {
+                    innerText: parts[0]
+                }
+            }),
+            h('span', {
+                style: {
+                    'font-size': '80%'
+                },
+                domProps: {
+                    innerText: parts[1]
+                }
+            }),
+        ]
+        if (this.sym) {
+            children.push(h('span', {
+                style: {
+                    'font-size': '60%',
+                    'opacity': 0.6,
+                    'white-space': 'pre'
+                },
+                domProps: {
+                    innerText: this.sym
+                }
+            }))
+        }
+
+        return h('span', {
+            attrs: this.$attrs,
+            on: this.$listeners,
+            style: {
+                'font-family': '"Roboto Mono", monospace'
+            }
+        }, children)
+    },
+})
+
+
+// split number string into integer part and decimal part
+function splitNum(numStr: string | null, decimal: number) {
+    if (!numStr) {
+        return ['--', '.--']
+    }
+    numStr = Num.formatBalance(numStr, decimal)
+    if (numStr === 'NaN') {
+        return ['--', '.--']
+    }
+    const dp = numStr.indexOf('.')
+    return [numStr.slice(0, dp), numStr.slice(dp)]
+}
+</script>
