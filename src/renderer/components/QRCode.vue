@@ -1,36 +1,50 @@
-<template>
-    <div v-html="qrHTML" :style="{width: this.qrsize + 'px', height: this.qrsize + 'px'}">
-    </div>
-</template>
 <script lang="ts">
-import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
+import { Vue } from 'vue-property-decorator'
 const QRious = require('qrious')
+import { Address } from '@/common/formatter'
 
-@Component
-export default class QRCode extends Vue {
-    @Prop([Number, String]) size!: number
-    @Prop(String) content!: string
+export default Vue.extend({
+    props: {
+        pre: Boolean,
+        size: Number
+    },
+    render(h) {
+        let content = ''
+        if (this.$slots.default) {
+            content = this.$slots.default[0].text || ''
+        }
+        if (!this.pre) {
+            content = content.trim()
+            if (Address.isValid(content)) {
+                content = Address.toChecksum(content)!
+            }
+        }
+        const size = this.size || 100
 
-    readonly qr = new QRious()
-
-    get qrsize() {
-        return (this.size || 100)
+        return h('div', {
+            attrs: this.$attrs,
+            on: this.$listeners,
+            style: {
+                display: 'inline-block',
+                width: size + 'px',
+                height: size + 'px',
+            },
+            domProps: {
+                innerHTML: generateQRHtml(content, size)
+            }
+        })
     }
+})
 
-    get qrHTML() {
-        this.qr.size = this.qrsize * 2
-        this.qr.value = this.content
-        return this.qr.image.outerHTML
-    }
+const qr = new QRious()
+function generateQRHtml(content: string, size: number) {
+    qr.value = content
+    qr.size = size * 2
+
+    const img = qr.image as HTMLElement
+    img.style.width = '100%'
+    img.style.height = '100%'
+    return img.outerHTML
 }
+
 </script>
-<style lang="css" scoped>
-div {
-  display: inline-block;
-}
-div >>> img {
-  width: 100%;
-  height: 100%;
-}
-</style>
-
