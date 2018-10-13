@@ -8,7 +8,7 @@
         <v-layout row wrap>
             <v-flex wrap xs4 v-for="wallet in wallets" :key="wallet.address">
                 <v-hover :close-delay="0">
-                    <account-card slot-scope="{ hover }" :class="`elevation-${hover ? 8 : 2}`" :track="true" :name="wallet.name" :address="wallet.address" flat tile> </account-card>
+                    <WalletCard slot-scope="{ hover }" :class="`elevation-${hover ? 8 : 2}`" :track="true" :wallet="wallet" flat tile> </WalletCard>
                 </v-hover>
             </v-flex>
         </v-layout>
@@ -18,13 +18,13 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { State } from 'vuex-class'
 import VueRouter from 'vue-router'
-import AccountCard from '../components/AccountCard.vue'
+import WalletCard from '../components/WalletCard.vue'
 import Wallet from '../wallet'
 import NewWalletDialog from './NewWalletDialog.vue'
 
 @Component({
     components: {
-        AccountCard,
+        WalletCard,
         NewWalletDialog
     }
 })

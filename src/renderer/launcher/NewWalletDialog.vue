@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-bind="$attrs" v-on="$listeners" v-model="opened" @keydown.esc="onKeyEsc" @keydown.enter="onKeyEnter">
+    <v-dialog v-bind="$attrs" v-on="$listeners" v-model="opened" @keydown.esc="onKeyEsc" @keydown.enter="onKeyEnter" max-width="800px">
         <v-card>
             <v-card-text>
                 <div class="subheading font-weight-light">Create Wallet</div>
@@ -36,15 +36,15 @@
                             <v-card flat class="elevation-8">
                                 <v-card-text>
                                     <v-layout column align-center>
-                                        <IdentIcon style="border-radius:10px;" :address="checksumedAddress"></IdentIcon>
+                                        <AddressLabel icon>{{checksumedAddress}}</AddressLabel>
                                         <v-flex pt-2 headline>
                                             {{nameAndPass.name}}
                                         </v-flex>
                                         <v-flex pb-2>
-                                            <span style="font-family: 'Roboto Mono', monospace;font-size: 10px;">{{checksumedAddress}}</span>
+                                            <AddressLabel class="caption">{{checksumedAddress}}</AddressLabel>
                                         </v-flex>
                                         <v-flex>
-                                            <QRCode :content="checksumedAddress" size="100"></QRCode>
+                                            <QRCode :size="120">{{checksumedAddress}}</QRCode>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -79,7 +79,8 @@ import WordPuzzle from './WordPuzzle.vue'
 import { cry } from 'thor-devkit'
 import Wallet from '../wallet'
 import QRCode from '../components/QRCode.vue'
-import IdentIcon from '../components/IdentIcon.vue'
+import AddressLabel from '../components/AddressLabel.vue'
+
 
 @Component({
     components: {
@@ -87,7 +88,7 @@ import IdentIcon from '../components/IdentIcon.vue'
         MnemonicWords,
         WordPuzzle,
         QRCode,
-        IdentIcon
+        AddressLabel
     }
 })
 export default class NewWalletDialog extends Vue {
