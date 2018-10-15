@@ -8,7 +8,8 @@ export default Vue.extend({
     props: {
         icon: Boolean,
         abbrev: Boolean,
-        size: Number
+        size: Number,
+        placeholder: String
     },
     render(h) {
         const data: VNodeData = {
@@ -17,14 +18,19 @@ export default Vue.extend({
         }
 
         if (!this.$slots.default) {
+            data.domProps = { innerText: this.placeholder }
             return h('span', data)
         }
         const addr = (this.$slots.default[0].text || '').trim()
+        if (!addr) {
+            data.domProps = { innerText: this.placeholder }
+            return h('span', data)
+        }
         if (!Address.isValid(addr)) {
             data.domProps = { innerText: 'invalid address' }
             return h('span', data)
         }
-        
+
         if (this.icon) {
             const size = this.size || 40
             data.domProps = { innerHTML: generateIconHtmlCached(addr, size) }
