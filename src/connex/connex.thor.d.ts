@@ -5,38 +5,13 @@ declare namespace Connex {
 
         ticker(): Thor.Ticker
 
-        account(
-            addr: string,
-            revision?: string | number
-        ): Thor.AccountVisitor
-
-        block(
-            revision: string | number
-        ): Thor.BlockVisitor
-
-        transaction(
-            id: string,
-            head?: string
-        ): Thor.TransactionVisitor
-
-        filter<T extends 'event' | 'transfer'>(
-            kind: T,
-            criteriaSet: Array<Thor.Criteria<T>>
-        ): Thor.Filter<T>
-
-        subscribe<T extends 'event' | 'transfer' | 'block'>(
-            subject: T,
-            criteria: Thor.Criteria<T>
-        ): Thor.Subscription<T>
-
-        call(
-            input: Thor.VMInput,
-            revision?: string | number
-        ): Promise<Thor.VMOutput>
-
-        commit(
-            rawTx: string
-        ): Promise<Thor.TransactionVisitor>
+        account(addr: string, revision?: string | number): Thor.AccountVisitor
+        block(revision: string | number): Thor.BlockVisitor
+        transaction(id: string, head?: string): Thor.TransactionVisitor
+        filter<T extends 'event' | 'transfer'>(kind: T, criteriaSet: Array<Thor.Criteria<T>>): Thor.Filter<T>
+        subscribe<T extends 'event' | 'transfer' | 'block'>(subject: T, criteria: Thor.Criteria<T>): Thor.Subscription<T>
+        call(input: Thor.VMInput, revision?: string | number): Promise<Thor.VMOutput>
+        commit(rawTx: string): Promise<Thor.TransactionVisitor>
     }
 
     namespace Thor {
@@ -103,13 +78,8 @@ declare namespace Connex {
         }
 
         interface Method {
-            asClause(
-                args: any[],
-                value?: string | number): Clause
-            call(
-                args: any[],
-                options?: VMOptions
-            ): Promise<VMOutput & Decoded>
+            asClause(args: any[], value?: string | number): Clause
+            call(args: any[], value?: string | number, options?: VMOptions): Promise<VMOutput & Decoded>
         }
 
         interface EventVisitor {
@@ -163,7 +133,7 @@ declare namespace Connex {
         }
 
         type Clause = {
-            to: string
+            to: string | null
             value: string
             data: string
         }
@@ -256,7 +226,6 @@ declare namespace Connex {
         }
 
         type VMOptions = {
-            value?: string
             gas?: number
             gasPrice?: string
             caller?: string
@@ -264,6 +233,7 @@ declare namespace Connex {
 
         type VMInput = {
             data?: string
+            value?: string | number
         } & VMOptions
 
         type VMOutput = {
