@@ -25,15 +25,15 @@ export function createFilter<T extends 'event' | 'transfer'>(
 
     return {
         get kind() { return kind },
-        range(range: Thor.Range) {
+        range(range) {
             filterBody.range = { ...range }
             return this
         },
-        order(order: 'asc' | 'desc') {
+        order(order) {
             query.order = order
             return this
         },
-        next(offset: number, limit: number) {
+        next(offset, limit) {
             filterBody.options.offset = offset
             filterBody.options.limit = limit
             return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, this, query)

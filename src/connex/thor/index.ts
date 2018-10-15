@@ -26,39 +26,29 @@ export function create(
                 }
             }
         },
-        account(
-            addr: string,
-            revision?: string | number) {
+        account(addr, revision) {
             return createAccountVisitor(wire, addr, revision)
         },
-        block(revision: string | number) {
+        block(revision) {
             return createBlockVisitor(wire, revision)
         },
-        transaction(
-            id: string,
-            head?: string) {
+        transaction(id, head) {
             return createTxVisitor(wire, id, head)
         },
-        filter<T extends 'event' | 'transfer'>(
-            kind: T,
-            criteriaSet: Array<Thor.Criteria<T>>) {
+        filter(kind, criteriaSet) {
             return createFilter(wire, kind, criteriaSet)
         },
-        subscribe<T extends 'event' | 'transfer' | 'block'>(
-            subject: T,
-            criteria: Thor.Criteria<T>
-        ) {
+        subscribe(subject, criteria) {
             return createSubscription(wire, subject, criteria)
         },
-        call(
-            input: Thor.VMInput,
-            revision?: string | number) {
+        call(input, revision) {
+            input = { ...input, value: input.value ? input.value.toString() : '0x' }
             return wire.post<Thor.VMOutput>(
                 `accounts`,
                 input,
                 { revision })
         },
-        commit(rawTx: string) {
+        commit(rawTx) {
             return wire.post<{ id: string }>(
                 'transactions',
                 { raw: rawTx }

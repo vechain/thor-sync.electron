@@ -9,9 +9,7 @@ export function createMethod(
 ): Thor.Method {
     const coder = new abi.Function(abiDef as any)
     return {
-        asClause(
-            args: any[],
-            value?: string | number): Thor.Clause {
+        asClause(args, value): Thor.Clause {
             const data = coder.encode(...args)
             return {
                 to: addr,
@@ -19,14 +17,12 @@ export function createMethod(
                 data
             }
         },
-        call(
-            args: any[],
-            options?: Thor.VMOptions
-        ) {
+        call(args, value, options) {
             options = options || {}
+            value = value ? value.toString() : '0x0'
             const data = coder.encode(...args)
             const input = {
-                ...options, data
+                ...options, data, value
             }
             return wire.post<Thor.VMOutput>(
                 `accounts/${encodeURIComponent(addr)}`,

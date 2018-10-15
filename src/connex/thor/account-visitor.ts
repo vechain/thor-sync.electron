@@ -20,21 +20,22 @@ export function createAccountVisitor(
                 `accounts/${encodeURIComponent(addr)}/code`,
                 { revision })
         },
-        getStorage(key: string) {
+        getStorage(key) {
             return wire.get<Thor.Account.Storage>(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision })
         },
-        call(input: Thor.VMInput) {
+        call(input) {
+            input = { ...input, value: input.value ? input.value.toString() : '0x0' }
             return wire.post<Thor.VMOutput>(
                 `accounts/${encodeURIComponent(addr)}`,
                 input,
                 { revision })
         },
-        method(abiDef: object) {
+        method(abiDef) {
             return createMethod(wire, addr, abiDef, revision)
         },
-        event(abiDef: object) {
+        event(abiDef) {
             return createEventVisitor(wire, abiDef, addr)
         }
     }

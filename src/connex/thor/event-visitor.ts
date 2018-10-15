@@ -10,7 +10,7 @@ export function createEventVisitor(
 
     const coder = new abi.Event(abiDef as any)
     return {
-        asCriteria(indexed: object) {
+        asCriteria(indexed) {
             const topics = coder.encode(indexed)
             return {
                 address: addr,
@@ -21,7 +21,7 @@ export function createEventVisitor(
                 topic4: topics[4] || undefined
             }
         },
-        filter(indexed: object[]) {
+        filter(indexed) {
             const criteriaSet = indexed.map(i => this.asCriteria(i))
             const filter = createFilter(wire, 'event', criteriaSet)
 
@@ -46,7 +46,7 @@ export function createEventVisitor(
             }
             return transformed
         },
-        subscribe(indexed: object) {
+        subscribe(indexed) {
             const criteria = this.asCriteria(indexed)
             const sub = createSubscription(wire, 'event', criteria)
             return {
