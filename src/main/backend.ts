@@ -37,10 +37,10 @@ export class Backend {
             name: 'thor-sync',
             sign: (kind, message, options) => {
                 if (kind === 'tx') {
-                    return app.uix[clientId[0]].signTx(
+                    return app.vendor[clientId[0]].signTx(
                         clientId,
                         message,
-                        options)
+                        options) as any
                 }
                 throw new Error('not implemented')
             }
