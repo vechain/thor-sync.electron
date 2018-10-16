@@ -73,6 +73,12 @@ function generateIconHtmlCached(addr: string, diameter: number) {
 function generateIcon(seed: number, size: number) {
     const elem = (jazzicon(size, seed) as Element).firstElementChild!
     elem.removeAttribute('style')
+    elem.setAttribute('width', '100%')
+    elem.setAttribute('height', '100%')
+    for (const c of elem.children) {
+        c.setAttribute('width', '100%')
+        c.setAttribute('height', '100%')
+    }
     return elem
 }
 
