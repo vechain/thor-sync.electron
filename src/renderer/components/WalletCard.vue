@@ -8,7 +8,7 @@
                     </v-layout>
                 </v-list-tile-title>
                 <v-list-tile-sub-title>
-                    <v-layout column style="line-height:90%" text-xs-right>
+                    <v-layout column style="line-height:85%" text-xs-right>
                         <v-flex>
                             <Amount sym=" VET ">{{balance}}</Amount>
                         </v-flex>
@@ -25,7 +25,7 @@
     </v-list-tile>
     <v-card v-else v-bind="$attrs" v-on="$listeners">
         <template v-if="isValid">
-            <v-list class="pt-3">
+            <v-list>
                 <v-list-tile>
                     <v-list-tile-avatar v-if="!noicon">
                         <AddressLabel icon>{{wallet.address}}</AddressLabel>
@@ -38,7 +38,7 @@
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
-            <v-card-text class="pt-0" style="text-align: right">
+            <v-card-text style="text-align: right;line-height: 85%;">
                 <div>
                     <Amount sym=" VET ">{{balance}}</Amount>
                 </div>
@@ -47,9 +47,9 @@
                 </div>
             </v-card-text>
         </template>
-        <div v-else>
+        <v-card-text v-else>
             Invalid wallet
-        </div>
+        </v-card-text>
     </v-card>
 </template>
 <script lang="ts">
@@ -108,16 +108,3 @@ export default class WalletCard extends Vue {
 }
 
 </script>
-<style lang="less" scoped>
-.token-symbol {
-  text-align: left;
-  font-size: 8px;
-  width: 24px;
-  opacity: 0.5;
-  display: inline-block;
-}
-.token-value {
-  letter-spacing: -0.5px;
-  font-family: "Roboto Mono", monospace;
-}
-</style>

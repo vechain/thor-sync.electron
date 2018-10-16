@@ -45,7 +45,7 @@ Object.defineProperty(window, 'connex', {
         env.xargs!.clientId!),
     enumerable: true
 })
-// bind widgets, UIX will be bound inside UIX root
+// bind widgets
 Object.defineProperty(window, 'ENV', {
     value: env,
     enumerable: true

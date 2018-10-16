@@ -1,6 +1,6 @@
 <template>
     <v-app id="frame">
-        <UIXRoot />
+        <Vendor />
         <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
             <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove">
             </tab-bar>
@@ -41,7 +41,7 @@ import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
-import UIXRoot from './uix'
+import Vendor from './vendor'
 
 let counter = 0
 
@@ -65,7 +65,7 @@ function getDefaultTab(): TabBar.Item {
         TabBar,
         ViewPort,
         NetworkStatus,
-        UIXRoot
+        Vendor,
     }
 })
 export default class Nova extends Vue {

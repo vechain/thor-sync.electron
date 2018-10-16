@@ -14,19 +14,19 @@ import serializeError from 'serialize-error'
         SignTxDialog
     }
 })
-export default class UIXRoot extends Vue {
+export default class Vendor extends Vue {
     mounted() {
         const signTxDlg = this.$refs.signTxDlg as SignTxDialog
         remote.app.EXTENSION.inject(
             ENV.contents!.id,
-            `uix.${ENV.xargs!.clientId![0]}`, {
+            `vendor.${ENV.xargs!.clientId![0]}`, {
                 signTx: (
                     clientId: string[],
-                    clauses: Connex.Thor.Clause[],
-                    options: Connex.Vendor.Options<'tx'> | undefined,
-                    callback: (err?: Error, result?: Connex.Vendor.Signed<'tx'>) => void
+                    message: Connex.Vendor.Message<'tx'>,
+                    options: Connex.Vendor.SignOptions<'tx'> | undefined,
+                    callback: (err?: Error, result?: Connex.Vendor.SignResult<'tx'>) => void
                 ) => {
-                    signTxDlg.signTx(clientId, clauses, options)
+                    signTxDlg.signTx(clientId, message, options)
                         .then(r => callback(undefined, r))
                         .catch(err => callback(serializeError(err)))
                 }
