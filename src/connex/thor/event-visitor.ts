@@ -21,8 +21,13 @@ export function createEventVisitor(
                 topic4: topics[4] || undefined
             }
         },
-        filter(indexed) {
-            const criteriaSet = indexed.map(i => this.asCriteria(i))
+        filter(indexed: object[]) {
+            let criteriaSet: Thor.Event.Criteria[]
+            if (indexed.length === 0) {
+                criteriaSet = [this.asCriteria({})]
+            } else {
+                criteriaSet = indexed.map(i => this.asCriteria(i))
+            }
             const filter = createFilter(wire, 'event', criteriaSet)
 
             const transformed: Thor.Filter<'decoded-event'> = {
