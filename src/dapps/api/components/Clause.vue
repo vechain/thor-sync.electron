@@ -137,15 +137,15 @@ export default class ClauseSign extends Vue {
     }
 
     public sendTx() {
-        connex.thor
-            .commit(this.signCode)
-            .then(r => {
-                this.response = r
-                // console.log(r)
-            })
-            .catch(e => {
-                console.error(e)
-            })
+        // connex.thor
+        //     .commit(this.signCode)
+        //     .then(r => {
+        //         this.response = r
+        //         // console.log(r)
+        //     })
+        //     .catch(e => {
+        //         console.error(e)
+        //     })
     }
 
     public save() {

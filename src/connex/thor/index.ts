@@ -47,12 +47,6 @@ export function create(
                 `accounts`,
                 input,
                 { revision })
-        },
-        commit(rawTx) {
-            return wire.post<{ id: string }>(
-                'transactions',
-                { raw: rawTx }
-            ).then(r => createTxVisitor(wire, r.id))
         }
     }
 }

@@ -11,7 +11,6 @@ declare namespace Connex {
         filter<T extends 'event' | 'transfer'>(kind: T, criteriaSet: Array<Thor.Criteria<T>>): Thor.Filter<T>
         subscribe<T extends 'event' | 'transfer' | 'block'>(subject: T, criteria: Thor.Criteria<T>): Thor.Subscription<T>
         call(input: Thor.VMInput, revision?: string | number): Promise<Thor.VMOutput>
-        commit(rawTx: string): Promise<Thor.TransactionVisitor>
     }
 
     namespace Thor {
