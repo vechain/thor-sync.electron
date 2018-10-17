@@ -153,13 +153,6 @@ body {
     -webkit-app-region: drag;
 }
 
-.search-bar {
-    position: absolute;
-    top: 0;
-    z-index: 2;
-    background-color: #fff;
-}
-
 .sync-container .viewport-layout {
     position: absolute;
     // top: 48px;
