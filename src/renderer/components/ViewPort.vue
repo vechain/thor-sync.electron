@@ -4,14 +4,15 @@
         <template v-if="url">
             <webview ref="viewport" :partition="partition" autosize :preload="preload" :src="url" />
         </template>
-        <Launcher ref="launcher" v-if="!url"></Launcher>
+        <div class="launcher-container">
+            <Launcher @nav="onLauncherChange" ref="launcher" v-if="!url"></Launcher>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import SearchBar from './SearchBar.vue'
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
-// import { WebviewTag } from 'electron'
 import Launcher from '../launcher'
 
 @Component({
@@ -34,8 +35,8 @@ export default class ViewPort extends Vue {
     private url: string = this.opt.src
 
     private searchBarOpt: SearchBar.Opt = {
-        canGoBack: this.opt.src ? false : true,
-        canGoForward: this.opt.src ? false : true,
+        canGoBack: false,
+        canGoForward: false,
         url: this.opt.src || ''
     }
 
@@ -69,10 +70,23 @@ export default class ViewPort extends Vue {
         }
     }
 
+    searchBarOptUpdateLauncher() {
+        const target = this.$refs.launcher as Launcher
+        this.searchBarOpt = {
+            canGoBack: target.canGoBack(),
+            canGoForward: target.canGoForward(),
+            url: ''
+        }
+    }
+
+    onLauncherChange() {
+        this.searchBarOptUpdateLauncher()
+    }
+
     doSearchBarAction(action: string) {
         const target = this.url
             ? (this.$refs.viewport as Electron.WebviewTag)
-            : this.$refs.launcher as Launcher
+            : (this.$refs.launcher as Launcher)
 
         switch (action) {
             case 'back':
@@ -181,9 +195,11 @@ export default class ViewPort extends Vue {
     width: 100%;
     background-color: #fff;
 }
+.sync-viewport-container .launcher-container,
 .sync-viewport-container webview {
     background-color: #fff;
-    height: 100%;
+    height: calc(100% - 40px);
+    overflow: auto;
 }
 .sync-viewport-container.full-height webview {
     height: 100%;
