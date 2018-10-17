@@ -1,18 +1,18 @@
 <template>
     <div>
-        <router-link to="/">Home</router-link>
-        <router-link to="/apps">Apps</router-link>
-        <router-link to="/wallets">Wallets</router-link>
         <router-view />
     </div>
 </template>
 <script lang="ts">
-
 import { Vue, Component } from 'vue-property-decorator'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Portal from './Portal.vue'
 import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
+import Settings from './Settings.vue'
+import Shortcut from './Shortcut.vue'
+import Network from './Network.vue'
+import Update from './Update.vue'
 
 @Component
 export default class Router extends Vue {
@@ -20,6 +20,7 @@ export default class Router extends Vue {
         return new Router({
             store: target.$store,
             router: new VueRouter({
+                mode: 'abstract',
                 routes: routes
             })
         })
@@ -27,8 +28,40 @@ export default class Router extends Vue {
 }
 
 const routes: RouteConfig[] = [
-    { path: '/', component: Portal },
-    { path: '/apps', component: DApps},
-    { path: '/wallets', component: Wallets },
+    {
+        path: '/',
+        name: 'home',
+        component: DApps
+    },
+    {
+        path: '/wallets',
+        name: 'wallets',
+        component: Wallets
+    },
+    {
+        path: '/settings',
+        name: 'settings',
+        component: Settings,
+        redirect: {
+            name: 'settings-shortcut'
+        },
+        children: [
+            {
+                path: 'shorcut',
+                name: 'settings-shortcut',
+                component: Shortcut
+            },
+            {
+                path: 'network',
+                name: 'settings-network',
+                component: Network
+            },
+            {
+                path: 'update',
+                name: 'settings-update',
+                component: Update
+            }
+        ]
+    }
 ]
 </script>
