@@ -25,9 +25,9 @@
 
                     <v-spacer />
                     <v-card-text>
-                        <v-text-field :disabled="signing" v-model="options.gas" label="Gas" />
+                        <v-text-field :disabled="signing" v-model="gasInput" label="Gas" type="number" step="1000" validate-on-blur :rules="gasInputRules" />
                         <v-select :disabled="signing" v-model="priority" :items="priorities" item-text="title" item-value="value" :label="'Priority (Gas price coef): ' + priority" />
-                        <v-text-field :disabled="signing" autofocus v-model="password" label="Password" type="password" :error-messages="passwordError" />
+                        <v-text-field :disabled="signing" autofocus v-model="password" label="Password" type="password" :error-messages="passwordError" validate-on-blur :rules="passwordRules" />
                     </v-card-text>
                     <v-progress-linear class="ma-0" :style="{visibility: signing?'visible': 'hidden'}" height="2" color="success" indeterminate />
                     <v-divider />
@@ -36,7 +36,7 @@
                         <v-btn :disabled="signing" color="red darken-2" flat @click="onAction(false)">
                             Decline
                         </v-btn>
-                        <v-btn :disabled="signing" color="green darken-1" flat @click="onAction(true)">
+                        <v-btn :disabled="signing || !inputValid" color="green darken-1" flat @click="onAction(true)">
                             Sign
                         </v-btn>
                     </v-card-actions>
@@ -58,6 +58,7 @@ import WalletCard from '../components/WalletCard.vue'
 import { normalizeClauses, normalizeTxSignOptions } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
+import BigNumber from 'bignumber.js'
 
 @Component({
     components: {
@@ -81,6 +82,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     options: Connex.Vendor.SignOptions<'tx'> = {}
     selectedWallet: Wallet.Entity | null = null
     result?: Deferred<Connex.Vendor.SignResult<'tx'>>
+    gasInput = ""
 
 
     priorities: Array<{ title: string, value: number }> = [{
@@ -101,6 +103,20 @@ export default class SignTxDialog extends Vue implements SignTx {
     get walletSwitchable() {
         return !this.options.signer
     }
+
+    get inputValid() {
+        return this.gasInputRules.every(f => f(this.gasInput) === true) &&
+            this.passwordRules.every(f => f(this.password) === true)
+    }
+
+    gasInputRules = [
+        (v: string) => !!v || 'Empty not allowed',
+        (v: string) => /^[0-9]+$/.test(v) || 'Integer value required'
+    ]
+
+    passwordRules = [
+        (v: string) => !!v || 'Empty not allowed'
+    ]
 
     @Watch('open')
     openUpdated(val: boolean) {
@@ -157,7 +173,7 @@ export default class SignTxDialog extends Vue implements SignTx {
 
         this.clauses = message
         this.options = options
-
+        this.gasInput = options.gas!.toString()
         this.open = true
 
         this.result = new Deferred()
@@ -168,6 +184,11 @@ export default class SignTxDialog extends Vue implements SignTx {
     async onAction(confirmed: boolean) {
         if (this.signing) {
             return
+        }
+        if (confirmed) {
+            if (!this.inputValid) {
+                return
+            }
         }
         try {
             if (!confirmed) {
@@ -183,7 +204,7 @@ export default class SignTxDialog extends Vue implements SignTx {
                 expiration: 720,
                 clauses: this.clauses.map(c => ({ to: c.to, value: c.value!, data: c.data! })),
                 gasPriceCoef: this.priority,
-                gas: this.options.gas!,
+                gas: '0x' + new BigNumber(this.gasInput, 10).toString(16),
                 dependsOn: null,
                 nonce: '0x' + randomBytes(8).toString('hex')
             })
@@ -194,6 +215,7 @@ export default class SignTxDialog extends Vue implements SignTx {
                 tx,
 
             })
+            // connex.thor.commit('0x' + tx.encode().toString('hex'))
             this.result!.resolve({
                 txId: tx.id!,
                 signer: this.selectedWallet!.address
