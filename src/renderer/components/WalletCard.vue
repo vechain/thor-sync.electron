@@ -1,21 +1,17 @@
 <template>
     <v-list-tile v-if="listitem" v-bind="$attrs" v-on="$listeners">
         <template v-if="isValid">
+            <v-list-tile-avatar :size="30" v-if="!noicon">
+                <AddressLabel icon :size="30">{{wallet.address}}</AddressLabel>
+            </v-list-tile-avatar>
             <v-list-tile-content>
-                <v-list-tile-title>
-                    <v-layout align-center>
-                        <AddressLabel icon :size="20" class="mr-2">{{wallet.address}}</AddressLabel>{{wallet.name}}
-                    </v-layout>
-                </v-list-tile-title>
+                <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
                 <v-list-tile-sub-title>
-                    <v-layout column style="line-height:85%" text-xs-right>
-                        <v-flex>
-                            <Amount sym=" VET ">{{balance}}</Amount>
-                        </v-flex>
-                        <v-flex>
-                            <Amount sym=" VTHO">{{energy}}</Amount>
-                        </v-flex>
-                    </v-layout>
+                    <AddressLabel abbrev class="caption">{{wallet.address}}</AddressLabel>
+                </v-list-tile-sub-title>
+                <v-list-tile-sub-title class="caption" style="text-align:right;line-height: 100%;display:block">
+                    <Amount sym=" VET ">{{balance}}</Amount><br>
+                    <Amount sym=" VTHO">{{energy}}</Amount>
                 </v-list-tile-sub-title>
             </v-list-tile-content>
         </template>
@@ -23,7 +19,7 @@
             Invalid wallet
         </div>
     </v-list-tile>
-    <v-card v-else v-bind="$attrs" v-on="$listeners">
+    <v-card v-else v-bind="$attrs" v-on="$listeners" style="text-align:left">
         <template v-if="isValid">
             <v-list>
                 <v-list-tile>
@@ -37,15 +33,16 @@
                         </v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
+                <v-divider inset class="mr-3" />
+                <div class="px-3 py-1" style="text-align:right;line-height: 100%;">
+                    <v-list-tile-sub-title>
+                        <Amount sym=" VET ">{{balance}}</Amount>
+                    </v-list-tile-sub-title>
+                    <v-list-tile-sub-title>
+                        <Amount sym=" VTHO">{{energy}}</Amount>
+                    </v-list-tile-sub-title>
+                </div>
             </v-list>
-            <v-card-text style="text-align: right;line-height: 85%;">
-                <div>
-                    <Amount sym=" VET ">{{balance}}</Amount>
-                </div>
-                <div>
-                    <Amount sym=" VTHO">{{energy}}</Amount>
-                </div>
-            </v-card-text>
         </template>
         <v-card-text v-else>
             Invalid wallet

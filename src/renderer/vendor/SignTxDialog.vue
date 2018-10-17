@@ -1,5 +1,5 @@
 <template>
-    <v-dialog content-class="bottom-right" persistent v-model="open" max-width="700px" @keydown.enter="onAction(true)" @keydown.esc="onAction(false)">
+    <v-dialog content-class="bottom-right" persistent v-model="open" max-width="700px" @keydown.enter="onAction(true)">
         <v-card>
             <v-layout row style="height:470px;">
                 <v-layout column text-xs-center style="width:400px;flex:0 0 auto; background-color: rgba(0,0,0,0.15)">
@@ -12,12 +12,17 @@
                 </v-layout>
                 <!-- <v-divider vertical /> -->
                 <v-layout column v-if="!!selectedWallet" class="elevation-2">
-                    <WalletSelection :disabled="signing || walletSwitchable" offset-overflow fixed right offset-y :wallets="wallets" v-model="selectedWallet" max-height="400px">
-                        <v-layout column slot="activator" :disabled="signing">
+                    <v-layout row align-center style="flex:0 0 auto;">
+                        <v-flex>
                             <WalletCard tile flat :wallet="selectedWallet" />
-                        </v-layout>
-                    </WalletSelection>
-                    <v-divider />
+                        </v-flex>
+                        <WalletSelection v-if="walletSwitchable" transition="slide-y-transition" :disabled="signing" fixed offset-y :wallets="wallets" v-model="selectedWallet" max-height="400px">
+                            <v-btn icon flat slot="activator">
+                                <v-icon>mdi-menu-down</v-icon>
+                            </v-btn>
+                        </WalletSelection>
+                    </v-layout>
+
                     <v-spacer />
                     <v-card-text>
                         <v-text-field :disabled="signing" v-model="options.gas" label="Gas" />
@@ -94,7 +99,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     priority = 0
 
     get walletSwitchable() {
-        return !!this.options.signer
+        return !this.options.signer
     }
 
     @Watch('open')
