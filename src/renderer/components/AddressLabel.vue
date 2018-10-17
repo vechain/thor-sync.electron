@@ -32,14 +32,14 @@ export default Vue.extend({
         }
 
         if (this.icon) {
-            const size = this.size || 40
+            const size = this.size || 36
             data.domProps = { innerHTML: generateIconHtmlCached(addr, size) }
             data.style = {
                 overflow: 'hidden',
                 display: 'inline-block',
                 width: size + 'px',
                 height: size + 'px',
-                'border-radius': '10%'
+                'border-radius': '4%'
             }
             return h('div', data)
         } else {

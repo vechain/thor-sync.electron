@@ -47,10 +47,11 @@ export default Vue.extend({
             }))
         }
 
-        return h('span', {
+        return h('div', {
             attrs: this.$attrs,
             on: this.$listeners,
             style: {
+                "display": "inline-block",
                 'font-family': '"Roboto Mono", monospace'
             }
         }, children)

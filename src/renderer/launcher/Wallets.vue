@@ -8,7 +8,7 @@
         <v-container grid-list-xl fluid>
             <v-layout row wrap>
                 <v-flex xs3 v-for="wallet in wallets" :key="wallet.address" text-xs-center>
-                    <WalletCard :track="true" :wallet="wallet" style="width: 200px;display:inline-block"> </WalletCard>
+                    <WalletCard :track="true" :wallet="wallet" style="width: 220px;display:inline-block"> </WalletCard>
                 </v-flex>
             </v-layout>
         </v-container>
