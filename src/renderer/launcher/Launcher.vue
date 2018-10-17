@@ -1,14 +1,11 @@
 <template>
-    <div style="height:100%; width:100%;overflow:auto;">
-        {{path}}
-        <div id="content">
-        </div>
+    <div id="content">
     </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Model } from 'vue-property-decorator'
 import Router from './Router.vue'
-import router from '@/dapps/api/router';
+import router from '@/dapps/api/router'
 
 interface ILauncher {
     goBack(): void
@@ -18,7 +15,8 @@ interface ILauncher {
 
 @Component
 export default class Launcher extends Vue implements ILauncher {
-    @Model('nav') path!: string
+    @Model('nav')
+    path!: string
 
     @Watch('path')
     navTo() {
@@ -27,7 +25,7 @@ export default class Launcher extends Vue implements ILauncher {
         }
     }
 
-    @Watch('content.$route.path')
+    @Watch('router.$route.path')
     routed() {
         if (this.router.$route.path !== this.path) {
             this.$emit('nav', this.router.$route.path)
@@ -43,7 +41,22 @@ export default class Launcher extends Vue implements ILauncher {
         this.router.$router.forward()
     }
 
+    canGoBack() {
+        return this.router.$router.history.index !== 0
+    }
+
+    canGoForward() {
+        return (
+            this.router.$router.history.index + 1 !==
+            this.router.$router.history.stack.length
+        )
+    }
+
     reload() {}
+
+    created() {
+        this.router.$router.push({ name: 'home' })
+    }
 
     mounted() {
         this.router.$mount('#content')
