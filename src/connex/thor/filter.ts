@@ -36,7 +36,7 @@ export function createFilter<T extends 'event' | 'transfer'>(
         next(offset, limit) {
             filterBody.options.offset = offset
             filterBody.options.limit = limit
-            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, this, query)
+            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, filterBody, query)
         }
     }
 }
