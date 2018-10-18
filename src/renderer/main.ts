@@ -14,6 +14,7 @@ import Preferences from './preferences'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
 import Store from './store'
+import Database from './database'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
@@ -27,12 +28,14 @@ Vue.config.productionTip = false
 declare global {
     interface Window {
         readonly ENV: typeof env
+        readonly DB: Database
         readonly WALLETS: Wallet.Persist
         readonly PREFERENCES: Preferences
         // event bus
         readonly BUS: Vue
     }
     const ENV: typeof env
+    const DB: Database
     const WALLETS: Wallet.Persist
     const PREFERENCES: Preferences
     const BUS: Vue
@@ -48,6 +51,10 @@ Object.defineProperty(window, 'connex', {
 // bind widgets
 Object.defineProperty(window, 'ENV', {
     value: env,
+    enumerable: true
+})
+Object.defineProperty(window, 'DB', {
+    value: new Database(),
     enumerable: true
 })
 Object.defineProperty(window, 'WALLETS', {
