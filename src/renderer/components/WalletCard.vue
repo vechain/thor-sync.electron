@@ -52,10 +52,10 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import Store from '../store'
-import Wallet from '../wallet'
 import { Num } from '@/common/formatter'
 import AddressLabel from '../components/AddressLabel.vue'
 import Amount from '../components/Amount.vue'
+import { Entities } from '../database';
 
 
 @Component({
@@ -65,7 +65,7 @@ import Amount from '../components/Amount.vue'
     }
 })
 export default class WalletCard extends Vue {
-    @Prop(Object) wallet!: Wallet.Entity
+    @Prop(Object) wallet!: Entities.Wallet
     @Prop(Boolean) track!: boolean
     @Prop(Boolean) listitem!: boolean
     @Prop(Boolean) noicon!: boolean
@@ -74,7 +74,7 @@ export default class WalletCard extends Vue {
 
     destroyed() { this.untrack() }
 
-    get isValid() { return this.wallet && Wallet.isEntity(this.wallet) }
+    get isValid() { return this.wallet && Entities.isWallet(this.wallet) }
 
     get account() {
         // untrack previously tracked
