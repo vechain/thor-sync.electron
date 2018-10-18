@@ -19,9 +19,9 @@ export function createFilter<T extends 'event' | 'transfer'>(
             offset: 0,
             limit: 10
         },
-        criteriaSet
+        criteriaSet,
+        order: 'asc'
     }
-    const query = { order: 'asc' }
 
     return {
         get kind() { return kind },
@@ -30,13 +30,13 @@ export function createFilter<T extends 'event' | 'transfer'>(
             return this
         },
         order(order) {
-            query.order = order
+            filterBody.order = order
             return this
         },
         next(offset, limit) {
             filterBody.options.offset = offset
             filterBody.options.limit = limit
-            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, filterBody, query)
+            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, filterBody)
         }
     }
 }
