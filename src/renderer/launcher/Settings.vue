@@ -17,11 +17,11 @@ export default class Settings extends Vue {
     active = 0
     tabs = [
         {
-            name: 'Shortcut',
+            name: 'Shortcuts',
             path: 'settings-shortcut'
         },
         {
-            name: 'Network',
+            name: 'Networks',
             path: 'settings-network'
         },
         {
