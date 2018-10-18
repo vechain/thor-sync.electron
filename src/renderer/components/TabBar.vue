@@ -8,7 +8,7 @@
                     <template v-if="item.iconUrl">
                         <img :src="item.iconUrl">
                     </template>
-                        <div class="tab-title">{{item.title || 'New tab'}}</div>
+                        <div class="tab-title text-truncate">{{item.title || 'New tab'}}</div>
                         <v-btn dark @click.stop.prevent="popClose(index)" icon class="tab-close">
                             <v-icon>close</v-icon>
                         </v-btn>
@@ -112,10 +112,6 @@ export default class TabBar extends Vue {
 .cus-tab-item .v-tabs__item .tab-title {
     float: left;
     max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 13px;
     text-transform: none;
 }
 .cus-tab-item img {

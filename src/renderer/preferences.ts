@@ -7,7 +7,9 @@ class Preferences extends LocalDB<any> {
 }
 
 namespace Preferences {
-    export const PRIMARY_WALLET = 'primary-wallet'
+    export const KEY_NETWORKS = 'networks'
+    export const KEY_SHORTCUTS = 'shortcuts'
+    export const KEY_IS_AUTO_UPDATE = 'is_auto_update'
 }
 
 export default Preferences
