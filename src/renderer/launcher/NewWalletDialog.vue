@@ -77,9 +77,9 @@ import MnemonicWords from './MnemonicWords.vue'
 import WordPuzzle from './WordPuzzle.vue'
 
 import { cry } from 'thor-devkit'
-import Wallet from '../wallet'
 import QRCode from '../components/QRCode.vue'
 import AddressLabel from '../components/AddressLabel.vue'
+import { Entities } from '@/renderer/database';
 
 
 @Component({
@@ -180,9 +180,10 @@ export default class NewWalletDialog extends Vue {
             const entity = {
                 name: this.nameAndPass.name,
                 address: '0x' + ks.address,
-                keystore: ks
+                keystore: ks,
+                createdTime: Date.now()
             }
-            await WALLETS.save(entity).then(() => entity)
+            await DB.wallets.add(entity)
             this.result = { entity }
         } catch (err) {
             this.result = { err }
@@ -190,7 +191,7 @@ export default class NewWalletDialog extends Vue {
     }
     get checksumedAddress() {
         if (this.result && this.result.entity) {
-            return cry.toChecksumAddress(this.result.entity.address)
+            return cry.toChecksumAddress(this.result.entity.address!)
         }
         return null
     }
@@ -218,7 +219,7 @@ type BtnState = {
 
 type Result = {
     err?: Error
-    entity?: Wallet.Entity
+    entity?: Entities.Wallet
 }
 
 

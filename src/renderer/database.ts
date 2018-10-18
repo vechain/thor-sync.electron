@@ -8,12 +8,19 @@ export namespace Entities {
         address?: string
         name?: string
         keystore?: cry.Keystore
+        createdTime?: number
     }
 
     export interface Preference {
         id?: number
         key: string
         value: any
+    }
+
+    export function isWallet(v: any): v is Wallet {
+        return v &&
+            cry.isAddress(v.address) &&
+            cry.Keystore.wellFormed(v.keystore)
     }
 }
 

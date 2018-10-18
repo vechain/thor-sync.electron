@@ -9,7 +9,6 @@ import { Vue } from 'vue-property-decorator'
 import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import env from '@/env'
-import Wallet from './wallet'
 import Preferences from './preferences'
 import { remote } from 'electron'
 import Nova from './Nova.vue'
@@ -29,14 +28,12 @@ declare global {
     interface Window {
         readonly ENV: typeof env
         readonly DB: Database
-        readonly WALLETS: Wallet.Persist
         readonly PREFERENCES: Preferences
         // event bus
         readonly BUS: Vue
     }
     const ENV: typeof env
     const DB: Database
-    const WALLETS: Wallet.Persist
     const PREFERENCES: Preferences
     const BUS: Vue
 }
@@ -55,10 +52,6 @@ Object.defineProperty(window, 'ENV', {
 })
 Object.defineProperty(window, 'DB', {
     value: new Database(),
-    enumerable: true
-})
-Object.defineProperty(window, 'WALLETS', {
-    value: new Wallet.Persist(),
     enumerable: true
 })
 Object.defineProperty(window, 'PREFERENCES', {

@@ -49,7 +49,6 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { State } from 'vuex-class'
 import Deferred from '@/common/deferred';
-import Wallet from '../wallet'
 import WalletSelection from '../components/WalletSelection.vue'
 import AddressLabel from '../components/AddressLabel.vue'
 import Amount from '../components/Amount.vue'
@@ -59,6 +58,7 @@ import { normalizeClauses, normalizeTxSignOptions } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
+import { Entities } from '@/renderer/database';
 
 @Component({
     components: {
@@ -72,7 +72,7 @@ import BigNumber from 'bignumber.js'
 export default class SignTxDialog extends Vue implements SignTx {
     private name: string = 'SignTxDialog'
 
-    @State wallets!: Wallet.Entity[]
+    wallets: Entities.Wallet[] = []
 
     open = false
     password = ''
@@ -80,7 +80,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     passwordError = ''
     clauses: Connex.Vendor.Clause[] = []
     options: Connex.Vendor.SignOptions<'tx'> = {}
-    selectedWallet: Wallet.Entity | null = null
+    selectedWallet: Entities.Wallet | null = null
     result?: Deferred<Connex.Vendor.SignResult<'tx'>>
     gasInput = ""
 
@@ -99,6 +99,13 @@ export default class SignTxDialog extends Vue implements SignTx {
         value: 255
     }]
     priority = 0
+
+    @State walletsRevision!: number
+    @Watch('walletsRevision')
+    async reloadWallets() {
+        this.wallets = await DB.wallets.toArray()
+    }
+
 
     get walletSwitchable() {
         return !this.options.signer
@@ -141,9 +148,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     }
 
     created() {
-        if (this.wallets.length > 0) {
-            this.selectedWallet = this.wallets[0]
-        }
+        this.reloadWallets()
     }
 
     async signTx(
@@ -162,7 +167,7 @@ export default class SignTxDialog extends Vue implements SignTx {
 
         this.selectedWallet = (() => {
             if (options.signer) {
-                const found = this.wallets.find(w => w.address.toLowerCase() === options!.signer!.toLowerCase())
+                const found = this.wallets.find(w => w.address!.toLowerCase() === options!.signer!.toLowerCase())
                 if (!found) {
                     throw new Error('bad options: no such signer')
                 }
@@ -209,8 +214,9 @@ export default class SignTxDialog extends Vue implements SignTx {
                 nonce: '0x' + randomBytes(8).toString('hex')
             })
 
-            const wallet = new Wallet(this.selectedWallet!)
-            tx.signature = await wallet.sign(cry.blake2b256(tx.encode()), this.password)
+            const privateKey = await cry.Keystore.decrypt(this.selectedWallet!.keystore!, this.password)
+            tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
+
             BUS.$emit('new-tx', {
                 tx,
 
@@ -218,7 +224,7 @@ export default class SignTxDialog extends Vue implements SignTx {
             // connex.thor.commit('0x' + tx.encode().toString('hex'))
             this.result!.resolve({
                 txId: tx.id!,
-                signer: this.selectedWallet!.address
+                signer: this.selectedWallet!.address!
             })
         } catch (err) {
             if (err.message === 'message authentication code mismatch') {

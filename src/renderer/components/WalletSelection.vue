@@ -14,8 +14,8 @@
 <script lang="ts">
 import { Vue, Component, Prop, Model, Emit } from 'vue-property-decorator'
 import OverlayedMenu from './OverlayedMenu.vue'
-import Wallet from '../wallet'
 import WalletCard from './WalletCard.vue'
+import { Entities } from '@/renderer/database'
 
 @Component({
     components: {
@@ -24,10 +24,10 @@ import WalletCard from './WalletCard.vue'
     }
 })
 export default class WalletSelection extends Vue {
-    @Prop({ default: () => [] }) wallets!: Wallet.Entity[]
-    @Model('select') selected!: Wallet.Entity
+    @Prop({ default: () => [] }) wallets!: Entities.Wallet[]
+    @Model('select') selected!: Entities.Wallet
     @Emit('select')
-    select(wallet: Wallet.Entity) {
+    select(wallet: Entities.Wallet) {
         this.opened = false
     }
     opened = false
@@ -35,7 +35,7 @@ export default class WalletSelection extends Vue {
     get unselected() {
         return this.wallets.filter(w => {
             if (this.selected) {
-                return w.address.toUpperCase() !== this.selected.address.toUpperCase()
+                return w.address!.toUpperCase() !== this.selected.address!.toUpperCase()
             }
             return true
         })
