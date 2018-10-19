@@ -36,7 +36,10 @@ const routes: RouteConfig[] = [
     {
         path: '/wallets',
         name: 'wallets',
-        component: Wallets
+        component: Wallets,
+        meta: {
+            title: 'Wallets'
+        }
     },
     {
         path: '/settings',
@@ -49,17 +52,26 @@ const routes: RouteConfig[] = [
             {
                 path: 'shorcut',
                 name: 'settings-shortcut',
-                component: Shortcut
+                component: Shortcut,
+                meta: {
+                    title: 'Settings-Shortcuts'
+                }
             },
             {
                 path: 'network',
                 name: 'settings-network',
-                component: Network
+                component: Network,
+                meta: {
+                    title: 'Settings-Networks'
+                }
             },
             {
                 path: 'update',
                 name: 'settings-update',
-                component: Update
+                component: Update,
+                meta: {
+                    title: 'Settings-Auto Update'
+                }
             }
         ]
     }

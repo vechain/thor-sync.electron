@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-tabs centered v-model="active" dark>
+        <v-tabs centered v-model="active">
             <v-tab :to="{name: item.path}" v-for="(item, index) in tabs" :key="index">
                 {{item.name}}
             </v-tab>
