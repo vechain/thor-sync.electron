@@ -9,19 +9,21 @@
                 <v-list-tile-sub-title>
                     <AddressLabel abbrev class="caption">{{wallet.address}}</AddressLabel>
                 </v-list-tile-sub-title>
-                <v-list-tile-sub-title class="caption" style="text-align:right;line-height: 100%;display:block">
-                    <Amount sym=" VET ">{{balance}}</Amount><br>
+                <v-list-tile-sub-title
+                    class="caption"
+                    style="text-align:right;line-height: 100%;display:block"
+                >
+                    <Amount sym=" VET ">{{balance}}</Amount>
+                    <br>
                     <Amount sym=" VTHO">{{energy}}</Amount>
                 </v-list-tile-sub-title>
             </v-list-tile-content>
         </template>
-        <div v-else>
-            Invalid wallet
-        </div>
+        <div v-else>Invalid wallet</div>
     </v-list-tile>
     <v-card v-else v-bind="$attrs" v-on="$listeners" style="text-align:left">
         <template v-if="isValid">
-            <v-list>
+            <v-list style="background: none">
                 <v-list-tile>
                     <v-list-tile-avatar v-if="!noicon">
                         <AddressLabel icon>{{wallet.address}}</AddressLabel>
@@ -33,7 +35,7 @@
                         </v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
-                <v-divider inset class="mr-3" />
+                <v-divider inset class="mr-3"/>
                 <div class="px-3 py-1" style="text-align:right;line-height: 100%;">
                     <v-list-tile-sub-title>
                         <Amount sym=" VET ">{{balance}}</Amount>
@@ -44,9 +46,7 @@
                 </div>
             </v-list>
         </template>
-        <v-card-text v-else>
-            Invalid wallet
-        </v-card-text>
+        <v-card-text v-else>Invalid wallet</v-card-text>
     </v-card>
 </template>
 <script lang="ts">
