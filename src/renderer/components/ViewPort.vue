@@ -4,8 +4,8 @@
         <template v-if="url">
             <webview ref="viewport" :partition="partition" autosize :preload="preload" :src="url" />
         </template>
-        <div class="launcher-container">
-            <Launcher @nav="onLauncherChange" ref="launcher" v-if="!url"></Launcher>
+        <div v-if="!url" class="launcher-container">
+            <Launcher @nav="onLauncherChange" ref="launcher"></Launcher>
         </div>
     </div>
 </template>
@@ -108,6 +108,7 @@ export default class ViewPort extends Vue {
     }
 
     onUrlRequest(url: string) {
+        this.searchBarOpt.url = url
         this.url = url
     }
 
