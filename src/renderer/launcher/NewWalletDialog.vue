@@ -1,45 +1,62 @@
 <template>
-    <v-dialog v-bind="$attrs" v-on="$listeners" v-model="opened" @keydown.esc="onKeyEsc" @keydown.enter="onKeyEnter" max-width="800px">
+    <v-dialog
+        v-bind="$attrs"
+        v-on="$listeners"
+        v-model="opened"
+        @keydown.esc="onKeyEsc"
+        @keydown.enter="onKeyEnter"
+        max-width="800px"
+    >
         <v-card>
             <v-card-text>
                 <div class="subheading font-weight-light">Create Wallet</div>
-                <v-stepper v-if="step<4" v-model="step" class="elevation-0" style="min-height: 400px;">
+                <v-stepper
+                    v-if="step<4"
+                    v-model="step"
+                    class="elevation-0"
+                    style="min-height: 400px;"
+                >
                     <v-stepper-header class="elevation-0">
-                        <v-stepper-step :complete="step > 1" step="1" />
-                        <v-divider />
-                        <v-stepper-step :complete="step > 2" step="2" />
-                        <v-divider />
-                        <v-stepper-step :complete="step > 3" step="3" />
+                        <v-stepper-step :complete="step > 1" step="1"/>
+                        <v-divider/>
+                        <v-stepper-step :complete="step > 2" step="2"/>
+                        <v-divider/>
+                        <v-stepper-step :complete="step > 3" step="3"/>
                     </v-stepper-header>
-                    <div class="title font-weight-light pl-4">
-                        {{['Personalize', 'Write down mnemonic words', 'Verify mnemonic words'][step-1]}}
-                    </div>
+                    <div
+                        class="title font-weight-light pl-4"
+                    >{{['Personalize', 'Write down mnemonic words', 'Verify mnemonic words'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
-                            <NameAndPass v-model="nameAndPass" v-if="opened" />
+                            <NameAndPass v-model="nameAndPass" v-if="opened"/>
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <MnemonicWords :words="words" v-if="opened" />
+                            <MnemonicWords :words="words" v-if="opened"/>
                         </v-stepper-content>
                         <v-stepper-content step="3">
-                            <WordPuzzle :words="words" v-model="puzzleSovled" v-if="opened" />
+                            <WordPuzzle :words="words" v-model="puzzleSovled" v-if="opened"/>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
                 <div v-else style="height: 400px;">
                     <template v-if="opened">
-                        <v-layout v-if="result && result.entity" column align-center justify-center fill-height>
+                        <v-layout
+                            v-if="result && result.entity"
+                            column
+                            align-center
+                            justify-center
+                            fill-height
+                        >
                             <span class="headline font-weight-light">Congratulations</span>
                             <div class="py-3">
-                                <v-icon small color="success">mdi-check-decagram</v-icon> <span>wallet created!</span>
+                                <v-icon small color="success">mdi-check-decagram</v-icon>
+                                <span>wallet created!</span>
                             </div>
                             <v-card flat class="elevation-8">
                                 <v-card-text>
                                     <v-layout column align-center>
                                         <AddressLabel icon>{{checksumedAddress}}</AddressLabel>
-                                        <v-flex pt-2 headline>
-                                            {{nameAndPass.name}}
-                                        </v-flex>
+                                        <v-flex pt-2 headline>{{nameAndPass.name}}</v-flex>
                                         <v-flex pb-2>
                                             <AddressLabel class="caption">{{checksumedAddress}}</AddressLabel>
                                         </v-flex>
@@ -50,9 +67,13 @@
                                 </v-card-text>
                             </v-card>
                         </v-layout>
-                        <v-layout v-else-if="result" column align-center justify-center fill-height>
-                            {{result.err}}
-                        </v-layout>
+                        <v-layout
+                            v-else-if="result"
+                            column
+                            align-center
+                            justify-center
+                            fill-height
+                        >{{result.err}}</v-layout>
                         <v-layout v-else column align-center justify-center fill-height>
                             <p>Processing... a monent</p>
                             <v-progress-linear color="success" indeterminate></v-progress-linear>
@@ -61,13 +82,29 @@
                 </div>
             </v-card-text>
             <v-card-actions>
-                <v-btn flat :disabled="!abortBtn.enabled" v-show="abortBtn.visible" @click="abortBtn.action">{{abortBtn.text}}</v-btn>
-                <v-spacer />
-                <v-btn flat :disabled="!backBtn.enabled" v-show="backBtn.visible" @click="backBtn.action">{{backBtn.text}}</v-btn>
-                <v-btn flat color="primary" :disabled="!nextBtn.enabled" v-show="nextBtn.visible" @click="nextBtn.action">{{nextBtn.text}}</v-btn>
+                <v-btn
+                    flat
+                    :disabled="!abortBtn.enabled"
+                    v-show="abortBtn.visible"
+                    @click="abortBtn.action"
+                >{{abortBtn.text}}</v-btn>
+                <v-spacer/>
+                <v-btn
+                    flat
+                    :disabled="!backBtn.enabled"
+                    v-show="backBtn.visible"
+                    @click="backBtn.action"
+                >{{backBtn.text}}</v-btn>
+                <v-btn
+                    flat
+                    color="primary"
+                    :disabled="!nextBtn.enabled"
+                    v-show="nextBtn.visible"
+                    @click="nextBtn.action"
+                >{{nextBtn.text}}</v-btn>
             </v-card-actions>
         </v-card>
-        <slot slot="activator" name="activator" />
+        <slot slot="activator" name="activator"/>
     </v-dialog>
 </template>
 <script lang="ts">
@@ -165,6 +202,7 @@ export default class NewWalletDialog extends Vue {
                 }
                 break
             case 4:
+                state.enabled = !!this.result
                 state.text = 'Done'
                 state.action = () => { this.opened = false }
                 break
