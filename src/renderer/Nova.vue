@@ -9,7 +9,7 @@
         <v-content class="sync-container">
             <view-port class="viewport-layout" :opt="item" @data-updated="onDataUpdate($event, index)"
                 @status-updated="onStatusUpdate($event, index)" :class="{current: currentIndex === index}"
-                v-for="(item, index) in tabs" :key="index">
+                v-for="(item, index) in tabs" :key="item.id">
             </view-port>
             <v-dialog>
                 <v-card>
@@ -155,8 +155,6 @@ body {
 
 .sync-container .viewport-layout {
     position: absolute;
-    // top: 48px;
-
     height: 100%;
 }
 
