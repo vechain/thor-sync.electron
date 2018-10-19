@@ -17,15 +17,42 @@ export namespace Entities {
         value: any
     }
 
+    export class Network implements Preference {
+        id?: number
+        key: string = 'network'
+        value: Settings.NetWork
+        constructor(val: Settings.NetWork) {
+            this.value = val
+        }
+
+        public static create(val: Settings.NetWork) {
+            return new Network(val)
+        }
+    }
+
+    export class Shortcut implements Preference {
+        id?: number
+        key: string = 'shortcut'
+        value: Settings.Shortcut
+        constructor(val: Settings.Shortcut) {
+            this.value = val
+        }
+
+        public static create(val: Settings.Shortcut) {
+            return new Shortcut(val)
+        }
+    }
+
     export function isWallet(v: any): v is Wallet {
-        return v &&
-            cry.isAddress(v.address) &&
-            cry.Keystore.wellFormed(v.keystore)
+        return (
+            v && cry.isAddress(v.address) && cry.Keystore.wellFormed(v.keystore)
+        )
     }
 }
 
 class Database extends Dexie {
     public readonly wallets!: Dexie.Table<Entities.Wallet, string>
+    public readonly preferences!: Dexie.Table<Entities.Preference, string>
 
     constructor() {
         super('main')
