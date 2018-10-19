@@ -16,6 +16,7 @@ declare namespace Connex {
         type SignOptions<T extends 'tx'> = T extends 'tx' ? {
             signer?: string
             gas?: number
+            summary?: string
         } : never
 
         type SignResult<T extends 'tx'> = T extends 'tx' ? {
