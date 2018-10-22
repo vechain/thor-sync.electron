@@ -67,6 +67,7 @@
     "localforage": "^1.7.2",
     "localforage-observable": "^1.4.0",
     "lowdb": "1.0.0",
+    "moment": "^2.22.2",
     "qrious": "^4.0.2",
     "qs": "^6.5.2",
     "serialize-error": "^3.0.0",
