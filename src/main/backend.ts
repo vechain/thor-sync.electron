@@ -1,7 +1,7 @@
-import * as connex from '@/connex'
 import { app, webContents } from 'electron'
 import { Agent } from 'http'
 import { Site } from '@/main/site'
+import { create as createThor } from '../thor'
 // tslint:disable:no-console
 
 export class Backend {
@@ -11,7 +11,7 @@ export class Backend {
         contentsId: number,
         config: Connex.Thor.Site.Config,
         clientId: string[]
-    ) {
+    ): Connex {
         const wireAgent = new Agent({
             maxSockets: 10
         })
@@ -33,18 +33,28 @@ export class Backend {
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
 
-        return connex.create(site, {
-            name: 'thor-sync',
-            sign: (kind, message, options) => {
-                if (kind === 'tx') {
-                    return app.vendor[clientId[0]].signTx(
-                        clientId,
-                        message,
-                        options) as any
+        const wire = site.createWire()
+        return {
+            thor: createThor(site),
+            vendor: {
+                name: 'thor-sync',
+                sign: (kind, message, options) => {
+                    if (kind === 'tx') {
+                        return app.vendor[clientId[0]].signTx(
+                            clientId,
+                            message,
+                            options) as any
+                    }
+                    throw new Error('not implemented')
                 }
-                throw new Error('not implemented')
+            },
+            commitTx(raw) {
+                return wire.post<{ id: string }>(
+                    'transactions',
+                    { raw }
+                ).then(r => r.id)
             }
-        })
+        }
     }
 
     private siteKey(config: Connex.Thor.Site.Config) {
