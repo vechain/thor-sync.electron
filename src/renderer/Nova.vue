@@ -1,36 +1,56 @@
 <template>
     <v-app id="frame">
-        <Vendor />
-        <v-toolbar height="40px" dense flat class="sync-drag-zone" fixed app @dblclick="onDblClickTitleBar">
-            <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove">
-            </tab-bar>
-            <NetworkStatus></NetworkStatus>
+        <Vendor/>
+        <v-toolbar
+            color="grey lighten-3"
+            height="40px"
+            class="drag-zone elevation-0"
+            style="overflow:hidden;"
+            fixed
+            app
+            @dblclick="onDblClickTitleBar"
+        >
+            <transition-group
+                key="a"
+                name="list-complete"
+                tag="v-layout"
+                style="height: 100%;margin-left: 60px;flex: 0 1 auto;flex-direction:row;align-items:flex-end;"
+            >
+                <TabButton
+                    v-for="(item,i) in items"
+                    style="flex: 0 1 auto;width:200px;-webkit-app-region: no-drag;"
+                    :key="tabs[i].id"
+                    :value="item"
+                    @close="closeTab(i)"
+                    @click.native="clickTab(i)"
+                    @dblclick.native.stop
+                />
+                <v-btn
+                    flat
+                    small
+                    :ripple="false"
+                    key="the-add-btn"
+                    @click="onAddTAb"
+                    class="ma-1 pa-0 ml-2"
+                    style="-webkit-app-region: no-drag;width:auto;height:auto;min-width:auto;"
+                >
+                    <v-icon style="font-size:150%">add</v-icon>
+                </v-btn>
+            </transition-group>
+            <!-- <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove"></tab-bar> -->
+            <v-spacer/>
+            <NetworkStatus style="-webkit-app-region: no-drag"></NetworkStatus>
         </v-toolbar>
         <v-content class="sync-container">
-            <view-port class="viewport-layout" :opt="item" @data-updated="onDataUpdate($event, index)"
-                @status-updated="onStatusUpdate($event, index)" :class="{current: currentIndex === index}"
-                v-for="(item, index) in tabs" :key="item.id">
-            </view-port>
-            <v-dialog>
-                <v-card>
-                    <v-container>
-                        <v-layout>
-                            <v-flex>
-                                <v-select :items="[]"></v-select>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn>
-                            cancel
-                        </v-btn>
-                        <v-btn>
-                            ok
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+            <view-port
+                class="viewport-layout"
+                v-for="(item, index) in tabs"
+                :key="item.id"
+                :class="{current: currentIndex === index}"
+                :opt="item"
+                @data-updated="onDataUpdate($event, index)"
+                @status-updated="onStatusUpdate($event, index)"
+            ></view-port>
         </v-content>
     </v-app>
 </template>
@@ -42,6 +62,7 @@ import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
 import Vendor from './vendor'
+import TabButton from './components/TabButton.vue'
 
 let counter = 0
 
@@ -66,11 +87,33 @@ function getDefaultTab(): TabBar.Item {
         ViewPort,
         NetworkStatus,
         Vendor,
+        TabButton
     }
 })
 export default class Nova extends Vue {
     private tabs: TabBar.Item[] = [getDefaultTab()]
-    private currentIndex: number | null = null
+    private currentIndex = 0
+
+    clickTab(index: number) {
+        this.currentIndex = index
+    }
+
+    closeTab(index: number) {
+        if (this.tabs.length < 2) {
+            remote.getCurrentWindow().close()
+            return
+        }
+        this.tabs = this.tabs.slice(0, index).concat(this.tabs.slice(index + 1))
+    }
+
+    get items() {
+        return this.tabs.map<TabButton.Value>((t, i) => ({
+            active: i === this.currentIndex,
+            url: t.src,
+            title: t.title,
+            favicon: t.iconUrl,
+        }))
+    }
 
     created() {
         BUS.$on('open-dapp', (data: any) => {
@@ -84,6 +127,7 @@ export default class Nova extends Vue {
 
     onAddTAb() {
         this.tabs.push(getDefaultTab())
+        this.currentIndex = this.tabs.length - 1
     }
 
     onTabRemove(index: number) {
@@ -134,49 +178,67 @@ export default class Nova extends Vue {
 
 <style lang="scss">
 html {
-    overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+  overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
 body {
-    background: #fff;
-    height: 100vh;
-    width: 100vw;
+  height: 100vh;
+  width: 100vw;
 }
-#app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-align: center;
-    color: #2c3e50;
-    height: 100%;
-    width: 100%;
+.sync-container .viewport-layout {
+  position: absolute;
+  height: 100%;
 }
-.sync-drag-zone {
-    -webkit-app-region: drag;
+.drag-zone {
+  -webkit-app-region: drag;
 }
 
-.sync-container .viewport-layout {
-    position: absolute;
-    height: 100%;
+.viewport {
+  position: absolute;
+  height: 100%;
+  width: 100%;
 }
 
 .sync-dapp-list.default-content {
-    width: 75%;
-    max-width: 1000px;
-    margin: 50px auto;
+  width: 75%;
+  max-width: 1000px;
+  margin: 50px auto;
 }
 .sync-dapp-list.default-content .search {
-    margin: 50px auto 50px;
-    width: 70%;
+  margin: 50px auto 50px;
+  width: 70%;
 }
 .tab-tools {
-    float: right;
+  float: right;
 }
 .sync-viewport-container {
-    z-index: 0;
+  z-index: 0;
 }
 .sync-viewport-container.current {
-    z-index: 2;
+  z-index: 2;
 }
 .darwin .sync-tab-bar {
-    max-width: calc(100% - 100px);
+  max-width: calc(100% - 100px);
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.list-complete-enter
+/* .list-complete-leave-active for below version 2.1.8 */ {
+  //   opacity: 0;
+  transform: translateY(100%);
+}
+// .list-complete-leave-to {
+//     opacity: 0;
+// }
+
+.list-complete-leave-active {
+  position: absolute;
+
+  opacity: 0;
 }
 </style>
