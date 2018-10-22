@@ -1,6 +1,6 @@
 <template>
     <div style="position: absolute;">
-        <SignTxDialog ref="signTxDlg" />
+        <SignTxDialog ref="signTxDlg"/>
     </div>
 </template>
 <script lang="ts">
@@ -23,10 +23,11 @@ export default class Vendor extends Vue {
                 signTx: (
                     clientId: string[],
                     message: Connex.Vendor.Message<'tx'>,
-                    options: Connex.Vendor.SignOptions<'tx'> | undefined,
+                    options: Connex.Vendor.SignOptions<'tx'>,
+                    referer: { url: string, title: string },
                     callback: (err?: Error, result?: Connex.Vendor.SignResult<'tx'>) => void
                 ) => {
-                    signTxDlg.signTx(clientId, message, options)
+                    signTxDlg.signTx(clientId, message, options, referer)
                         .then(r => callback(undefined, r))
                         .catch(err => callback(serializeError(err)))
                 }

@@ -1,44 +1,101 @@
 <template>
-    <v-dialog content-class="bottom-right" persistent v-model="open" max-width="700px" @keydown.enter="onAction(true)">
+    <v-dialog
+        content-class="bottom-right"
+        persistent
+        v-model="open"
+        max-width="700px"
+        @keydown.enter="onAction(true)"
+    >
         <v-card>
             <v-layout row style="height:470px;">
-                <v-layout column text-xs-center style="width:400px;flex:0 0 auto; background-color: rgba(0,0,0,0.15)">
-                    <v-card-text style="flex:0 0 auto">
-                        domain
-                    </v-card-text>
-                    <v-expansion-panel expand style="overflow-y:auto;border-radius:1px" popout class="px-1">
-                        <ClauseItem v-for="(clause,i) in clauses" :key="i" :clause="clause" />
+                <v-layout
+                    column
+                    text-xs-center
+                    style="width:400px;flex:0 0 auto; background-color: rgba(0,0,0,0.15)"
+                >
+                    <v-card-text v-if="referer" style="flex:0 0 auto">{{referer.url}}</v-card-text>
+                    <v-expansion-panel
+                        expand
+                        style="overflow-y:auto;border-radius:1px"
+                        popout
+                        class="px-1"
+                    >
+                        <ClauseItem v-for="(clause,i) in clauses" :key="i" :clause="clause"/>
                     </v-expansion-panel>
                 </v-layout>
                 <!-- <v-divider vertical /> -->
                 <v-layout column v-if="!!selectedWallet" class="elevation-2">
                     <v-layout row align-center style="flex:0 0 auto;">
                         <v-flex>
-                            <WalletCard tile flat :wallet="selectedWallet" />
+                            <WalletCard tile flat :wallet="selectedWallet"/>
                         </v-flex>
-                        <WalletSelection v-if="walletSwitchable" transition="slide-y-transition" :disabled="signing" fixed offset-y :wallets="wallets" v-model="selectedWallet" max-height="400px">
+                        <WalletSelection
+                            v-if="walletSwitchable"
+                            transition="slide-y-transition"
+                            :disabled="signing"
+                            fixed
+                            offset-y
+                            :wallets="wallets"
+                            v-model="selectedWallet"
+                            max-height="400px"
+                        >
                             <v-btn icon flat slot="activator">
                                 <v-icon>mdi-menu-down</v-icon>
                             </v-btn>
                         </WalletSelection>
                     </v-layout>
-
-                    <v-spacer />
+                    <v-spacer/>
                     <v-card-text>
-                        <v-text-field :disabled="signing" v-model="gasInput" label="Gas" type="number" step="1000" validate-on-blur :rules="gasInputRules" />
-                        <v-select :disabled="signing" v-model="priority" :items="priorities" item-text="title" item-value="value" :label="'Priority (Gas price coef): ' + priority" />
-                        <v-text-field :disabled="signing" autofocus v-model="password" label="Password" type="password" :error-messages="passwordError" validate-on-blur :rules="passwordRules" />
+                        <v-text-field
+                            :disabled="signing"
+                            v-model="gasInput"
+                            label="Gas"
+                            type="number"
+                            step="1000"
+                            validate-on-blur
+                            :rules="gasInputRules"
+                        />
+                        <v-select
+                            :disabled="signing"
+                            v-model="priority"
+                            :items="priorities"
+                            item-text="title"
+                            item-value="value"
+                            :label="'Priority (Gas price coef): ' + priority"
+                        />
+                        <v-text-field
+                            :disabled="signing"
+                            autofocus
+                            v-model="password"
+                            label="Password"
+                            type="password"
+                            :error-messages="passwordError"
+                            validate-on-blur
+                            :rules="passwordRules"
+                        />
                     </v-card-text>
-                    <v-progress-linear class="ma-0" :style="{visibility: signing?'visible': 'hidden'}" height="2" color="success" indeterminate />
-                    <v-divider />
+                    <v-progress-linear
+                        class="ma-0"
+                        :style="{visibility: signing?'visible': 'hidden'}"
+                        height="2"
+                        color="success"
+                        indeterminate
+                    />
+                    <v-divider/>
                     <v-card-actions>
-                        <v-spacer />
-                        <v-btn :disabled="signing" color="red darken-2" flat @click="onAction(false)">
-                            Decline
-                        </v-btn>
-                        <v-btn :disabled="signing || !inputValid" color="green darken-1" flat @click="onAction(true)">
-                            Sign
-                        </v-btn>
+                        <v-spacer/>
+                        <v-btn
+                            :disabled="signing"
+                            color="red darken-2"
+                            flat
+                            @click="onAction(false)"
+                        >Decline</v-btn>
+                        <v-btn
+                            :disabled="signing || !inputValid"
+                            color="green darken-1"
+                            flat
+                            @click="onAction(true)"
+                        >Sign</v-btn>
                     </v-card-actions>
                 </v-layout>
             </v-layout>
@@ -81,9 +138,9 @@ export default class SignTxDialog extends Vue implements SignTx {
     clauses: Connex.Vendor.Clause[] = []
     options: Connex.Vendor.SignOptions<'tx'> = {}
     selectedWallet: Entities.Wallet | null = null
-    result?: Deferred<Connex.Vendor.SignResult<'tx'>>
+    result: Deferred<Connex.Vendor.SignResult<'tx'>> | null = null
     gasInput = ""
-
+    referer: { url: string, title: string } | null = null
 
     priorities: Array<{ title: string, value: number }> = [{
         title: 'Low',
@@ -144,7 +201,8 @@ export default class SignTxDialog extends Vue implements SignTx {
         this.clauses = []
         this.options = {}
         this.selectedWallet = null
-        this.result = undefined
+        this.result = null
+        this.referer = null
     }
 
     created() {
@@ -154,7 +212,11 @@ export default class SignTxDialog extends Vue implements SignTx {
     async signTx(
         clientId: string[],
         message: Connex.Vendor.Message<'tx'>,
-        options?: Connex.Vendor.SignOptions<'tx'>) {
+        options: Connex.Vendor.SignOptions<'tx'>,
+        referer: {
+            url: string
+            title: string
+        }) {
         // TODO check whether clientId is current viewport
         if (this.open) {
             throw new Error('busy')
@@ -179,6 +241,7 @@ export default class SignTxDialog extends Vue implements SignTx {
         this.clauses = message
         this.options = options
         this.gasInput = options.gas!.toString()
+        this.referer = referer
         this.open = true
 
         this.result = new Deferred()
@@ -217,11 +280,19 @@ export default class SignTxDialog extends Vue implements SignTx {
             const privateKey = await cry.Keystore.decrypt(this.selectedWallet!.keystore!, this.password)
             tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
 
-            BUS.$emit('new-tx', {
-                tx,
-
+            await DB.txRecords.add({
+                id: tx.id!,
+                insertTime: Date.now(),
+                signer: tx.signer!,
+                raw: '0x' + tx.encode().toString('hex'),
+                referer: {...this.referer!},
+                summary: [this.options.summary!, this.clauses.map(c => c.desc!)],
+                status: 'inserted',
+                errorString: ''
             })
-            // connex.thor.commit('0x' + tx.encode().toString('hex'))
+
+            BUS.$emit('send-tx', tx.id!)
+
             this.result!.resolve({
                 txId: tx.id!,
                 signer: this.selectedWallet!.address!

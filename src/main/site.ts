@@ -1,6 +1,6 @@
 
 import { Agent } from 'http'
-import Axios, { AxiosInstance } from 'axios'
+import Axios, { AxiosInstance, AxiosResponse } from 'axios'
 import * as URL from 'url'
 import * as QS from 'qs'
 import * as WebSocket from 'ws'
@@ -16,6 +16,13 @@ class Wire implements Connex.Thor.Site.Wire {
             validateStatus: status => status >= 200 && status < 300,
             httpAgent: agent,
             headers: { 'x-genesis-id': config.genesis.id }
+        })
+        this.axios.interceptors.response.use(response => {
+            this.logResp(response)
+            return response
+        }, err => {
+            this.logResp(err.response)
+            return err
         })
     }
 
@@ -84,6 +91,15 @@ class Wire implements Connex.Thor.Site.Wire {
             qs = '?' + qs
         }
         return URL.resolve(this.config.url, `${path}${qs}`)
+    }
+
+    private logResp(resp: AxiosResponse) {
+        const msg = `${resp.status} ${resp.config.method} ${resp.request.path}`
+        if (resp.status >= 200 && resp.status < 300) {
+            console.log(msg)
+        } else {
+            console.warn(msg + `\n  -> ${resp.status}`)
+        }
     }
 }
 
