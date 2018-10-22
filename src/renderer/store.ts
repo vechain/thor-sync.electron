@@ -171,6 +171,14 @@ class Store extends Vuex.Store<Store.Model> {
             _this.commit(Store.UPDATE_NETWORKS_REVISION)
             _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
         })
+        DB.preferences.hook('deleting').subscribe(function() {
+            _this.commit(Store.UPDATE_NETWORKS_REVISION)
+            _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
+        })
+        DB.preferences.hook('updating').subscribe(function() {
+            _this.commit(Store.UPDATE_NETWORKS_REVISION)
+            _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
+        })
     }
 }
 
