@@ -1,8 +1,8 @@
 declare namespace TabButton {
     type Value = {
-        selected: boolean
+        active: boolean
         url: string
         title: string
-        iconURL: string
+        favicon: string // url or icon font
     }
 }
