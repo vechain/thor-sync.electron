@@ -2,13 +2,14 @@ import Vuex from 'vuex'
 import { Vue } from 'vue-property-decorator'
 import { EventEmitter } from 'events'
 import Preferences from './preferences'
-import { Entities } from './database';
+
 namespace Store {
     export type Model = {
         chainStatus: Connex.Thor.Status
         walletsRevision: number
         networksRevision: number
         shortcutsRevision: number
+        txRecordsRevision: number
         accounts: { [address: string]: Account }
         activeViewport: Viewport | null
         preferences: {
@@ -41,6 +42,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_WALLETS_REVISION = 'walletsRevision'
     public static readonly UPDATE_NETWORKS_REVISION = 'networksRevision'
     public static readonly UPDATE_SHORTCUTS_REVISION = 'shortcutsRevision'
+    public static readonly UPDATE_TX_RECORDS_REVISION = 'txRecordsRevision'
     public static readonly UPDATE_ACCOUNT = 'updateAccount'
     public static readonly UPDATE_ACTIVE_VIEW_PORT = 'updateActiveViewPort'
 
@@ -57,6 +59,7 @@ class Store extends Vuex.Store<Store.Model> {
                 walletsRevision: 0,
                 networksRevision: 0,
                 shortcutsRevision: 0,
+                txRecordsRevision: 0,
                 accounts: {},
                 activeViewport: null,
                 preferences: {
@@ -90,6 +93,9 @@ class Store extends Vuex.Store<Store.Model> {
                 [Store.UPDATE_SHORTCUTS_REVISION](state) {
                     state.shortcutsRevision++
                 },
+                [Store.UPDATE_TX_RECORDS_REVISION](state) {
+                    state.txRecordsRevision++
+                },
                 [Store.UPDATE_ACCOUNT](state, payload) {
                     const acc = state.accounts[payload.addr]
                     if (acc) {
@@ -116,6 +122,9 @@ class Store extends Vuex.Store<Store.Model> {
         DB.on('changes', changes => {
             if (changes.some(c => c.table === DB.wallets.name)) {
                 this.commit(Store.UPDATE_WALLETS_REVISION)
+            }
+            if (changes.some(c => c.table === DB.txRecords.name)) {
+                this.commit(Store.UPDATE_TX_RECORDS_REVISION)
             }
         })
         if (ENV.devMode) {
@@ -167,15 +176,15 @@ class Store extends Vuex.Store<Store.Model> {
 
     private addHook() {
         let _this = this
-        DB.preferences.hook('creating').subscribe(function() {
+        DB.preferences.hook('creating').subscribe(function () {
             _this.commit(Store.UPDATE_NETWORKS_REVISION)
             _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
         })
-        DB.preferences.hook('deleting').subscribe(function() {
+        DB.preferences.hook('deleting').subscribe(function () {
             _this.commit(Store.UPDATE_NETWORKS_REVISION)
             _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
         })
-        DB.preferences.hook('updating').subscribe(function() {
+        DB.preferences.hook('updating').subscribe(function () {
             _this.commit(Store.UPDATE_NETWORKS_REVISION)
             _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
         })

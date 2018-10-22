@@ -14,6 +14,7 @@ import { remote } from 'electron'
 import Nova from './Nova.vue'
 import Store from './store'
 import Database from './database'
+import TxTracker from './tx-tracker'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
@@ -62,5 +63,6 @@ Object.defineProperty(window, 'BUS', {
     value: new Vue()
 })
 
+const txTracker = new TxTracker()
 // the portal root
 new Nova({ store: new Store() }).$mount('#nova')

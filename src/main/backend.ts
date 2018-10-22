@@ -43,7 +43,9 @@ export class Backend {
                         return app.vendor[clientId[0]].signTx(
                             clientId,
                             message,
-                            options) as any
+                            options || {},
+                            { url: contents.getURL(), title: contents.getTitle() }
+                        ) as any
                     }
                     throw new Error('not implemented')
                 }

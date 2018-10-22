@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import 'dexie-observable'
 import { cry } from 'thor-devkit'
+// tslint:disable:no-console
 
 export namespace Entities {
     export interface Wallet {
@@ -16,6 +17,7 @@ export namespace Entities {
         key: string
         value: any
     }
+
 
     export class Network implements Preference {
         id?: number
@@ -43,6 +45,19 @@ export namespace Entities {
         }
     }
 
+    export interface TxRecord {
+        id: string
+        insertTime: number
+        signer: string
+        raw: string
+        referer: { url: string, title: string }
+        summary: [string, string[]]
+        status: 'inserted' | 'sending' | 'sent' | 'confirmed'
+        errorString: string
+        receipt?: Connex.Thor.Receipt
+
+    }
+
     export function isWallet(v: any): v is Wallet {
         return (
             v && cry.isAddress(v.address) && cry.Keystore.wellFormed(v.keystore)
@@ -53,17 +68,18 @@ export namespace Entities {
 class Database extends Dexie {
     public readonly wallets!: Dexie.Table<Entities.Wallet, string>
     public readonly preferences!: Dexie.Table<Entities.Preference, string>
+    public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
+
 
     constructor() {
         super('main')
         this.version(1).stores({
             wallets: '++id, &address, name',
-            preferences: '++id, key'
+            preferences: '++id, key',
+            txRecords: 'id, insertTime, signer, status'
         })
-        this.open().catch(err => {
-            // tslint:disable-next-line:no-console
-            console.error(err)
-        })
+        this.open()
+            .catch(err => console.error(err))
     }
 }
 

@@ -17,6 +17,7 @@ declare namespace Connex {
             signer?: string
             gas?: number
             summary?: string
+            link?: string
         } : never
 
         type SignResult<T extends 'tx'> = T extends 'tx' ? {
