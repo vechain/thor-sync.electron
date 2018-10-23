@@ -14,7 +14,8 @@
                 key="a"
                 name="list-complete"
                 tag="v-layout"
-                style="height: 100%;margin-left: 60px;flex: 0 1 auto;flex-direction:row;align-items:flex-end;"
+                class="tab-group"
+                style=""
             >
                 <TabButton
                     v-for="(item,i) in items"
@@ -112,7 +113,7 @@ export default class Nova extends Vue {
             active: i === this.currentIndex,
             url: t.src,
             title: t.title,
-            favicon: t.iconUrl,
+            favicon: t.iconUrl
         }))
     }
 
@@ -179,67 +180,70 @@ export default class Nova extends Vue {
 
 <style lang="scss">
 html {
-  overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+    overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
 body {
-  height: 100vh;
-  width: 100vw;
+    height: 100vh;
+    width: 100vw;
 }
 .sync-container .viewport-layout {
-  position: absolute;
-  height: 100%;
+    position: absolute;
+    height: 100%;
 }
 .drag-zone {
-  -webkit-app-region: drag;
+    -webkit-app-region: drag;
 }
 
 .viewport {
-  position: absolute;
-  height: 100%;
-  width: 100%;
+    position: absolute;
+    height: 100%;
+    width: 100%;
 }
-
+#frame .tab-group {
+    height: 100%;
+    margin-left: 60px;
+    flex: 0 1 auto;
+    flex-direction: row;
+    align-items: flex-end;
+    transition: margin-left .3s ease-out;
+}
+.darwin.full-screen #frame .tab-group {
+    margin-left: 0;
+}
 .sync-dapp-list.default-content {
-  width: 75%;
-  max-width: 1000px;
-  margin: 50px auto;
+    width: 75%;
+    max-width: 1000px;
+    margin: 50px auto;
 }
 .sync-dapp-list.default-content .search {
-  margin: 50px auto 50px;
-  width: 70%;
+    margin: 50px auto 50px;
+    width: 70%;
 }
 .tab-tools {
-  float: right;
+    float: right;
 }
 .sync-viewport-container {
-  z-index: 0;
+    z-index: 0;
 }
 .sync-viewport-container.current {
-  z-index: 2;
-}
-.darwin .sync-tab-bar {
-  max-width: calc(100% - 100px);
+    z-index: 2;
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s;
+    transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+    opacity: 0;
 }
 
 .list-complete-enter
 /* .list-complete-leave-active for below version 2.1.8 */ {
-  //   opacity: 0;
-  transform: translateY(100%);
+    transform: translateY(100%);
 }
-// .list-complete-leave-to {
-//     opacity: 0;
-// }
 
 .list-complete-leave-active {
-  position: absolute;
+    position: absolute;
 
-  opacity: 0;
+    opacity: 0;
 }
 </style>
