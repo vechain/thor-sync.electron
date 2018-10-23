@@ -9,16 +9,21 @@
         <v-btn @click.stop="onBtnClick('refresh')" :disabled="!opt.url" icon>
             <v-icon>refresh</v-icon>
         </v-btn>
-        <v-text-field @focus="urlString = urlString || opt.url" @blur="urlString === opt.url ? urlString = '' : ''" v-model="urlString" @keyup.enter="onUrl" @change="onChange(urlString)" :placeholder="urlOrigin"></v-text-field>
-        <slot />
+        <UrlBox v-model="urlString" class="pa-1" style="flex: 1 1 auto;background-color:#fff;"/>
+        <slot/>
     </v-toolbar>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
 import NewWalletDialog from '@/renderer/launcher/NewWalletDialog.vue';
+import UrlBox from './UrlBox.vue'
 
-@Component
+@Component({
+    components: {
+        UrlBox
+    }
+})
 export default class SearchBar extends Vue {
     private urlString: string = ''
 
@@ -30,37 +35,22 @@ export default class SearchBar extends Vue {
         }
     })
     private opt!: SearchBar.Opt
-
-    get urlOrigin() {
-        if (this.opt.url) {
-            const temp = new URL(this.opt.url)
-            return temp.host
-        } else {
-            return
-        }
+    @Watch('opt.url')
+    urlChanged(val: string) {
+        this.urlString = val
     }
-
-    @Emit('change')
-    onChange(str: string) {}
 
     @Emit('operate')
     onBtnClick(action: string) {
-        this.urlString = ''
+        // this.urlString = ''
+    }
+
+    @Watch('urlString')
+    urlStringChanged(val: string) {
+        this.onInoputed(val)
     }
 
     @Emit('urlRequest')
     onInoputed(url: string) { }
-
-    onUrl() {
-        try {
-            const url = new URL(this.urlString)
-            this.onInoputed(url.toString())
-        } catch (error) {
-            console.log(error)
-        } finally {
-            this.urlString = ''
-        }
-        
-    }
 }
 </script>
