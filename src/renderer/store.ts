@@ -7,8 +7,7 @@ namespace Store {
     export type Model = {
         chainStatus: Connex.Thor.Status
         walletsRevision: number
-        networksRevision: number
-        shortcutsRevision: number
+        preferencesRevision: number
         txRecordsRevision: number
         accounts: { [address: string]: Account }
         activeViewport: Viewport | null
@@ -40,16 +39,19 @@ namespace Store {
 class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
     public static readonly UPDATE_WALLETS_REVISION = 'walletsRevision'
-    public static readonly UPDATE_NETWORKS_REVISION = 'networksRevision'
-    public static readonly UPDATE_SHORTCUTS_REVISION = 'shortcutsRevision'
+
+    public static readonly UPDATE_PREFERENCES_REVISION = 'preferenceRevision'
     public static readonly UPDATE_TX_RECORDS_REVISION = 'txRecordsRevision'
     public static readonly UPDATE_ACCOUNT = 'updateAccount'
     public static readonly UPDATE_ACTIVE_VIEW_PORT = 'updateActiveViewPort'
 
     public static readonly UPDATE_NETWORKS = `update${Preferences.KEY_NETWORKS}`
-    public static readonly UPDATE_SHORTCUTS = `update${Preferences.KEY_SHORTCUTS}`
-    public static readonly UPDATE_AUTO_UPDATE = `update${Preferences.KEY_IS_AUTO_UPDATE}`
-
+    public static readonly UPDATE_SHORTCUTS = `update${
+        Preferences.KEY_SHORTCUTS
+    }`
+    public static readonly UPDATE_AUTO_UPDATE = `update${
+        Preferences.KEY_IS_AUTO_UPDATE
+    }`
 
     constructor() {
         const accountTracker = new AccountTracker()
@@ -57,8 +59,7 @@ class Store extends Vuex.Store<Store.Model> {
             state: {
                 chainStatus: connex.thor.status,
                 walletsRevision: 0,
-                networksRevision: 0,
-                shortcutsRevision: 0,
+                preferencesRevision: 0,
                 txRecordsRevision: 0,
                 accounts: {},
                 activeViewport: null,
@@ -87,11 +88,8 @@ class Store extends Vuex.Store<Store.Model> {
                 [Store.UPDATE_WALLETS_REVISION](state) {
                     state.walletsRevision++
                 },
-                [Store.UPDATE_NETWORKS_REVISION](state) {
-                    state.networksRevision++
-                },
-                [Store.UPDATE_SHORTCUTS_REVISION](state) {
-                    state.shortcutsRevision++
+                [Store.UPDATE_PREFERENCES_REVISION](state) {
+                    state.preferencesRevision++
                 },
                 [Store.UPDATE_TX_RECORDS_REVISION](state) {
                     state.txRecordsRevision++
@@ -119,6 +117,7 @@ class Store extends Vuex.Store<Store.Model> {
         })
 
         this.addHook()
+        this.defaultSettings()
         DB.on('changes', changes => {
             if (changes.some(c => c.table === DB.wallets.name)) {
                 this.commit(Store.UPDATE_WALLETS_REVISION)
@@ -168,25 +167,35 @@ class Store extends Vuex.Store<Store.Model> {
 
         this.commit(Store.UPDATE_CHAIN_STATUS)
         const ticker = connex.thor.ticker()
-        for (; ;) {
+        for (;;) {
             await ticker.next()
             this.commit(Store.UPDATE_CHAIN_STATUS)
         }
     }
-
+    private defaultSettings() {
+        DB.preferences
+            .where('key')
+            .equals(Preferences.KEY_IS_AUTO_UPDATE)
+            .count()
+            .then(n => {
+                if (n === 0) {
+                    DB.preferences.put({
+                        key: Preferences.KEY_IS_AUTO_UPDATE,
+                        value: false
+                    })
+                }
+            })
+    }
     private addHook() {
         let _this = this
-        DB.preferences.hook('creating').subscribe(function () {
-            _this.commit(Store.UPDATE_NETWORKS_REVISION)
-            _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
+        DB.preferences.hook('creating').subscribe(function() {
+            _this.commit(Store.UPDATE_PREFERENCES_REVISION)
         })
-        DB.preferences.hook('deleting').subscribe(function () {
-            _this.commit(Store.UPDATE_NETWORKS_REVISION)
-            _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
+        DB.preferences.hook('deleting').subscribe(function() {
+            _this.commit(Store.UPDATE_PREFERENCES_REVISION)
         })
-        DB.preferences.hook('updating').subscribe(function () {
-            _this.commit(Store.UPDATE_NETWORKS_REVISION)
-            _this.commit(Store.UPDATE_SHORTCUTS_REVISION)
+        DB.preferences.hook('updating').subscribe(function() {
+            _this.commit(Store.UPDATE_PREFERENCES_REVISION)
         })
     }
 }
@@ -229,10 +238,10 @@ class AccountTracker {
                 .then(data => commit(addr, data))
                 // tslint:disable-next-line:no-console
                 .catch(console.log)
-        });
-        (async () => {
+        })
+        ;(async () => {
             const ticker = connex.thor.ticker()
-            for (; ;) {
+            for (;;) {
                 await ticker.next()
                 // tslint:disable-next-line:forin
                 for (const addr in this.refCounts) {

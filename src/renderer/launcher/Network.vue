@@ -83,9 +83,9 @@ export default class Networks extends Vue {
         this.loadList()
     }
     @State
-    networksRevision!: number
+    preferenceRevision!: number
 
-    @Watch('networksRevision')
+    @Watch('preferenceRevision')
     async loadList() {
         this.list = await DB.preferences
             .where('key')

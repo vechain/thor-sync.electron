@@ -118,9 +118,9 @@ export default class Shortcuts extends Vue {
     }
 
     @State
-    shortcutsRevision!: number
+    preferenceRevision!: number
 
-    @Watch('shortcutsRevision')
+    @Watch('preferenceRevision')
     async loadList() {
         this.shortcuts = await DB.preferences
             .where('key')
