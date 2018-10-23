@@ -31,6 +31,7 @@
                     :ripple="false"
                     key="the-add-btn"
                     @click="onAddTAb"
+                    @dblclick.native.stop
                     class="ma-1 pa-0 ml-2"
                     style="-webkit-app-region: no-drag;width:auto;height:auto;min-width:auto;"
                 >
@@ -57,7 +58,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-import TabBar from './components/TabBar.vue'
+// import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
@@ -83,7 +84,7 @@ function getDefaultTab(): TabBar.Item {
 
 @Component({
     components: {
-        TabBar,
+        // TabBar,
         ViewPort,
         NetworkStatus,
         Vendor,
