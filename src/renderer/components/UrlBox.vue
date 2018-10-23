@@ -2,16 +2,16 @@
     <input
         type="text"
         v-bind="$attrs"
-        v-on="$listener"
-        v-model="inputValue"
-        :readonly="!focused"
+        v-on="$listeners"
+        @input="emitUdpateInput($event.target.value)"
+        :value="displayText"
         @focus="onFocused"
         @blur="onBlur"
         @keyup.enter="onEnter"
     >
 </template>
 <script lang="ts">
-import { Vue, Component, Watch, Emit, Model } from 'vue-property-decorator'
+import { Vue, Component, Watch, Emit, Model, Prop } from 'vue-property-decorator'
 import * as NodeUrl from 'url'
 @Component
 export default class UrlBox extends Vue {
@@ -19,46 +19,62 @@ export default class UrlBox extends Vue {
     @Emit('goto')
     emitGoto(val: string) { }
 
+
+    focused = false
+    inputShadow = ''
+
+    @Prop(String) input!: string
+    @Emit('update:input')
+    emitUdpateInput(val: string) {
+        this.inputShadow = val
+    }
+    @Watch('input')
+    inputChanged(val: string) {
+        this.inputShadow = val
+    }
+
     @Watch('url')
-    valueChanged(val: string) {
-        if (!this.focused) {
-            this.inputValue = this.hostName
+    urlChanged(val: string) {
+        if (this.focused) {
+            this.emitUdpateInput(val)
+        } else {
+            this.emitUdpateInput('')
         }
     }
 
-    inputValue = ''
-
-    focused = false
+    get displayText() {
+        if (this.focused) {
+            return this.inputShadow
+        } else {
+            return this.inputShadow || NodeUrl.parse(this.url).hostname || this.url
+        }
+    }
 
     onFocused() {
         this.focused = true;
-        if (!this.inputValue || this.inputValue === this.hostName) {
-            this.inputValue = this.url
+        if (!this.inputShadow) {
+            this.emitUdpateInput(this.url)
         }
         Vue.nextTick(() => {
-            (this.$el as HTMLInputElement).select()
+            Vue.nextTick(() => {
+                (this.$el as HTMLInputElement).select()
+            })
         })
     }
 
     onBlur() {
         this.focused = false
-        if (!this.inputValue || this.inputValue === this.url) {
-            this.inputValue = this.hostName
+        if (this.inputShadow === this.url) {
+            this.emitUdpateInput('')
         }
     }
 
     onEnter() {
-        if (!this.inputValue) {
+        if (!this.inputShadow) {
             return
         }
-        if (this.inputValue !== this.url) {
-            this.emitGoto(normalizeUrl(this.inputValue))
-        }
+        this.emitGoto(normalizeUrl(this.inputShadow))
         this.$el.blur()
-    }
-
-    get hostName() {
-        return NodeUrl.parse(this.url).hostname || this.url
     }
 }
 
@@ -76,4 +92,5 @@ function normalizeUrl(str: string) {
     }
     return `https://www.google.com/search?q=${encodeURIComponent(str)}`
 }
+
 </script>
