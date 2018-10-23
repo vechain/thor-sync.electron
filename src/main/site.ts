@@ -1,6 +1,6 @@
 
 import { Agent } from 'http'
-import Axios, { AxiosInstance, AxiosResponse } from 'axios'
+import Axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
 import * as URL from 'url'
 import * as QS from 'qs'
 import * as WebSocket from 'ws'
@@ -18,10 +18,10 @@ class Wire implements Connex.Thor.Site.Wire {
             headers: { 'x-genesis-id': config.genesis.id }
         })
         this.axios.interceptors.response.use(response => {
-            this.logResp(response)
+            this.log(response)
             return response
-        }, err => {
-            this.logResp(err.response)
+        }, (err: AxiosError) => {
+            this.log(err)
             return err
         })
     }
@@ -93,12 +93,16 @@ class Wire implements Connex.Thor.Site.Wire {
         return URL.resolve(this.config.url, `${path}${qs}`)
     }
 
-    private logResp(resp: AxiosResponse) {
-        const msg = `${resp.status} ${resp.config.method} ${resp.request.path}`
-        if (resp.status >= 200 && resp.status < 300) {
-            console.log(msg)
+    private log(obj: AxiosResponse | AxiosError) {
+        const msg = `${obj.config.method} ${obj.config.url}`
+        if (obj instanceof Error) {
+            if (obj.response) {
+                console.warn(`${msg}\n  -> ${obj.response.status} ${obj.response.data}`)
+            } else {
+                console.warn(`${msg}\n  -> ${obj.message}`)
+            }
         } else {
-            console.warn(msg + `\n  -> ${resp.status}`)
+            console.warn(`${msg}\n  -> ${obj.status} ${obj.data}`)
         }
     }
 }
