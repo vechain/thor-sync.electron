@@ -3,8 +3,8 @@
         type="text"
         v-bind="$attrs"
         v-on="$listeners"
-        @input="emitUdpateInput($event.target.value)"
         :value="displayText"
+        @input="emitUdpateInput($event.target.value)"
         @focus="onFocused"
         @blur="onBlur"
         @keyup.enter="onEnter"
@@ -13,68 +13,73 @@
 <script lang="ts">
 import { Vue, Component, Watch, Emit, Model, Prop } from 'vue-property-decorator'
 import * as NodeUrl from 'url'
+
 @Component
 export default class UrlBox extends Vue {
-    @Model('goto', { type: String }) url!: string
+    //v-model
+    @Model('goto', { type: String, default: '' }) url!: string
     @Emit('goto')
-    emitGoto(val: string) { }
-
-
-    focused = false
-    inputShadow = ''
-
-    @Prop(String) input!: string
-    @Emit('update:input')
-    emitUdpateInput(val: string) {
-        this.inputShadow = val
-    }
-    @Watch('input')
-    inputChanged(val: string) {
-        this.inputShadow = val
+    emitGoto(val: string) {
+        this.shadowUrl = val
     }
 
     @Watch('url')
     urlChanged(val: string) {
-        if (this.focused) {
-            this.emitUdpateInput(val)
-        } else {
-            this.emitUdpateInput('')
-        }
+        this.shadowUrl = val
     }
+
+    // input.sync
+    @Prop({ type: String, default: '' }) input!: string
+    @Emit('update:input')
+    emitUdpateInput(val: string) {
+        this.shadowInput = val
+    }
+
+    @Watch('input')
+    inputChanged(val: string) {
+        this.shadowInput = val
+    }
+
+    focused = false
+    shadowInput = ''
+    shadowUrl = ''
 
     get displayText() {
         if (this.focused) {
-            return this.inputShadow
+            if (!this.element.value) {
+                // prevent falling back to url
+                return ''
+            }
+            return this.shadowInput || this.shadowUrl
         } else {
-            return this.inputShadow || NodeUrl.parse(this.url).hostname || this.url
+            return this.shadowInput || NodeUrl.parse(this.shadowUrl).hostname || this.shadowUrl
         }
     }
 
     onFocused() {
-        this.focused = true;
-        if (!this.inputShadow) {
-            this.emitUdpateInput(this.url)
-        }
+        this.focused = true
         Vue.nextTick(() => {
-            Vue.nextTick(() => {
-                (this.$el as HTMLInputElement).select()
-            })
+            this.element.select()
         })
     }
 
     onBlur() {
         this.focused = false
-        if (this.inputShadow === this.url) {
-            this.emitUdpateInput('')
-        }
     }
 
     onEnter() {
-        if (!this.inputShadow) {
+        const text = this.element.value
+        if (!text) {
             return
         }
-        this.emitGoto(normalizeUrl(this.inputShadow))
+
+        this.emitGoto(normalizeUrl(text))
+        this.emitUdpateInput('')
         this.$el.blur()
+    }
+
+    get element() {
+        return this.$el as HTMLInputElement
     }
 }
 
