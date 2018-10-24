@@ -102,7 +102,7 @@ class Wire implements Connex.Thor.Site.Wire {
                 console.warn(`${msg}\n  -> ${obj.message}`)
             }
         } else {
-            console.warn(`${msg}\n  -> ${obj.status} ${obj.data}`)
+            console.log(`${msg}\n  -> ${obj.status} ${obj.data}`)
         }
     }
 }
