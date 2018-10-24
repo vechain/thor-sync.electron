@@ -26,23 +26,25 @@ export function create(
                 }
             }
         },
-        account(addr, revision) {
-            return createAccountVisitor(wire, addr, revision)
+        account(addr, options) {
+            return createAccountVisitor(wire, addr, options || {})
         },
         block(revision) {
             return createBlockVisitor(wire, revision)
         },
-        transaction(id, head) {
-            return createTxVisitor(wire, id, head)
+        transaction(id, options) {
+            return createTxVisitor(wire, id, options || {})
         },
         filter(kind, criteriaSet) {
             return createFilter(wire, kind, criteriaSet)
         },
-        subscribe(subject, criteria) {
-            return createSubscription(wire, subject, criteria)
+        subscribe(subject, criteria, options) {
+            return createSubscription(wire, subject, criteria, options || {})
         },
-        call(input, revision) {
+        call(input, options) {
             input = { ...input, value: input.value ? input.value.toString() : '0x' }
+            options = options || {}
+            const revision = options.revision
             return wire.post<Thor.VMOutput>(
                 `accounts`,
                 input,

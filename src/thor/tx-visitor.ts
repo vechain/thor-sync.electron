@@ -3,8 +3,11 @@ import Thor = Connex.Thor
 export function createTxVisitor(
     wire: Thor.Site.Wire,
     id: string,
-    head?: string
+    options: { head?: string }
 ): Thor.TransactionVisitor {
+    options = options || {}
+    const head = options.head
+
     return {
         get id() { return id },
         get head() { return head },
