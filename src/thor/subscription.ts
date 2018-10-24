@@ -3,16 +3,19 @@ import Thor = Connex.Thor
 export function createSubscription<T extends 'event' | 'transfer' | 'block'>(
     wire: Thor.Site.Wire,
     subject: T,
-    criteria: Thor.Criteria<T>
+    criteria: Thor.Criteria<T>,
+    options: { position?: string }
 ): Thor.Subscription<T> {
+    const position = options.position
+
     let query: any
     if (subject === 'block') {
         const c = criteria as Thor.Criteria<'block'>
-        query = { pos: c.position }
+        query = { pos: position }
     } else if (subject === 'event') {
         const c = criteria as Thor.Criteria<'event'>
         query = {
-            pos: c.position,
+            pos: position,
             addr: c.address,
             t0: c.topic0,
             t1: c.topic1,
@@ -23,7 +26,7 @@ export function createSubscription<T extends 'event' | 'transfer' | 'block'>(
     } else if (subject === 'transfer') {
         const c = criteria as Thor.Criteria<'transfer'>
         query = {
-            pos: c.position,
+            pos: position,
             txOrigin: c.txOrigin,
             sender: c.sender,
             recipient: c.recipient

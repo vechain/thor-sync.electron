@@ -51,9 +51,9 @@ export function createEventVisitor(
             }
             return transformed
         },
-        subscribe(indexed) {
+        subscribe(indexed, options?: { position?: string }) {
             const criteria = this.asCriteria(indexed)
-            const sub = createSubscription(wire, 'event', criteria)
+            const sub = createSubscription(wire, 'event', criteria, options || {})
             return {
                 subject: 'decoded-event',
                 next() {

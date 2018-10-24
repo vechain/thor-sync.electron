@@ -1,4 +1,3 @@
-
 import { Agent } from 'http'
 import Axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
 import * as URL from 'url'
@@ -97,11 +96,14 @@ class Wire implements Connex.Thor.Site.Wire {
         const msg = `${obj.config.method} ${obj.config.url}`
         if (obj instanceof Error) {
             if (obj.response) {
+                // tslint:disable-next-line:no-console
                 console.warn(`${msg}\n  -> ${obj.response.status} ${obj.response.data}`)
             } else {
+                // tslint:disable-next-line:no-console
                 console.warn(`${msg}\n  -> ${obj.message}`)
             }
         } else {
+            // tslint:disable-next-line:no-console
             console.log(`${msg}\n  -> ${obj.status} ${obj.data}`)
         }
     }

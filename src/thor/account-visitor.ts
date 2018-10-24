@@ -5,11 +5,11 @@ import { createMethod } from './method'
 export function createAccountVisitor(
     wire: Thor.Site.Wire,
     addr: string,
-    revision?: string | number): Thor.AccountVisitor {
+    options: { revision?: string | number }): Thor.AccountVisitor {
 
+    const revision = options.revision
     return {
         get address() { return addr },
-        get revision() { return revision },
         get() {
             return wire.get<Thor.Account>(
                 `accounts/${encodeURIComponent(addr)}`,

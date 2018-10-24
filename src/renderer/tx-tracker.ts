@@ -49,7 +49,7 @@ class TxTracker {
 
                 const receipts = await Promise.all(unconfirmed.map(tx => {
                     return connex.thor
-                        .transaction(tx.id, chainStatus.head.id)
+                        .transaction(tx.id, {head: chainStatus.head.id})
                         .getReceipt()
                         .then(r => {
                             if (r) {

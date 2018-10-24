@@ -2,7 +2,6 @@ import { app, webContents } from 'electron'
 import { Agent } from 'http'
 import { Site } from '@/main/site'
 import { create as createThor } from '../thor'
-// tslint:disable:no-console
 
 export class Backend {
     private activeSites = new Map<string, { site: Site, refCount: number }>()
@@ -16,6 +15,7 @@ export class Backend {
             maxSockets: 10
         })
         const site = this.acquireSite(config).withWireAgent(wireAgent)
+        // tslint:disable-next-line:no-console
         console.log('connex connected')
 
         const contents = webContents.fromId(contentsId)
@@ -25,6 +25,7 @@ export class Backend {
             contents.removeListener('destroyed', disconnect)
 
             wireAgent.destroy()
+            // tslint:disable-next-line:no-console
             console.log('connex disconnected')
             this.releaseSite(config)
         }
@@ -67,6 +68,7 @@ export class Backend {
         let value = this.activeSites.get(key)
         if (value) {
             value.refCount++
+            // tslint:disable-next-line:no-console
             console.log(`acquireSite: <${key}> #${value.refCount}`)
         } else {
             value = {
@@ -74,6 +76,7 @@ export class Backend {
                 refCount: 1
             }
             this.activeSites.set(key, value)
+            // tslint:disable-next-line:no-console
             console.log(`acquireSite: <${key}> site created`)
         }
         return value.site
@@ -84,12 +87,15 @@ export class Backend {
         const value = this.activeSites.get(key)
         if (value) {
             value.refCount--
+            // tslint:disable-next-line:no-console
             console.log(`releaseSite: <${key}> #${value.refCount}`)
             if (value.refCount === 0) {
                 this.activeSites.delete(key)
+                // tslint:disable-next-line:no-console
                 console.log(`releaseSite: <${key}> site destroyed`)
             }
         } else {
+            // tslint:disable-next-line:no-console
             console.warn(`releaseSite: <${key}> found`)
         }
     }
