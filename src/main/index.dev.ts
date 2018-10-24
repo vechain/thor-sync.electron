@@ -9,7 +9,7 @@ import { app } from 'electron'
 
 // Install `electron-debug` with `devtron`
 // tslint:disable-next-line:no-var-requires
-require('electron-debug')({ showDevTools: true })
+require('electron-debug')({ showDevTools: false })
 
 // Install `vue-devtools`
 app.on('ready', () => {

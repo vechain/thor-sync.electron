@@ -8,10 +8,6 @@ declare global {
     const connex: Connex
 }
 
-if (env.devMode) {
-    env.contents!.openDevTools()
-}
-
 Object.defineProperty(window, 'connex', {
     enumerable: true,
     value: remote.app.EXTENSION.connect(
