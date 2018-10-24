@@ -104,7 +104,7 @@ class Wire implements Connex.Thor.Site.Wire {
             }
         } else {
             // tslint:disable-next-line:no-console
-            console.log(`${msg}\n  -> ${obj.status} ${obj.data}`)
+            console.log(`${msg}\n  -> ${obj.status}`)
         }
     }
 }

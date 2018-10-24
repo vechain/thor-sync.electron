@@ -11,6 +11,10 @@ require('electron-unhandled')({
     showDialog: false
 })
 
+const contextMenu = require('electron-context-menu')
+// for all browserWindow
+contextMenu()
+
 declare module 'electron' {
     interface App {
         EXTENSION: {
@@ -60,10 +64,12 @@ app.on('web-contents-created', (_, contents) => {
             // derive host's site config
             config: hostWebPreferences.xargs!.config
         }
-    })
-})
 
-app.once('ready', () => {
+    }).on('did-attach-webview', (__, wc) => {
+        // for all webview
+        contextMenu({ window: wc })
+    })
+}).once('ready', () => {
     setupMenu()
 
     winMgr.initXWorker().webContents.once('did-finish-load', () => {
