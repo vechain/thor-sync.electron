@@ -42,6 +42,7 @@
             <!-- <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove"></tab-bar> -->
             <v-spacer/>
             <NetworkStatus style="-webkit-app-region: no-drag"></NetworkStatus>
+            <TxRecordsPanel style="-webkit-app-region: no-drag"/>
         </v-toolbar>
         <v-content class="sync-container">
             <view-port
@@ -65,6 +66,7 @@ import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
 import Vendor from './vendor'
 import TabButton from './components/TabButton.vue'
+import TxRecordsPanel from './components/TxRecordsPanel.vue'
 
 let counter = 0
 
@@ -89,7 +91,8 @@ function getDefaultTab(): TabBar.Item {
         ViewPort,
         NetworkStatus,
         Vendor,
-        TabButton
+        TabButton,
+        TxRecordsPanel
     }
 })
 export default class Nova extends Vue {

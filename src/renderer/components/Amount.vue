@@ -9,7 +9,8 @@ export default Vue.extend({
             type: Number,
             default: 2
         },
-        sym: String
+        sym: String,
+        prepend: String
     },
     render(h) {
         if (!this.$slots.default) {
@@ -34,6 +35,13 @@ export default Vue.extend({
                 }
             }),
         ]
+        if (this.prepend) {
+            children.unshift(h('span', {
+                domProps: {
+                    innerText: this.prepend
+                }
+            }))
+        }
         if (this.sym) {
             children.push(h('span', {
                 style: {
