@@ -8,7 +8,7 @@
         <v-container  grid-list-lg>
             <v-layout row wrap>
                 <v-flex xs3 v-for="wallet in wallets" :key="wallet.address">
-                    <WalletCard :track="true" :wallet="wallet" style="max-width: 220px;"> </WalletCard>
+                    <WalletCard @click.native="onClick(wallet.address)" :track="true" :wallet="wallet" style="max-width: 220px;"> </WalletCard>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -17,7 +17,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { State } from 'vuex-class'
-import VueRouter from 'vue-router'
 import WalletCard from '../components/WalletCard.vue'
 import NewWalletDialog from './NewWalletDialog.vue'
 import { Entities } from '../database'
@@ -40,7 +39,13 @@ export default class Wallets extends Vue {
     created() {
         this.reloadWallets()
     }
-
-
+    onClick(address: string) {
+        this.$router.push({
+            name: 'walletDetail',
+            params: {
+                address
+            }
+        })
+    }
 }
 </script>
