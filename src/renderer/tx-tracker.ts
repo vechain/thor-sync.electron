@@ -1,102 +1,54 @@
-import { remote } from 'electron'
-// tslint:disable:no-console
+import { sleep } from '@/common/sleep'
 
-class TxTracker {
-    constructor() {
-        if (isUniqueWindow()) {
-            DB.txRecords.where({ status: 'sending' }).modify({ status: 'inserted' })
-                .catch(err => console.error(err))
-        }
-
-        this.trackLoop()
-        BUS.$on('send-tx', (txId: string) => {
-            this.send(txId)
-        })
-    }
-
-    private async send(txId: string) {
-        const raw = await DB.transaction('rw', DB.txRecords, async () => {
-            const rec = await DB.txRecords.get(txId)
-            if (!rec) {
-                throw new Error('tx record not found')
-            }
-            if (rec.status === 'confirmed') {
-                throw new Error('tx confirmed')
-            }
-            await DB.txRecords.update(txId, { status: 'sending', errorString: '' })
-            return rec.raw
-        })
-
+export async function trackTxLoop() {
+    const ticker = connex.thor.ticker()
+    const skips = new Set<string>()
+    for (; ;) {
         try {
-            await connex.commitTx(raw)
-            await DB.txRecords.update(txId, { status: 'sent', errorString: '' })
-        } catch (err) {
-            await DB.txRecords.update(txId, { status: 'inserted', errorString: err.message })
-        }
-    }
+            const records = await DB.txRecords
+                .where({ confirmed: 0 })
+                .and(r => !skips.has(r.id))
+                .toArray()
 
-    private async trackLoop() {
-        const skipSet = new Set<string>()
-        const ticker = connex.thor.ticker()
-        for (; ;) {
-            try {
-                const unconfirmed = (await DB.txRecords
-                    .where('status')
-                    .notEqual('confirmed')
-                    .toArray()).filter(tx => !skipSet.has(tx.id))
+            const chainStatus = connex.thor.status
 
-                const chainStatus = connex.thor.status
-
-                const receipts = await Promise.all(unconfirmed.map(tx => {
-                    return connex.thor
-                        .transaction(tx.id, {head: chainStatus.head.id})
+            const receipts = await Promise.all(records.map(async rec => {
+                try {
+                    const receipt = await connex.thor
+                        .transaction(rec.id, { head: chainStatus.head.id })
                         .getReceipt()
-                        .then(r => {
-                            if (r) {
-                                return r
-                            }
-                            if (Date.now() - tx.insertTime > 3 * 3600 * 1000) {
-                                skipSet.add(tx.id)
-                            }
-                            return null
-                        })
-                        .catch(() => undefined)
-                }))
-                await DB.transaction('rw', DB.txRecords, async () => {
-                    for (let i = 0; i < receipts.length; i++) {
-                        const receipt = receipts[i]
-                        if (receipt === undefined) {
-                            continue
-                        }
-                        await DB.txRecords.update(unconfirmed[i].id, { receipt: receipts[i] })
-                        if (receipt && chainStatus.head.number - receipt.meta.blockNumber >= 12) {
-                            await DB.txRecords.update(unconfirmed[i].id, { status: 'confirmed' })
+
+                    if (!receipt) {
+                        if (Date.now() - rec.insertTime > 2 * 3600 * 1000) {
+                            skips.add(rec.id)
                         }
                     }
-                })
-                await ticker.next()
-            } catch (err) {
-                console.error(err)
-                await sleep(20000)
-            }
+                    return receipt
+                } catch (err) {
+                    // tslint:disable-next-line:no-console
+                    console.warn(err)
+                    return undefined
+                }
+            }))
+
+            await DB.transaction('rw', DB.txRecords, async () => {
+                for (let i = 0; i < receipts.length; i++) {
+                    const receipt = receipts[i]
+                    if (receipt === undefined) {
+                        continue
+                    }
+                    const confirmed = (receipt && chainStatus.head.number - receipt.meta.blockNumber >= 12) ? 1 : 0
+                    await DB.txRecords.update(records[i].id, {
+                        confirmed,
+                        receipt
+                    })
+                }
+            })
+            await ticker.next()
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.warn(err)
+            await sleep(20000)
         }
     }
 }
-
-function isUniqueWindow() {
-    return remote.BrowserWindow.getAllWindows()
-        .filter(w => {
-            try {
-                const c = w.webContents.getWebPreferences().xargs!.config!
-                return c.genesis.id === ENV.xargs!.config!.genesis.id
-            } catch {
-                return false
-            }
-        }).length < 2
-}
-
-function sleep(ms: number) {
-    return new Promise<void>(resolve => setTimeout(resolve, ms))
-}
-
-export default TxTracker

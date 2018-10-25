@@ -2,9 +2,11 @@ import { app, webContents } from 'electron'
 import { Agent } from 'http'
 import { Site } from '@/main/site'
 import { create as createThor } from '../thor'
+import TxQueue from './tx-queue'
 
 export class Backend {
-    private activeSites = new Map<string, { site: Site, refCount: number }>()
+    private readonly activeSites = new Map<string, { site: Site, refCount: number }>()
+    private readonly txQueue = new TxQueue()
 
     public connect(
         contentsId: number,
@@ -34,7 +36,7 @@ export class Backend {
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
 
-        const wire = site.createWire()
+        const txQueueWire = site.withWireAgent(new Agent({ maxSockets: 10 })).createWire()
         return {
             thor: createThor(site),
             vendor: {
@@ -51,11 +53,13 @@ export class Backend {
                     throw new Error('not implemented')
                 }
             },
-            commitTx(raw) {
-                return wire.post<{ id: string }>(
-                    'transactions',
-                    { raw }
-                ).then(r => r.id)
+            txQueue: {
+                send: (id, raw) => {
+                    this.txQueue.enqueue(id, raw, txQueueWire)
+                },
+                status: id => {
+                    return this.txQueue.status(id)
+                }
             }
         }
     }

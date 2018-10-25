@@ -49,13 +49,12 @@ export namespace Entities {
         id: string
         insertTime: number
         signer: string
+        confirmed: 0 | 1
         raw: string
         referer: { url: string, title: string }
         summary: [string, string[]]
-        status: 'inserted' | 'sending' | 'sent' | 'confirmed'
-        errorString: string
-        receipt?: Connex.Thor.Receipt
-
+        link: string
+        receipt: (Connex.Thor.Receipt & Connex.Thor.Transaction.Meta) | null
     }
 
     export function isWallet(v: any): v is Wallet {
@@ -76,7 +75,7 @@ class Database extends Dexie {
         this.version(1).stores({
             wallets: '++id, &address, name',
             preferences: '++id, key',
-            txRecords: 'id, insertTime, signer, status'
+            txRecords: 'id, insertTime, signer, confirmed'
         })
         this.open()
             .catch(err => console.error(err))

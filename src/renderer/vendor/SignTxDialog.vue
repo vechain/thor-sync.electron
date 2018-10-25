@@ -280,18 +280,20 @@ export default class SignTxDialog extends Vue implements SignTx {
             const privateKey = await cry.Keystore.decrypt(this.selectedWallet!.keystore!, this.password)
             tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
 
+            const txId = tx.id!
+            const raw = '0x' + tx.encode().toString('hex')
             await DB.txRecords.add({
-                id: tx.id!,
+                id: txId,
                 insertTime: Date.now(),
                 signer: tx.signer!,
-                raw: '0x' + tx.encode().toString('hex'),
-                referer: {...this.referer!},
+                confirmed: 0,
+                raw,
+                referer: { ...this.referer! },
                 summary: [this.options.summary!, this.clauses.map(c => c.desc!)],
-                status: 'inserted',
-                errorString: ''
+                link: this.options.link || '',
+                receipt: null
             })
-
-            BUS.$emit('send-tx', tx.id!)
+            connex.txQueue.send(txId, raw)
 
             this.result!.resolve({
                 txId: tx.id!,
