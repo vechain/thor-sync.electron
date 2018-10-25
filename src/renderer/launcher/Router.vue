@@ -9,6 +9,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Portal from './Portal.vue'
 import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
+import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
 import Shortcut from './Shortcut.vue'
 import Network from './Network.vue'
@@ -39,6 +40,14 @@ const routes: RouteConfig[] = [
         component: Wallets,
         meta: {
             title: 'Wallets'
+        }
+    },
+    {
+        path: '/wallet/:address',
+        name: 'walletDetail',
+        component: WalletDetail,
+        meta: {
+            title: 'Wallet Detail'
         }
     },
     {
