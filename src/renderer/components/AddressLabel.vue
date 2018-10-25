@@ -49,6 +49,9 @@ export default Vue.extend({
             } else {
                 data.domProps = { innerText: checksumed }
             }
+            data.style= {
+                'font-family': '"Roboto Mono", monospace'
+            }
             return h('span', data)
         }
     },

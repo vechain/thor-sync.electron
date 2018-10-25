@@ -6,7 +6,7 @@
                 <v-layout row>
                     <v-chip disabled small outline label class="ma-0 caption" style="height:18px">{{type}}</v-chip>
                     <v-flex text-xs-right>
-                        <Amount sym=" VET">{{clause.value}}</Amount>
+                        <Amount sym=" VET" prepend="-">{{clause.value}}</Amount>
                     </v-flex>
                 </v-layout>
             </v-layout>
