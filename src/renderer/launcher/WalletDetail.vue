@@ -35,7 +35,7 @@
             </v-flex>
             <v-flex class="mt-3">
                 <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Transfer Log</v-toolbar-title>
+                    <v-toolbar-title>Transfer Logs</v-toolbar-title>
                 </v-toolbar>
                 <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
                     <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
