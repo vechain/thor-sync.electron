@@ -1,13 +1,11 @@
 <template>
     <v-dialog origin="bottom right" v-bind="$attrs">
-        <v-btn slot="activator" large icon >
-            <v-icon>mdi-qrcode</v-icon>
-        </v-btn>
         <v-card>
             <v-card-text>
                 <QRcode :pre="pre" :size="size">{{content}}</QRcode>
             </v-card-text>
         </v-card>
+        <slot slot="activator" name="activator" />
     </v-dialog>
 </template>
 <script lang="ts">
