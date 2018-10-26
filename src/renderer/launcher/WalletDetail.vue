@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-layout row wrap="" justify-center>
-            <v-flex sm10 md10 lg8>
+        <v-layout column justify-space-around>
+            <v-flex>
                 <v-card v-if="wallet">
                     <v-list>
                         <v-list-tile avatar>
@@ -15,6 +15,13 @@
                                 </v-list-tile-sub-title>
                             </v-list-tile-content>
                         </v-list-tile>
+                        <v-list-tile>
+                            <v-layout row>
+                                <v-spacer />
+                                <Clipboard large :text="wallet.address"></Clipboard>
+                                <QRCodeDialog width="300" :size="270" :content="wallet.address"></QRCodeDialog>
+                            </v-layout>
+                        </v-list-tile>
                     </v-list>
                     <v-layout row>
                         <v-flex sm6 class="text-sm-center headline">
@@ -26,19 +33,25 @@
                     </v-layout>
                 </v-card>
             </v-flex>
-            <v-flex class="mt-3" sm12 md10 lg8>
+            <v-flex class="mt-3">
                 <v-toolbar class="elevation-0">
                     <v-toolbar-title>Transfer Log</v-toolbar-title>
                 </v-toolbar>
                 <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
                     <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                        <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
+                        <td class="text-xs-center">
+                            {{props.item.meta.blockTimestamp | date}}
+                        </td>
                         <td class="text-xs-center">{{props.item.meta.txID | shortTxHas}}</td>
                         <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
                         <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
                         <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
-                        <td class="text-xs-center">{{props.item.amount | balance}}</td>
+                        <td class="text-xs-left">
+                            <v-icon color="orange darken-1" small v-if="props.item.sender === address">mdi-inbox-arrow-up</v-icon>
+                            <v-icon color="green lighten-1" small v-else>mdi-inbox-arrow-down</v-icon>
+                            {{props.item.amount | balance}}
+                        </td>
                     </template>
                 </v-data-table>
             </v-flex>
@@ -53,11 +66,15 @@ import Store from '../store'
 import Amount from '../components/Amount.vue'
 import AddressLabel from '../components/AddressLabel.vue'
 import { Num } from '@/common/formatter'
+import Clipboard from '../components/Clipboard.vue'
+import QRCodeDialog from '../components/QRCodeDialog.vue'
 import { Entities } from '../database'
 @Component({
     components: {
         Amount,
-        AddressLabel
+        AddressLabel,
+        Clipboard,
+        QRCodeDialog
     }
 })
 export default class WalletDetail extends Mixins(TransferMixin) {
@@ -103,7 +120,7 @@ export default class WalletDetail extends Mixins(TransferMixin) {
         },
         {
             text: 'Value',
-            align: 'center',
+            align: 'left',
             sortable: false
         }
     ]
