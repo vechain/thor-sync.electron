@@ -21,7 +21,33 @@
         </template>
         <div v-else>Invalid wallet</div>
     </v-list-tile>
-    <v-card v-else v-bind="$attrs" v-on="$listeners" style="text-align:left">
+    <v-card v-else v-bind="$attrs" v-on="$listeners" style="display:inline-block;">
+        <div style="overflow:hidden;height:100px">
+            <AddressLabel
+                icon
+                :size="250"
+                style="border-radius:0px;filter:saturate(80%) brightness(90%);"
+            >{{wallet.address}}</AddressLabel>
+            <v-card-text style="position:absolute;left:0;top:0;height:100px;" class="white--text">
+                <v-layout
+                    column
+                    fill-height
+                    justify-center
+                    style="text-shadow: 0px 1px 1px #000, 0px -0.5px 1px #fff;"
+                >
+                    <span class="headline text-truncate">{{wallet.name}}</span>
+                    <AddressLabel abbrev class="text-truncate">{{wallet.address}}</AddressLabel>
+                </v-layout>
+            </v-card-text>
+        </div>
+        <v-card-text>
+            <v-layout column align-end>
+                <Amount sym=" VET ">{{balance}}</Amount>
+                <Amount sym=" VTHO">{{energy}}</Amount>
+            </v-layout>
+        </v-card-text>
+    </v-card>
+    <!-- <v-card v-else v-bind="$attrs" v-on="$listeners" style="text-align:left">
         <template v-if="isValid">
             <v-list style="background: none">
                 <v-list-tile>
@@ -47,7 +73,7 @@
             </v-list>
         </template>
         <v-card-text v-else>Invalid wallet</v-card-text>
-    </v-card>
+    </v-card>-->
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'

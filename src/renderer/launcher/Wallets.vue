@@ -5,13 +5,28 @@
                 <v-icon>add</v-icon>
             </v-btn>
         </NewWalletDialog>
-        <v-container  grid-list-lg>
-            <v-layout row wrap>
-                <v-flex xs3 v-for="wallet in wallets" :key="wallet.address">
-                    <WalletCard @click.native="onClick(wallet.address)" :track="true" :wallet="wallet" style="max-width: 220px;"> </WalletCard>
-                </v-flex>
-            </v-layout>
-        </v-container>
+        <v-layout row wrap="">
+            <v-flex
+                v-for="wallet in wallets"
+                :key="wallet.address"
+                xs12
+                sm6
+                md4
+                lg3
+                xl2
+                d-flex
+                align-center
+                style="flex-direction: column;transition: 0.3s"
+            >
+                <WalletCard
+                    class="ma-4 elevation-6"
+                    style="border-radius:8px"
+                    @click.native="onClick(wallet.address)"
+                    :track="true"
+                    :wallet="wallet"
+                ></WalletCard>
+            </v-flex>
+        </v-layout>
     </div>
 </template>
 <script lang="ts">
@@ -47,5 +62,6 @@ export default class Wallets extends Vue {
             }
         })
     }
+
 }
 </script>
