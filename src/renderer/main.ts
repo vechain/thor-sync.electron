@@ -8,6 +8,7 @@ import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
 import Vuex from 'vuex'
 import './filters'
+import './directives'
 import VueRouter from 'vue-router'
 import env from '@/env'
 import Preferences from './preferences'
@@ -15,7 +16,7 @@ import { remote } from 'electron'
 import Nova from './Nova.vue'
 import Store from './store'
 import Database from './database'
-import {trackTxLoop} from './tx-tracker'
+import { trackTxLoop } from './tx-tracker'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
@@ -44,7 +45,8 @@ Object.defineProperty(window, 'connex', {
     value: remote.app.EXTENSION.connect(
         env.contents!.id,
         env.xargs!.config!,
-        env.xargs!.clientId!),
+        env.xargs!.clientId!
+    ),
     enumerable: true
 })
 // bind widgets

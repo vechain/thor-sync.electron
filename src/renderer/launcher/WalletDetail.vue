@@ -17,9 +17,15 @@
                         </v-list-tile>
                         <v-list-tile>
                             <v-layout row>
-                                <v-spacer />
-                                <Clipboard large :text="wallet.address"></Clipboard>
-                                <QRCodeDialog width="300" :size="270" :content="wallet.address"></QRCodeDialog>
+                                <v-spacer/>
+                                <v-btn v-clipboard="wallet.address" slot="activator" large icon>
+                                        <v-icon>mdi-content-copy</v-icon>
+                                    </v-btn>
+                                <QRCodeDialog width="300" :size="270" :content="wallet.address">
+                                    <v-btn slot="activator" large icon>
+                                        <v-icon>mdi-qrcode</v-icon>
+                                    </v-btn>
+                                </QRCodeDialog>
                             </v-layout>
                         </v-list-tile>
                     </v-list>
@@ -40,15 +46,17 @@
                 <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
                     <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                        <td class="text-xs-center">
-                            {{props.item.meta.blockTimestamp | date}}
-                        </td>
+                        <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
                         <td class="text-xs-center">{{props.item.meta.txID | shortTxHas}}</td>
                         <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
                         <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
                         <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
                         <td class="text-xs-left">
-                            <v-icon color="orange darken-1" small v-if="props.item.sender === address">mdi-inbox-arrow-up</v-icon>
+                            <v-icon
+                                color="orange darken-1"
+                                small
+                                v-if="props.item.sender === address"
+                            >mdi-inbox-arrow-up</v-icon>
                             <v-icon color="green lighten-1" small v-else>mdi-inbox-arrow-down</v-icon>
                             {{props.item.amount | balance}}
                         </td>
@@ -66,14 +74,12 @@ import Store from '../store'
 import Amount from '../components/Amount.vue'
 import AddressLabel from '../components/AddressLabel.vue'
 import { Num } from '@/common/formatter'
-import Clipboard from '../components/Clipboard.vue'
 import QRCodeDialog from '../components/QRCodeDialog.vue'
 import { Entities } from '../database'
 @Component({
     components: {
         Amount,
         AddressLabel,
-        Clipboard,
         QRCodeDialog
     }
 })
