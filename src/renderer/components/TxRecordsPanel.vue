@@ -1,5 +1,6 @@
 <template>
     <OverlayedMenu
+        v-if="records.length > 0"
         left
         offset-y
         :close-on-content-click="false"
@@ -9,9 +10,11 @@
         v-model="opened"
     >
         <v-btn flat light small slot="activator">activity</v-btn>
-        <v-expansion-panel>
-            <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
-        </v-expansion-panel>
+        <v-card>
+            <v-expansion-panel expand>
+                <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
+            </v-expansion-panel>
+        </v-card>
     </OverlayedMenu>
 </template>
 <script lang="ts">
