@@ -19,8 +19,9 @@
                 style="flex-direction: column;transition: 0.3s"
             >
                 <WalletCard
-                    class="ma-4 elevation-6"
-                    style="border-radius:8px"
+                    hover
+                    class="ma-4"
+                    style="border-radius:8px;width:220px"
                     @click.native="onClick(wallet.address)"
                     :track="true"
                     :wallet="wallet"

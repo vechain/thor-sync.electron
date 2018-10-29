@@ -1,79 +1,33 @@
 <template>
-    <v-list-tile v-if="listitem" v-bind="$attrs" v-on="$listeners">
-        <template v-if="isValid">
-            <v-list-tile-avatar :size="30" v-if="!noicon">
-                <AddressLabel icon :size="30">{{wallet.address}}</AddressLabel>
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-                <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
-                <v-list-tile-sub-title>
-                    <AddressLabel abbrev class="caption">{{wallet.address}}</AddressLabel>
-                </v-list-tile-sub-title>
-                <v-list-tile-sub-title
-                    class="caption"
-                    style="text-align:right;line-height: 100%;display:block"
-                >
-                    <Amount sym=" VET ">{{balance}}</Amount>
-                    <br>
-                    <Amount sym=" VTHO">{{energy}}</Amount>
-                </v-list-tile-sub-title>
-            </v-list-tile-content>
-        </template>
-        <div v-else>Invalid wallet</div>
-    </v-list-tile>
-    <v-card v-else v-bind="$attrs" v-on="$listeners" style="display:inline-block;">
-        <div style="overflow:hidden;height:100px">
-            <AddressLabel
-                icon
-                :size="250"
-                style="border-radius:0px;filter:saturate(80%) brightness(90%);"
-            >{{wallet.address}}</AddressLabel>
-            <v-card-text style="position:absolute;left:0;top:0;height:100px;" class="white--text">
+    <v-card
+        v-bind="$attrs"
+        v-on="$listeners"
+        class="wallet-card"
+        :style="{'font-size': compact? '90%':'inherit'}"
+    >
+        <IdentBox :text="wallet.address.toLowerCase()">
+            <v-card-text class="white--text" :class="{'py-2': compact}">
                 <v-layout
                     column
                     fill-height
                     justify-center
                     style="text-shadow: 0px 1px 1px #000, 0px -0.5px 1px #fff;"
                 >
-                    <span class="headline text-truncate">{{wallet.name}}</span>
+                    <span
+                        class="font-weight-light text-truncate"
+                        :class="compact?'title':'headline'"
+                    >{{wallet.name}}</span>
                     <AddressLabel abbrev class="text-truncate">{{wallet.address}}</AddressLabel>
                 </v-layout>
             </v-card-text>
-        </div>
-        <v-card-text>
-            <v-layout column align-end>
+        </IdentBox>
+        <v-card-text class="py-2" :class="{'pa-2': compact}">
+            <v-layout column align-end :style="{'line-height': compact ? '120%':'inherit'}">
                 <Amount sym=" VET ">{{balance}}</Amount>
                 <Amount sym=" VTHO">{{energy}}</Amount>
             </v-layout>
         </v-card-text>
     </v-card>
-    <!-- <v-card v-else v-bind="$attrs" v-on="$listeners" style="text-align:left">
-        <template v-if="isValid">
-            <v-list style="background: none">
-                <v-list-tile>
-                    <v-list-tile-avatar v-if="!noicon">
-                        <AddressLabel icon>{{wallet.address}}</AddressLabel>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
-                        <v-list-tile-sub-title>
-                            <AddressLabel abbrev>{{wallet.address}}</AddressLabel>
-                        </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-divider inset class="mr-3"/>
-                <div class="px-3 py-1" style="text-align:right;line-height: 100%;">
-                    <v-list-tile-sub-title>
-                        <Amount sym=" VET ">{{balance}}</Amount>
-                    </v-list-tile-sub-title>
-                    <v-list-tile-sub-title>
-                        <Amount sym=" VTHO">{{energy}}</Amount>
-                    </v-list-tile-sub-title>
-                </div>
-            </v-list>
-        </template>
-        <v-card-text v-else>Invalid wallet</v-card-text>
-    </v-card>-->
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
@@ -81,11 +35,12 @@ import Store from '../store'
 import { Num } from '@/common/formatter'
 import AddressLabel from '../components/AddressLabel.vue'
 import Amount from '../components/Amount.vue'
-import { Entities } from '../database';
-
+import { Entities } from '../database'
+import IdentBox from '../components/IdentBox.vue'
 
 @Component({
     components: {
+        IdentBox,
         AddressLabel,
         Amount
     }
@@ -93,8 +48,7 @@ import { Entities } from '../database';
 export default class WalletCard extends Vue {
     @Prop(Object) wallet!: Entities.Wallet
     @Prop(Boolean) track!: boolean
-    @Prop(Boolean) listitem!: boolean
-    @Prop(Boolean) noicon!: boolean
+    @Prop(Boolean) compact!: boolean
 
     untrack = () => { }
 
@@ -129,5 +83,18 @@ export default class WalletCard extends Vue {
         return this.account.data && this.account.data.energy
     }
 }
-
 </script>
+<style scoped>
+/* border for flat mode */
+.v-card--flat.wallet-card::before {
+  border-radius: inherit;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  width: 100%;
+}
+</style>
+

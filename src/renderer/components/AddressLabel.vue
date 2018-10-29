@@ -3,8 +3,12 @@
 import { Vue } from 'vue-property-decorator'
 import { Address } from '@/common/formatter'
 import { VNodeData } from 'vue'
+import IdentBox from './IdentBox.vue'
 
 export default Vue.extend({
+    components: {
+        IdentBox
+    },
     props: {
         icon: Boolean,
         abbrev: Boolean,
@@ -33,15 +37,14 @@ export default Vue.extend({
 
         if (this.icon) {
             const size = this.size || 36
-            data.domProps = { innerHTML: generateIconHtmlCached(addr, size) }
+            data.props = { text: addr.toLowerCase() }
             data.style = {
-                overflow: 'hidden',
                 display: 'inline-block',
                 width: size + 'px',
                 height: size + 'px',
                 'border-radius': '4%'
             }
-            return h('div', data)
+            return h('IdentBox', data)
         } else {
             const checksumed = Address.toChecksum(addr)!
             if (this.abbrev) {
@@ -49,40 +52,11 @@ export default Vue.extend({
             } else {
                 data.domProps = { innerText: checksumed }
             }
-            data.style= {
+            data.style = {
                 'font-family': '"Roboto Mono", monospace'
             }
             return h('span', data)
         }
     },
 })
-
-
-const jazzicon = require('jazzicon')
-
-const cache: { [id: string]: string } = {}
-function generateIconHtmlCached(addr: string, diameter: number) {
-    // same as metamask
-    let seed = 0
-    try {
-        seed = parseInt(addr.slice(0, 10), 16) || 0
-    } catch {
-    }
-
-    const id = `${seed}:${diameter}`
-    return cache[id] || (cache[id] = generateIcon(seed, diameter).outerHTML)
-}
-
-function generateIcon(seed: number, size: number) {
-    const elem = (jazzicon(size, seed) as Element).firstElementChild!
-    elem.removeAttribute('style')
-    elem.setAttribute('width', `${size}`)
-    elem.setAttribute('height', `${size}`)
-    for (const c of elem.children) {
-        c.setAttribute('width', `${size}`)
-        c.setAttribute('height', `${size}`)
-    }
-    return elem
-}
-
 </script>
