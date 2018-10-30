@@ -54,12 +54,15 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Entities } from '../database'
 import { Transaction } from 'thor-devkit'
 import * as NodeUrl from 'url'
-import Moment from 'moment'
+const TimeAgo =require( 'javascript-time-ago')
+const EN = require('javascript-time-ago/locale/en')
 import AddressLabel from './AddressLabel.vue'
 import Amount from './Amount.vue'
 import BigNumber from 'bignumber.js'
 import { State } from 'vuex-class'
 
+TimeAgo.locale(EN)
+const timeAgo = new TimeAgo('en-US')
 
 type Status = Connex.Thor.Status
 
@@ -108,13 +111,20 @@ export default class TxRecord extends Vue {
         if (Date.now() > this.entity.insertTime + 2 * 3600 * 1000) {
             return {
                 color: 'error',
-                text: 'failed',
+                text: 'dropped',
                 resend: false
             }
         }
 
         const qStatus = connex.txQueue.status(this.entity.id)
-        if (qStatus === 'absent' || qStatus === 'failed') {
+        if (!qStatus) {
+            return {
+                color: 'error',
+                text: 'hungup',
+                resend: true
+            }
+        }
+        if (qStatus === 'error') {
             return {
                 color: 'error',
                 text: 'error',
@@ -122,7 +132,7 @@ export default class TxRecord extends Vue {
             }
         }
 
-        if (qStatus === 'sent' && Date.now() > this.entity.insertTime + 5 * 60 * 1000) {
+        if (qStatus === 'sent' && Date.now() > this.entity.insertTime + 10 * 60 * 1000) {
             return {
                 color: 'error',
                 text: 'timeout',
@@ -170,7 +180,7 @@ export default class TxRecord extends Vue {
     }
 
     get time() {
-        return Moment(this.entity.insertTime).fromNow()
+        return timeAgo.format(this.entity.insertTime)
     }
     get txid() {
         return this.entity.id.slice(0, 16) + '…'

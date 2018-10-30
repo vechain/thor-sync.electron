@@ -15,25 +15,24 @@ class TxQueue {
             raw,
             wire,
             sent: false,
-            retries: 0
+            retries: 0,
         }
 
         this.map.set(id, item)
         this.send(item)
     }
 
-    public status(id: string) {
+    public status(id: string): 'sending' | 'sent' | 'error' | undefined {
         const item = this.map.get(id)
         if (item) {
             if (item.sent) {
                 return 'sent'
             }
             if (item.retries >= MAX_RETRIES) {
-                return 'failed'
+                return 'error'
             }
             return 'sending'
         }
-        return 'absent'
     }
 
     private send(item: Item) {
@@ -43,9 +42,7 @@ class TxQueue {
                 console.log('tx sent: ' + id)
                 item.sent = true
             })
-            .catch(err => {
-                // tslint:disable-next-line:no-console
-                console.warn(err)
+            .catch(() => {
                 item.retries++
                 if (item.retries < MAX_RETRIES) {
                     setTimeout(() => {
