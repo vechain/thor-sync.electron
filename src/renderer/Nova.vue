@@ -39,7 +39,6 @@
                     <v-icon style="font-size:150%">add</v-icon>
                 </v-btn>
             </transition-group>
-            <!-- <tab-bar v-model="currentIndex" @new-tab="onAddTAb" :tabs="tabs" @close="onTabRemove"></tab-bar> -->
             <v-spacer/>
             <NetworkStatus style="-webkit-app-region: no-drag"></NetworkStatus>
             <TxRecordsPanel style="-webkit-app-region: no-drag"/>
@@ -109,6 +108,22 @@ export default class Nova extends Vue {
             return
         }
         this.tabs = this.tabs.slice(0, index).concat(this.tabs.slice(index + 1))
+        this.updateCurrentIndex(index)
+    }
+
+    updateCurrentIndex(index: number) {
+        const isCurrent = index === this.currentIndex
+        this.$nextTick(() => {
+            if (this.currentIndex === this.tabs.length) {
+                this.currentIndex = this.tabs.length - 1
+            } else {
+                this.currentIndex--
+            }
+
+            if (this.tabs.length === 0) {
+                this.currentIndex = -1
+            }
+        })
     }
 
     get items() {
@@ -133,12 +148,6 @@ export default class Nova extends Vue {
     onAddTAb() {
         this.tabs.push(getDefaultTab())
         this.currentIndex = this.tabs.length - 1
-    }
-
-    onTabRemove(index: number) {
-        if (this.tabs.length > 1) {
-            this.tabs.splice(index, 1)
-        }
     }
 
     onDataUpdate(event: ViewPort.DataUpdateEvent, index: number) {
@@ -208,7 +217,7 @@ body {
     flex: 0 1 auto;
     flex-direction: row;
     align-items: flex-end;
-    transition: margin-left .3s ease-out;
+    transition: margin-left 0.3s ease-out;
 }
 .darwin.full-screen #frame .tab-group {
     margin-left: 0;
