@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import 'dexie-observable'
 import { cry } from 'thor-devkit'
+import { IDatabaseChange } from 'dexie-observable/api';
 // tslint:disable:no-console
 
 export namespace Entities {
@@ -79,6 +80,21 @@ class Database extends Dexie {
         })
         this.open()
             .catch(err => console.error(err))
+    }
+
+
+    public subscribe(tableName: string, onChange: (...args: IDatabaseChange[]) => void) {
+        const ev = this.on('changes')
+        const fn = (...args: IDatabaseChange[]) => {
+            args = args.filter(a => a.table === tableName)
+            if (args.length > 0) {
+                onChange(...args)
+            }
+        }
+        ev.subscribe(fn)
+        return {
+            unsubscribe: () => ev.unsubscribe(fn)
+        }
     }
 }
 
