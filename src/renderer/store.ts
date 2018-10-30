@@ -40,7 +40,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
     public static readonly UPDATE_WALLETS_REVISION = 'walletsRevision'
 
-    public static readonly UPDATE_PREFERENCES_REVISION = 'preferenceRevision'
+    public static readonly UPDATE_PREFERENCES_REVISION = 'preferencesRevision'
     public static readonly UPDATE_TX_RECORDS_REVISION = 'txRecordsRevision'
     public static readonly UPDATE_ACCOUNT = 'updateAccount'
     public static readonly UPDATE_ACTIVE_VIEW_PORT = 'updateActiveViewPort'

@@ -14,7 +14,7 @@
                         v-model="dialog"
                     />
                 </v-toolbar>
-                <v-data-table width="800px" :headers="headers" :items="shortcuts">
+                <v-data-table hide-actions width="800px" :headers="headers" :items="shortcuts">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
                         <td class="text-xs-center">{{props.item.value.domain}}</td>
@@ -118,10 +118,11 @@ export default class Shortcuts extends Vue {
     }
 
     @State
-    preferenceRevision!: number
+    preferencesRevision!: number
 
-    @Watch('preferenceRevision')
+    @Watch('preferencesRevision')
     async loadList() {
+        console.log(123)
         this.shortcuts = await DB.preferences
             .where('key')
             .equals('shortcut')

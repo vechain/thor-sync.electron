@@ -14,7 +14,7 @@
                         v-model="dialog"
                     />
                 </v-toolbar>
-                <v-data-table width="800px" :headers="headers" :items="list">
+                <v-data-table hide-actions width="800px" :headers="headers" :items="list">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
                         <td class="text-xs-center">{{props.item.value.rpcurl}}</td>
@@ -83,9 +83,9 @@ export default class Networks extends Vue {
         this.loadList()
     }
     @State
-    preferenceRevision!: number
+    preferencesRevision!: number
 
-    @Watch('preferenceRevision')
+    @Watch('preferencesRevision')
     async loadList() {
         this.list = await DB.preferences
             .where('key')

@@ -48,7 +48,7 @@ export default class AutoUpdate extends Vue {
         value: false
     }
     @State
-    preferenceRevision!: number
+    preferencesRevision!: number
 
     async created() {
         await this.getConfig()
@@ -60,7 +60,7 @@ export default class AutoUpdate extends Vue {
         })
     }
 
-    @Watch('preferenceRevision')
+    @Watch('preferencesRevision')
     async getConfig() {
         this.isAuto = await DB.preferences
             .where('key')
