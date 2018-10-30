@@ -3,11 +3,10 @@
         content-class="bottom-right"
         persistent
         v-model="open"
-        max-width="700px"
         @keydown.enter="onAction(true)"
     >
         <v-card>
-            <v-layout row style="height:470px;">
+            <v-layout row style="height:480px;">
                 <v-layout
                     column
                     text-xs-center
@@ -24,26 +23,13 @@
                     </v-expansion-panel>
                 </v-layout>
                 <!-- <v-divider vertical /> -->
-                <v-layout column v-if="!!selectedWallet" class="elevation-2">
-                    <v-layout row align-center style="flex:0 0 auto;">
-                        <v-flex>
-                            <WalletCard tile flat :wallet="selectedWallet"/>
-                        </v-flex>
-                        <WalletSelection
-                            v-if="walletSwitchable"
-                            transition="slide-y-transition"
-                            :disabled="signing"
-                            fixed
-                            offset-y
-                            :wallets="wallets"
+                <v-layout column v-if="!!selectedWallet" class="elevation-2" style="width:320px">
+                    <v-card-text>
+                        <WalletSeeker
+                            :wallets="walletSwitchable?wallets: [selectedWallet]"
                             v-model="selectedWallet"
-                            max-height="400px"
-                        >
-                            <v-btn icon flat slot="activator">
-                                <v-icon>mdi-menu-down</v-icon>
-                            </v-btn>
-                        </WalletSelection>
-                    </v-layout>
+                        />
+                    </v-card-text>
                     <v-spacer/>
                     <v-card-text>
                         <v-text-field
@@ -65,7 +51,6 @@
                         />
                         <v-text-field
                             :disabled="signing"
-                            autofocus
                             v-model="password"
                             label="Password"
                             type="password"
@@ -116,6 +101,22 @@ import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
 import { Entities } from '@/renderer/database';
+import WalletSeeker from '../components/WalletSeeker.vue'
+
+
+const priorities: Array<{ title: string, value: number }> = [{
+    title: 'Low',
+    value: 0
+}, {
+    title: 'Normal',
+    value: 127
+}, {
+    title: 'High',
+    value: 191
+}, {
+    title: 'Highest',
+    value: 255
+}]
 
 @Component({
     components: {
@@ -123,7 +124,8 @@ import { Entities } from '@/renderer/database';
         WalletSelection,
         AddressLabel,
         Amount,
-        ClauseItem
+        ClauseItem,
+        WalletSeeker
     }
 })
 export default class SignTxDialog extends Vue implements SignTx {
@@ -142,19 +144,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     gasInput = ""
     referer: { url: string, title: string } | null = null
 
-    priorities: Array<{ title: string, value: number }> = [{
-        title: 'Low',
-        value: 0
-    }, {
-        title: 'Normal',
-        value: 128
-    }, {
-        title: 'High',
-        value: 192
-    }, {
-        title: 'Highest',
-        value: 255
-    }]
+    priorities = priorities
     priority = 0
 
     @State walletsRevision!: number
@@ -318,5 +308,6 @@ div >>> .bottom-right {
   position: fixed;
   right: 0;
   bottom: 0;
+  width: auto;
 }
 </style>
