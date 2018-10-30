@@ -16,24 +16,29 @@ class Wire implements Connex.Thor.Site.Wire {
             httpAgent: agent,
             headers: { 'x-genesis-id': config.genesis.id }
         })
-        this.axios.interceptors.response.use(response => {
-            this.log(response)
-            return response
-        }, (err: AxiosError) => {
-            this.log(err)
-            return err
-        })
     }
 
     public async get<T>(path: string, query?: object): Promise<T> {
         const url = this.resolve(path, query)
-        const result = await this.axios.get<T>(url)
-        return result.data
+        try {
+            const result = await this.axios.get<T>(url)
+            this.log(result)
+            return result.data
+        } catch (err) {
+            this.log(err)
+            throw err
+        }
     }
     public async post<T>(path: string, data: object, query?: object): Promise<T> {
         const url = this.resolve(path, query)
-        const result = await this.axios.post<T>(url, data)
-        return result.data
+        try {
+            const result = await this.axios.post<T>(url, data)
+            this.log(result)
+            return result.data
+        } catch (err) {
+            this.log(err)
+            throw err
+        }
     }
 
     public ws(path: string, query?: object): Connex.Thor.Site.WebSocket {
