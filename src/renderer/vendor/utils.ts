@@ -11,7 +11,7 @@ function isHex(str: string) {
 }
 
 
-export function normalizeClauses(clauses: Connex.Vendor.Clause[]) {
+export function normalizeClauses(clauses: Connex.Vendor.Message<'tx'>) {
     assert(Array.isArray(clauses), 'bad message: expected array')
     return clauses.map((c, i) => {
         c = { ...c }

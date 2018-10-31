@@ -7,11 +7,12 @@ declare namespace Connex {
             message: Vendor.Message<T>,
             options?: Vendor.SignOptions<T>
         ): Promise<Vendor.SignResult<T>>
+
     }
 
     namespace Vendor {
         type Message<T extends 'tx'> = T extends 'tx' ?
-            Vendor.Clause[] : never
+            (Thor.Clause & { desc?: string })[] : never
 
         type SignOptions<T extends 'tx'> = T extends 'tx' ? {
             signer?: string
@@ -24,14 +25,5 @@ declare namespace Connex {
             txId: string
             signer: string
         } : never
-
-        type Clause = {
-            to: string | null
-            value?: string | number
-            data?: string
-
-            // options
-            desc?: string
-        }
     }
 }
