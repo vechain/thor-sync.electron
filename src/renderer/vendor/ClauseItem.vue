@@ -27,7 +27,7 @@
 import { Vue, Component, Model, Prop } from 'vue-property-decorator'
 import Amount from '../components/Amount.vue'
 import AddressLabel from '../components/AddressLabel.vue'
-type ClauseType = Connex.Vendor.Clause
+type ClauseType = Connex.Vendor.Message<'tx'>[number]
 
 @Component({
     components: {

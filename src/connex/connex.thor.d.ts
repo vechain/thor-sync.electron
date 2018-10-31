@@ -12,8 +12,7 @@ declare namespace Connex {
         subscribe<T extends 'event' | 'transfer' | 'block'>
             (subject: T, criteria: Thor.Criteria<T>, options?: { position?: string }): Thor.Subscription<T>
 
-        // TODO: to support multi-clause call
-        call(input: Thor.VMInput, options?: { revision?: string | number }): Promise<Thor.VMOutput>
+        explain(clauses: Thor.Clause[], options?: Thor.CallOptions & { revision?: string | number }): Promise<Thor.VMOutput[]>
     }
 
     namespace Thor {
@@ -58,7 +57,6 @@ declare namespace Connex {
             getCode(): Promise<Account.Code>
             getStorage(key: string): Promise<Account.Storage>
 
-            call(input: VMInput): Promise<VMOutput>
             method(abi: object): Method
             event(abi: object): EventVisitor
         }
@@ -79,8 +77,8 @@ declare namespace Connex {
         }
 
         interface Method {
-            asClause(args: any[], value?: string | number): Clause
-            call(args: any[], value?: string | number, options?: VMOptions): Promise<VMOutput & Decoded>
+            asClause(args: any[], value: string | number): Clause
+            call(args: any[], value: string | number, options?: CallOptions): Promise<VMOutput & Decoded>
         }
 
         interface EventVisitor {
@@ -135,7 +133,7 @@ declare namespace Connex {
 
         type Clause = {
             to: string | null
-            value: string
+            value: string | number
             data: string
         }
 
@@ -225,16 +223,12 @@ declare namespace Connex {
             isTrunk: boolean
         }
 
-        type VMOptions = {
+        type CallOptions = {
             gas?: number
             gasPrice?: string
             caller?: string
         }
 
-        type VMInput = {
-            data?: string
-            value?: string | number
-        } & VMOptions
 
         type VMOutput = {
             data: string

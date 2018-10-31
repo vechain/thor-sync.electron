@@ -37,7 +37,7 @@ class TxQueue {
 
     private send(item: Item) {
         item.wire.post<{ id: string }>('transactions', { raw: item.raw })
-            .then(id => {
+            .then(({ id }) => {
                 // tslint:disable-next-line:no-console
                 console.log('tx sent: ' + id)
                 item.sent = true

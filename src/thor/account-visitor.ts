@@ -25,13 +25,6 @@ export function createAccountVisitor(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision })
         },
-        call(input) {
-            input = { ...input, value: input.value ? input.value.toString() : '0x0' }
-            return wire.post<Thor.VMOutput>(
-                `accounts/${encodeURIComponent(addr)}`,
-                input,
-                { revision })
-        },
         method(abiDef) {
             return createMethod(wire, addr, abiDef, revision)
         },

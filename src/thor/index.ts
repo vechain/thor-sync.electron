@@ -41,13 +41,22 @@ export function create(
         subscribe(subject, criteria, options) {
             return createSubscription(wire, subject, criteria, options || {})
         },
-        call(input, options) {
-            input = { ...input, value: input.value ? input.value.toString() : '0x' }
+        explain(clauses, options) {
             options = options || {}
+            const body = {
+                clauses: clauses.map(c => ({
+                    to: c.to,
+                    value: c.value ? c.value.toString() : '0x0',
+                    data: c.data
+                })),
+                gas: options.gas,
+                gasPrice: options.gasPrice,
+                caller: options.caller
+            }
             const revision = options.revision
-            return wire.post<Thor.VMOutput>(
-                `accounts`,
-                input,
+            return wire.post<Thor.VMOutput[]>(
+                `accounts/*`,
+                body,
                 { revision })
         }
     }

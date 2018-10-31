@@ -118,6 +118,8 @@ const priorities: Array<{ title: string, value: number }> = [{
     value: 255
 }]
 
+type Clause = Connex.Vendor.Message<'tx'>[number]
+
 @Component({
     components: {
         WalletCard,
@@ -137,7 +139,7 @@ export default class SignTxDialog extends Vue implements SignTx {
     password = ''
     signing = false
     passwordError = ''
-    clauses: Connex.Vendor.Clause[] = []
+    clauses: Clause[] = []
     options: Connex.Vendor.SignOptions<'tx'> = {}
     selectedWallet: Entities.Wallet | null = null
     result: Deferred<Connex.Vendor.SignResult<'tx'>> | null = null
