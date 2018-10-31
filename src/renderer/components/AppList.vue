@@ -1,12 +1,15 @@
 <template>
     <div class="sync-dapp-list">
         <div>
-            <slot />
+            <slot/>
             <v-container class="dapp-container">
-                <v-hover v-for="item in list" :key="item.id" :close-delay="0">
-                    <v-card slot-scope="{hover}" :class="`elevation-${hover ? 8 : 2}`" class="dapp-item">
-                        <v-img height="100px">
-                        </v-img>
+                <v-hover v-for="item in apps" :key="item.id" :close-delay="0">
+                    <v-card
+                        slot-scope="{hover}"
+                        :class="`elevation-${hover ? 8 : 2}`"
+                        class="dapp-item"
+                    >
+                        <v-img height="100px"></v-img>
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn @click.stop="openDapp(item)" flat>{{item.name}}</v-btn>
@@ -20,6 +23,7 @@
 
 <script lang="ts">
 import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
+import { Entities } from '@/renderer/database'
 
 @Component
 export default class DApps extends Vue {
@@ -51,9 +55,25 @@ export default class DApps extends Vue {
         src: new URL(`api.html`, ENV.dapps).href
     }
 
-    get list() {
+    async created() {
         ENV.devMode ? this.apps.push(this.DApi) : this.apps
-        return this.apps
+        this.apps = this.apps.concat(await this.getShortcuts())
+    }
+
+    async getShortcuts() {
+        const list = await DB.preferences
+            .where('key')
+            .equals('shortcut')
+            .reverse()
+            .sortBy('id')
+
+        return list.map<any>(item => {
+            return {
+                name: item.value.name,
+                newTab: true,
+                src: `http://${item.value.domain}`
+            }
+        })
     }
 
     openDapp(data: Dapp.Item) {
