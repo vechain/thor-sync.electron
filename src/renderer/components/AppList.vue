@@ -71,7 +71,7 @@ export default class DApps extends Vue {
             return {
                 name: item.value.name,
                 newTab: true,
-                src: `http://${item.value.domain}`
+                src: item.value.domain
             }
         })
     }
