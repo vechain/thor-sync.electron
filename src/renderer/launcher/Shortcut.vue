@@ -122,7 +122,6 @@ export default class Shortcuts extends Vue {
 
     @Watch('preferencesRevision')
     async loadList() {
-        console.log(123)
         this.shortcuts = await DB.preferences
             .where('key')
             .equals('shortcut')
