@@ -1,10 +1,15 @@
 <template>
     <div style="height:100%">
         <NewWalletDialog v-model="dialog">
-            <v-btn flat slot="activator">
+            <v-btn flat icon slot="activator">
                 <v-icon>add</v-icon>
             </v-btn>
         </NewWalletDialog>
+        <ImportWalletDialog persistent>
+            <v-btn flat icon slot="activator">
+                <v-icon>edit</v-icon>
+            </v-btn>
+        </ImportWalletDialog>
         <v-layout row wrap="">
             <v-flex
                 v-for="wallet in wallets"
@@ -35,12 +40,14 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { State } from 'vuex-class'
 import WalletCard from '../components/WalletCard.vue'
 import NewWalletDialog from './NewWalletDialog.vue'
+import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
 
 @Component({
     components: {
         WalletCard,
-        NewWalletDialog
+        NewWalletDialog,
+        ImportWalletDialog
     }
 })
 export default class Wallets extends Vue {
