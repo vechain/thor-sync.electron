@@ -1,6 +1,12 @@
 <template>
     <div style="height: 100%">
-        <router-view />
+        <transition
+            mode="out-in"
+            enter-active-class="animated faster bounceInDown"
+            leave-active-class="animated faster bounceOutUp"
+        >
+            <router-view/>
+        </transition>
     </div>
 </template>
 <script lang="ts">
@@ -86,3 +92,69 @@ const routes: RouteConfig[] = [
     }
 ]
 </script>
+<style>
+/* https://github.com/daneden/animate.css */
+@keyframes bounceInDown {
+    from,
+    60%,
+    75%,
+    90%,
+    to {
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -3000px, 0);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translate3d(0, 25px, 0);
+    }
+
+    75% {
+        transform: translate3d(0, -10px, 0);
+    }
+
+    90% {
+        transform: translate3d(0, 5px, 0);
+    }
+
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.bounceInDown {
+    animation-name: bounceInDown;
+}
+@keyframes bounceOutUp {
+  20% {
+    transform: translate3d(0, -10px, 0);
+  }
+
+  40%,
+  45% {
+    opacity: 1;
+    transform: translate3d(0, 20px, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, -2000px, 0);
+  }
+}
+
+.bounceOutUp {
+  animation-name: bounceOutUp;
+}
+
+.animated {
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+.animated.faster {
+  animation-duration: 500ms;
+}
+</style>
