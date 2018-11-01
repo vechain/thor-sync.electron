@@ -21,7 +21,7 @@
                             <NameAndPass v-if="show" v-model="nameAndPass"></NameAndPass>
                             <v-checkbox
                                 v-if="addressExist"
-                                label="Cover the keystore"
+                                label="The wallet already existed, Please check the box to agree overwriting an old wallet."
                                 v-model="overWrite"
                             ></v-checkbox>
                         </v-stepper-content>
@@ -92,6 +92,7 @@ export default class ImportWalletDialog extends Vue {
     }
     reset() {
         const form = this.$refs.pk as ContentForm
+        this.addressExist = false
         form.reset()
     }
     preMove() {
