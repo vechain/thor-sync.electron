@@ -112,14 +112,14 @@ export default class Nova extends Vue {
     updateCurrentIndex(index: number) {
         const isCurrent = index === this.currentIndex
         this.$nextTick(() => {
-            if (this.currentIndex === this.tabs.length) {
-                this.currentIndex = this.tabs.length - 1
+            if (isCurrent) {
+                if (this.currentIndex === this.tabs.length) {
+                    this.currentIndex = this.tabs.length - 1
+                }
             } else {
-                this.currentIndex--
-            }
-
-            if (this.tabs.length === 0) {
-                this.currentIndex = -1
+                if (index < this.currentIndex) {
+                    this.currentIndex --
+                }
             }
         })
     }
@@ -136,7 +136,8 @@ export default class Nova extends Vue {
     created() {
         remote.app.EXTENSION.inject(
             ENV.contents!.id,
-            `nova.${ENV.xargs!.clientId![0]}`, {
+            `nova.${ENV.xargs!.clientId![0]}`,
+            {
                 newTab: (cb: () => void) => {
                     this.onAddTAb()
                     cb()
