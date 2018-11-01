@@ -1,4 +1,4 @@
-import { app, Menu, MenuItemConstructorOptions } from 'electron'
+import { app, Menu, MenuItemConstructorOptions, BrowserWindow} from 'electron'
 
 
 export function setupMenu() {
@@ -51,19 +51,54 @@ export function setupMenu() {
     ]
 
     if (process.platform === 'darwin') {
-        // template.unshift({
-        //     label: 'File',
-        //     submenu: app.backend.siteConfigs.map<MenuItemConstructorOptions>((config, i) => {
-        //         return {
-        //             label: `New Window '${config.name}'`,
-        //             accelerator: i === 0 ? 'Cmd+N' : undefined,
-        //             click() {
-        //                 app.createWindow(config)
-        //             }
-        //         }
-        //     })
-        // })
 
+        // Edit menu
+        (template[0].submenu as MenuItemConstructorOptions[]).push(
+            { type: 'separator' },
+            {
+                label: 'Speech',
+                submenu: [
+                    { role: 'startspeaking' },
+                    { role: 'stopspeaking' }
+                ]
+            }
+        )
+
+        // Window menu
+        template[2].submenu = [
+            { role: 'close' },
+            { role: 'minimize' },
+            { role: 'zoom' },
+            { type: 'separator' },
+            { role: 'front' }
+        ]
+
+
+        template.unshift({
+            label: 'File',
+            submenu: [{
+                label: 'New tab',
+                accelerator: 'Cmd+T',
+                click() {
+                    const win = BrowserWindow.getFocusedWindow()
+                    if (win) {
+                        app.nova[win.webContents.getWebPreferences().xargs!.clientId![0]].newTab()
+                    }else {
+                        app.EXTENSION.createWindow()
+                    }
+                }
+            }, {
+                label: 'Close tab',
+                accelerator: 'Cmd+W',
+                click() {
+                    const win = BrowserWindow.getFocusedWindow()
+                    if (win) {
+                        app.nova[win.webContents.getWebPreferences().xargs!.clientId![0]].closeTab()
+                    }
+                }
+            }
+            ]
+        })
         template.unshift({
             label: app.getName(),
             submenu: [
@@ -77,28 +112,23 @@ export function setupMenu() {
                 { type: 'separator' },
                 { role: 'quit' }
             ]
-        });
+        })
 
-        // Edit menu
-        (template[1].submenu as MenuItemConstructorOptions[]).push(
-            { type: 'separator' },
-            {
-                label: 'Speech',
-                submenu: [
-                    { role: 'startspeaking' },
-                    { role: 'stopspeaking' }
-                ]
-            }
-        )
 
-        // Window menu
-        template[3].submenu = [
-            { role: 'close' },
-            { role: 'minimize' },
-            { role: 'zoom' },
-            { type: 'separator' },
-            { role: 'front' }
-        ]
+        // template.unshift({
+        //     label: 'File',
+        //     submenu: [
+        //         app.backend.siteConfigs.map<MenuItemConstructorOptions>((config, i) => {
+        //         return {
+        //             label: `New Window '${config.name}'`,
+        //             accelerator: i === 0 ? 'Cmd+N' : undefined,
+        //             click() {
+        //                 app.createWindow(config)
+        //             }
+        //         }
+        //     })
+        // })
+
     }
 
     // const dockTemplate = app.backend.siteConfigs.map<MenuItemConstructorOptions>(config => {

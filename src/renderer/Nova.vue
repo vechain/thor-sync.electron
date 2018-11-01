@@ -136,6 +136,24 @@ export default class Nova extends Vue {
     }
 
     created() {
+        remote.app.EXTENSION.inject(
+            ENV.contents!.id,
+            `nova.${ENV.xargs!.clientId![0]}`, {
+                newTab: (cb: () => void) => {
+                    this.onAddTAb()
+                    cb()
+                },
+                closeTab: (cb: () => void) => {
+                    if (this.items.length > 1) {
+                        this.closeTab(this.currentIndex)
+                    } else {
+                        remote.getCurrentWindow().close()
+                    }
+                    cb()
+                }
+            }
+        )
+
         BUS.$on('open-dapp', (data: any) => {
             let tab = getDefaultTab()
             tab.src = data.src

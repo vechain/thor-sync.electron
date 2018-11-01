@@ -66,7 +66,7 @@ export namespace Entities {
 }
 
 class Database extends Dexie {
-    public readonly wallets!: Dexie.Table<Entities.Wallet, string>
+    public readonly wallets!: Dexie.Table<Entities.Wallet, number>
     public readonly preferences!: Dexie.Table<Entities.Preference, string>
     public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
 
@@ -83,12 +83,12 @@ class Database extends Dexie {
     }
 
 
-    public subscribe(tableName: string, onChange: (...args: IDatabaseChange[]) => void) {
+    public subscribe(tableName: string, onChange: (changes: IDatabaseChange[]) => void) {
         const ev = this.on('changes')
-        const fn = (...args: IDatabaseChange[]) => {
-            args = args.filter(a => a.table === tableName)
-            if (args.length > 0) {
-                onChange(...args)
+        const fn = (changes: IDatabaseChange[]) => {
+            changes = changes.filter(c => c.table === tableName)
+            if (changes.length > 0) {
+                onChange(changes)
             }
         }
         ev.subscribe(fn)
