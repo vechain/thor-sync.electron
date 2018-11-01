@@ -30,13 +30,12 @@
     </v-card>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
-import Store from '../store'
-import { Num } from '@/common/formatter'
+import { Vue, Component, Prop, Mixins } from 'vue-property-decorator'
 import AddressLabel from '../components/AddressLabel.vue'
 import Amount from '../components/Amount.vue'
 import { Entities } from '../database'
 import IdentBox from '../components/IdentBox.vue'
+import AccountLoader from '../mixin/account-loader'
 
 @Component({
     components: {
@@ -45,42 +44,23 @@ import IdentBox from '../components/IdentBox.vue'
         Amount
     }
 })
-export default class WalletCard extends Vue {
+export default class WalletCard extends Mixins(AccountLoader) {
     @Prop(Object) wallet!: Entities.Wallet
-    @Prop(Boolean) track!: boolean
     @Prop(Boolean) compact!: boolean
 
-    untrack = () => { }
-
-    destroyed() { this.untrack() }
+    // override AccountLoader.address
+    get address() {
+        return this.wallet ? (this.wallet.address || '') : ''
+    }
 
     get isValid() { return this.wallet && Entities.isWallet(this.wallet) }
 
-    get account() {
-        // untrack previously tracked
-        this.untrack()
-
-        const tracker = this.$store.getters.account(this.wallet.address)
-        if (this.track) {
-            // settle untrack method
-            this.untrack = () => {
-                tracker.untrack()
-                this.untrack = () => { }
-            }
-        } else {
-            // untrack immediately if `track` set to false
-            tracker.untrack()
-        }
-        return tracker.account as Store.Account
-    }
-
-
     get balance() {
-        return this.account.data && this.account.data.balance
+        return this.account && this.account.balance
     }
 
     get energy() {
-        return this.account.data && this.account.data.energy
+        return this.account && this.account.energy
     }
 }
 </script>
