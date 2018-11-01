@@ -59,7 +59,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
-// import TabBar from './components/TabBar.vue'
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
@@ -86,7 +85,6 @@ function getDefaultTab(): TabBar.Item {
 
 @Component({
     components: {
-        // TabBar,
         ViewPort,
         NetworkStatus,
         Vendor,
