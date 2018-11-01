@@ -36,12 +36,12 @@
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { State } from 'vuex-class'
+import { Vue, Component, Mixins } from 'vue-property-decorator'
 import WalletCard from '../components/WalletCard.vue'
 import NewWalletDialog from './NewWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
+import WalletsLoader from '../mixin/wallets-loader'
 
 @Component({
     components: {
@@ -50,18 +50,9 @@ import { Entities } from '../database'
         ImportWalletDialog
     }
 })
-export default class Wallets extends Vue {
+export default class Wallets extends Mixins(WalletsLoader) {
     dialog = false
-    wallets: Entities.Wallet[] = []
 
-    @State walletsRevision!: number
-    @Watch('walletsRevision')
-    async reloadWallets() {
-        this.wallets = await DB.wallets.toArray()
-    }
-    created() {
-        this.reloadWallets()
-    }
     onClick(address: string) {
         this.$router.push({
             name: 'walletDetail',
@@ -70,6 +61,5 @@ export default class Wallets extends Vue {
             }
         })
     }
-
 }
 </script>

@@ -2,6 +2,7 @@ import { Vue } from 'vue-property-decorator'
 import { remote } from 'electron'
 import Database from './database'
 import env from '@/env'
+import { trackTxLoop } from './tx-tracker'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
@@ -37,6 +38,7 @@ Object.defineProperty(window, 'BUS', {
     value: new Vue()
 })
 
+trackTxLoop()
 
 const win = remote.getCurrentWindow()
 const style = 'full-screen'
