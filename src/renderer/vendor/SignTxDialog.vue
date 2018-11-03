@@ -5,7 +5,7 @@
         v-model="open"
         @keydown.enter="onAction(true)"
     >
-        <v-card>
+        <v-card  v-nofocusout tabindex="-1">
             <v-layout row style="height:480px;">
                 <v-layout
                     column

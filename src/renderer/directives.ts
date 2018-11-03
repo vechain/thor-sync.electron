@@ -5,9 +5,19 @@ function write(str: string) {
     clipboard.writeText(str)
 }
 Vue.directive('clipboard', {
-    bind(el: Element, binding: any) {
+    bind(el: HTMLElement, binding: any) {
         el.addEventListener('click', () => {
             write(binding.value)
+        })
+    }
+})
+
+Vue.directive('nofocusout', {
+    bind(el: HTMLElement, binding: any) {
+        el.addEventListener('focusout', (event: any) => {
+            if (!el.contains(event.relatedTarget)) {
+                el.focus()
+            }
         })
     }
 })
