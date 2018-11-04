@@ -1,28 +1,31 @@
 <template>
-    <OverlayedMenu
-        v-if="records.length > 0"
-        left
-        offset-y
-        :close-on-content-click="false"
-        max-height="500px"
-        max-width="300px"
-        min-width="300px"
-        v-model="opened"
-    >
+    <OverlayedMenu left offset-y :close-on-content-click="false" v-model="opened">
         <v-btn flat light small slot="activator">activity</v-btn>
-        <v-card>
-            <v-expansion-panel expand>
-                <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
-            </v-expansion-panel>
+        <v-card width="300">
+            <template v-if="showContent">
+                <template v-if="records.length>0">
+                    <v-subheader
+                        class="py-1"
+                        style="height:auto;background-color:rgba(0,0,0,0.05)"
+                    >Activities</v-subheader>
+                    <v-divider/>
+                    <div style="max-height:450px;overflow-y:scroll">
+                    <v-expansion-panel>
+                        <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
+                    </v-expansion-panel>
+                    </div>
+                </template>
+                <v-card-text v-else class="text-xs-center">No Activity</v-card-text>
+            </template>
         </v-card>
     </OverlayedMenu>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { State } from 'vuex-class'
+import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
 import OverlayedMenu from './OverlayedMenu.vue'
 import TxRecord from './TxRecord.vue'
-import { Entities } from '@/renderer/database'
+import TxRecordsLoader from '../mixin/tx-records-loader'
+import * as _ from 'lodash'
 
 @Component({
     components: {
@@ -30,25 +33,29 @@ import { Entities } from '@/renderer/database'
         TxRecord
     }
 })
-export default class TxRecordsPanel extends Vue {
+export default class TxRecordsPanel extends Mixins(TxRecordsLoader) {
     opened = false
-    records: Entities.TxRecord[] = []
 
-    @State txRecordsRevision!: number
-    @Watch('txRecordsRevision')
-    async reload() {
-        try {
-            this.records = await DB.txRecords
-                .orderBy('insertTime')
-                .reverse()
-                .limit(10)
-                .toArray()
-        } catch (err) {
-            console.error(err)
-        }
-    }
+    showContent = false
+
+    // override
+    limit = { offset: 0, count: 10 }
+
+    updateShowContent !: ()=>void
+
     created() {
-        this.reload()
+        this.updateShowContent = _.debounce(() =>{
+            this.showContent = this.opened
+        }, 200)
+    }
+
+    @Watch('opened')
+    openedChanged() {
+        if (this.opened) {
+            this.showContent = true
+        } else {
+            this.updateShowContent()
+        }
     }
 }
 </script>
