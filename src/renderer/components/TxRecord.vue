@@ -54,7 +54,7 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Entities } from '../database'
 import { Transaction } from 'thor-devkit'
 import * as NodeUrl from 'url'
-const TimeAgo =require( 'javascript-time-ago')
+const TimeAgo = require('javascript-time-ago')
 const EN = require('javascript-time-ago/locale/en')
 import AddressLabel from './AddressLabel.vue'
 import Amount from './Amount.vue'
@@ -83,9 +83,10 @@ export default class TxRecord extends Vue {
             .get({ address: this.entity.signer.toLowerCase() })
             .then(v => {
                 if (v) {
-                    this.walletName = v.name!
+                    this.walletName = v ? v.name! : 'Unknown Wallet'
                 }
             })
+            .catch(err => console.warn)
     }
 
     get status(): {
