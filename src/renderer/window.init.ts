@@ -2,7 +2,7 @@ import { Vue } from 'vue-property-decorator'
 import { remote } from 'electron'
 import Database from './database'
 import env from '@/env'
-import { trackTxLoop } from './tx-tracker'
+import { trackTxLoop } from './tx-utils'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
