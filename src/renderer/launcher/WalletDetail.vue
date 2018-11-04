@@ -19,8 +19,8 @@
                             <v-layout row>
                                 <v-spacer/>
                                 <v-btn v-clipboard="wallet.address" slot="activator" large icon>
-                                        <v-icon>mdi-content-copy</v-icon>
-                                    </v-btn>
+                                    <v-icon>mdi-content-copy</v-icon>
+                                </v-btn>
                                 <QRCodeDialog width="300" :size="270" :content="wallet.address">
                                     <v-btn slot="activator" large icon>
                                         <v-icon>mdi-qrcode</v-icon>
@@ -76,6 +76,7 @@ import AddressLabel from '../components/AddressLabel.vue'
 import { Num } from '@/common/formatter'
 import QRCodeDialog from '../components/QRCodeDialog.vue'
 import { Entities } from '../database'
+import AccountLoader from '../mixin/account-loader'
 @Component({
     components: {
         Amount,
@@ -83,20 +84,14 @@ import { Entities } from '../database'
         QRCodeDialog
     }
 })
-export default class WalletDetail extends Mixins(TransferMixin) {
+export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
     name = 'walletDetail'
-    wallet: any = null
+    wallet: Entities.Wallet | null = null
     list: Connex.Thor.Transfer[] = []
-    @State
-    walletsRevision!: number
-    address: string = ''
-    isloading = true
-
-    untrack = () => {}
-
-    destroyed() {
-        this.untrack()
+    get address() {
+        return (this.wallet ? this.wallet.address : '') || ''
     }
+    isloading = true
 
     headers = [
         {
@@ -132,40 +127,24 @@ export default class WalletDetail extends Mixins(TransferMixin) {
     ]
 
     async created() {
-        this.address = this.$route.params.address
-        this.loadWallet()
-        this.createFilter(this.address)
+        const address = this.$route.params.address
+        this.wallet = (await DB.wallets
+            .where('address')
+            .equalsIgnoreCase(address)
+            .first()) || null
+        this.createFilter(address)
         this.list = await this.getTransferDesc(10)
         this.isloading = false
     }
 
-    @Watch('walletsRevision')
-    async loadWallet() {
-        this.wallet = await DB.wallets
-            .where('address')
-            .equalsIgnoreCase(this.address)
-            .first()
-    }
 
-    get account() {
-        // untrack previously tracked
-        this.untrack()
-
-        const tracker = this.$store.getters.account(this.wallet.address)
-        // settle untrack method
-        this.untrack = () => {
-            tracker.untrack()
-            this.untrack = () => {}
-        }
-        return tracker.account as Store.Account
-    }
 
     get balance() {
-        return this.account.data && this.account.data.balance
+        return this.account && this.account.balance
     }
 
     get energy() {
-        return this.account.data && this.account.data.energy
+        return this.account && this.account.energy
     }
 }
 </script>
