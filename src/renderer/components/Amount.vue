@@ -77,6 +77,10 @@ function splitNum(numStr: string | null, decimal: number) {
         return ['--', '.--']
     }
     const dp = numStr.indexOf('.')
-    return [numStr.slice(0, dp), numStr.slice(dp)]
+    if (dp >= 0) {
+        return [numStr.slice(0, dp), numStr.slice(dp)]
+    } else {
+        return [numStr, '']
+    }
 }
 </script>

@@ -48,7 +48,6 @@ export function normalizeClauses(clauses: Connex.Vendor.Message<'tx'>) {
 export function normalizeTxSignOptions(options?: Connex.Vendor.SignOptions<'tx'>) {
     options = { ...(options || {}) }
     options.signer = options.signer || undefined
-    options.gas = options.gas || 21000
 
     if (options.signer) {
         assert(cry.isAddress(options.signer), 'bad options: signer expected address')

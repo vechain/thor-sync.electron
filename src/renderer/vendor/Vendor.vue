@@ -1,5 +1,9 @@
 <template>
     <div style="position: absolute;">
+        <v-snackbar v-model="snackbar" :timeout="6000" bottom right>
+            {{snackbarText}}
+            <v-btn flat @click="snackbar = false">Close</v-btn>
+        </v-snackbar>
         <SignTxDialog ref="signTxDlg"/>
     </div>
 </template>
@@ -15,6 +19,8 @@ import serializeError from 'serialize-error'
     }
 })
 export default class Vendor extends Vue {
+    snackbar = false
+    snackbarText = ''
     mounted() {
         const signTxDlg = this.$refs.signTxDlg as SignTxDialog
         remote.app.EXTENSION.inject(
@@ -28,7 +34,13 @@ export default class Vendor extends Vue {
                     callback: (err?: Error, result?: Connex.Vendor.SignResult<'tx'>) => void
                 ) => {
                     signTxDlg.signTx(clientId, message, options, referer)
-                        .then(r => callback(undefined, r))
+                        .then(r => {
+                            setTimeout(() => {
+                                this.snackbarText = 'Transaction signed and enqueued'
+                                this.snackbar = true
+                            }, 500)
+                            callback(undefined, r)
+                        })
                         .catch(err => callback(serializeError(err)))
                 }
             })

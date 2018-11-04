@@ -1,21 +1,32 @@
 <template>
-    <v-window v-model="index">
+    <v-window :value="value" @input="$emit('input', $event)"           >
         <v-window-item v-for="(wallet,i) in wallets" :key="i">
             <v-layout row align-center justify-center>
                 <WalletCard flat compact :wallet="wallet" style="border-radius:8px;width:160px;"/>
             </v-layout>
         </v-window-item>
-        <v-layout row align-center style="position:absolute;left:0;top:0;width:100%;height:100%">
-            <v-btn icon flat @click="index--" :disabled="index<1" :style="btnStyleObject">
+        <v-layout
+            v-show="wallets.length > 1"
+            row
+            align-center
+            style="position:absolute;left:0;top:0;width:100%;height:100%"
+        >
+            <v-btn
+                :ripple="false"
+                icon
+                flat
+                @click.stop="$emit('input', value - 1)"
+                :disabled="disabled || value<1"
+            >
                 <v-icon>mdi-chevron-left</v-icon>
             </v-btn>
             <v-spacer/>
             <v-btn
+                :ripple="false"
                 icon
                 flat
-                @click="index++"
-                :disabled="index>=wallets.length-1"
-                :style="btnStyleObject"
+                @click.stop="$emit('input', value + 1)"
+                :disabled="disabled || value>=wallets.length-1"
             >
                 <v-icon>mdi-chevron-right</v-icon>
             </v-btn>
@@ -34,30 +45,9 @@ import { Entities } from '@/renderer/database'
 })
 export default class WalletSeeker extends Vue {
     @Prop({ default: () => [] }) wallets!: Entities.Wallet[]
+    @Prop(Boolean) disabled!: boolean
+    @Prop(Number) value!: number
 
-    @Model('select', { type: Object }) selection!: Entities.Wallet
-    @Emit('select')
-    emitSelect(val: Entities.Wallet) { }
-    @Watch('selection')
-    selectionChanged(val: Entities.Wallet) {
-        let index = this.wallets.findIndex(w => w === val)
-        if(index < 0) {
-            index = 0
-        }
-        this.index = index                
-    }
-
-    index = 0
-    @Watch('index')
-    indexChanged(val: number) {
-        this.emitSelect(this.wallets[val])
-    }
-
-    get btnStyleObject() {
-        return {
-            visibility: this.wallets.length > 1 ? 'visible' : 'hidden'
-        }
-    }
 }
 </script>
 

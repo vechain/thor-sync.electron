@@ -1,25 +1,26 @@
 <template>
-    <v-menu ref="menu" v-bind="$attrs" v-on="$listeners" v-model="opened" :close-on-click="false">
-        <slot slot="activator" name="activator" />
-        <slot />
+    <v-menu
+        ref="menu"
+        v-bind="$attrs"
+        v-on="$listeners"
+        :close-on-click="false"
+        :value="value"
+        @input="$emit('input', $event)"
+    >
+        <slot slot="activator" name="activator"/>
+        <slot/>
     </v-menu>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch, Model } from 'vue-property-decorator'
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
 
 @Component
 export default class OverlayedMenu extends Vue {
-    @Model('input') value!: boolean
-    opened = false
+    @Prop(Boolean) value !: boolean
 
     @Watch('value')
     valueChanged() {
-        this.opened = this.value
-    }
-
-    @Watch('opened')
-    openClose() {
-        if (this.opened) {
+        if (this.value) {
             const menu = this.$refs['menu'] as any
             this.overlay.style.zIndex = (menu.styles.zIndex - 1) as any
             this.overlay.style.display = null
@@ -29,17 +30,19 @@ export default class OverlayedMenu extends Vue {
         }
     }
 
-    overlay = document.createElement('div')
+    overlay!: HTMLElement
+
     mounted() {
+        this.overlay = document.createElement('div')
         this.overlay.className = 'sync-menu-overlay'
         this.overlay.style.display = 'none'
         this.overlay.onclick = () => {
-            this.opened = false
+            this.$emit('input', false)
         }
         document.body.appendChild(this.overlay)
     }
     destroyed() {
-        this.overlay.parentNode!.removeChild(this.overlay)
+        document.body.removeChild(this.overlay)
     }
 }
 </script>
@@ -52,4 +55,3 @@ export default class OverlayedMenu extends Vue {
   height: 100vh;
 }
 </style>
-
