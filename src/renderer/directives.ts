@@ -14,6 +14,7 @@ Vue.directive('clipboard', {
 
 Vue.directive('nofocusout', {
     bind(el: HTMLElement, binding: any) {
+        el.tabIndex = -1
         el.addEventListener('focusout', (event: any) => {
             if (!el.contains(event.relatedTarget)) {
                 el.focus()
