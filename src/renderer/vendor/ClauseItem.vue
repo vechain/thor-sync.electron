@@ -1,25 +1,37 @@
 <template >
-    <v-expansion-panel-content v-bind="$attrs" v-on="$listeners">
-        <template v-if="!!clause">
-            <v-layout column slot="header">
-                <AddressLabel abbrev placeholder="New contract">{{clause.to}}</AddressLabel>
-                <v-layout row>
-                    <v-chip disabled small outline label class="ma-0 caption" style="height:18px">{{type}}</v-chip>
-                    <v-flex text-xs-right>
-                        <Amount sym=" VET" prepend="-">{{clause.value}}</Amount>
-                    </v-flex>
-                </v-layout>
+    <v-expansion-panel-content v-bind="$attrs" v-on="$listeners" class="caption">
+        <v-layout column slot="header" class="pr-2">
+            <v-layout row align-baseline>
+                <span class="grey--text">Clause {{index+1}}</span>
+                <v-spacer/>
+                <v-card flat dark class="primary px-2" style="font-size:85%">
+                    <b>{{type}}</b>
+                </v-card>
             </v-layout>
-            <v-card style="word-break:break-all;">
-                <v-card-text>
-                    <span>{{clause.desc}}</span>
-                </v-card-text>
-                <v-card-text class="pt-0">
-                    <v-textarea box readonly :value="clause.data" label="Input Data" style="font-family: 'Roboto Mono', monospace">
-                    </v-textarea>
-                </v-card-text>
-            </v-card>
-        </template>
+            <v-layout row align-baseline>
+                <span>To:
+                    <AddressLabel abbrev placeholder="New contract">{{clause.to}}</AddressLabel>
+                </span>
+                <v-spacer/>
+                <Amount sym=" VET" class="body-1">{{clause.value}}</Amount>
+            </v-layout>
+        </v-layout>
+        <v-card style="word-break:break-all;">
+            <v-card-text>
+                <i>{{clause.desc}}</i>
+            </v-card-text>
+            <v-card-text class="pt-0">
+                <v-textarea
+                    tabindex="-1"
+                    class="caption"
+                    box
+                    readonly
+                    :value="clause.data"
+                    label="Input Data"
+                    style="font-family: 'Roboto Mono', monospace"
+                ></v-textarea>
+            </v-card-text>
+        </v-card>
     </v-expansion-panel-content>
 </template>
 <script lang="ts">
@@ -36,7 +48,8 @@ type ClauseType = Connex.Vendor.Message<'tx'>[number]
     }
 })
 export default class ClauseItem extends Vue {
-    @Prop() clause!: ClauseType
+    @Prop(Object) clause!: ClauseType
+    @Prop(Number) index!: number
 
     get type() {
         if (!this.clause.to) {
@@ -50,4 +63,10 @@ export default class ClauseItem extends Vue {
     }
 }
 </script>
+<style lang='css'>
+div.v-expansion-panel__header {
+  padding-right: 12px !important;
+}
+</style>
+
 
