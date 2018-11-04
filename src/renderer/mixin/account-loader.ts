@@ -1,6 +1,6 @@
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { EventEmitter } from 'events'
 import { Address } from '@/common/formatter'
+import Deferred from '@/common/deferred'
 
 @Component
 export default class AccountLoader extends Vue {
@@ -8,119 +8,91 @@ export default class AccountLoader extends Vue {
     // override it to set address
     get address() { return '' }
 
-    private _untrack?: () => void
-
     public created() {
-        this.track()
+        this.update()
     }
 
-    public destroyed() {
-        if (this._untrack) {
-            this._untrack()
-            this._untrack = undefined
-        }
-    }
-
+    @Watch('$store.state.chainStatus')
     @Watch('address')
-    private track() {
-        if (this._untrack) {
-            this._untrack()
-            this._untrack = undefined
-        }
-        this.account = null
+    private update() {
         if (Address.isValid(this.address)) {
-            this._untrack = tracker.track(this.address, acc => {
-                if (this.account) {
-                    Object.assign(this.account, acc)
-                } else {
-                    this.account = acc
+            const addr = this.address.toLowerCase()
+            const cached = cache.get(addr)
+            if (cached) {
+                this.assign(cached.account)
+                if (cached.headId === connex.thor.status.head.id) {
+                    return
                 }
-            }).untrack
-        }
-    }
-}
-
-class AccountTracker {
-    private readonly tracking = new Map<string, {
-        refCount: number
-        updateTime: number
-        account: Connex.Thor.Account | null
-    }>()
-
-    private emitter = new EventEmitter()
-
-    constructor() {
-        const ticker = connex.thor.ticker();
-        (async () => {
-            for (; ;) {
-                await ticker.next()
-
-                const tasks: Array<Promise<void>> = []
-                // tslint:disable-next-line:forin
-                this.tracking.forEach((obj, addr) => {
-                    if (obj.refCount > 0) {
-                        tasks.push(
-                            connex.thor
-                                .account(addr)
-                                .get()
-                                .then(acc => {
-                                    obj.account = acc
-                                    obj.updateTime = Date.now()
-                                })
-                                // tslint:disable-next-line:no-console
-                                .catch(console.warn))
-                    }
-                })
-                await Promise.all(tasks)
-                this.emitter.emit('update')
+            } else {
+                this.account = null
             }
-        })()
-    }
 
-    public track(addr: string, cb: (acc: Connex.Thor.Account) => void) {
-        let obj = this.tracking.get(addr)
-        if (!obj) {
-            obj = {
-                refCount: 0,
-                updateTime: 0,
-                account: null
-            }
-            this.tracking.set(addr, obj)
-        }
-        obj.refCount++
-
-        if (obj.account) {
-            cb(obj.account)
-        }
-
-        if (Date.now() > obj.updateTime + 30 * 1000) {
-            connex.thor
-                .account(addr)
-                .get()
-                .then(acc => {
-                    obj!.account = acc
-                    obj!.updateTime = Date.now()
-                    cb(acc)
-                })
+            fetcher.fetch(addr).then(acc => {
+                cache.set(addr, acc, connex.thor.status.head.id)
+                if ((this.address || '').toLowerCase() === addr) {
+                    this.assign(acc)
+                }
+            })
                 // tslint:disable-next-line:no-console
                 .catch(console.warn)
+
+        } else {
+            this.account = null
         }
+    }
 
-        const listener = () => {
-            if (obj && obj.account) {
-                cb(obj.account)
-
-            }
-        }
-
-        this.emitter.addListener('update', listener)
-        return {
-            untrack: () => {
-                obj!.refCount--
-                this.emitter.removeListener('update', listener)
-            }
+    private assign(acc: Connex.Thor.Account) {
+        if (this.account) {
+            Object.assign(this.account, acc)
+        } else {
+            this.account = acc
         }
     }
 }
 
-const tracker = new AccountTracker()
+class Fetcher {
+    private readonly fetching = new Map<string, Array<Deferred<Connex.Thor.Account>>>()
+
+    public fetch(addr: string) {
+        const array = this.fetching.get(addr) || []
+        this.fetching.set(addr, array)
+
+        const deferred = new Deferred<Connex.Thor.Account>()
+        array.push(deferred)
+
+        if (array.length === 1) {
+            (async () => {
+                try {
+                    const account = await connex.thor.account(addr).get()
+                    array.forEach(d => d.resolve(account))
+                } catch (err) {
+                    array.forEach(d => d.reject(err))
+                } finally {
+                    this.fetching.delete(addr)
+                }
+            })()
+        }
+        return deferred
+    }
+}
+
+class Cache {
+    private readonly cache = new Map<string, {
+        headId: string
+        account: Connex.Thor.Account
+    }>()
+
+    public get(addr: string) {
+        return this.cache.get(addr)
+    }
+
+    public set(addr: string, account: Connex.Thor.Account, headId: string) {
+        this.cache.set(addr, {
+            account,
+            headId
+        })
+    }
+}
+
+const fetcher = new Fetcher()
+const cache = new Cache()
