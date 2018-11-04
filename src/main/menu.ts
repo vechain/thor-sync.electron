@@ -1,4 +1,4 @@
-import { app, Menu, MenuItemConstructorOptions, BrowserWindow} from 'electron'
+import { app, Menu, MenuItemConstructorOptions, BrowserWindow } from 'electron'
 
 
 export function setupMenu() {
@@ -83,7 +83,7 @@ export function setupMenu() {
                     const win = BrowserWindow.getFocusedWindow()
                     if (win) {
                         app.nova[win.webContents.getWebPreferences().xargs!.clientId![0]].newTab()
-                    }else {
+                    } else {
                         app.EXTENSION.createWindow()
                     }
                 }

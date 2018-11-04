@@ -55,6 +55,7 @@ export function generate(content: string) {
         const secondRot = rand.random()
         const rot = (firstRot * 360) + secondRot * 180
 
+        // tslint:disable-next-line:max-line-length
         shapesStr += `<rect width="100" height="100" fill="${genColor()}" transform="translate(${tx} ${ty}) rotate(${rot.toFixed(1)} 50 50)"/>`
     }
     return `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${bgStr}${shapesStr}</svg>`
