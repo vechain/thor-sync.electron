@@ -1,15 +1,13 @@
 <template >
-    <v-expansion-panel-content v-bind="$attrs" v-on="$listeners" class="caption">
+    <v-expansion-panel-content v-bind="$attrs" v-on="$listeners">
         <v-layout column slot="header" class="pr-2">
             <v-layout row align-baseline>
-                <span class="grey--text">Clause {{index+1}}</span>
+                <span class="grey--text caption">Clause {{index+1}}</span>
                 <v-spacer/>
-                <v-card flat dark class="primary px-2" style="font-size:85%">
-                    <b>{{type}}</b>
-                </v-card>
+                <b class="label primary text-uppercase">{{type}}</b>
             </v-layout>
             <v-layout row align-baseline>
-                <span>To:
+                <span class="caption">To:
                     <AddressLabel abbrev placeholder="New contract">{{clause.to}}</AddressLabel>
                 </span>
                 <v-spacer/>
@@ -20,7 +18,7 @@
             <v-card-text>
                 <i>{{clause.desc}}</i>
             </v-card-text>
-            <v-card-text class="pt-0">
+            <v-card-text v-show="!!clause.data" class="pt-0">
                 <v-textarea
                     tabindex="-1"
                     class="caption"

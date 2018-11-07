@@ -4,6 +4,7 @@
         persistent
         v-model="open"
         transition="sign-dialog-transition"
+        @keydown.esc="onReturnValue(null)"
     >
         <v-card v-nofocusout>
             <v-layout v-if="showContent" row style="height:450px;">
@@ -11,15 +12,15 @@
                     column
                     style="width:350px;flex:0 0 auto; background-color: rgba(0,0,0,0.15)"
                 >
-                    <div class="pa-2">
-                        <v-layout align-baseline>
-                            <span class="text-truncate">{{referer.title}}</span>
-                            <span
-                                v-show="!!host"
-                                class="text-truncate caption grey--text pl-2"
-                            >@{{host}}</span>
+                    <div class="py-2 px-3">
+                        <v-layout>
+                            <span class="title">Transaction</span>
+                            <v-spacer/>
+                            <span class="text-truncate caption grey--text pl-2">@{{host}}</span>
                         </v-layout>
-                        <i style="word-break:break-all;">{{summary}}</i>
+                        <div class="text-truncate">
+                            <i>{{summary}}</i>
+                        </div>
                     </div>
                     <v-expansion-panel
                         expand
@@ -33,7 +34,6 @@
                             :key="i"
                             :index="i"
                             :clause="clause"
-                            :value="initValue.clauses.length === 1"
                         />
                     </v-expansion-panel>
                 </v-layout>
@@ -54,7 +54,7 @@ import AddressLabel from '../components/AddressLabel.vue'
 import Amount from '../components/Amount.vue'
 import ClauseItem from './ClauseItem.vue'
 import WalletCard from '../components/WalletCard.vue'
-import { normalizeClauses, normalizeTxSignOptions } from './utils'
+import { normalizeClauses, normalizeTxSignOptions, describe } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
@@ -115,33 +115,32 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
             url: string
             title: string
         }) {
+
+        // TODO check whether clientId is current viewport
+        if (this.open) { throw new Error('busy') }
+        if (this.wallets.length === 0) { throw new Error('rejected') }
+
+        message = normalizeClauses(message)
+        options = normalizeTxSignOptions(options)
+
+        let walletIndex = 0
+        if (options.signer) {
+            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
+            if (walletIndex < 0) {
+                throw new Error('bad options: no such signer')
+            }
+        }
+        this.summary = options.summary || describe(message)
+        this.referer = referer
+        this.initValue = {
+            clauses: message.slice(),
+            wallets: this.wallets.slice(),
+            selectedWallet: walletIndex,
+            suggestedGas: options.gas || 0,
+        }
+        this.open = true
+
         try {
-            // TODO check whether clientId is current viewport
-            if (this.open) { throw new Error('busy') }
-            if (this.wallets.length === 0) { throw new Error('rejected') }
-
-            message = normalizeClauses(message)
-            options = normalizeTxSignOptions(options)
-
-            let walletIndex = 0
-            if (options.signer) {
-                walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
-                if (walletIndex < 0) {
-                    throw new Error('bad options: no such signer')
-                }
-            }
-            this.summary = options.summary || ''
-            this.referer = referer
-            this.initValue = {
-                clauses: message.slice(),
-                wallets: this.wallets.slice(),
-                selectedWallet: walletIndex,
-                suggestedGas: options.gas || 0,
-            }
-
-
-            this.open = true
-
             const returnValue = new Deferred<TxSigningPanel.ReturnValue | null>()
             this.returnValue = returnValue
 
