@@ -59,3 +59,21 @@ export function normalizeTxSignOptions(options?: Connex.Vendor.SignOptions<'tx'>
     }
     return options
 }
+
+
+export function describe(clauses: Connex.Vendor.Message<'tx'>) {
+    if (clauses.length === 0) {
+        return 'empty'
+    }
+    if (clauses.length === 1) {
+        if (!clauses[0].to) {
+            return 'to create a contract'
+        }
+        if (clauses[0].data === '0x') {
+            return 'to transfer value'
+        }
+        return 'to make contract call'
+    }
+
+    return 'to perform a batch of actions'
+}
