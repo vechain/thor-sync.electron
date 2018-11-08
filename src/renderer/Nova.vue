@@ -4,7 +4,7 @@
         <v-toolbar
             color="grey lighten-3"
             height="40px"
-            class="drag-zone elevation-0"
+            class="drag elevation-0"
             style="overflow:hidden;"
             fixed
             app
@@ -19,7 +19,8 @@
             >
                 <TabButton
                     v-for="(item,i) in items"
-                    style="flex: 0 1 auto;width:200px;-webkit-app-region: no-drag;"
+                    class="no-drag"
+                    style="flex: 0 1 auto;width:200px;"
                     :key="tabs[i].id"
                     :value="item"
                     @close="closeTab(i)"
@@ -33,15 +34,15 @@
                     key="the-add-btn"
                     @click="onAddTAb"
                     @dblclick.native.stop
-                    class="ma-1 pa-0 ml-2"
-                    style="-webkit-app-region: no-drag;width:auto;height:auto;min-width:auto;"
+                    class="ma-1 pa-0 ml-2 no-drag"
+                    style="width:auto;height:auto;min-width:auto;"
                 >
                     <v-icon style="font-size:150%">add</v-icon>
                 </v-btn>
             </transition-group>
             <v-spacer/>
-            <NetworkStatus style="-webkit-app-region: no-drag"></NetworkStatus>
-            <TxRecordsPanel style="-webkit-app-region: no-drag"/>
+            <NetworkStatus class="no-drag"></NetworkStatus>
+            <TxRecordsPanel class="no-drag"/>
         </v-toolbar>
         <v-content class="sync-container">
             <view-port
