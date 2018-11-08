@@ -94,6 +94,7 @@ export class Backend {
             // tslint:disable-next-line:no-console
             console.log(`releaseSite: <${key}> #${value.refCount}`)
             if (value.refCount === 0) {
+                value.site.shutdown()
                 this.activeSites.delete(key)
                 // tslint:disable-next-line:no-console
                 console.log(`releaseSite: <${key}> site destroyed`)
