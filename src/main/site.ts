@@ -195,7 +195,9 @@ export class Site implements Connex.Thor.Site {
                 try {
                     this.bestBlock = JSON.parse((await ws.read()).toString())
                     this.emitter.emit('next')
-                } catch (e) {
+                } catch (err) {
+                    // tslint:disable-next-line:no-console
+                    console.warn('subscribe block:', err)
                     ws.close()
                     ws = undefined
                     if (!this.stop) {
@@ -217,7 +219,7 @@ export class Site implements Connex.Thor.Site {
                         if (!this.stop) {
                             await sleep(2 * 1000)
                         }
-                    } catch (e) {
+                    } catch (err) {
                         if (!this.stop) {
                             await sleep(10 * 1000)
                         }
