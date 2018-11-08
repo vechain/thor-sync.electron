@@ -52,7 +52,6 @@ import WalletsLoader from '../mixin/wallets-loader'
 })
 export default class Wallets extends Mixins(WalletsLoader) {
     dialog = false
-    limit = { offset: 0, count: 100000 }
     onClick(address: string) {
         this.$router.push({
             name: 'walletDetail',

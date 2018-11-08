@@ -4,14 +4,15 @@ import { Entities } from '../database'
 @Component
 export default class WalletsLoader extends Vue {
     public wallets: Entities.Wallet[] = []
-
     public loading = false
-    public limit = {
-        offset: 0,
-        count: 10
-    }
 
     private _unsubscribe !: () => void
+
+    public filter = () => {
+        return DB.wallets
+            .orderBy('id')
+            .toArray()
+    }
     public created() {
         this._unsubscribe = DB.subscribe(DB.wallets.name, () => this.query()).unsubscribe
         this.query()
@@ -22,27 +23,21 @@ export default class WalletsLoader extends Vue {
     }
 
 
-    @Watch('limit')
-    private limitChanged() {
+    @Watch('filter')
+    private filterChanged() {
         this.wallets = []
         this.query()
     }
 
     private async query() {
-        if (this.limit.count > 0) {
+        try {
             this.loading = true
-            try {
-                this.wallets = await DB.wallets
-                    .orderBy('id')
-                    .offset(this.limit.offset)
-                    .limit(this.limit.count)
-                    .toArray()
-            } catch (err) {
-                // tslint:disable-next-line:no-console
-                console.warn(err)
-            } finally {
-                this.loading = false
-            }
+            this.wallets = await this.filter()
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.warn(err)
+        } finally {
+            this.loading = false
         }
     }
 }
