@@ -228,8 +228,19 @@ body {
   position: absolute;
   height: 100%;
 }
-.drag-zone {
+.tab-bar {
+  overflow: hidden;
+  padding: 16px 8px 0px 80px;
+}
+.tab-button {
+  flex: 0 1 auto;
+  width: 200px;
+}
+.drag {
   -webkit-app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
 }
 
 .viewport {
@@ -266,22 +277,41 @@ body {
 .sync-viewport-container.current {
   z-index: 2;
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+
+.toolbar {
+  background-color: #e6e6e6;
 }
 
-.list-complete-enter
-/* .list-complete-leave-active for below version 2.1.8 */ {
-  transform: translateY(100%);
+.label {
+  color: #fff;
+  padding: 0px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+.break-all {
+  word-break: break-all;
+}
+.theme--light.v-menu__content {
+  box-shadow: 0px 5px 24px 2px rgba(0, 0, 0, 0.25),
+    rgba(0, 0, 0, 0.5) 0px 0px 0.5px 0px;
+  border-radius: 6px;
+}
+.theme--light.application .v-dialog {
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12),
+    rgba(0, 0, 0, 0.3) 0px 0px 0px 0.5px;
+  border-radius: 6px;
 }
 
-.list-complete-leave-active {
+.theme--light.outline::before {
+  pointer-events: none;
+  border-radius: inherit;
+  content: "";
   position: absolute;
-
-  opacity: 0;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
 }
 </style>

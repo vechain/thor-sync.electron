@@ -25,7 +25,7 @@
             >
                 <WalletCard
                     hover
-                    class="ma-4"
+                    class="ma-4 outline"
                     style="border-radius:8px;width:220px"
                     @click.native="onClick(wallet.address)"
                     :track="true"

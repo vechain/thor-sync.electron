@@ -2,7 +2,6 @@
     <v-card
         v-bind="$attrs"
         v-on="$listeners"
-        class="wallet-card"
         :style="{'font-size': compact? '90%':'inherit'}"
     >
         <IdentBox :text="wallet.address.toLowerCase()">
@@ -64,17 +63,4 @@ export default class WalletCard extends Mixins(AccountLoader) {
     }
 }
 </script>
-<style scoped>
-/* border for flat mode */
-.v-card--flat.wallet-card::before {
-  border-radius: inherit;
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  width: 100%;
-}
-</style>
 
