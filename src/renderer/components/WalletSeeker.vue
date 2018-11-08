@@ -2,7 +2,7 @@
     <v-window :value="value" @input="$emit('input', $event)"           >
         <v-window-item v-for="(wallet,i) in wallets" :key="i">
             <v-layout row align-center justify-center>
-                <WalletCard flat compact :wallet="wallet" style="border-radius:8px;width:160px;"/>
+                <WalletCard flat compact class="outline" :wallet="wallet" style="border-radius:8px;width:160px;"/>
             </v-layout>
         </v-window-item>
         <v-layout

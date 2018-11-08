@@ -97,11 +97,11 @@ export default class TabButton extends Vue {
 }
 
 .theme--light.tab-button--active {
-  box-shadow: 0px 0px 0px 3px #ffffff, 0px 1px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 0px 3px #ffffff, 0px 1px 2px 2px rgba(0, 0, 0, 0.5);
   background-color: #ffffff;
 }
 .theme--dark.tab-button--active {
-  box-shadow: 0px 0px 0px 3px #212121, 0px 1px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 0px 3px #212121, 0px 1px 2px 2px rgba(0, 0, 0, 0.5);
   background-color: #212121;
 }
 
