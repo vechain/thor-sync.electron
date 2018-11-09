@@ -47,7 +47,7 @@
                     <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
-                        <td class="text-xs-center">{{props.item.meta.txID | shortTxHas}}</td>
+                        <td class="text-xs-center">{{props.item.meta.txID | shortTxId}}</td>
                         <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
                         <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
                         <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
