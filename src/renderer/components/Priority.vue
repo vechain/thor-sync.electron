@@ -1,22 +1,30 @@
 <template>
-    <v-rating v-bind="$attrs" v-on="$listeners" v-model="rating" :length="max" dense>
+    <v-rating
+        v-bind="$attrs"
+        v-on="$listeners"
+        v-model="rating"
+        :length="max"
+        dense
+        :readonly="readonly"
+    >
         <v-icon
             small
             slot="item"
             slot-scope="props"
-            :color="props.isFilled ? 'primary' : 'grey lighten-2'"
+            :color="props.isFilled ? (readonly?'grey darken-2' : 'primary') : 'grey lighten-2'"
             @click="props.click"
         >mdi-rocket</v-icon>
     </v-rating>
 </template>
 <script lang="ts">
-import { Vue, Component, Model, Emit, Watch } from 'vue-property-decorator'
+import { Vue, Component, Model, Emit, Watch, Prop } from 'vue-property-decorator'
 
 @Component
 export default class Priority extends Vue {
     @Model('update', { type: Number }) priority!: number
     @Emit('update')
     update(val: number) { }
+    @Prop(Boolean) readonly!: boolean
 
     rating = 1
     readonly max = 4
