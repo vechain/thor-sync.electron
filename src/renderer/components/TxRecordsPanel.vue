@@ -1,6 +1,6 @@
 <template>
     <OverlayedMenu left offset-y :close-on-content-click="false" v-model="opened">
-        <v-btn flat light small slot="activator">activity</v-btn>
+        <slot slot="activator" name="activator"/>
         <v-card width="300">
             <template v-if="showContent">
                 <template v-if="records.length>0">
@@ -10,9 +10,9 @@
                     >Activities</v-subheader>
                     <v-divider/>
                     <div style="max-height:450px;overflow-y:scroll">
-                    <v-expansion-panel>
-                        <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
-                    </v-expansion-panel>
+                        <v-expansion-panel>
+                            <TxRecord v-for="rec in records" :key="rec.id" :entity="rec"/>
+                        </v-expansion-panel>
                     </div>
                 </template>
                 <v-card-text v-else class="text-xs-center">No Activity</v-card-text>
@@ -39,12 +39,18 @@ export default class TxRecordsPanel extends Mixins(TxRecordsLoader) {
     showContent = false
 
     // override
-    limit = { offset: 0, count: 10 }
+    filter = () => {
+        return DB.txRecords
+            .where('insertTime')
+            .above(Date.now() - 24 * 3600 * 1000)
+            .reverse()
+            .sortBy('insertTime')
+    }
 
-    updateShowContent !: ()=>void
+    updateShowContent !: () => void
 
     created() {
-        this.updateShowContent = _.debounce(() =>{
+        this.updateShowContent = _.debounce(() => {
             this.showContent = this.opened
         }, 200)
     }

@@ -5,12 +5,9 @@ import { Entities } from '../database'
 export default class TxRecordsLoader extends Vue {
     public records: Entities.TxRecord[] = []
     public loading = false
-    public limit = {
-        offset: 0,
-        count: 0
-    }
-
     private _unsubscribe!: () => void
+
+    public filter: () => Promise<Entities.TxRecord[]> = () => Promise.resolve([])
     public created() {
         this._unsubscribe = DB.subscribe(DB.txRecords.name, () => this.query()).unsubscribe
         this.query()
@@ -20,28 +17,21 @@ export default class TxRecordsLoader extends Vue {
         this._unsubscribe()
     }
 
-    @Watch('limit')
-    private limitChanged() {
+    @Watch('filter')
+    private filterChanged() {
         this.records = []
         this.query()
     }
 
     private async query() {
-        if (this.limit.count > 0) {
+        try {
             this.loading = true
-            try {
-                this.records = await DB.txRecords
-                    .orderBy('insertTime')
-                    .reverse()
-                    .offset(this.limit.offset)
-                    .limit(this.limit.count)
-                    .toArray()
-            } catch (err) {
-                // tslint:disable-next-line:no-console
-                console.warn(err)
-            } finally {
-                this.loading = false
-            }
+            this.records = await this.filter()
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.warn(err)
+        } finally {
+            this.loading = false
         }
     }
 }
