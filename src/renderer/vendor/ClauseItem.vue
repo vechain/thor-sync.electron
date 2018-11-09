@@ -1,6 +1,6 @@
 <template >
     <v-expansion-panel-content v-bind="$attrs" v-on="$listeners">
-        <v-layout column slot="header" class="pr-2">
+        <v-layout column slot="header">
             <v-layout row align-baseline>
                 <span class="grey--text caption">Clause {{index+1}}</span>
                 <v-spacer/>
@@ -15,7 +15,7 @@
             </v-layout>
         </v-layout>
         <v-card style="word-break:break-all;">
-            <v-card-text>
+            <v-card-text class="pt-1">
                 <i>{{clause.desc}}</i>
             </v-card-text>
             <v-card-text v-show="!!clause.data" class="pt-0">
@@ -61,10 +61,3 @@ export default class ClauseItem extends Vue {
     }
 }
 </script>
-<style lang='css'>
-div.v-expansion-panel__header {
-  padding-right: 12px !important;
-}
-</style>
-
-

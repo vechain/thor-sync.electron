@@ -1,6 +1,6 @@
 <template>
-    <div style="position: absolute;">
-        <v-snackbar v-model="snackbar" :timeout="6000" bottom right>
+    <div style="position: absolute;left:0;top:0;right:0">
+        <v-snackbar v-model="snackbar" :timeout="6000" top right absolute>
             {{snackbarText}}
             <v-btn flat @click="snackbar = false">Close</v-btn>
         </v-snackbar>

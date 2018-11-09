@@ -1,26 +1,18 @@
 <template>
     <v-app id="frame">
-        <Vendor/>
         <v-toolbar
+            flat
             color="grey lighten-3"
-            height="40px"
             class="drag elevation-0"
-            style="overflow:hidden;"
+            height="40px"
             fixed
             app
             @dblclick="onDblClickTitleBar"
         >
-            <transition-group
-                key="a"
-                name="list-complete"
-                tag="v-layout"
-                class="tab-group"
-                style=""
-            >
+            <v-layout class="tab-group">
                 <TabButton
                     v-for="(item,i) in items"
-                    class="no-drag"
-                    style="flex: 0 1 auto;width:200px;"
+                    style="flex: 0 1 auto;width:200px;-webkit-app-region: no-drag;"
                     :key="tabs[i].id"
                     :value="item"
                     @close="closeTab(i)"
@@ -34,17 +26,26 @@
                     key="the-add-btn"
                     @click="onAddTAb"
                     @dblclick.native.stop
-                    class="ma-1 pa-0 ml-2 no-drag"
-                    style="width:auto;height:auto;min-width:auto;"
+                    class="ma-1 pa-0 ml-2"
+                    style="-webkit-app-region: no-drag;width:auto;height:auto;min-width:auto;"
                 >
                     <v-icon style="font-size:150%">add</v-icon>
                 </v-btn>
-            </transition-group>
+            </v-layout>
             <v-spacer/>
-            <NetworkStatus class="no-drag"></NetworkStatus>
-            <TxRecordsPanel class="no-drag"/>
+            <NetworkStatusPanel>
+                <v-btn slot="activator" flat small>
+                <NetworkStatus />
+                </v-btn>
+            </NetworkStatusPanel>
+            <TxRecordsPanel>
+                <v-btn icon small slot="activator">
+                    <Activity/>
+                </v-btn>
+            </TxRecordsPanel>
         </v-toolbar>
         <v-content class="sync-container">
+            <Vendor/>
             <view-port
                 class="viewport-layout"
                 v-for="(item, index) in tabs"
@@ -61,12 +62,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 import ViewPort from './components/ViewPort.vue'
+import NetworkStatusPanel from './components/NetworkStatusPanel.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import { remote, Event } from 'electron'
 import Vendor from './vendor'
 import TabButton from './components/TabButton.vue'
 import TxRecordsPanel from './components/TxRecordsPanel.vue'
-
+import Activity from './components/Activity.vue'
 let counter = 0
 
 function portIdGenerator(): number {
@@ -88,9 +90,11 @@ function getDefaultTab(): TabBar.Item {
     components: {
         ViewPort,
         NetworkStatus,
+        NetworkStatusPanel,
         Vendor,
         TabButton,
-        TxRecordsPanel
+        TxRecordsPanel,
+        Activity
     }
 })
 export default class Nova extends Vue {
@@ -300,11 +304,14 @@ body {
 .theme--light.application .v-dialog {
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12),
-    rgba(0, 0, 0, 0.3) 0px 0px 0px 0.5px;
+    rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px;
   border-radius: 6px;
 }
 
-.theme--light.outline::before {
+.theme--light.application .outline {
+  position: relative;
+}
+.theme--light.application .outline::before {
   pointer-events: none;
   border-radius: inherit;
   content: "";
@@ -314,5 +321,14 @@ body {
   height: 100%;
   width: 100%;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
+}
+.v-overlay--active:before {
+  opacity: 0.2;
+}
+.v-expansion-panel__header {
+  padding-right: 12px !important;
+}
+.v-expansion-panel__header__icon {
+  margin-left: 12px !important;
 }
 </style>

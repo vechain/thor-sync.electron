@@ -55,6 +55,7 @@ export namespace Entities {
         referer: { url: string, title: string }
         summary: [string, string[]]
         link: string
+        estimatedFee: string
         receipt: (Connex.Thor.Receipt & Connex.Thor.Transaction.Meta) | null
     }
 

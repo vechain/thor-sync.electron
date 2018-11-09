@@ -105,6 +105,7 @@ namespace TxSigningPanel {
         txId: string
         rawTx: string
         signer: string
+        estimatedFee: string
     }
 }
 
@@ -265,7 +266,7 @@ class TxSigningPanel extends Mixins(AccountLoader) {
             const result = await buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas)
                 .sign(this.wallet.keystore!, this.password)
 
-            this.returnValue({ ...result, signer: this.address! })
+            this.returnValue({ ...result, signer: this.address!, estimatedFee: this.fee.toString(10) })
         } catch (err) {
             console.warn(err)
             if (err.message === 'message authentication code mismatch') {

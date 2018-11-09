@@ -157,6 +157,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
                 referer: { ...referer! },
                 summary: [options.summary!, message.map(c => c.desc!)],
                 link: options.link || '',
+                estimatedFee: ret.estimatedFee,
                 receipt: null
             })
             connex.txQueue.send(ret.txId, ret.rawTx)

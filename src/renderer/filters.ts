@@ -26,7 +26,7 @@ Vue.filter('shortAddr', (addr: string) => {
     return Address.abbrev(Address.toChecksum(addr)!)
 })
 
-Vue.filter('shortTxHas', (txId: string) => {
+Vue.filter('shortTxId', (txId: string) => {
     return txId.slice(0, 8) + '…' + txId.slice(txId.length - 9)
 })
 Vue.filter('date', (val: number) => {
