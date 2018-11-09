@@ -13,7 +13,7 @@ class Item {
         readonly wire: Connex.Thor.Site.Wire) {
     }
 
-    public async send() {
+    public send() {
         this.retries = 0
         this.sent = false
         if (this.timer) {
@@ -25,6 +25,20 @@ class Item {
             return
         }
 
+        this._send()
+    }
+
+    public get status() {
+        if (this.sent) {
+            return 'sent'
+        }
+        if (this.retries >= Item.MAX_RETRIES) {
+            return 'error'
+        }
+        return 'sending'
+    }
+
+    private async _send() {
         try {
             this.requesting = true
             const { id } = await this.wire.post<{ id: string }>('transactions', { raw: this.rawTx })
@@ -36,22 +50,12 @@ class Item {
             if (this.retries < Item.MAX_RETRIES) {
                 this.timer = setTimeout(() => {
                     this.timer = undefined
-                    this.send()
+                    this._send()
                 }, 10 * 1000)
             }
         } finally {
             this.requesting = false
         }
-    }
-
-    public get status() {
-        if (this.sent) {
-            return 'sent'
-        }
-        if (this.retries >= Item.MAX_RETRIES) {
-            return 'error'
-        }
-        return 'sending'
     }
 }
 
