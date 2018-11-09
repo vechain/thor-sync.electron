@@ -35,7 +35,7 @@
             <v-spacer/>
             <NetworkStatusPanel>
                 <v-btn slot="activator" flat small>
-                <NetworkStatus />
+                    <NetworkStatus/>
                 </v-btn>
             </NetworkStatusPanel>
             <TxRecordsPanel>
@@ -330,5 +330,8 @@ body {
 }
 .v-expansion-panel__header__icon {
   margin-left: 12px !important;
+}
+.theme--light.v-btn--icon {
+  color: rgba(0, 0, 0, 0.65);
 }
 </style>
