@@ -3,19 +3,25 @@
         <v-layout row slot="header" align-center>
             <v-layout column>
                 <i class="text-truncate">{{summary}}</i>
-                <span v-show="!!host" class="text-truncate caption grey--text">@{{host}}</span>
+                <v-layout align-center>
+                    <v-icon small class="caption grey--text">mdi-web</v-icon>
+                    <span v-show="!!host" class="text-truncate caption grey--text">{{host}}</span>
+                    <v-spacer/>
+                    <b v-show="reverted" class="error label text-uppercase">reverted !</b>
+                </v-layout>
             </v-layout>
-            <v-spacer/>
             <v-btn
-                v-if="resend"
                 icon
                 small
+                flat
                 @click.stop="onResend"
-                style="margin-top:0px;margin-left:0px;margin-bottom:0px;margin-right:-8px"
+                class="my-0"
+                style="margin-right:-8px;"
+                :color="iconColor"
+                :style="{'pointer-events': resend? '':'none'}"
             >
-                <v-icon small :color="iconColor">{{icon}}</v-icon>
+                <v-icon small>{{icon}}</v-icon>
             </v-btn>
-            <v-icon v-else small :color="iconColor">{{icon}}</v-icon>
         </v-layout>
         <v-card class="text-truncate">
             <v-card-text class="pt-1">
@@ -46,8 +52,27 @@
                     <v-layout align-center>
                         <span class="caption grey--text">TXID</span>
                         <v-spacer/>
-                        <v-btn primary v-clipboard="txid" small icon class="ma-0 mr-1">
-                            <v-icon color="primary" small style="font-size:110%">mdi-content-copy</v-icon>
+                        <v-btn
+                            primary
+                            small
+                            color="primary"
+                            flat
+                            icon
+                            class="ma-0"
+                            @click="onReveal"
+                        >
+                            <v-icon small style="font-size:120%">mdi-link-variant</v-icon>
+                        </v-btn>
+                        <v-btn
+                            primary
+                            v-clipboard="txid"
+                            small
+                            color="primary"
+                            flat
+                            icon
+                            class="ma-0 mr-1"
+                        >
+                            <v-icon small style="font-size:100%">mdi-content-copy</v-icon>
                         </v-btn>
                         <span>{{txid | shortTxId}}</span>
                     </v-layout>
@@ -106,7 +131,7 @@ export default class TxRecord extends Vue {
             return sum.plus(c.value)
         }, new BigNumber(0)).toString(16)
     }
-
+    get reverted() { return this.entity.receipt ? this.entity.receipt.reverted : false }
     get estimatedFee() { return this.entity.estimatedFee }
     get fee() { return this.entity.receipt ? this.entity.receipt.paid : '' }
 
@@ -181,6 +206,12 @@ export default class TxRecord extends Vue {
 
     onResend() {
         connex.txQueue.send(this.entity.id, this.entity.raw)
+    }
+    onReveal() {
+        const src = this.entity.link || this.entity.referer.url
+        const url = new URL(src)
+        url.searchParams.append('txid', this.txid)
+        BUS.$emit('open-dapp', { src: url.href })
     }
 }
 </script>
