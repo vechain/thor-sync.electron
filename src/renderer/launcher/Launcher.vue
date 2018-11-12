@@ -1,70 +1,68 @@
 <template>
-    <div id="content" style="height:100%">
+    <div v-bind="$attrs" v-on="$listeners">
+        <div id="content" style="width:100%;height:100%"></div>
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Model } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Model, Emit } from 'vue-property-decorator'
 import Router from './Router.vue'
-import router from '@/dapps/api/router'
 
-interface ILauncher {
-    goBack(): void
-    goForward(): void
-    reload(): void
-}
 
 @Component
-export default class Launcher extends Vue implements ILauncher {
-    @Model('nav')
-    path!: string
+export default class Launcher extends Vue {
+    readonly router = Router.create(this)
 
-    @Watch('path')
-    navTo() {
-        if (this.router.$route.path !== this.path) {
-            this.router.$router.push(this.path)
+    @Prop(String) href!: string
+    @Emit("update:href")
+    updateHref(val: string) { }
+
+    @Watch('href')
+    hrefChanged(val: string) {
+        if (val.startsWith('sync:/')) {
+            val = val.slice('sync:/'.length)
+        }
+        if (this.router.$route.path !== val) {
+            this.router.$router.push(val)
         }
     }
+
+    @Emit('update:status')
+    updateStatus(status: WebView.Status) { }
 
     @Watch('router.$route.path')
     routed() {
-        if (this.router.$route.path !== this.path) {
-            this.$emit('nav', this.router.$route.path)
+        let href = this.router.$route.path
+        if (href === '/') {
+            href = ''
+        } else {
+            href = 'sync:/' + href
         }
-    }
+        this.updateHref(href)
 
-    router = Router.create(this)
-
-    goBack() {
-        this.router.$router.back()
+        const history = this.router.$router.history
+        this.updateStatus({
+            title: (this.router.$route.meta || {}).title || '',
+            favicon: '',
+            progress: 1,
+            canGoBack: history.index !== 0,
+            canGoForward: history.index < history.stack.length - 1
+        })
     }
-    goForward() {
-        this.router.$router.forward()
-    }
-
-    canGoBack() {
-        return this.router.$router.history.index !== 0
-    }
-
-    canGoForward() {
-        return (
-            this.router.$router.history.index + 1 !==
-            this.router.$router.history.stack.length
-        )
-    }
-
-    reload() {}
-
-    created() {
-        this.router.$router.push({ name: 'home' })
-    }
+    @Prop(Object) nav!: WebView.Nav
+    @Watch('nav.goBack')
+    goBack() { this.router.$router.back() }
+    @Watch('nav.goForward')
+    goForward() { this.router.$router.forward() }
+    // @Watch('nav.reloadOrStop')   
 
     mounted() {
         this.router.$mount('#content')
-        if (this.path) {
-            this.navTo()
+        if (this.href) {
+            this.router.$router.push(this.href)
         } else {
-            this.routed()
+            this.router.$router.push('/')
         }
+        this.routed()
     }
 }
 </script>

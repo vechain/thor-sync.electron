@@ -2,9 +2,8 @@
     <input
         type="text"
         v-bind="$attrs"
-        v-on="$listeners"
+        v-on="listeners"
         :value="displayText"
-        @input="emitUdpateInput($event.target.value)"
         @focus="onFocused"
         @blur="onBlur"
         @keyup.enter="onEnter"
@@ -14,45 +13,52 @@
 import { Vue, Component, Watch, Emit, Model, Prop } from 'vue-property-decorator'
 import * as NodeUrl from 'url'
 
+
 @Component
 export default class UrlBox extends Vue {
-    //v-model
-    @Model('goto', { type: String, default: '' }) url!: string
-    @Emit('goto')
-    emitGoto(val: string) {
-        this.shadowUrl = val
+    @Model('input', { type: String, default: '' }) value !: string
+    @Emit('input')
+    updateInput(val: string) {
+        this.shadowValue = val
+    }
+    @Watch('value')
+    valueChanged(val: string) {
+        this.shadowValue = val
     }
 
-    @Watch('url')
-    urlChanged(val: string) {
-        this.shadowUrl = val
+    @Prop(String) href!: string
+    @Emit('update:href')
+    updateHref(val: string) {
+        this.shadowHref = val
     }
-
-    // input.sync
-    @Prop({ type: String, default: '' }) input!: string
-    @Emit('update:input')
-    emitUdpateInput(val: string) {
-        this.shadowInput = val
-    }
-
-    @Watch('input')
-    inputChanged(val: string) {
-        this.shadowInput = val
+    @Watch('href')
+    hrefChanged(val: string) {
+        this.shadowHref = val
     }
 
     focused = false
-    shadowInput = ''
-    shadowUrl = ''
+    shadowValue = ''
+    shadowHref = ''
 
     get displayText() {
         if (this.focused) {
-            if (!this.element.value) {
+            const text = this.shadowValue || this.shadowHref
+            if (this.element.value) {
                 // prevent falling back to url
-                return ''
+                return text
             }
-            return this.shadowInput || this.shadowUrl
+            return ''
         } else {
-            return this.shadowInput || NodeUrl.parse(this.shadowUrl).hostname || this.shadowUrl
+            return this.shadowValue || NodeUrl.parse(this.shadowHref).hostname || this.shadowHref
+        }
+    }
+
+    get listeners() {
+        return {
+            ...this.$listeners,
+            input: (ev: any) => {
+                this.updateInput(ev.target.value)
+            }
         }
     }
 
@@ -73,8 +79,8 @@ export default class UrlBox extends Vue {
             return
         }
 
-        this.emitGoto(normalizeUrl(text))
-        this.emitUdpateInput('')
+        this.updateHref(normalizeUrl(text))
+        this.updateInput('')
         this.$el.blur()
     }
 
@@ -91,8 +97,7 @@ function normalizeUrl(str: string) {
     }
 
     url = NodeUrl.parse('http://' + str)
-    if (/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/
-        .test(url.hostname || '')) {
+    if (/^[a-z0-9]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
         return NodeUrl.format(url)
     }
     return `https://www.google.com/search?q=${encodeURIComponent(str)}`

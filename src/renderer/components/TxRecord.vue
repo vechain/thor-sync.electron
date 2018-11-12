@@ -208,10 +208,10 @@ export default class TxRecord extends Vue {
         connex.txQueue.send(this.entity.id, this.entity.raw)
     }
     onReveal() {
-        const src = this.entity.link || this.entity.referer.url
-        const url = new URL(src)
+        const href = this.entity.link || this.entity.referer.url
+        const url = new URL(href)
         url.searchParams.append('txid', this.txid)
-        BUS.$emit('open-dapp', { src: url.href })
+        BUS.$emit('open-tab', { href: url.href })
     }
 }
 </script>

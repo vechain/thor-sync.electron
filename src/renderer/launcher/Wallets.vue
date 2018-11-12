@@ -54,7 +54,7 @@ export default class Wallets extends Mixins(WalletsLoader) {
     dialog = false
     onClick(address: string) {
         this.$router.push({
-            name: 'walletDetail',
+            name: 'wallet-detail',
             params: {
                 address
             }

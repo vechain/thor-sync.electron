@@ -1,65 +1,134 @@
 <template>
     <v-app id="frame">
-        <v-toolbar
-            flat
-            color="grey lighten-3"
-            class="drag elevation-0"
-            height="40px"
-            fixed
-            app
-            @dblclick="onDblClickTitleBar"
-        >
-            <v-layout class="tab-group">
+        <div class="toolbar" style="overflow:hidden;">
+            <transition-group
+                tag="v-layout"
+                class="drag tab-bar"
+                @dblclick.native="onDblClickTitleBar"
+                @mousedown.native.self.prevent
+                name="tab-button"
+            >
                 <TabButton
-                    v-for="(item,i) in items"
-                    style="flex: 0 1 auto;width:200px;-webkit-app-region: no-drag;"
-                    :key="tabs[i].id"
-                    :value="item"
+                    v-for="(page,i) in pages"
+                    class="tab-button"
+                    :class="i=== activePageIndex?'drag':'no-drag'"
+                    :key="'tab'+page.id"
+                    :title="page.status.title || page.href"
+                    :favicon="page.status.favicon"
+                    :active="i===activePageIndex"
                     @close="closeTab(i)"
-                    @click.native="clickTab(i)"
+                    @click.native="activePageIndex = i"
                     @dblclick.native.stop
+                    @mousedown="i=== activePageIndex && $event.preventDefault()"
                 />
                 <v-btn
+                    class="no-drag ma-1 pa-0 ml-3"
                     flat
                     small
+                    key="the-new-tab-button"
                     :ripple="false"
-                    key="the-add-btn"
-                    @click="onAddTAb"
+                    @click="openTab('')"
                     @dblclick.native.stop
-                    class="ma-1 pa-0 ml-2"
-                    style="-webkit-app-region: no-drag;width:auto;height:auto;min-width:auto;"
+                    style="width:auto;height:auto;min-width:auto;"
                 >
                     <v-icon style="font-size:150%">add</v-icon>
                 </v-btn>
-            </v-layout>
-            <v-spacer/>
-            <NetworkStatusPanel>
-                <v-btn slot="activator" flat small>
-                    <NetworkStatus/>
-                </v-btn>
-            </NetworkStatusPanel>
-            <TxRecordsPanel>
-                <v-btn icon small slot="activator">
-                    <Activity/>
-                </v-btn>
-            </TxRecordsPanel>
-        </v-toolbar>
-        <v-content class="sync-container">
+            </transition-group>
+            <div class="elevation-1 white no-drag">
+                <v-layout row align-center px-1>
+                    <v-btn
+                        small
+                        icon
+                        :disabled="!activePage.status.canGoBack"
+                        :ripple="false"
+                        @click="activePage.nav.goBack++"
+                    >
+                        <v-icon style="font-size:150%">arrow_back</v-icon>
+                    </v-btn>
+                    <v-btn
+                        small
+                        icon
+                        :disabled="!activePage.status.canGoForward"
+                        :ripple="false"
+                        @click="activePage.nav.goForward++"
+                    >
+                        <v-icon style="font-size:150%">arrow_forward</v-icon>
+                    </v-btn>
+                    <v-btn small :ripple="false" icon @click="activePage.nav.reloadOrStop++;activePage.userInput=''">
+                        <v-icon
+                            style="font-size:150%"
+                        >{{activePage.status.progress===1 ? 'refresh' :'close'}}</v-icon>
+                    </v-btn>
+                    <div class="mx-2 nav-box" :class="{'nav-box-focused': urlBoxFocused}">
+                        <v-layout align-center style="position:relative;" fill-height>
+                            <NetworkStatusPanel>
+                                <v-btn
+                                    :ripple="false"
+                                    flat
+                                    slot="activator"
+                                    class="ma-0 px-1"
+                                    style="min-width:auto;"
+                                >
+                                    <NetworkStatus/>
+                                </v-btn>
+                            </NetworkStatusPanel>
+                            <UrlBox
+                                v-model="activePage.userInput"
+                                :href.sync="activePage.href"
+                                class="px-1 url-box"
+                                placeholder="Enter app name to search, or URL"
+                                @focus="urlBoxFocused=true"
+                                @blur="urlBoxFocused=false"
+                            />
+                            <v-btn small flat style="min-width:auto" :ripple="false" class="ma-0">
+                                <v-icon style="font-size:150%">mdi-bookmark-plus-outline</v-icon>
+                            </v-btn>
+                            <v-progress-linear
+                                background-color="rgba(0,0,0,0)"
+                                :active="activePage.status.progress > 0 && activePage.status.progress<1"
+                                :value="activePage.status.progress * 100"
+                                class="ma-0"
+                                height="2px"
+                                style="position:absolute;left:0;right:0;bottom:0;"
+                            />
+                        </v-layout>
+                    </div>
+                    <TxRecordsPanel>
+                        <v-btn icon small slot="activator">
+                            <Activity/>
+                        </v-btn>
+                    </TxRecordsPanel>
+                </v-layout>
+                <v-divider/>
+            </div>
+        </div>
+        <v-content>
             <Vendor/>
-            <view-port
-                class="viewport-layout"
-                v-for="(item, index) in tabs"
-                :key="item.id"
-                :class="{current: currentIndex === index}"
-                :opt="item"
-                @data-updated="onDataUpdate($event, index)"
-                @status-updated="onStatusUpdate($event, index)"
-            ></view-port>
+            <template v-for="(page,i) in pages">
+                <Launcher
+                    v-if="!page.href || page.href.startsWith('sync:')"
+                    v-show="i===activePageIndex"
+                    :key="'launcher'+page.id"
+                    :href.sync="page.href"
+                    :nav="page.nav"
+                    @update:status="page.status=$event"
+                    style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden"
+                />
+                <WebView
+                    v-else
+                    :style="{visibility:i===activePageIndex?'visible':'hidden'}"
+                    :key="'webview'+page.id"
+                    style="position:absolute;left:0;top:0;right:0;bottom:0;"
+                    :href.sync="page.href"
+                    :nav="page.nav"
+                    @update:status="page.status=$event"
+                />
+            </template>
         </v-content>
     </v-app>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 import ViewPort from './components/ViewPort.vue'
 import NetworkStatusPanel from './components/NetworkStatusPanel.vue'
@@ -69,21 +138,42 @@ import Vendor from './vendor'
 import TabButton from './components/TabButton.vue'
 import TxRecordsPanel from './components/TxRecordsPanel.vue'
 import Activity from './components/Activity.vue'
-let counter = 0
+import UrlBox from './components/UrlBox.vue'
+import WebView from './components/WebView.vue'
+import Launcher from './launcher'
 
-function portIdGenerator(): number {
-    ++counter
-    return Date.now() + counter
+type Page = {
+    id: number
+    href: string
+    userInput: string
+    status: WebView.Status
+    nav: WebView.Nav
+}
+let nextPageId = 0
+function newPage(href: string, title: string): Page {
+    return {
+        id: nextPageId++,
+        href,
+        userInput: '',
+        status: {
+            title,
+            favicon: '',
+            progress: 0,
+            canGoBack: false,
+            canGoForward: false
+        },
+        nav: {
+            goBack: 0,
+            goForward: 0,
+            reloadOrStop: 0
+        }
+    }
 }
 
-function getDefaultTab(): TabBar.Item {
-    return {
-        title: 'New tab',
-        iconUrl: '',
-        src: '',
-        id: portIdGenerator(),
-        status: 'new'
-    }
+type OpenTab = {
+    href: string
+    title?: string
+    mode?: 'append-active' | 'inplace'
 }
 
 @Component({
@@ -94,48 +184,47 @@ function getDefaultTab(): TabBar.Item {
         Vendor,
         TabButton,
         TxRecordsPanel,
-        Activity
+        Activity,
+        UrlBox,
+        WebView,
+        Launcher,
     }
 })
 export default class Nova extends Vue {
-    private tabs: TabBar.Item[] = [getDefaultTab()]
-    private currentIndex = 0
-
-    clickTab(index: number) {
-        this.currentIndex = index
-    }
+    pages: Page[] = [newPage('', '')]
+    activePageIndex = 0
+    get activePage() { return this.pages[this.activePageIndex] }
+    urlBoxFocused = false
 
     closeTab(index: number) {
-        if (this.tabs.length < 2) {
+        if (this.pages.length < 2) {
             remote.getCurrentWindow().close()
             return
         }
-        this.tabs = this.tabs.slice(0, index).concat(this.tabs.slice(index + 1))
-        this.updateCurrentIndex(index)
+
+        this.pages.splice(index, 1)
+        if (index < this.activePageIndex) {
+            this.activePageIndex--
+        } else {
+            this.activePageIndex = Math.min(this.pages.length - 1, this.activePageIndex)
+        }
     }
 
-    updateCurrentIndex(index: number) {
-        const isCurrent = index === this.currentIndex
-        this.$nextTick(() => {
-            if (isCurrent) {
-                if (this.currentIndex === this.tabs.length) {
-                    this.currentIndex = this.tabs.length - 1
-                }
-            } else {
-                if (index < this.currentIndex) {
-                    this.currentIndex--
-                }
+    openTab(href: string, title?: string, mode?: 'append' | 'append-active' | 'inplace') {
+        if (mode === 'append-active') {
+            const page = newPage(href, title || '')
+            this.pages.splice(this.activePageIndex + 1, 0, page)
+            this.activePageIndex++
+        } else if (mode === 'inplace') {
+            this.pages[this.activePageIndex].href = href
+            if (title) {
+                this.pages[this.activePageIndex].status.title = title
             }
-        })
-    }
-
-    get items() {
-        return this.tabs.map<TabButton.Value>((t, i) => ({
-            active: i === this.currentIndex,
-            url: t.src,
-            title: t.title,
-            favicon: t.iconUrl
-        }))
+        } else {
+            const page = newPage(href, title || '')
+            this.pages.push(page)
+            this.activePageIndex = this.pages.length - 1
+        }
     }
 
     created() {
@@ -145,49 +234,23 @@ export default class Nova extends Vue {
             {
                 newTab: (cb: () => void) => {
                     if (!this.isModaling()) {
-                        this.onAddTAb()
+                        this.openTab('')
                     }
                     cb()
 
                 },
                 closeTab: (cb: () => void) => {
                     if (!this.isModaling()) {
-                        if (this.items.length > 1) {
-                            this.closeTab(this.currentIndex)
-                        } else {
-                            remote.getCurrentWindow().close()
-                        }
+                        this.closeTab(this.activePageIndex)
                     }
                     cb()
                 }
             }
         )
 
-        BUS.$on('open-dapp', (data: any) => {
-            let tab = getDefaultTab()
-            tab.src = data.src
-            tab.title = data.name
-            this.tabs.push(tab)
-            this.currentIndex = this.tabs.length - 1
+        BUS.$on('open-tab', (data: OpenTab) => {
+            this.openTab(data.href, data.title, data.mode)
         })
-    }
-
-    onAddTAb() {
-        this.tabs.push(getDefaultTab())
-        this.currentIndex = this.tabs.length - 1
-    }
-
-    onDataUpdate(event: ViewPort.DataUpdateEvent, index: number) {
-        let mapping: any = {
-            url: 'src',
-            icon: 'iconUrl',
-            title: 'title'
-        }
-        this.$set(this.tabs[index], mapping[event.type], event.value)
-    }
-
-    onStatusUpdate(event: ViewPort.StatusUpdateEvent, index: number) {
-        console.log(event, index)
     }
 
     onDblClickTitleBar() {
@@ -235,7 +298,7 @@ body {
 }
 .tab-bar {
   overflow: hidden;
-  padding: 16px 8px 0px 80px;
+  padding: 10px 8px 0px 80px;
 }
 .tab-button {
   flex: 0 1 auto;
@@ -331,7 +394,40 @@ body {
 .v-expansion-panel__header__icon {
   margin-left: 12px !important;
 }
-.theme--light.v-btn--icon {
-  color: rgba(0, 0, 0, 0.65);
+.theme--light.v-btn .v-icon {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.tab-button-enter {
+  width: 0px;
+  padding: 0px !important;
+}
+.tab-button-leave-active {
+  position: absolute;
+  opacity: 0;
+}
+.nav-box {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 26px;
+  box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05) inset;
+  flex: 1 1 auto;
+}
+
+.nav-box-focused {
+  box-shadow: 0px 0px 0px 2px rgba(25, 118, 210, 0.7);
+}
+
+.url-box {
+  flex: 1 1 auto;
+  height: 100%;
+  outline: none;
+  color: rgba(0, 0, 0, 0.6);
+}
+.url-box:focus {
+  background-color: #ffffff;
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.9);
 }
 </style>
