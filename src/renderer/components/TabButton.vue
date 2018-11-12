@@ -7,7 +7,7 @@
             v-bind="$attrs"
             v-on="$listeners"
             class="tab-button pl-2 pr-1 py-1"
-            :class="{'tab-button--active': isActive}"
+            :class="{'tab-button--active': active}"
         >
             <v-img
                 v-if="!!faviconURL || !!faviconFont"
@@ -20,9 +20,7 @@
                     <v-icon small>{{faviconFont}}</v-icon>
                 </v-layout>
             </v-img>
-            <span
-                class="mx-2 caption text-truncate"
-            >{{title}}</span>
+            <span class="mx-2 caption text-truncate">{{title}}</span>
             <v-spacer/>
             <v-btn
                 flat
@@ -43,14 +41,12 @@ import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
 
 @Component
 export default class TabButton extends Vue {
-    @Prop(Object) value!: TabButton.Value
+    @Prop(Boolean) active !: boolean
+    @Prop({ default: '', type: String }) title !: string
+    @Prop({ default: '', type: String }) favicon !: string
     @Emit('close')
     close() { }
 
-    get isActive() { return this.value.active }
-    get title() { return this.value.title || this.value.url || '' }
-
-    get favicon() { return this.value.favicon || '' }
     get faviconURL() {
         if (this.favicon.indexOf(':') >= 0) {
             return this.favicon
@@ -68,7 +64,7 @@ export default class TabButton extends Vue {
 </script>
 <style scoped>
 .tab-button {
-  border-radius: 2px 2px 0px 0px;
+  border-radius: 4px 4px 0px 0px;
   overflow: hidden;
   user-select: none;
   cursor: default;
@@ -79,7 +75,8 @@ export default class TabButton extends Vue {
   margin-left: 0.5px;
   margin-right: 0.5px;
   transition: background 0.15s cubic-bezier(0.25, 0.8, 0.5, 1),
-    box-shadow 0.15s cubic-bezier(0.25, 0.8, 0.5, 1), transform 0.25s;
+    box-shadow 0.15s cubic-bezier(0.25, 0.8, 0.5, 1), transform 0.25s,
+    width 0.3s, padding 0.3s;
 }
 
 .theme--light.tab-button {
@@ -92,16 +89,16 @@ export default class TabButton extends Vue {
 }
 
 .tab-button--active {
-  border-radius: 0.5px 0.5px 0px 0px;
+  border-radius: 2px 2px 0px 0px;
   z-index: 1;
 }
 
 .theme--light.tab-button--active {
-  box-shadow: 0px 0px 0px 3px #ffffff, 0px 1px 2px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 2px 2px rgba(0, 0, 0, 0.3);
   background-color: #ffffff;
 }
 .theme--dark.tab-button--active {
-  box-shadow: 0px 0px 0px 3px #212121, 0px 1px 2px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px -1px 0px 2px #212121, 0px 0px 2px 2px rgba(0, 0, 0, 0.3);
   background-color: #212121;
 }
 

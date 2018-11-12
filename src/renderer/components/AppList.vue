@@ -78,7 +78,11 @@ export default class DApps extends Vue {
 
     openDapp(data: Dapp.Item) {
         if (data.newTab) {
-            BUS.$emit('open-dapp', data)
+            BUS.$emit('open-tab', {
+                href: data.src,
+                title: data.name,
+                mode: 'inplace'
+            })
         } else {
             this.$router.push(data.src)
         }
@@ -88,17 +92,17 @@ export default class DApps extends Vue {
 
 <style lang="scss" scoped>
 .sync-dapp-list div.dapp-container {
-    display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px;
-    grid-column-gap: 20px;
-    grid-row-gap: 30px;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: 160px 160px 160px 160px 160px 160px;
+  grid-column-gap: 20px;
+  grid-row-gap: 30px;
+  justify-content: center;
 }
 
 @media screen and (max-width: 1200px) {
-    .sync-dapp-list div.dapp-container {
-        grid-template-columns: 160px 160px 160px 160px;
-    }
+  .sync-dapp-list div.dapp-container {
+    grid-template-columns: 160px 160px 160px 160px;
+  }
 }
 </style>
 

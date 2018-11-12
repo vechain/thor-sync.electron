@@ -1,11 +1,11 @@
 <template>
-    <div style="height: 100%">
+    <div style="height: 100%" class="grey lighten-3">
         <transition
             mode="out-in"
             enter-active-class="animated faster bounceInDown"
             leave-active-class="animated faster bounceOutUp"
         >
-            <router-view/>
+            <router-view style="height:100%;"/>
         </transition>
     </div>
 </template>
@@ -37,8 +37,11 @@ export default class Router extends Vue {
 const routes: RouteConfig[] = [
     {
         path: '/',
-        name: 'home',
-        component: DApps
+        name: 'portal',
+        component: DApps,
+        meta: {
+            title: 'Sync'
+        }
     },
     {
         path: '/wallets',
@@ -49,8 +52,8 @@ const routes: RouteConfig[] = [
         }
     },
     {
-        path: '/wallet/:address',
-        name: 'walletDetail',
+        path: '/wallets/:address',
+        name: 'wallet-detail',
         component: WalletDetail,
         meta: {
             title: 'Wallet Detail'
@@ -62,14 +65,14 @@ const routes: RouteConfig[] = [
         component: Settings,
         redirect: {
             name: 'settings-shortcut'
-        },
+        },        
         children: [
             {
                 path: 'shorcut',
                 name: 'settings-shortcut',
                 component: Shortcut,
                 meta: {
-                    title: 'Settings-Shortcuts'
+                    title: 'Settings - Shortcuts'
                 }
             },
             {
@@ -77,7 +80,7 @@ const routes: RouteConfig[] = [
                 name: 'settings-network',
                 component: Network,
                 meta: {
-                    title: 'Settings-Networks'
+                    title: 'Settings - Networks'
                 }
             },
             {
@@ -85,7 +88,7 @@ const routes: RouteConfig[] = [
                 name: 'settings-update',
                 component: Update,
                 meta: {
-                    title: 'Settings-Auto Update'
+                    title: 'Settings - Auto Update'
                 }
             }
         ]

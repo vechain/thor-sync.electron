@@ -9,7 +9,7 @@
         <v-btn @click.stop="onBtnClick('refresh')" :disabled="!opt.url" icon>
             <v-icon>refresh</v-icon>
         </v-btn>
-        <UrlBox v-model="urlString" class="pa-1" style="flex: 1 1 auto;background-color:#fff;"/>
+        <UrlBox v-model="userInput" @update:href="gotoHref" :href="href" class="pa-1" style="flex: 1 1 auto;background-color:#fff;"/>
         <slot/>
     </v-toolbar>
 </template>
@@ -25,7 +25,8 @@ import UrlBox from './UrlBox.vue'
     }
 })
 export default class SearchBar extends Vue {
-    private urlString: string = ''
+    private href = ''
+    private userInput = ''
 
     @Prop({
         default: {
@@ -37,16 +38,15 @@ export default class SearchBar extends Vue {
     private opt!: SearchBar.Opt
     @Watch('opt.url')
     urlChanged(val: string) {
-        this.urlString = val
+        this.href = val
     }
 
     @Emit('operate')
     onBtnClick(action: string) {
-        // this.urlString = ''
+       // this.urlString = ''
     }
 
-    @Watch('urlString')
-    urlStringChanged(val: string) {
+    gotoHref(val: string){
         this.onInoputed(val)
     }
 
