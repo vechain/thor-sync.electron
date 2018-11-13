@@ -316,16 +316,15 @@ body {
   height: 100%;
   width: 100%;
 }
-#frame .tab-group {
+#frame .tab-bar {
   height: 100%;
-  margin-left: 60px;
   flex: 0 1 auto;
   flex-direction: row;
   align-items: flex-end;
-  transition: margin-left 0.3s ease-out;
+  transition: padding-left 0.3s ease-out;
 }
-.darwin.full-screen #frame .tab-group {
-  margin-left: 0;
+.darwin.full-screen #frame .tab-bar {
+  padding-left: 10px;
 }
 .sync-dapp-list.default-content {
   width: 75%;
