@@ -85,13 +85,9 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '../database'
-import WalletSeeker from '../components/WalletSeeker.vue'
-import Amount from '../components/Amount.vue'
 import BigNumber from 'bignumber.js'
 import * as _ from 'lodash'
 import AccountLoader from '../mixin/account-loader'
-import Tip from '../components/Tip.vue'
-import Priority from '../components/Priority.vue'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 
 namespace TxSigningPanel {
@@ -109,14 +105,7 @@ namespace TxSigningPanel {
     }
 }
 
-@Component({
-    components: {
-        WalletSeeker,
-        Amount,
-        Tip,
-        Priority
-    }
-})
+@Component
 class TxSigningPanel extends Mixins(AccountLoader) {
     @Prop(Object) initValue!: TxSigningPanel.InitValue
     @Emit('returnValue')

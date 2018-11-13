@@ -54,8 +54,8 @@ export default class NewShortcutDialog extends Vue {
         domain: ''
     }
     rules = {
-        name: [v => !!v || 'Name is required'],
-        domain: [v => !!v || 'Domain is required']
+        name: [(v:string) => !!v || 'Name is required'],
+        domain: [(v:string) => !!v || 'Domain is required']
     }
 
     @Model('input')

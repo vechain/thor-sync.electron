@@ -22,17 +22,10 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
-import OverlayedMenu from './OverlayedMenu.vue'
-import TxRecord from './TxRecord.vue'
 import TxRecordsLoader from '../mixin/tx-records-loader'
 import * as _ from 'lodash'
 
-@Component({
-    components: {
-        OverlayedMenu,
-        TxRecord
-    }
-})
+@Component
 export default class TxRecordsPanel extends Mixins(TxRecordsLoader) {
     opened = false
 

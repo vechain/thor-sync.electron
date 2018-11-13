@@ -50,16 +50,11 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import AddressLabel from '../components/AddressLabel.vue'
-import Amount from '../components/Amount.vue'
-import ClauseItem from './ClauseItem.vue'
-import WalletCard from '../components/WalletCard.vue'
 import { normalizeClauses, normalizeTxSignOptions, describe } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
 import { Entities } from '@/renderer/database';
-import WalletSeeker from '../components/WalletSeeker.vue'
 import WalletsLoader from '../mixin/wallets-loader'
 import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
@@ -70,10 +65,6 @@ type Clause = Connex.Vendor.Message<'tx'>[number]
 
 @Component({
     components: {
-        WalletCard,
-        AddressLabel,
-        Amount,
-        ClauseItem,
         TxSigningPanel,
     }
 })

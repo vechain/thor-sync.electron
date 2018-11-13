@@ -61,8 +61,8 @@ export default class NewNetworkDialog extends Vue {
         rpcUrl: ''
     }
     rules = {
-        name: [v => !!v || 'Name is required'],
-        rpcUrl: [v => !!v || 'RPC URL is required']
+        name: [(v: string) => !!v || 'Name is required'],
+        rpcUrl: [(v: string) => !!v || 'RPC URL is required']
     }
 
     @Watch('value')
@@ -81,13 +81,13 @@ export default class NewNetworkDialog extends Vue {
         this.dialogChanged(val)
     }
     @Emit('input')
-    dialogChanged(val: boolean) {}
+    dialogChanged(val: boolean) { }
 
     @Emit('updated')
-    onEdited(editItem: Entities.Network) {}
+    onEdited(editItem: Entities.Network) { }
 
     @Emit('cancel')
-    onCancel() {}
+    onCancel() { }
 
     clear() {
         this.dialog = false
