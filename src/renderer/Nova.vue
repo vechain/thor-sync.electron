@@ -41,7 +41,7 @@
                         icon
                         :disabled="!activePage.canGoBack"
                         :ripple="false"
-                        @click="activePage.goBack"
+                        @click="activePage.goBack()"
                     >
                         <v-icon style="font-size:150%">arrow_back</v-icon>
                     </v-btn>
@@ -50,11 +50,11 @@
                         icon
                         :disabled="!activePage.canGoForward"
                         :ripple="false"
-                        @click="activePage.goForward"
+                        @click="activePage.goForward()"
                     >
                         <v-icon style="font-size:150%">arrow_forward</v-icon>
                     </v-btn>
-                    <v-btn small :ripple="false" icon @click="activePage.reloadOrStop">
+                    <v-btn small :ripple="false" icon @click="activePage.reloadOrStop()">
                         <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
                     </v-btn>
                     <div class="mx-2 nav-box" :class="{'nav-box-focused': urlBoxFocused}">
@@ -158,7 +158,7 @@ class Page {
         canGoForward: false
     }
 
-    private readonly nav: WebView.Nav = {
+    readonly nav: WebView.Nav = {
         goBack: 0,
         goForward: 0,
         reloadOrStop: 0
@@ -179,7 +179,7 @@ class Page {
 
     goBack() { this.nav.goBack++ }
     goForward() { this.nav.goForward++ }
-    reloadOrStop() { this.nav.reloadOrStop; this.userInput = '' }
+    reloadOrStop() { this.nav.reloadOrStop++; this.userInput = '' }
 }
 
 type OpenTab = {
@@ -304,7 +304,7 @@ html {
 }
 .tab-button {
   flex: 0 1 auto;
-  width: 200px;
+  width: 220px;
 }
 .drag {
   -webkit-app-region: drag;
