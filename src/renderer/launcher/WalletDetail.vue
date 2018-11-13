@@ -72,7 +72,6 @@ import TransferMixin from '../mixin/Transfer.vue'
 import { State } from 'vuex-class'
 import Store from '../store'
 import Amount from '../components/Amount.vue'
-import AddressLabel from '../components/AddressLabel.vue'
 import { Num } from '@/common/formatter'
 import QRCodeDialog from '../components/QRCodeDialog.vue'
 import { Entities } from '../database'
@@ -80,7 +79,6 @@ import AccountLoader from '../mixin/account-loader'
 @Component({
     components: {
         Amount,
-        AddressLabel,
         QRCodeDialog
     }
 })

@@ -9,13 +9,8 @@
     </v-dialog>
 </template>
 <script lang="ts">
-import QRCode from './QRCode.vue'
 import { Vue, Component, Prop } from 'vue-property-decorator'
-@Component({
-    components: {
-        QRCode
-    }
-})
+@Component
 export default class QRCodeDialog extends Vue {
     name = 'QRCodeDialog'
     @Prop(String)

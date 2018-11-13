@@ -37,6 +37,7 @@
             <div class="elevation-1 white no-drag">
                 <v-layout row align-center px-1>
                     <v-btn
+                        class="my-1"
                         small
                         icon
                         :disabled="!activePage.canGoBack"
@@ -46,6 +47,7 @@
                         <v-icon style="font-size:150%">arrow_back</v-icon>
                     </v-btn>
                     <v-btn
+                        class="my-1"
                         small
                         icon
                         :disabled="!activePage.canGoForward"
@@ -54,7 +56,13 @@
                     >
                         <v-icon style="font-size:150%">arrow_forward</v-icon>
                     </v-btn>
-                    <v-btn small :ripple="false" icon @click="activePage.reloadOrStop()">
+                    <v-btn
+                        class="my-1"
+                        small
+                        :ripple="false"
+                        icon
+                        @click="activePage.reloadOrStop()"
+                    >
                         <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
                     </v-btn>
                     <div class="mx-2 nav-box" :class="{'nav-box-focused': urlBoxFocused}">
@@ -95,7 +103,7 @@
                         </v-layout>
                     </div>
                     <TxRecordsPanel>
-                        <v-btn icon small slot="activator" :ripple="false">
+                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
                             <Activity/>
                         </v-btn>
                     </TxRecordsPanel>
@@ -130,17 +138,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-
-import ViewPort from './components/ViewPort.vue'
-import NetworkStatusPanel from './components/NetworkStatusPanel.vue'
-import NetworkStatus from './components/NetworkStatus.vue'
-import { remote, Event } from 'electron'
+import { remote } from 'electron'
 import Vendor from './vendor'
-import TabButton from './components/TabButton.vue'
-import TxRecordsPanel from './components/TxRecordsPanel.vue'
-import Activity from './components/Activity.vue'
-import UrlBox from './components/UrlBox.vue'
-import WebView from './components/WebView.vue'
 import Launcher from './launcher'
 
 class Page {
@@ -190,16 +189,8 @@ type OpenTab = {
 
 @Component({
     components: {
-        ViewPort,
-        NetworkStatus,
-        NetworkStatusPanel,
         Vendor,
-        TabButton,
-        TxRecordsPanel,
-        Activity,
-        UrlBox,
-        WebView,
-        Launcher,
+        Launcher
     }
 })
 export default class Nova extends Vue {

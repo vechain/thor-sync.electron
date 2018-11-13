@@ -37,7 +37,6 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Mixins } from 'vue-property-decorator'
-import WalletCard from '../components/WalletCard.vue'
 import NewWalletDialog from './NewWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
@@ -45,7 +44,6 @@ import WalletsLoader from '../mixin/wallets-loader'
 
 @Component({
     components: {
-        WalletCard,
         NewWalletDialog,
         ImportWalletDialog
     }

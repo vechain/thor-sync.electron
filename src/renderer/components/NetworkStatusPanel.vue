@@ -44,16 +44,11 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
-import OverlayedMenu from './OverlayedMenu.vue'
 import siteConfigs from '../../site-configs'
 
 type Status = Connex.Thor.Status
 
-@Component({
-    components: {
-        OverlayedMenu
-    }
-})
+@Component
 export default class NetworkStatusPanel extends Vue {
     otherConfigs = siteConfigs
         .filter(

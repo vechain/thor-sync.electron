@@ -30,19 +30,10 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Mixins } from 'vue-property-decorator'
-import AddressLabel from '../components/AddressLabel.vue'
-import Amount from '../components/Amount.vue'
 import { Entities } from '../database'
-import IdentBox from '../components/IdentBox.vue'
 import AccountLoader from '../mixin/account-loader'
 
-@Component({
-    components: {
-        IdentBox,
-        AddressLabel,
-        Amount
-    }
-})
+@Component
 export default class WalletCard extends Mixins(AccountLoader) {
     @Prop(Object) wallet!: Entities.Wallet
     @Prop(Boolean) compact!: boolean

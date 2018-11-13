@@ -88,27 +88,17 @@ import { Transaction } from 'thor-devkit'
 import * as NodeUrl from 'url'
 const TimeAgo = require('javascript-time-ago')
 const EN = require('javascript-time-ago/locale/en')
-import AddressLabel from './AddressLabel.vue'
-import Amount from './Amount.vue'
 import BigNumber from 'bignumber.js'
 import { State } from 'vuex-class'
 import { describe } from '@/renderer/vendor/utils'
-import IdentBox from './IdentBox.vue'
-import Priority from './Priority.vue'
+
 
 TimeAgo.locale(EN)
 const timeAgo = new TimeAgo('en-US')
 
 type Status = Connex.Thor.Status
 
-@Component({
-    components: {
-        AddressLabel,
-        Amount,
-        IdentBox,
-        Priority
-    }
-})
+@Component
 export default class TxRecord extends Vue {
     @Prop(Object) entity !: Entities.TxRecord
     wallet: Entities.Wallet | null = null
