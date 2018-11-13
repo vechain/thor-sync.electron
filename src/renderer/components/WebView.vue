@@ -11,7 +11,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent } from 'electron'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote } from 'electron'
 import * as NodeUrl from 'url'
 @Component
 export default class WebView extends Vue {
@@ -22,9 +22,7 @@ export default class WebView extends Vue {
     domReady = false
     progress = 0
 
-    get loading() {
-        return this.progress !== 1
-    }
+    get loading() { return this.progress !== 1 }
 
     @Prop(String) href!: string
     @Emit('update:href')
@@ -66,6 +64,7 @@ export default class WebView extends Vue {
         let favicon = ''
         let title = ''
         let lastHref = this.currentHref
+        let cert: Electron.CertificateVerifyProcRequest | null = null
 
         const emitStatus = () => {
             if (!this.webview.getWebContents()) {
@@ -77,7 +76,8 @@ export default class WebView extends Vue {
                 favicon,
                 progress: this.progress,
                 canGoBack: this.webview.canGoBack(),
-                canGoForward: this.webview.canGoForward()
+                canGoForward: this.webview.canGoForward(),
+                cert: cert
             })
         }
         let timer: any
@@ -85,6 +85,11 @@ export default class WebView extends Vue {
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
+            }
+
+            const url = NodeUrl.parse(this.currentHref)
+            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
+                cert = remote.app.EXTENSION.sessionMgr.getCertificate(url.hostname) || null
             }
 
             switch (ev.type) {
@@ -127,6 +132,7 @@ export default class WebView extends Vue {
                         if (NodeUrl.parse(lastHref).host !== NodeUrl.parse(loadCommit.url).host) {
                             title = ''
                             favicon = ''
+                            cert = null
                         }
 
                         lastHref = loadCommit.url

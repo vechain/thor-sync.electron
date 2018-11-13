@@ -24,7 +24,7 @@ class WindowManager {
         config = config || siteConfigs[0]
         options = { ...defaultWindowOptions, ...(options || {}) }
         options.webPreferences = options.webPreferences || {}
-        options.webPreferences.partition = 'persist:' + config.genesis.id
+        // options.webPreferences.partition = 'persist:' + config.genesis.id
         options.webPreferences.xargs = {
             clientId: ['host-' + this.nextHostId++],
             config

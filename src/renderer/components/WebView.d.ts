@@ -5,6 +5,7 @@ declare namespace WebView {
         progress: number
         canGoBack: boolean
         canGoForward: boolean
+        cert: Electron.CertificateVerifyProcRequest | null
     }
 
     type Nav = {

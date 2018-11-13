@@ -64,9 +64,7 @@ export default class UrlBox extends Vue {
 
     onFocused() {
         this.focused = true
-        Vue.nextTick(() => {
-            this.element.select()
-        })
+        setTimeout(() => this.element.select(), 0)
     }
 
     onBlur() {

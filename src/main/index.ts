@@ -1,9 +1,10 @@
-import { app, webContents, WebPreferences, BrowserWindow } from 'electron'
+import { app, webContents, WebPreferences, BrowserWindow, session } from 'electron'
 import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import inject from './inject'
 import env from '../env'
+import SessionManager from './session-manager'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -19,6 +20,7 @@ contextMenu()
 declare module 'electron' {
     interface App {
         EXTENSION: {
+            sessionMgr: SessionManager
             connect(
                 contentsId: number,
                 config: Connex.Thor.Site.Config,
@@ -42,8 +44,10 @@ declare module 'electron' {
 
 const winMgr = new WindowManager()
 const backend = new Backend()
+const sessionMgr = new SessionManager()
 
 app.EXTENSION = {
+    sessionMgr,
     connect: (contentsId, config, clientId) => backend.connect(contentsId, config, clientId),
     inject: (contentsId, path, obj) => {
         webContents.fromId(contentsId).once('destroyed', () => {
@@ -57,9 +61,11 @@ app.EXTENSION = {
 app.on('web-contents-created', (_, contents) => {
     contents.on('will-attach-webview', (__, webPreferences: WebPreferences) => {
         const hostWebPreferences = BrowserWindow.fromWebContents(contents).webContents.getWebPreferences()
+        const partition = 'persist:' + hostWebPreferences.xargs!.config!.genesis.id
+        sessionMgr.manage(partition)
+
         webPreferences.preloadURL = env.preload
-        // derive host's partition
-        webPreferences.partition = hostWebPreferences.partition
+        webPreferences.partition = partition
         webPreferences.xargs = {
             clientId: [...hostWebPreferences.xargs!.clientId!, 'webview-' + contents.id],
             // derive host's site config

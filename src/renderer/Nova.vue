@@ -78,14 +78,17 @@
                                     <NetworkStatus/>
                                 </v-btn>
                             </NetworkStatusPanel>
-                            <UrlBox
-                                v-model="activePage.userInput"
-                                :href.sync="activePage.href"
-                                class="px-1 url-box"
-                                placeholder="Enter app name to search, or URL"
-                                @focus="urlBoxFocused=true"
-                                @blur="urlBoxFocused=false"
-                            />
+                            <v-layout class="url-box-with-icon" fill-height align-center>
+                                <CertIndicator v-if="!!activePage.cert" class="mx-1" :cert="activePage.cert"/>
+                                <UrlBox
+                                    v-model="activePage.userInput"
+                                    :href.sync="activePage.href"
+                                    class="px-1 url-box"
+                                    placeholder="Enter app name to search, or URL"
+                                    @focus="urlBoxFocused=true"
+                                    @blur="urlBoxFocused=false"
+                                />
+                            </v-layout>
                             <v-btn small flat style="min-width:auto" :ripple="false" class="ma-0">
                                 <v-icon style="font-size:150%">mdi-bookmark-plus-outline</v-icon>
                             </v-btn>
@@ -154,7 +157,8 @@ class Page {
         favicon: '',
         progress: 0,
         canGoBack: false,
-        canGoForward: false
+        canGoForward: false,
+        cert: null
     }
 
     readonly nav: WebView.Nav = {
@@ -175,6 +179,7 @@ class Page {
     get isBuiltin() { return !this.href || this.href.toLowerCase().startsWith('sync:') }
     get canGoBack() { return this.status.canGoBack }
     get canGoForward() { return this.status.canGoForward }
+    get cert() { return this.status.cert }
 
     goBack() { this.nav.goBack++ }
     goForward() { this.nav.goForward++ }
@@ -429,9 +434,12 @@ html {
   color: rgba(0, 0, 0, 0.6);
 }
 .url-box:focus {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.url-box-with-icon:focus-within {
   background-color: #ffffff;
   box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.9);
 }
 
 // override vuetify's
