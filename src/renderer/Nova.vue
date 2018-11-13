@@ -34,7 +34,7 @@
                     <v-icon style="font-size:150%">add</v-icon>
                 </v-btn>
             </transition-group>
-            <div class="elevation-1 white no-drag">
+            <div class="elevation-1 no-drag nav-bar">
                 <v-layout row align-center px-1>
                     <v-btn
                         class="my-1"
@@ -289,9 +289,34 @@ html {
   overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
 
+.toolbar {
+  overflow: hidden;
+}
+
+.theme--light .toolbar {
+  background-color: #e6e6e6;
+}
+
+.theme--dark .toolbar {
+  background-color: #404040;
+}
+
+.darwin.blur .theme--light .toolbar {
+  background-color: #f4f4f4;
+}
+.darwin.blur .theme--dark .toolbar {
+  background-color: #383838;
+}
+
 .tab-bar {
   overflow: hidden;
-  padding: 10px 8px 0px 80px;
+  padding: 8px 8px 0px 80px;
+  transition: padding 0.2s;
+}
+
+.darwin.full-screen .tab-bar {
+  padding-left: 8px;
+  padding-top: 3px;
 }
 .tab-button {
   flex: 0 1 auto;
@@ -304,21 +329,6 @@ html {
   -webkit-app-region: no-drag;
 }
 
-.viewport {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-#frame .tab-bar {
-  height: 100%;
-  flex: 0 1 auto;
-  flex-direction: row;
-  align-items: flex-end;
-  transition: padding-left 0.3s ease-out;
-}
-.darwin.full-screen #frame .tab-bar {
-  padding-left: 10px;
-}
 .sync-dapp-list.default-content {
   width: 75%;
   max-width: 1000px;
@@ -338,11 +348,6 @@ html {
   z-index: 2;
 }
 
-.toolbar {
-  background-color: #e6e6e6;
-  overflow: hidden;
-}
-
 .label {
   color: #fff;
   padding: 0px 4px;
@@ -357,17 +362,17 @@ html {
     rgba(0, 0, 0, 0.5) 0px 0px 0.5px 0px;
   border-radius: 6px;
 }
-.theme--light.application .v-dialog {
+.theme--light .v-dialog {
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12),
     rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px;
   border-radius: 6px;
 }
 
-.theme--light.application .outline {
+.theme--light .outline {
   position: relative;
 }
-.theme--light.application .outline::before {
+.theme--light .outline::before {
   pointer-events: none;
   border-radius: inherit;
   content: "";
@@ -396,6 +401,14 @@ html {
   position: absolute;
   opacity: 0;
 }
+
+.theme--light .nav-bar {
+  background-color: #ffffff;
+}
+.theme--dark .nav-bar {
+  background-color: #212121;
+}
+
 .nav-box {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
@@ -419,5 +432,19 @@ html {
   background-color: #ffffff;
   box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
   color: rgba(0, 0, 0, 0.9);
+}
+
+// override vuetify's
+.v-card {
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+}
+.elevation-1 {
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3) !important;
+}
+.elevation-2 {
+  box-shadow: 0px 1.5px 3px 0px rgba(0, 0, 0, 0.3) !important;
+}
+.elevation-3 {
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.3) !important;
 }
 </style>
