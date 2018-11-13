@@ -127,7 +127,7 @@ export default class ClauseSign extends Vue {
         let clauses = this.clauses.map(item => {
             return {
                 to: item.to,
-                value: '0x' + parseInt(item.value).toString(16),
+                value: '0x' + parseInt(item.value as any).toString(16),
                 data: '0x' + item.data
             }
         })

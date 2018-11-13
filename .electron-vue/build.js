@@ -12,6 +12,7 @@ const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
 const dappsConfig = require('./webpack.dapps.config')
 const preloadConfig = require('./webpack.preload.config')
+const xWorkerConfig = require('./webpack.x-worker.config')
 // const webConfig = require('./webpack.web.config')
 
 const doneLog = chalk.bgGreen.white(' DONE ') + ' '
@@ -34,8 +35,14 @@ function build() {
 
     del.sync(['dist/electron/*', '!.gitkeep'])
 
-    const tasks = ['main', 'DApps', 'renderer', 'preload']
-    const m = new Multispinner(tasks, {
+    const tasks = [
+        ['main', mainConfig],
+        ['DApps', dappsConfig],
+        ['renderer', rendererConfig],
+        ['preload', preloadConfig],
+        ['xWorker', xWorkerConfig]
+    ]
+    const m = new Multispinner(tasks.map(t => t[0]), {
         preText: 'building',
         postText: 'process'
     })
@@ -49,43 +56,16 @@ function build() {
         process.exit()
     })
 
-    pack(mainConfig).then(result => {
-        results += result + '\n\n'
-        m.success('main')
-    }).catch(err => {
-        m.error('main')
-        console.log(`\n  ${errorLog}failed to build main process`)
-        console.error(`\n${err}\n`)
-        process.exit(1)
-    })
-
-    pack(rendererConfig).then(result => {
-        results += result + '\n\n'
-        m.success('renderer')
-    }).catch(err => {
-        m.error('renderer')
-        console.log(`\n  ${errorLog}failed to build renderer process`)
-        console.error(`\n${err}\n`)
-        process.exit(1)
-    })
-
-    pack(dappsConfig).then(result => {
-        results += result + '\n\n'
-        m.success('DApps')
-    }).catch(err => {
-        m.error('DApps')
-        console.log(`\n  ${errorLog}failed to build dapp process`)
-        console.error(`\n${err}\n`)
-        process.exit(1)
-    })
-    pack(preloadConfig).then(result => {
-        results += result + '\n\n'
-        m.success('preload')
-    }).catch(err => {
-        m.error('preload')
-        console.log(`\n  ${errorLog}failed to build preload process`)
-        console.error(`\n${err}\n`)
-        process.exit(1)
+    tasks.forEach(t => {
+        pack(t[1]).then(result => {
+            results += result + '\n\n'
+            m.success(t[0])
+        }).catch(err => {
+            m.error(t[0])
+            console.log(`\n  ${errorLog}failed to build ${t[0]} process`)
+            console.error(`\n${err}\n`)
+            process.exit(1)
+        })
     })
 }
 
