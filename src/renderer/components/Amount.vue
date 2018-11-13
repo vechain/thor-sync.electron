@@ -7,7 +7,7 @@ export default Vue.extend({
     props: {
         dec: {
             type: Number,
-            default: 3
+            default: 2
         },
         sym: String,
         prepend: String
