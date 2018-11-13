@@ -46,7 +46,7 @@ export function create(
             const body = {
                 clauses: clauses.map(c => ({
                     to: c.to,
-                    value: c.value ? c.value.toString() : '0x0',
+                    value: c.value.toString(),
                     data: c.data
                 })),
                 gas: options.gas,

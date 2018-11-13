@@ -13,16 +13,15 @@ export function createMethod(
             const data = coder.encode(...args)
             return {
                 to: addr,
-                value: value ? value.toString() : '0x0',
+                value: value.toString(),
                 data
             }
         },
         call(args, value, options) {
             options = options || {}
-            value = value ? value.toString() : '0x0'
             const data = coder.encode(...args)
             const input = {
-                ...options, data, value
+                ...options, data, value: value.toString()
             }
             return wire.post<Thor.VMOutput>(
                 `accounts/${encodeURIComponent(addr)}`,

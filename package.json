@@ -75,7 +75,7 @@
     "qrious": "^4.0.2",
     "qs": "^6.5.2",
     "serialize-error": "^3.0.0",
-    "thor-devkit": "0.2.6",
+    "thor-devkit": "0.2.7",
     "vue": "2.5.17",
     "vue-class-component": "6.2.0",
     "vue-property-decorator": "7.0.0",
