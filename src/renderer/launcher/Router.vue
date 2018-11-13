@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100%" class="grey lighten-3">
+    <div style="height: 100%" class="white">
         <transition
             mode="out-in"
             enter-active-class="animated faster bounceInDown"

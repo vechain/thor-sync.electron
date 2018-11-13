@@ -1,12 +1,11 @@
 <template>
     <v-hover :close-delay="0" :open-delay="50">
-        <v-card
-            flat
-            tile
+        <v-layout
             slot-scope="{ hover }"
             v-bind="$attrs"
             v-on="$listeners"
             class="tab-button pl-2 pr-1 py-1"
+            align-center
             :class="{'tab-button--active': active}"
         >
             <v-img
@@ -33,7 +32,7 @@
             >
                 <v-icon small>close</v-icon>
             </v-btn>
-        </v-card>
+        </v-layout>
     </v-hover>
 </template>  
 <script lang="ts">
@@ -69,9 +68,6 @@ export default class TabButton extends Vue {
   user-select: none;
   cursor: default;
   z-index: 0;
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
   margin-left: 0.5px;
   margin-right: 0.5px;
   transition: background 0.15s cubic-bezier(0.25, 0.8, 0.5, 1),
@@ -79,11 +75,15 @@ export default class TabButton extends Vue {
     width 0.3s, padding 0.3s;
 }
 
-.theme--light.tab-button {
+.theme--light .tab-button {
   background-color: #d4d4d4;
   box-shadow: 0px 0px 0px 0px #d4d4d4;
 }
-.theme--dark.tab-button {
+.darwin.blur .theme--light .tab-button {
+  background-color: #e0e0e0;
+}
+
+.theme--dark .tab-button {
   background-color: #303030;
   box-shadow: 0px 0px 0px 0px #303030;
 }
@@ -93,19 +93,19 @@ export default class TabButton extends Vue {
   z-index: 1;
 }
 
-.theme--light.tab-button--active {
-  box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 2px 2px rgba(0, 0, 0, 0.3);
-  background-color: #ffffff;
+.theme--light .tab-button--active {
+  box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
+  background-color: #ffffff !important;
 }
-.theme--dark.tab-button--active {
-  box-shadow: 0px -1px 0px 2px #212121, 0px 0px 2px 2px rgba(0, 0, 0, 0.3);
+.theme--dark .tab-button--active {
+  box-shadow: 0px -1px 0px 2px #212121, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
   background-color: #212121;
 }
 
-.theme--light.tab-button:not(.tab-button--active):hover {
+.theme--light .tab-button:not(.tab-button--active):hover {
   background-color: #e0e0e0;
 }
-.theme--dark.tab-button:not(.tab-button--active):hover {
+.theme--dark .tab-button:not(.tab-button--active):hover {
   background-color: #282828;
 }
 </style>

@@ -40,21 +40,24 @@ Object.defineProperty(window, 'BUS', {
 
 trackTxLoop()
 
+const bodyElem = document.body
+bodyElem.classList.add(process.platform)
+const fullScreenClass = 'full-screen'
+const blurClass = 'blur'
+
 const win = remote.getCurrentWindow()
-const style = 'full-screen'
-const bodyEle = document.body
-const platform = process.platform
-
-bodyEle.classList.add(platform)
 if (win.isFullScreen()) {
-    bodyEle.classList.add(style)
-} else {
-    bodyEle.classList.remove(style)
+    bodyElem.classList.add(fullScreenClass)
 }
-
+if (!win.isFocused()) {
+    bodyElem.classList.add(blurClass)
+}
 win.on('enter-full-screen', () => {
-    bodyEle.classList.add(style)
-})
-win.on('leave-full-screen', () => {
-    bodyEle.classList.remove(style)
+    bodyElem.classList.add(fullScreenClass)
+}).on('leave-full-screen', () => {
+    bodyElem.classList.remove(fullScreenClass)
+}).on('focus', () => {
+    bodyElem.classList.remove(blurClass)
+}).on('blur', () => {
+    bodyElem.classList.add(blurClass)
 })
