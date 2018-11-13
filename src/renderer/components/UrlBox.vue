@@ -92,7 +92,7 @@ export default class UrlBox extends Vue {
 
 function normalizeUrl(str: string) {
     let url = NodeUrl.parse(str)
-    if (url.hostname) {
+    if (url.protocol === 'file:' || url.hostname) {
         return NodeUrl.format(url)
     }
 
