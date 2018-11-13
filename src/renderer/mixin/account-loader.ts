@@ -19,7 +19,7 @@ export default class AccountLoader extends Vue {
             const addr = this.address.toLowerCase()
             const cached = cache.get(addr)
             if (cached) {
-                this.assign(cached.account)
+                this.account = { ...cached.account }
                 if (cached.headId === connex.thor.status.head.id) {
                     return
                 }
@@ -30,7 +30,7 @@ export default class AccountLoader extends Vue {
             fetcher.fetch(addr).then(acc => {
                 cache.set(addr, acc, connex.thor.status.head.id)
                 if ((this.address || '').toLowerCase() === addr) {
-                    this.assign(acc)
+                    this.account = { ...acc }
                 }
             })
                 // tslint:disable-next-line:no-console
@@ -41,13 +41,6 @@ export default class AccountLoader extends Vue {
         }
     }
 
-    private assign(acc: Connex.Thor.Account) {
-        if (this.account) {
-            Object.assign(this.account, acc)
-        } else {
-            this.account = acc
-        }
-    }
 }
 
 class Fetcher {
