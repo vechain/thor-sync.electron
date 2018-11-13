@@ -45,7 +45,8 @@ export default class Launcher extends Vue {
             favicon: '',
             progress: 1,
             canGoBack: history.index !== 0,
-            canGoForward: history.index < history.stack.length - 1
+            canGoForward: history.index < history.stack.length - 1,
+            cert: null
         })
     }
     @Prop(Object) nav!: WebView.Nav

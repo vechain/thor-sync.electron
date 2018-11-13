@@ -24,6 +24,7 @@ Vue.config.productionTip = false
 import Activity from './components/Activity.vue'
 import AddressLabel from './components/AddressLabel.vue'
 import Amount from './components/Amount.vue'
+import CertIndicator from './components/CertIndicator.vue'
 import ClauseItem from './components/ClauseItem.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import IdentBox from './components/IdentBox.vue'
@@ -45,6 +46,7 @@ import WebView from './components/WebView.vue'
 Vue.component('Activity', Activity)
 Vue.component('AddressLabel', AddressLabel)
 Vue.component('Amount', Amount)
+Vue.component('CertIndicator', CertIndicator)
 Vue.component('ClauseItem', ClauseItem)
 Vue.component('ConfirmDialog', ConfirmDialog)
 Vue.component('IdentBox', IdentBox)
