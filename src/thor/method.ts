@@ -29,8 +29,12 @@ export function createMethod(
                 input,
                 { revision })
                 .then(output => {
-                    const decoded = coder.decode(output.data)
-                    return { ...output, decoded }
+                    if (output.reverted) {
+                        return { ...output, decoded: {} }
+                    } else {
+                        const decoded = coder.decode(output.data)
+                        return { ...output, decoded }
+                    }
                 })
         }
     }
