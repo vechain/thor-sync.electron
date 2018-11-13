@@ -11,7 +11,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let xWorkerConfig = {
   entry: {
-    xWorker: path.join(__dirname, '../src/x-worker.ts')
+    'x-worker': path.join(__dirname, '../src/x-worker.ts')
   },
   externals: [
     ...Object.keys(dependencies || {})
