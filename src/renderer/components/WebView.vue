@@ -12,24 +12,28 @@
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
 import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent } from 'electron'
-
+import * as NodeUrl from 'url'
 @Component
 export default class WebView extends Vue {
     readonly partition = `persist:${connex.thor.genesis.id}`
     readonly preload = ENV.preload
 
+    currentHref = ''
     domReady = false
-    loading = false
+    progress = 0
+
+    get loading() {
+        return this.progress !== 1
+    }
 
     @Prop(String) href!: string
     @Emit('update:href')
     updateHref(val: string) { }
     @Watch('href')
     hrefChanged(val: string) {
-        const wv = this.$refs.webview as WebviewTag
         // prevent navigate twice
-        if (!wv.getWebContents() || val !== wv.getURL()) {
-            wv.src = val
+        if (val !== this.currentHref) {
+            this.webview.src = this.currentHref = val
         }
     }
     @Emit('update:status')
@@ -43,62 +47,56 @@ export default class WebView extends Vue {
     @Watch('nav.reloadOrStop')
     reloadOrStop() {
         if (this.webview.isLoading()) {
+            this.progress = 1
             this.webview.stop()
         } else {
-            this.webview.reload()
+            this.webview.src = this.webview.src
         }
     }
 
-    _unbind!: () => void
-
+    _unbind !: () => void
     mounted() {
         this._unbind = this.bindEvents()
         // assign src manullay instead of v-bind:src to avoid some wired problems
-        this.webview.src = this.href
+        this.webview.src = this.currentHref = this.href
     }
     destroyed() { this._unbind() }
 
     bindEvents() {
-        let progress = 0
         let favicon = ''
         let title = ''
+        let lastHref = this.currentHref
+
         const emitStatus = () => {
             if (!this.webview.getWebContents()) {
                 return
             }
-            const href = this.webview.getURL()
-            if (href && href !== this.href) {
-                this.updateHref(href)
-            }
+
             this.updateStatus({
                 title,
                 favicon,
-                progress: progress,
+                progress: this.progress,
                 canGoBack: this.webview.canGoBack(),
                 canGoForward: this.webview.canGoForward()
             })
         }
         let timer: any
         const handleEvent = (ev: Event) => {
-            console.log(ev.type, ev, Date.now())
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
             }
 
-
             switch (ev.type) {
                 case 'did-start-loading':
-                    this.loading = true
-                    progress = 0.1
+                    this.progress = 0.1
                     timer = setInterval(() => {
-                        progress += (1 - progress) / (Math.random() * 10 + 20)
+                        this.progress += (1 - this.progress) / (Math.random() * 10 + 20)
                         emitStatus()
                     }, 1000)
                     break
                 case 'did-stop-loading':
-                    this.loading = false
-                    progress = 1
+                    this.progress = 1
                     clearInterval(timer)
                     break
                 case 'page-favicon-updated':
@@ -112,23 +110,32 @@ export default class WebView extends Vue {
                     break
                 case 'load-commit':
                 case 'did-navigate':
-                case 'update-target-url':
                 case 'did-frame-finish-load':
                 case 'did-finish-load':
                 case 'did-change-theme-color':
-                case 'did-get-response-details':
                 case 'dom-ready':
-                    progress += (1 - progress) / 10
+                    this.progress += (1 - this.progress) / 10
                     break
             }
             if (ev.type === 'load-commit') {
-                if ((ev as LoadCommitEvent).isMainFrame) {
+                const loadCommit = ev as LoadCommitEvent
+                if (loadCommit.isMainFrame) {
                     this.domReady = false
+                    this.currentHref = loadCommit.url
+
+                    if (loadCommit.url !== lastHref) {
+                        if (NodeUrl.parse(lastHref).host !== NodeUrl.parse(loadCommit.url).host) {
+                            title = ''
+                            favicon = ''
+                        }
+
+                        lastHref = loadCommit.url
+                        this.updateHref(loadCommit.url)
+                    }
                 }
             } else if (ev.type === 'dom-ready') {
                 this.domReady = true
             }
-            this.webview.isConnected
             emitStatus()
         }
 
@@ -141,7 +148,6 @@ export default class WebView extends Vue {
     get webview() { return this.$refs.webview as WebviewTag }
 }
 
-
 const events = [
     'load-commit',
     'did-finish-load',
@@ -149,14 +155,14 @@ const events = [
     'did-frame-finish-load',
     'did-start-loading',
     'did-stop-loading',
-    'did-get-response-details',
+    //    'did-get-response-details',
     'did-get-redirect-request',
     'dom-ready',
     'page-title-updated',
     'page-favicon-updated',
     'enter-html-full-screen',
     'leave-html-full-screen',
-    'console-message',
+    //    'console-message',
     'found-in-page',
     'new-window',
     'will-navigate',
@@ -171,7 +177,7 @@ const events = [
     'media-started-playing',
     'media-paused',
     'did-change-theme-color',
-    'update-target-url',
+    //    'update-target-url',
     'devtools-opened',
     'devtools-closed',
     'devtools-focused',

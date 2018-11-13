@@ -49,7 +49,7 @@ export default class UrlBox extends Vue {
             }
             return ''
         } else {
-            return this.shadowValue || NodeUrl.parse(this.shadowHref).hostname || this.shadowHref
+            return this.shadowValue || NodeUrl.parse(this.shadowHref).host || this.shadowHref
         }
     }
 

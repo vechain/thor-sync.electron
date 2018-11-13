@@ -1,6 +1,6 @@
 <template>
-    <v-app id="frame">
-        <div class="toolbar" style="overflow:hidden;">
+    <v-app>
+        <div class="toolbar">
             <transition-group
                 tag="v-layout"
                 class="drag tab-bar"
@@ -13,8 +13,8 @@
                     class="tab-button"
                     :class="i=== activePageIndex?'drag':'no-drag'"
                     :key="'tab'+page.id"
-                    :title="page.status.title || page.href"
-                    :favicon="page.status.favicon"
+                    :title="page.title"
+                    :favicon="page.favicon"
                     :active="i===activePageIndex"
                     @close="closeTab(i)"
                     @click.native="activePageIndex = i"
@@ -22,7 +22,7 @@
                     @mousedown="i=== activePageIndex && $event.preventDefault()"
                 />
                 <v-btn
-                    class="no-drag ma-1 pa-0 ml-3"
+                    class="no-drag ma-1 pa-0 ml-2"
                     flat
                     small
                     key="the-new-tab-button"
@@ -39,25 +39,23 @@
                     <v-btn
                         small
                         icon
-                        :disabled="!activePage.status.canGoBack"
+                        :disabled="!activePage.canGoBack"
                         :ripple="false"
-                        @click="activePage.nav.goBack++"
+                        @click="activePage.goBack"
                     >
                         <v-icon style="font-size:150%">arrow_back</v-icon>
                     </v-btn>
                     <v-btn
                         small
                         icon
-                        :disabled="!activePage.status.canGoForward"
+                        :disabled="!activePage.canGoForward"
                         :ripple="false"
-                        @click="activePage.nav.goForward++"
+                        @click="activePage.goForward"
                     >
                         <v-icon style="font-size:150%">arrow_forward</v-icon>
                     </v-btn>
-                    <v-btn small :ripple="false" icon @click="activePage.nav.reloadOrStop++;activePage.userInput=''">
-                        <v-icon
-                            style="font-size:150%"
-                        >{{activePage.status.progress===1 ? 'refresh' :'close'}}</v-icon>
+                    <v-btn small :ripple="false" icon @click="activePage.reloadOrStop">
+                        <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
                     </v-btn>
                     <div class="mx-2 nav-box" :class="{'nav-box-focused': urlBoxFocused}">
                         <v-layout align-center style="position:relative;" fill-height>
@@ -84,9 +82,12 @@
                                 <v-icon style="font-size:150%">mdi-bookmark-plus-outline</v-icon>
                             </v-btn>
                             <v-progress-linear
+                                v-for="(page,i) in pages"
+                                :key="'progress'+page.id"
+                                v-show="i===activePageIndex"
                                 background-color="rgba(0,0,0,0)"
-                                :active="activePage.status.progress > 0 && activePage.status.progress<1"
-                                :value="activePage.status.progress * 100"
+                                :active="!page.isBuiltin && page.loading"
+                                :value="page.progress"
                                 class="ma-0"
                                 height="2px"
                                 style="position:absolute;left:0;right:0;bottom:0;"
@@ -94,7 +95,7 @@
                         </v-layout>
                     </div>
                     <TxRecordsPanel>
-                        <v-btn icon small slot="activator">
+                        <v-btn icon small slot="activator" :ripple="false">
                             <Activity/>
                         </v-btn>
                     </TxRecordsPanel>
@@ -106,12 +107,12 @@
             <Vendor/>
             <template v-for="(page,i) in pages">
                 <Launcher
-                    v-if="!page.href || page.href.startsWith('sync:')"
+                    v-if="page.isBuiltin"
                     v-show="i===activePageIndex"
                     :key="'launcher'+page.id"
                     :href.sync="page.href"
                     :nav="page.nav"
-                    @update:status="page.status=$event"
+                    @update:status="page.updateStatus($event)"
                     style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden"
                 />
                 <WebView
@@ -121,7 +122,7 @@
                     style="position:absolute;left:0;top:0;right:0;bottom:0;"
                     :href.sync="page.href"
                     :nav="page.nav"
-                    @update:status="page.status=$event"
+                    @update:status="page.updateStatus($event)"
                 />
             </template>
         </v-content>
@@ -142,32 +143,43 @@ import UrlBox from './components/UrlBox.vue'
 import WebView from './components/WebView.vue'
 import Launcher from './launcher'
 
-type Page = {
-    id: number
-    href: string
-    userInput: string
-    status: WebView.Status
-    nav: WebView.Nav
-}
-let nextPageId = 0
-function newPage(href: string, title: string): Page {
-    return {
-        id: nextPageId++,
-        href,
-        userInput: '',
-        status: {
-            title,
-            favicon: '',
-            progress: 0,
-            canGoBack: false,
-            canGoForward: false
-        },
-        nav: {
-            goBack: 0,
-            goForward: 0,
-            reloadOrStop: 0
-        }
+class Page {
+    static nextId = 0
+
+    id = Page.nextId++
+    href = ''
+    userInput = ''
+
+    private readonly status: WebView.Status = {
+        title: '',
+        favicon: '',
+        progress: 0,
+        canGoBack: false,
+        canGoForward: false
     }
+
+    private readonly nav: WebView.Nav = {
+        goBack: 0,
+        goForward: 0,
+        reloadOrStop: 0
+    }
+
+    constructor(href: string) {
+        this.href = href
+    }
+
+    updateStatus(status: WebView.Status) { Object.assign(this.status, status) }
+    get title() { return this.status.title || this.href }
+    get favicon() { return this.status.favicon }
+    get progress() { return this.isBuiltin ? 100 : this.status.progress * 100 }
+    get loading() { return this.status.progress !== 1 }
+    get isBuiltin() { return !this.href || this.href.toLowerCase().startsWith('sync:') }
+    get canGoBack() { return this.status.canGoBack }
+    get canGoForward() { return this.status.canGoForward }
+
+    goBack() { this.nav.goBack++ }
+    goForward() { this.nav.goForward++ }
+    reloadOrStop() { this.nav.reloadOrStop; this.userInput = '' }
 }
 
 type OpenTab = {
@@ -191,7 +203,7 @@ type OpenTab = {
     }
 })
 export default class Nova extends Vue {
-    pages: Page[] = [newPage('', '')]
+    pages: Page[] = [new Page('')]
     activePageIndex = 0
     get activePage() { return this.pages[this.activePageIndex] }
     urlBoxFocused = false
@@ -210,18 +222,15 @@ export default class Nova extends Vue {
         }
     }
 
-    openTab(href: string, title?: string, mode?: 'append' | 'append-active' | 'inplace') {
+    openTab(href: string, mode?: 'append' | 'append-active' | 'inplace') {
         if (mode === 'append-active') {
-            const page = newPage(href, title || '')
+            const page = new Page(href)
             this.pages.splice(this.activePageIndex + 1, 0, page)
             this.activePageIndex++
         } else if (mode === 'inplace') {
             this.pages[this.activePageIndex].href = href
-            if (title) {
-                this.pages[this.activePageIndex].status.title = title
-            }
         } else {
-            const page = newPage(href, title || '')
+            const page = new Page(href)
             this.pages.push(page)
             this.activePageIndex = this.pages.length - 1
         }
@@ -249,7 +258,7 @@ export default class Nova extends Vue {
         )
 
         BUS.$on('open-tab', (data: OpenTab) => {
-            this.openTab(data.href, data.title, data.mode)
+            this.openTab(data.href, data.mode)
         })
     }
 
@@ -288,14 +297,7 @@ export default class Nova extends Vue {
 html {
   overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
-body {
-  height: 100vh;
-  width: 100vw;
-}
-.sync-container .viewport-layout {
-  position: absolute;
-  height: 100%;
-}
+
 .tab-bar {
   overflow: hidden;
   padding: 10px 8px 0px 80px;
@@ -347,6 +349,7 @@ body {
 
 .toolbar {
   background-color: #e6e6e6;
+  overflow: hidden;
 }
 
 .label {
@@ -392,9 +395,6 @@ body {
 }
 .v-expansion-panel__header__icon {
   margin-left: 12px !important;
-}
-.theme--light.v-btn .v-icon {
-  color: rgba(0, 0, 0, 0.7);
 }
 
 .tab-button-enter {
