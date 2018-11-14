@@ -297,6 +297,9 @@ html {
 .toolbar {
   overflow: hidden;
 }
+.html-full-screen .toolbar {
+    display: none
+}
 
 .theme--light .toolbar {
   background-color: #e6e6e6;
