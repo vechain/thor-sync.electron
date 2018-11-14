@@ -81,6 +81,7 @@ export default class TabButton extends Vue {
 }
 .darwin.blur .theme--light .tab-button {
   background-color: #e0e0e0;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .theme--dark .tab-button {

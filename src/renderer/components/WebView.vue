@@ -87,11 +87,6 @@ export default class WebView extends Vue {
                 return
             }
 
-            const url = NodeUrl.parse(this.currentHref)
-            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
-                cert = remote.app.EXTENSION.sessionMgr.getCertificate(url.hostname) || null
-            }
-
             switch (ev.type) {
                 case 'did-start-loading':
                     this.progress = 0.1
@@ -141,6 +136,19 @@ export default class WebView extends Vue {
                 }
             } else if (ev.type === 'dom-ready') {
                 this.domReady = true
+            } else if (ev.type === 'enter-html-full-screen') {
+                if(this.visible){
+                    document.body.classList.add('html-full-screen')
+                }
+            } else if (ev.type === 'leave-html-full-screen') {
+                 if(this.visible){
+                    document.body.classList.remove('html-full-screen')
+                }
+            }
+
+            const url = NodeUrl.parse(this.currentHref)
+            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
+                cert = remote.app.EXTENSION.sessionMgr.getCertificate(url.hostname) || null
             }
             emitStatus()
         }
@@ -152,6 +160,7 @@ export default class WebView extends Vue {
     }
 
     get webview() { return this.$refs.webview as WebviewTag }
+    get visible() { return this.$el.style.visibility !== 'hidden' }
 }
 
 const events = [
