@@ -1,6 +1,5 @@
 import * as Path from 'path'
 import { URL } from 'url'
-import { remote } from 'electron'
 
 const devMode = process.env.NODE_ENV !== 'production'
 
@@ -10,9 +9,6 @@ function filePathToUrl(path: string) {
 
 const env = {
     devMode,
-
-    xargs: remote ? remote.getCurrentWebContents().getWebPreferences().xargs : undefined,
-    contents: remote ? remote.getCurrentWebContents() : undefined,
 
     index: devMode ?
         'http://localhost:9080/' :

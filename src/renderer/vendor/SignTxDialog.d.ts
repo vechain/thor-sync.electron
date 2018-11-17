@@ -1,7 +1,7 @@
 
 interface SignTx {
     signTx(
-        clientId: string[],
+        contentsId: number,
         message: Connex.Vendor.Message<'tx'>,
         options: Connex.Vendor.SignOptions<'tx'>,
         referer : {

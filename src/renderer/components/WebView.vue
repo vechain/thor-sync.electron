@@ -1,11 +1,10 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners">
+    <div v-bind="$attrs" v-on="$listeners" :style="{visibility: visible?'visible': 'hidden'}">
         <webview
             ref="webview"
             :partition="partition"
             :preload="preload"
             style="width:100%;height:100%;"
-            :style="{opacity:(loading || domReady) ?'inherit':'hidden'}"
         />
     </div>
 </template>
@@ -13,16 +12,15 @@
 import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
 import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote } from 'electron'
 import * as NodeUrl from 'url'
+
 @Component
 export default class WebView extends Vue {
     readonly partition = `persist:${connex.thor.genesis.id}`
     readonly preload = ENV.preload
-
     currentHref = ''
-    domReady = false
     progress = 0
 
-    get loading() { return this.progress !== 1 }
+    @Prop(Boolean) visible!: boolean
 
     @Prop(String) href!: string
     @Emit('update:href')
@@ -50,6 +48,9 @@ export default class WebView extends Vue {
         } else {
             this.webview.src = this.webview.src
         }
+    }
+    created() {
+        remote.app.EXTENSION.sessionMgr.manage(this.partition)
     }
 
     _unbind !: () => void
@@ -120,7 +121,6 @@ export default class WebView extends Vue {
             if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {
-                    this.domReady = false
                     this.currentHref = loadCommit.url
 
                     if (loadCommit.url !== lastHref) {
@@ -134,14 +134,12 @@ export default class WebView extends Vue {
                         this.updateHref(loadCommit.url)
                     }
                 }
-            } else if (ev.type === 'dom-ready') {
-                this.domReady = true
             } else if (ev.type === 'enter-html-full-screen') {
-                if(this.visible){
+                if (this.visible) {
                     document.body.classList.add('html-full-screen')
                 }
             } else if (ev.type === 'leave-html-full-screen') {
-                 if(this.visible){
+                if (this.visible) {
                     document.body.classList.remove('html-full-screen')
                 }
             }
@@ -160,7 +158,6 @@ export default class WebView extends Vue {
     }
 
     get webview() { return this.$refs.webview as WebviewTag }
-    get visible() { return this.$el.style.visibility !== 'hidden' }
 }
 
 const events = [

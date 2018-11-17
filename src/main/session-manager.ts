@@ -1,4 +1,4 @@
-import { Session, session, CertificateVerifyProcRequest } from "electron";
+import { Session, session, CertificateVerifyProcRequest } from 'electron'
 
 class SessionManager {
     private readonly map = new Map<string, Session>()

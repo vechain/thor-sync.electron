@@ -7,19 +7,11 @@ namespace Store {
     export type Model = {
         chainStatus: Connex.Thor.Status
         preferencesRevision: number
-        activeViewport: Viewport | null
         preferences: {
             [Preferences.KEY_NETWORKS]: Settings.NetWork[]
             [Preferences.KEY_SHORTCUTS]: Settings.Shortcut[]
             [Preferences.KEY_IS_AUTO_UPDATE]: boolean
         }
-    }
-
-    export type Viewport = {
-        id: number
-        domain: string
-        title: string
-        iconURL: string
     }
 }
 
@@ -27,7 +19,6 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
 
     public static readonly UPDATE_PREFERENCES_REVISION = 'preferencesRevision'
-    public static readonly UPDATE_ACTIVE_VIEW_PORT = 'updateActiveViewPort'
 
     public static readonly UPDATE_NETWORKS = `update${Preferences.KEY_NETWORKS}`
     public static readonly UPDATE_SHORTCUTS = `update${
@@ -42,7 +33,6 @@ class Store extends Vuex.Store<Store.Model> {
             state: {
                 chainStatus: connex.thor.status,
                 preferencesRevision: 0,
-                activeViewport: null,
                 preferences: {
                     [Preferences.KEY_NETWORKS]: [],
                     [Preferences.KEY_SHORTCUTS]: [],
@@ -57,9 +47,6 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_PREFERENCES_REVISION](state) {
                     state.preferencesRevision++
-                },
-                [Store.UPDATE_ACTIVE_VIEW_PORT](state, viewport) {
-                    state.activeViewport = viewport
                 },
                 [Store.UPDATE_NETWORKS](state, networks) {
                     state.preferences[Preferences.KEY_NETWORKS] = networks

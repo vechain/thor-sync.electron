@@ -53,7 +53,7 @@ export default class NetworkStatusPanel extends Vue {
     otherConfigs = siteConfigs
         .filter(
             c => {
-                const config = ENV.xargs!.config!
+                const config = remote.getCurrentWebContents().getWebPreferences().siteConfig!
                 return c.url !== config.url || c.genesis.id !== config.genesis.id
             })
 
@@ -73,7 +73,7 @@ export default class NetworkStatusPanel extends Vue {
         const wins = remote.BrowserWindow.getAllWindows()
         const found = wins.find(w => {
             try {
-                const c = w.webContents.getWebPreferences().xargs!.config!
+                const c = w.webContents.getWebPreferences().siteConfig!
                 return c.url === config.url && c.genesis.id === config.genesis.id
             } catch{
                 return false

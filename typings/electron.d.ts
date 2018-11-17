@@ -7,9 +7,6 @@ declare module 'electron' {
 
     interface WebPreferences {
         preloadURL?: string
-        xargs?: {
-            clientId?: string[]
-            config?: Connex.Thor.Site.Config
-        }
+        siteConfig?: Connex.Thor.Site.Config
     }
 }

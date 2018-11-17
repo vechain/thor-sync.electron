@@ -1,5 +1,4 @@
 import { remote } from 'electron'
-import env from '@/env'
 
 declare global {
     interface Window {
@@ -8,10 +7,14 @@ declare global {
     const connex: Connex
 }
 
+const siteConfig = remote.getCurrentWindow()
+    .webContents
+    .getWebPreferences()
+    .siteConfig
+
 const c = remote.app.EXTENSION.connect(
-    env.contents!.id,
-    env.xargs!.config!,
-    env.xargs!.clientId!
+    remote.getCurrentWebContents().id,
+    siteConfig!
 )
 
 Object.defineProperty(window, 'connex', {

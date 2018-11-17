@@ -24,16 +24,16 @@ export default class Vendor extends Vue {
     mounted() {
         const signTxDlg = this.$refs.signTxDlg as SignTxDialog
         remote.app.EXTENSION.inject(
-            ENV.contents!.id,
-            `vendor.${ENV.xargs!.clientId![0]}`, {
+            remote.getCurrentWebContents().id,
+            `vendor.${remote.getCurrentWindow().id}`, {
                 signTx: (
-                    clientId: string[],
+                    contentsId: number,
                     message: Connex.Vendor.Message<'tx'>,
                     options: Connex.Vendor.SignOptions<'tx'>,
                     referer: { url: string, title: string },
                     callback: (err?: Error, result?: Connex.Vendor.SignResult<'tx'>) => void
                 ) => {
-                    signTxDlg.signTx(clientId, message, options, referer)
+                    signTxDlg.signTx(contentsId, message, options, referer)
                         .then(r => {
                             setTimeout(() => {
                                 this.snackbarText = 'Transaction signed and enqueued'

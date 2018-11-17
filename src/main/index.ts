@@ -3,7 +3,6 @@ import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import inject from './inject'
-import env from '../env'
 import SessionManager from './session-manager'
 
 // tslint:disable-next-line:no-var-requires
@@ -23,8 +22,7 @@ declare module 'electron' {
             sessionMgr: SessionManager
             connect(
                 contentsId: number,
-                config: Connex.Thor.Site.Config,
-                clientId: string[]
+                config: Connex.Thor.Site.Config
             ): Connex
 
             inject(
@@ -48,7 +46,7 @@ const sessionMgr = new SessionManager()
 
 app.EXTENSION = {
     sessionMgr,
-    connect: (contentsId, config, clientId) => backend.connect(contentsId, config, clientId),
+    connect: (contentsId, config) => backend.connect(contentsId, config),
     inject: (contentsId, path, obj) => {
         webContents.fromId(contentsId).once('destroyed', () => {
             inject(app, path)
@@ -59,20 +57,7 @@ app.EXTENSION = {
 }
 
 app.on('web-contents-created', (_, contents) => {
-    contents.on('will-attach-webview', (__, webPreferences: WebPreferences) => {
-        const hostWebPreferences = BrowserWindow.fromWebContents(contents).webContents.getWebPreferences()
-        const partition = 'persist:' + hostWebPreferences.xargs!.config!.genesis.id
-        sessionMgr.manage(partition)
-
-        webPreferences.preloadURL = env.preload
-        webPreferences.partition = partition
-        webPreferences.xargs = {
-            clientId: [...hostWebPreferences.xargs!.clientId!, 'webview-' + contents.id],
-            // derive host's site config
-            config: hostWebPreferences.xargs!.config
-        }
-
-    }).on('did-attach-webview', (__, wc) => {
+    contents.on('did-attach-webview', (__, wc) => {
         // for all webview
         contextMenu({ window: wc })
     })
