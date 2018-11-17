@@ -1,4 +1,4 @@
-import { app, webContents } from 'electron'
+import { app, webContents, BrowserWindow } from 'electron'
 import { Agent } from 'http'
 import { Site } from '@/main/site'
 import { create as createThor } from '../thor'
@@ -10,8 +10,7 @@ export class Backend {
 
     public connect(
         contentsId: number,
-        config: Connex.Thor.Site.Config,
-        clientId: string[]
+        config: Connex.Thor.Site.Config
     ): Connex {
         const wireAgent = new Agent({
             maxSockets: 10
@@ -22,7 +21,7 @@ export class Backend {
 
         const contents = webContents.fromId(contentsId)
         const disconnect = () => {
-            contents.removeListener('devtools-reload-page', disconnect)
+            contents.removeListener('did-start-loading', disconnect)
             contents.removeListener('crashed', disconnect)
             contents.removeListener('destroyed', disconnect)
 
@@ -31,20 +30,21 @@ export class Backend {
             console.log('connex disconnected')
             this.releaseSite(config)
         }
-
-        contents.once('devtools-reload-page', disconnect)
+        contents.once('did-start-loading', disconnect)
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
+
+        const windowId = BrowserWindow.fromWebContents(contents.hostWebContents || contents).id
 
         const txQueueWire = site.withWireAgent(new Agent({ maxSockets: 10 })).createWire()
         return {
             thor: createThor(site),
             vendor: {
-                name: 'thor-sync',
+                name: 'VeChain Sync',
                 sign: (kind, message, options) => {
                     if (kind === 'tx') {
-                        return app.vendor[clientId[0]].signTx(
-                            clientId,
+                        return app.vendor[windowId].signTx(
+                            contentsId,
                             message,
                             options || {},
                             { url: contents.getURL(), title: contents.getTitle() }

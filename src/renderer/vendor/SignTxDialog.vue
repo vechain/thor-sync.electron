@@ -60,6 +60,7 @@ import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
 import * as _ from 'lodash'
 import * as NodeUrl from 'url'
+import { remote } from 'electron'
 
 type Clause = Connex.Vendor.Message<'tx'>[number]
 
@@ -99,7 +100,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         }
     }
     async signTx(
-        clientId: string[],
+        contentsId: number,
         message: Connex.Vendor.Message<'tx'>,
         options: Connex.Vendor.SignOptions<'tx'>,
         referer: {
@@ -107,8 +108,10 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
             title: string
         }) {
 
-        // TODO check whether clientId is current viewport
         if (this.open) { throw new Error('busy') }
+        if (!remote.webContents.fromId(contentsId).isFocused()) {
+            throw new Error('rejected')
+        }
         if (this.wallets.length === 0) { throw new Error('rejected') }
 
         message = normalizeClauses(message)

@@ -128,7 +128,7 @@
                 />
                 <WebView
                     v-else
-                    :style="{visibility:i===activePageIndex?'visible':'hidden'}"
+                    :visible="i===activePageIndex"
                     :key="'webview'+page.id"
                     style="position:absolute;left:0;top:0;right:0;bottom:0;"
                     :href.sync="page.href"
@@ -234,8 +234,8 @@ export default class Nova extends Vue {
 
     created() {
         remote.app.EXTENSION.inject(
-            ENV.contents!.id,
-            `nova.${ENV.xargs!.clientId![0]}`,
+            remote.getCurrentWebContents().id,
+            `nova.${remote.getCurrentWindow().id}`,
             {
                 newTab: (cb: () => void) => {
                     if (!this.isModaling()) {

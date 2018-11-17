@@ -3,10 +3,10 @@ import env from '@/env'
 import siteConfigs from '../site-configs'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
-    height: 600,
-    useContentSize: true,
+    height: 700,
+    //    useContentSize: true,
     show: false,
-    width: 800,
+    width: 1000,
     minWidth: 800,
     minHeight: 600,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined
@@ -15,20 +15,15 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
 class WindowManager {
     private readonly actives = new Map<number, BrowserWindow>()
     private xWorkerWin?: BrowserWindow
-    private nextHostId = 0
 
     public create(
         config?: Connex.Thor.Site.Config,
         options?: BrowserWindowConstructorOptions
     ) {
-        config = config || siteConfigs[0]
         options = { ...defaultWindowOptions, ...(options || {}) }
         options.webPreferences = options.webPreferences || {}
         // options.webPreferences.partition = 'persist:' + config.genesis.id
-        options.webPreferences.xargs = {
-            clientId: ['host-' + this.nextHostId++],
-            config
-        }
+        options.webPreferences.siteConfig = config || siteConfigs[0]
 
         const win = new BrowserWindow(options)
 

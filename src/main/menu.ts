@@ -82,7 +82,7 @@ export function setupMenu() {
                 click() {
                     const win = BrowserWindow.getFocusedWindow()
                     if (win) {
-                        app.nova[win.webContents.getWebPreferences().xargs!.clientId![0]].newTab()
+                        app.nova[win.id].newTab()
                     } else {
                         app.EXTENSION.createWindow()
                     }
@@ -93,7 +93,7 @@ export function setupMenu() {
                 click() {
                     const win = BrowserWindow.getFocusedWindow()
                     if (win) {
-                        app.nova[win.webContents.getWebPreferences().xargs!.clientId![0]].closeTab()
+                        app.nova[win.id].closeTab()
                     }
                 }
             }

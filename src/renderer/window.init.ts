@@ -20,9 +20,9 @@ declare global {
 
 Object.defineProperty(window, 'connex', {
     value: remote.app.EXTENSION.connect(
-        env.contents!.id,
-        env.xargs!.config!,
-        env.xargs!.clientId!),
+        remote.getCurrentWebContents().id,
+        remote.getCurrentWebContents().getWebPreferences().siteConfig!
+    ),
     enumerable: true
 })
 // bind widgets

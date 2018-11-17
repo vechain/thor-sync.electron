@@ -7,11 +7,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { State } from 'vuex-class'
+import { remote } from 'electron'
 type Status = Connex.Thor.Status
 
 @Component
 export default class NetworkStatus extends Vue {
-    name = ENV.xargs!.config!.name
+    name = remote.getCurrentWebContents().getWebPreferences().siteConfig!.name
     @State chainStatus!: Status
     syncing = false
     timer?: any
