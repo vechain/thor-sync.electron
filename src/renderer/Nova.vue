@@ -79,7 +79,7 @@
                                 </v-btn>
                             </NetworkStatusPanel>
                             <v-layout class="url-box-with-icon" fill-height align-center>
-                                <CertIndicator v-if="!!activePage.cert" class="mx-1" :cert="activePage.cert"/>
+                                <CertIndicator v-if="!!activePage.cert && !activePage.userInput" class="mx-1" :cert="activePage.cert"/>
                                 <UrlBox
                                     v-model="activePage.userInput"
                                     :href.sync="activePage.href"
