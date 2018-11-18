@@ -6,7 +6,7 @@
         :value="displayText"
         @focus="onFocused"
         @blur="onBlur"
-        @keyup.enter="onEnter"
+        @keydown.enter="onEnter"
     >
 </template>
 <script lang="ts">
@@ -39,6 +39,16 @@ export default class UrlBox extends Vue {
     focused = false
     shadowValue = ''
     shadowHref = ''
+    // for input method
+    composing = false
+
+    get prettyHost() {
+        const host = NodeUrl.parse(this.shadowHref).host || ''
+        if (host.startsWith('www.')) {
+            return host.slice(4)
+        }
+        return host
+    }
 
     get displayText() {
         if (this.focused) {
@@ -49,7 +59,7 @@ export default class UrlBox extends Vue {
             }
             return ''
         } else {
-            return this.shadowValue || NodeUrl.parse(this.shadowHref).host || this.shadowHref
+            return this.shadowValue || this.prettyHost || this.shadowHref
         }
     }
 
@@ -72,6 +82,9 @@ export default class UrlBox extends Vue {
     }
 
     onEnter() {
+        if (this.composing) {
+            return
+        }
         const text = this.element.value
         if (!text) {
             return
@@ -84,6 +97,11 @@ export default class UrlBox extends Vue {
 
     get element() {
         return this.$el as HTMLInputElement
+    }
+
+    mounted() {
+        this.$el.addEventListener('compositionstart', () => this.composing = true)
+        this.$el.addEventListener('compositionend', () => this.composing = false)
     }
 }
 
