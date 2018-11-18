@@ -61,3 +61,7 @@ win.on('enter-full-screen', () => {
 }).on('blur', () => {
     bodyElem.classList.add(blurClass)
 })
+
+if (process.platform === 'darwin') {
+    win.setSheetOffset(72)
+}
