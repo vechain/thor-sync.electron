@@ -17,7 +17,7 @@
                     :favicon="page.favicon"
                     :active="i===activePageIndex"
                     @close="closeTab(i)"
-                    @click.native="activePageIndex = i"
+                    @mouseup.native="activePageIndex = i"
                     @dblclick.native.stop
                     @mousedown="i=== activePageIndex && $event.preventDefault()"
                 />
