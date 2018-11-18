@@ -20,6 +20,8 @@ export default class WebView extends Vue {
     currentHref = ''
     progress = 0
 
+    get currentUrl() { return NodeUrl.parse(this.currentHref) }
+
     @Prop(Boolean) visible!: boolean
 
     @Prop(String) href!: string
@@ -46,11 +48,8 @@ export default class WebView extends Vue {
             this.progress = 1
             this.webview.stop()
         } else {
-            this.webview.src = this.webview.src
+            this.webview.src = this.currentHref
         }
-    }
-    created() {
-        remote.app.EXTENSION.sessionMgr.manage(this.partition)
     }
 
     _unbind !: () => void
@@ -64,14 +63,9 @@ export default class WebView extends Vue {
     bindEvents() {
         let favicon = ''
         let title = ''
-        let lastHref = this.currentHref
         let cert: Electron.CertificateVerifyProcRequest | null = null
 
         const emitStatus = () => {
-            if (!this.webview.getWebContents()) {
-                return
-            }
-
             this.updateStatus({
                 title,
                 favicon,
@@ -86,51 +80,33 @@ export default class WebView extends Vue {
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
-            }
-
-            switch (ev.type) {
-                case 'did-start-loading':
-                    this.progress = 0.1
-                    timer = setInterval(() => {
-                        this.progress += (1 - this.progress) / (Math.random() * 10 + 20)
-                        emitStatus()
-                    }, 1000)
-                    break
-                case 'did-stop-loading':
-                    this.progress = 1
-                    clearInterval(timer)
-                    break
-                case 'page-favicon-updated':
-                    const favicons = (ev as PageFaviconUpdatedEvent).favicons
-                    if (favicons[0]) {
-                        favicon = favicons[0]
-                    }
-                    break
-                case 'page-title-updated':
-                    title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
-                    break
-                case 'load-commit':
-                case 'did-navigate':
-                case 'did-frame-finish-load':
-                case 'did-finish-load':
-                case 'did-change-theme-color':
-                case 'dom-ready':
-                    this.progress += (1 - this.progress) / 10
-                    break
-            }
-            if (ev.type === 'load-commit') {
+            } else if (ev.type === 'did-start-loading') {
+                this.progress = 0.1
+                timer = setInterval(() => {
+                    this.progress += (1 - this.progress) / 20
+                    emitStatus()
+                }, 2000)
+            } else if (ev.type === 'did-stop-loading') {
+                this.progress = 1
+                clearInterval(timer)
+            } else if (ev.type === 'page-favicon-updated') {
+                const favicons = (ev as PageFaviconUpdatedEvent).favicons
+                if (favicons[0]) {
+                    favicon = favicons[0]
+                }
+            } else if (ev.type === 'page-title-updated') {
+                title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
+            } if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {
-                    this.currentHref = loadCommit.url
-
-                    if (loadCommit.url !== lastHref) {
-                        if (NodeUrl.parse(lastHref).host !== NodeUrl.parse(loadCommit.url).host) {
+                    if (loadCommit.url !== this.currentHref) {
+                        if (NodeUrl.parse(this.currentHref).host !== NodeUrl.parse(loadCommit.url).host) {
                             title = ''
                             favicon = ''
                             cert = null
                         }
 
-                        lastHref = loadCommit.url
+                        this.currentHref = loadCommit.url
                         this.updateHref(loadCommit.url)
                     }
                 }
@@ -144,37 +120,42 @@ export default class WebView extends Vue {
                 }
             }
 
-            const url = NodeUrl.parse(this.currentHref)
-            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
-                cert = remote.app.EXTENSION.sessionMgr.getCertificate(url.hostname) || null
+            if (progressEvents.has(ev.type)) {
+                this.progress += (1 - this.progress) / 10
             }
+
+            const url = this.currentUrl
+            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
+                cert = remote.app.EXTENSION.getCertificate(url.hostname) || null
+            }
+
             emitStatus()
         }
 
-        events.forEach(e => this.webview.addEventListener(e, handleEvent))
+        allEvents.forEach(e => this.webview.addEventListener(e, handleEvent))
         return () => {
-            events.forEach(e => this.webview.removeEventListener(e, handleEvent))
+            allEvents.forEach(e => this.webview.removeEventListener(e, handleEvent))
         }
     }
 
     get webview() { return this.$refs.webview as WebviewTag }
 }
 
-const events = [
+const allEvents = [
     'load-commit',
     'did-finish-load',
     'did-fail-load',
     'did-frame-finish-load',
     'did-start-loading',
     'did-stop-loading',
-    //    'did-get-response-details',
+    'did-get-response-details',
     'did-get-redirect-request',
     'dom-ready',
     'page-title-updated',
     'page-favicon-updated',
     'enter-html-full-screen',
     'leave-html-full-screen',
-    //    'console-message',
+    'console-message',
     'found-in-page',
     'new-window',
     'will-navigate',
@@ -189,9 +170,20 @@ const events = [
     'media-started-playing',
     'media-paused',
     'did-change-theme-color',
-    //    'update-target-url',
+    'update-target-url',
     'devtools-opened',
     'devtools-closed',
     'devtools-focused',
 ]
+
+const progressEvents = new Set([
+    'load-commit',
+    'did-finish-load',
+    'did-fail-load',
+    'did-frame-finish-load',
+    'dom-ready',
+    'page-title-updated',
+    'page-favicon-updated',
+    'did-change-theme-color',
+])
 </script>
