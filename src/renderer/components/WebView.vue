@@ -48,7 +48,7 @@ export default class WebView extends Vue {
             this.progress = 1
             this.webview.stop()
         } else {
-            this.webview.src = this.currentHref
+            this.webview.reload()
         }
     }
 
