@@ -238,6 +238,11 @@ export default class Nova extends Vue {
     showAccessHistory = false
     keyword = ''
 
+    @Watch('activePage')
+    activePageChanged() {
+        (this.$refs.urlBoxWithIcon as Element).querySelector('input')!.blur()
+    }
+
     closeTab(index: number) {
         if (this.pages.length < 2) {
             remote.getCurrentWindow().close()
@@ -511,6 +516,6 @@ html {
   box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
 }
 .theme--light.v-btn .v-btn__content .v-icon {
-     color: rgba(0,0,0,0.60);
+  color: rgba(0, 0, 0, 0.6);
 }
 </style>
