@@ -1,5 +1,5 @@
 <template>
-    <v-app>
+    <v-app v-resize="onResize">
         <div class="toolbar">
             <transition-group
                 tag="v-layout"
@@ -78,16 +78,43 @@
                                     <NetworkStatus/>
                                 </v-btn>
                             </NetworkStatusPanel>
-                            <v-layout class="url-box-with-icon" fill-height align-center>
-                                <CertIndicator v-if="!!activePage.cert && !activePage.userInput" class="mx-1" :cert="activePage.cert"/>
-                                <UrlBox
-                                    v-model="activePage.userInput"
-                                    :href.sync="activePage.href"
-                                    class="px-1 url-box"
-                                    placeholder="Enter app name to search, or URL"
-                                    @focus="urlBoxFocused=true"
-                                    @blur="urlBoxFocused=false"
+                            <v-layout
+                                ref="urlBoxWithIcon"
+                                class="url-box-with-icon"
+                                fill-height
+                                align-center
+                            >
+                                <CertIndicator
+                                    v-if="!!activePage.cert && !activePage.userInput"
+                                    class="mx-2"
+                                    :cert="activePage.cert"
                                 />
+                                <v-icon v-else style="font-size:95%" class="mx-2">mdi-earth</v-icon>
+                                <AccessHistoryPanel
+                                    style="flex:1 1 auto;height:100%;transition: all 0s;"
+                                    v-model="showAccessHistory"
+                                    absolute
+                                    :close-on-click="false"
+                                    :close-on-content-click="false"
+                                    :position-x="accessHistoryPosition.x"
+                                    :position-y="accessHistoryPosition.y"
+                                    :width="accessHistoryWidth"
+                                    :keyword="keyword"
+                                    @update:selection="activePage.userInput=$event.href"
+                                    @select="onAccessHistorySelected"
+                                >
+                                    <UrlBox
+                                        @click.stop
+                                        slot="activator"
+                                        v-model="activePage.userInput"
+                                        :href.sync="activePage.href"
+                                        class="url-box"
+                                        placeholder="Enter URL or app name to search"
+                                        @focus="urlBoxFocused=true"
+                                        @blur="onUrlBoxBlur"
+                                        @input="onUrlBoxInput"
+                                    />
+                                </AccessHistoryPanel>
                             </v-layout>
                             <v-btn small flat style="min-width:auto" :ripple="false" class="ma-0">
                                 <v-icon style="font-size:150%">mdi-bookmark-plus-outline</v-icon>
@@ -134,6 +161,7 @@
                     :href.sync="page.href"
                     :nav="page.nav"
                     @update:status="page.updateStatus($event)"
+                    @update:href="page.userInput=''"
                 />
             </template>
         </v-content>
@@ -144,6 +172,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { remote } from 'electron'
 import Vendor from './vendor'
 import Launcher from './launcher'
+import { Entities } from '@/renderer/database'
 
 class Page {
     static nextId = 0
@@ -203,6 +232,11 @@ export default class Nova extends Vue {
     activePageIndex = 0
     get activePage() { return this.pages[this.activePageIndex] }
     urlBoxFocused = false
+
+    accessHistoryWidth = 0
+    accessHistoryPosition = { x: 0, y: 0 }
+    showAccessHistory = false
+    keyword = ''
 
     closeTab(index: number) {
         if (this.pages.length < 2) {
@@ -286,6 +320,36 @@ export default class Nova extends Vue {
     isModaling() {
         return !!this.$el.querySelector('.v-overlay--active')
     }
+
+    updateAccessHistoryLayout() {
+        const rect = (this.$refs.urlBoxWithIcon as Element).getClientRects().item(0)!
+        this.accessHistoryPosition.x = Math.round(rect.left)
+        this.accessHistoryPosition.y = Math.round(rect.bottom) + 5
+        this.accessHistoryWidth = Math.round(rect.width)
+    }
+
+    onResize() {
+        this.updateAccessHistoryLayout()
+    }
+
+
+    onUrlBoxInput(val: string) {
+        if (val.length > 0) {
+            this.updateAccessHistoryLayout()
+            this.keyword = val
+            this.showAccessHistory = true
+        } else {
+            this.showAccessHistory = false
+        }
+    }
+    onUrlBoxBlur() {
+        this.urlBoxFocused = false
+        setTimeout(() => this.showAccessHistory = false, 0)
+    }
+    onAccessHistorySelected(val: Entities.History) {
+        this.activePage.href = val.href
+        this.activePage.userInput = ''
+    }
 }
 </script>
 
@@ -298,7 +362,7 @@ html {
   overflow: hidden;
 }
 .html-full-screen .toolbar {
-    display: none
+  display: none;
 }
 
 .theme--light .toolbar {
@@ -431,31 +495,19 @@ html {
 }
 
 .url-box {
-  flex: 1 1 auto;
+  width: 100%;
   height: 100%;
   outline: none;
   color: rgba(0, 0, 0, 0.6);
+  cursor: default;
 }
 .url-box:focus {
   color: rgba(0, 0, 0, 0.9);
+  cursor: text;
 }
 
 .url-box-with-icon:focus-within {
   background-color: #ffffff;
   box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
-}
-
-// override vuetify's
-.v-card {
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
-}
-.elevation-1 {
-  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3) !important;
-}
-.elevation-2 {
-  box-shadow: 0px 1.5px 3px 0px rgba(0, 0, 0, 0.3) !important;
-}
-.elevation-3 {
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.3) !important;
 }
 </style>

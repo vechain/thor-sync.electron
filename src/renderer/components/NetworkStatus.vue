@@ -1,6 +1,6 @@
 <template>
     <v-layout align-center class="caption" :style="styleObject">
-        <v-icon small style="font-size:120%;color:inherit" class="mr-1">mdi-web</v-icon>
+        <v-icon small style="font-size:120%;color:inherit" class="mr-1">mdi-hexagon-slice-6</v-icon>
         <b>{{name}}</b>
     </v-layout>
 </template>

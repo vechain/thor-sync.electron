@@ -21,6 +21,7 @@ Vue.use(VueRouter)
 Vue.config.productionTip = false
 
 // register global components
+import AccessHistoryPanel from './components/AccessHistoryPanel.vue'
 import Activity from './components/Activity.vue'
 import AddressLabel from './components/AddressLabel.vue'
 import Amount from './components/Amount.vue'
@@ -43,6 +44,7 @@ import WalletCard from './components/WalletCard.vue'
 import WalletSeeker from './components/WalletSeeker.vue'
 import WebView from './components/WebView.vue'
 
+Vue.component('AccessHistoryPanel', AccessHistoryPanel)
 Vue.component('Activity', Activity)
 Vue.component('AddressLabel', AddressLabel)
 Vue.component('Amount', Amount)

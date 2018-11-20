@@ -9,16 +9,20 @@
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
 import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote } from 'electron'
 import * as NodeUrl from 'url'
+import AccessHistory from '../mixin/access-history'
 
 @Component
-export default class WebView extends Vue {
+export default class WebView extends Mixins(AccessHistory) {
     readonly partition = `persist:${connex.thor.genesis.id}`
     readonly preload = ENV.preload
     currentHref = ''
     progress = 0
+    title = ''
+    favicon = ''
+    cert: Electron.CertificateVerifyProcRequest | null = null
 
     get currentUrl() { return NodeUrl.parse(this.currentHref) }
 
@@ -31,6 +35,9 @@ export default class WebView extends Vue {
     hrefChanged(val: string) {
         // prevent navigate twice
         if (val !== this.currentHref) {
+            this.title = ''
+            this.favicon = ''
+            this.cert = null
             this.webview.src = this.currentHref = val
         }
     }
@@ -61,18 +68,15 @@ export default class WebView extends Vue {
     destroyed() { this._unbind() }
 
     bindEvents() {
-        let favicon = ''
-        let title = ''
-        let cert: Electron.CertificateVerifyProcRequest | null = null
-
+        let domReady = false
         const emitStatus = () => {
             this.updateStatus({
-                title,
-                favicon,
+                title: this.title,
+                favicon: this.favicon,
                 progress: this.progress,
                 canGoBack: this.webview.canGoBack(),
                 canGoForward: this.webview.canGoForward(),
-                cert: cert
+                cert: this.cert
             })
         }
         let timer: any
@@ -81,29 +85,38 @@ export default class WebView extends Vue {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
             } else if (ev.type === 'did-start-loading') {
+                domReady = false
                 this.progress = 0.1
                 timer = setInterval(() => {
                     this.progress += (1 - this.progress) / 20
                     emitStatus()
                 }, 2000)
             } else if (ev.type === 'did-stop-loading') {
+                if (domReady) {
+                    this.updateHistory(this.webview.src!, {
+                        title: this.title,
+                        favicon: this.favicon
+                    })
+                }
                 this.progress = 1
                 clearInterval(timer)
             } else if (ev.type === 'page-favicon-updated') {
                 const favicons = (ev as PageFaviconUpdatedEvent).favicons
                 if (favicons[0]) {
-                    favicon = favicons[0]
+                    this.favicon = favicons[0]
                 }
             } else if (ev.type === 'page-title-updated') {
-                title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
-            } if (ev.type === 'load-commit') {
+                this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
+            } else if (ev.type === 'dom-ready') {
+                domReady = true
+            } else if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {
                     if (loadCommit.url !== this.currentHref) {
                         if (NodeUrl.parse(this.currentHref).host !== NodeUrl.parse(loadCommit.url).host) {
-                            title = ''
-                            favicon = ''
-                            cert = null
+                            this.title = ''
+                            this.favicon = ''
+                            this.cert = null
                         }
 
                         this.currentHref = loadCommit.url
@@ -126,7 +139,7 @@ export default class WebView extends Vue {
 
             const url = this.currentUrl
             if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
-                cert = remote.app.EXTENSION.getCertificate(url.hostname) || null
+                this.cert = remote.app.EXTENSION.getCertificate(url.hostname) || null
             }
 
             emitStatus()
