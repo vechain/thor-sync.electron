@@ -15,7 +15,8 @@
                 <v-list-tile
                     v-for="(row,i) in rows"
                     :key="row.href"
-                    @click="select(row)"
+                    @click.stop
+                    @mousedown="select(row)"
                     :class="{'v-list__tile--highlighted': i===listIndex}"
                 >
                     <v-layout align-center>

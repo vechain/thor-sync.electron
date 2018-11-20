@@ -349,7 +349,7 @@ export default class Nova extends Vue {
     }
     onUrlBoxBlur() {
         this.urlBoxFocused = false
-        setTimeout(() => this.showAccessHistory = false, 0)
+        this.showAccessHistory = false
     }
     onAccessHistorySelected(val: Entities.History) {
         this.activePage.href = val.href
