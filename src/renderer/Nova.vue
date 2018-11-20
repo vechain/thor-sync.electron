@@ -510,4 +510,7 @@ html {
   background-color: #ffffff;
   box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
 }
+.theme--light.v-btn .v-btn__content .v-icon {
+     color: rgba(0,0,0,0.60);
+}
 </style>

@@ -17,10 +17,9 @@
                 @click.stop="onResend"
                 class="my-0"
                 style="margin-right:-8px;"
-                :color="iconColor"
                 :style="{'pointer-events': resend? '':'none'}"
             >
-                <v-icon small>{{icon}}</v-icon>
+                <v-icon small :color="iconColor">{{icon}}</v-icon>
             </v-btn>
         </v-layout>
         <v-card class="text-truncate">
