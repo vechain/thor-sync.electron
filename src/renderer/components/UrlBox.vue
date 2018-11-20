@@ -51,11 +51,12 @@ export default class UrlBox extends Vue {
     }
 
     get displayText() {
+        this.shadowValue
+        this.shadowHref
         if (this.focused) {
-            const text = this.shadowValue || this.shadowHref
             if (this.element.value) {
                 // prevent falling back to url
-                return text
+                return this.shadowValue || this.shadowHref
             }
             return ''
         } else {
@@ -79,6 +80,7 @@ export default class UrlBox extends Vue {
 
     onBlur() {
         this.focused = false
+        this.composing = false
     }
 
     onEnter() {
