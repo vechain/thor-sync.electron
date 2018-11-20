@@ -7,12 +7,7 @@
         :value="value"
         @input="$emit('input', $event)"
     >
-        <div
-            slot="activator"
-            @keydown.down.prevent.stop="onDownKey"
-            @keydown.up.prevent.stop="onUpKey"
-            @keydown.tab.prevent.stop="onTabKey"
-        >
+        <div slot="activator" @keydown="onKeyDown">
             <slot name="activator"/>
         </div>
         <v-card v-if="rows.length>0">
@@ -70,26 +65,35 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
     @Emit('select')
     select(val: Entities.History) { }
 
-    onDownKey() {
-        this.listIndex = Math.min(this.listIndex + 1, this.rows.length - 1)
-        if (this.listIndex < this.rows.length) {
-            this.updateSelection(this.rows[this.listIndex])
-        }
-    }
-    onUpKey() {
-        if (this.listIndex < 0) {
+    onKeyDown(ev: KeyboardEvent) {
+        if (!this.value) {
             return
         }
+        if ([keyCodes.down, keyCodes.up, keyCodes.tab].indexOf(ev.keyCode) >= 0) {
+            ev.stopPropagation()
+            ev.preventDefault()
 
-        this.listIndex = Math.max(this.listIndex - 1, 0)
-        if (this.listIndex < this.rows.length) {
-            this.updateSelection(this.rows[this.listIndex])
-        }
-    }
-    onTabKey() {
-        if (this.rows.length > 0) {
-            this.listIndex = (this.listIndex + 1) % this.rows.length
-            this.updateSelection(this.rows[this.listIndex])
+            let index = this.listIndex
+            let len = this.rows.length
+            if (ev.keyCode === keyCodes.down) {
+                index = Math.min(index + 1, len - 1)
+            } else if (ev.keyCode === keyCodes.up) {
+                if (index > 0) {
+                    index--
+                }
+            } else if (ev.keyCode === keyCodes.tab) {
+                if (len > 0) {
+                    index = (index + 1) % len
+                }
+            }
+
+            if (index !== this.listIndex) {
+                this.listIndex = index
+                const item = this.rows[index]
+                if (item) {
+                    this.updateSelection(item)
+                }
+            }
         }
     }
 
@@ -108,13 +112,33 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
                         } else {
                             this.rows = rows.slice(0, 10)
                         }
+                        this.listIndex = -1
                     })
             } else {
                 this.rows = []
+                this.listIndex = -1
             }
         }, 50)
     }
 
+}
+const keyCodes = {
+    enter: 13,
+    tab: 9,
+    delete: 46,
+    esc: 27,
+    space: 32,
+    up: 38,
+    down: 40,
+    left: 37,
+    right: 39,
+    end: 35,
+    home: 36,
+    del: 46,
+    backspace: 8,
+    insert: 45,
+    pageup: 33,
+    pagedown: 34
 }
 </script>
 <style scoped>
