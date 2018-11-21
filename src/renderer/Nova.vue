@@ -143,27 +143,35 @@
         </div>
         <v-content>
             <Vendor/>
-            <template v-for="(page,i) in pages">
-                <Launcher
-                    v-if="page.isBuiltin"
-                    v-show="i===activePageIndex"
-                    :key="'launcher'+page.id"
-                    :href.sync="page.href"
-                    :nav="page.nav"
-                    @update:status="page.updateStatus($event)"
-                    style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden"
-                />
-                <WebView
-                    v-else
-                    :visible="i===activePageIndex"
-                    :key="'webview'+page.id"
-                    style="position:absolute;left:0;top:0;right:0;bottom:0;"
-                    :href.sync="page.href"
-                    :nav="page.nav"
-                    @update:status="page.updateStatus($event)"
-                    @update:href="page.userInput=''"
-                />
-            </template>
+            <Swiper
+                style="width:100%;height:100%;"
+                :canSwipeRight="activePage.canGoBack"
+                :canSwipeLeft="activePage.canGoForward"
+                @swipe="onSwipe"
+            >
+                <template v-for="(page,i) in pages">
+                    <Launcher
+                        v-if="page.isBuiltin"
+                        v-show="i===activePageIndex"
+                        :key="'launcher'+page.id"
+                        :href.sync="page.href"
+                        :nav="page.nav"
+                        @update:status="page.updateStatus($event)"
+                        style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden"
+                        @update:href="page.userInput=''"
+                    />
+                    <WebView
+                        v-else
+                        :visible="i===activePageIndex"
+                        :key="'webview'+page.id"
+                        style="position:absolute;left:0;top:0;right:0;bottom:0;"
+                        :href.sync="page.href"
+                        :nav="page.nav"
+                        @update:status="page.updateStatus($event)"
+                        @update:href="page.userInput=''"
+                    />
+                </template>
+            </Swiper>
         </v-content>
     </v-app>
 </template>
@@ -354,6 +362,14 @@ export default class Nova extends Vue {
     onAccessHistorySelected(val: Entities.History) {
         this.activePage.href = val.href
         this.activePage.userInput = ''
+    }
+
+    onSwipe(dir: string) {
+        if (dir === 'right') {
+            this.activePage.goBack()
+        } else {
+            this.activePage.goForward()
+        }
     }
 }
 </script>
