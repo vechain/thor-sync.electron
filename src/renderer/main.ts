@@ -35,6 +35,7 @@ import OverlayedMenu from './components/OverlayedMenu.vue'
 import Priority from './components/Priority.vue'
 import QRCode from './components/QRCode.vue'
 import QRCodeDialog from './components/QRCodeDialog.vue'
+import Swiper from './components/Swiper.vue'
 import TabButton from './components/TabButton.vue'
 import Tip from './components/Tip.vue'
 import TxRecord from './components/TxRecord.vue'
@@ -58,6 +59,7 @@ Vue.component('OverlayedMenu', OverlayedMenu)
 Vue.component('Priority', Priority)
 Vue.component('QRCode', QRCode)
 Vue.component('QRCodeDialog', QRCodeDialog)
+Vue.component('Swiper', Swiper)
 Vue.component('TabButton', TabButton)
 Vue.component('Tip', Tip)
 Vue.component('TxRecord', TxRecord)

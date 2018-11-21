@@ -1,10 +1,15 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners" :style="{visibility: visible?'visible': 'hidden'}">
+    <div
+        v-bind="$attrs"
+        v-on="$listeners"
+        :style="{visibility: visible?'visible': 'hidden', 'background-color': backgroundColor}"
+    >
         <webview
             ref="webview"
             :partition="partition"
             :preload="preload"
             style="width:100%;height:100%;"
+            webpreferences="scrollBounce"
         />
     </div>
 </template>
@@ -23,6 +28,7 @@ export default class WebView extends Mixins(AccessHistory) {
     title = ''
     favicon = ''
     cert: Electron.CertificateVerifyProcRequest | null = null
+    backgroundColor = ''
 
     get currentUrl() { return NodeUrl.parse(this.currentHref) }
 
@@ -79,19 +85,25 @@ export default class WebView extends Mixins(AccessHistory) {
                 cert: this.cert
             })
         }
-        let timer: any
+        const fakeProgress = () => {
+            if (!this.webview.isConnected || !this.webview.isLoading()) {
+                return
+            }
+            this.progress += (1 - this.progress) / 30
+            setTimeout(fakeProgress, 2000)
+        }
+
         const handleEvent = (ev: Event) => {
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
             } else if (ev.type === 'did-start-loading') {
                 domReady = false
+                this.backgroundColor = ''
                 this.progress = 0.1
-                timer = setInterval(() => {
-                    this.progress += (1 - this.progress) / 20
-                    emitStatus()
-                }, 2000)
+                fakeProgress()
             } else if (ev.type === 'did-stop-loading') {
+                this.title = this.webview.getTitle()
                 if (domReady) {
                     this.updateHistory(this.webview.src!, {
                         title: this.title,
@@ -99,7 +111,6 @@ export default class WebView extends Mixins(AccessHistory) {
                     })
                 }
                 this.progress = 1
-                clearInterval(timer)
             } else if (ev.type === 'page-favicon-updated') {
                 const favicons = (ev as PageFaviconUpdatedEvent).favicons
                 if (favicons[0]) {
@@ -109,6 +120,11 @@ export default class WebView extends Mixins(AccessHistory) {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
             } else if (ev.type === 'dom-ready') {
                 domReady = true
+                this.webview
+                    .getWebContents()
+                    .executeJavaScript('window.getComputedStyle(document.body).getPropertyValue("background-color")')
+                    .then((color: string) => this.backgroundColor = color)
+                    .catch(console.warn)
             } else if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {
@@ -161,14 +177,14 @@ const allEvents = [
     'did-frame-finish-load',
     'did-start-loading',
     'did-stop-loading',
-    'did-get-response-details',
+    //    'did-get-response-details',
     'did-get-redirect-request',
     'dom-ready',
     'page-title-updated',
     'page-favicon-updated',
     'enter-html-full-screen',
     'leave-html-full-screen',
-    'console-message',
+    //    'console-message',
     'found-in-page',
     'new-window',
     'will-navigate',
@@ -183,7 +199,7 @@ const allEvents = [
     'media-started-playing',
     'media-paused',
     'did-change-theme-color',
-    'update-target-url',
+    //    'update-target-url',
     'devtools-opened',
     'devtools-closed',
     'devtools-focused',
