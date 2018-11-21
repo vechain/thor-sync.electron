@@ -18,11 +18,9 @@ export default class Launcher extends Vue {
 
     @Watch('href')
     hrefChanged(val: string) {
-        if (val.startsWith('sync:/')) {
-            val = val.slice('sync:/'.length)
-        }
-        if (this.router.$route.path !== val) {
-            this.router.$router.push(val)
+        const path = hrefToPath(val)
+        if (this.router.$route.path !== path) {
+            this.router.$router.push(path)
         }
     }
 
@@ -31,13 +29,12 @@ export default class Launcher extends Vue {
 
     @Watch('router.$route.path')
     routed() {
-        let href = this.router.$route.path
-        if (href === '/') {
-            href = ''
+        let path = this.router.$route.path
+        if (path === '/') {
+            this.updateHref('')
         } else {
-            href = 'sync:/' + href
+            this.updateHref('sync:/' + path)
         }
-        this.updateHref(href)
 
         const history = this.router.$router.history
         this.updateStatus({
@@ -58,12 +55,15 @@ export default class Launcher extends Vue {
 
     mounted() {
         this.router.$mount('#content')
-        if (this.href) {
-            this.router.$router.push(this.href)
-        } else {
-            this.router.$router.push('/')
-        }
+        this.router.$router.push(hrefToPath(this.href || ''))
         this.routed()
     }
+}
+
+function hrefToPath(href: string) {
+    if (href.startsWith('sync:/')) {
+        return href.slice('sync:/'.length)
+    }
+    return href
 }
 </script>
