@@ -47,7 +47,8 @@ export default Vue.extend({
                 style: {
                     'font-size': '60%',
                     'opacity': 0.6,
-                    'white-space': 'pre'
+                    'white-space': 'pre',
+                    'font-family': '"Roboto Mono", monospace'
                 },
                 domProps: {
                     innerText: this.sym
@@ -59,8 +60,8 @@ export default Vue.extend({
             attrs: this.$attrs,
             on: this.$listeners,
             style: {
-                "display": "inline-block",
-                'font-family': '"Roboto Mono", monospace'
+                'display': 'inline-block'
+                // 'font-family': '"Roboto Mono", monospace'
             }
         }, children)
     },
