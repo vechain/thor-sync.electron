@@ -23,7 +23,7 @@
 <script lang="ts">
 import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
 import TxRecordsLoader from '../mixin/tx-records-loader'
-import * as _ from 'lodash'
+import debounce from 'lodash.debounce'
 
 @Component
 export default class TxRecordsPanel extends Mixins(TxRecordsLoader) {
@@ -43,7 +43,7 @@ export default class TxRecordsPanel extends Mixins(TxRecordsLoader) {
     updateShowContent !: () => void
 
     created() {
-        this.updateShowContent = _.debounce(() => {
+        this.updateShowContent = debounce(() => {
             this.showContent = this.opened
         }, 200)
     }

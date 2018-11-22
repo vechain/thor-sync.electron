@@ -85,17 +85,13 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Entities } from '../database'
 import { Transaction } from 'thor-devkit'
 import * as NodeUrl from 'url'
-const TimeAgo = require('javascript-time-ago')
-const EN = require('javascript-time-ago/locale/en')
 import BigNumber from 'bignumber.js'
 import { State } from 'vuex-class'
 import { describe } from '@/renderer/vendor/utils'
-
-
-TimeAgo.locale(EN)
-const timeAgo = new TimeAgo('en-US')
+import TimeAgo from 'timeago.js'
 
 type Status = Connex.Thor.Status
+const timeAgo = TimeAgo()
 
 @Component
 export default class TxRecord extends Vue {

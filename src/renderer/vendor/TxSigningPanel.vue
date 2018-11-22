@@ -86,7 +86,7 @@
 import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '../database'
 import BigNumber from 'bignumber.js'
-import * as _ from 'lodash'
+import debounce from 'lodash.debounce'
 import AccountLoader from '../mixin/account-loader'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 
@@ -239,7 +239,7 @@ class TxSigningPanel extends Mixins(AccountLoader) {
     debouncedEstimateGas!: () => void
 
     created() {
-        this.debouncedEstimateGas = _.debounce(() => this.estimateGas(), 500)
+        this.debouncedEstimateGas = debounce(() => this.estimateGas(), 500)
         this.init()
     }
 
