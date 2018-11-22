@@ -10,6 +10,8 @@ require('electron-unhandled')({
     showDialog: false
 })
 
+app.setName('Sync')
+
 // tslint:disable-next-line:no-var-requires
 const contextMenu = require('electron-context-menu')
 // for all browserWindow

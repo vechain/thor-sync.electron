@@ -25,6 +25,10 @@ class WindowManager {
         // options.webPreferences.partition = 'persist:' + config.genesis.id
         options.webPreferences.siteConfig = config || siteConfigs[0]
 
+        if (!options.title) {
+            options.title = `Sync @${options.webPreferences.siteConfig.name}`
+        }
+
         const win = new BrowserWindow(options)
 
         const id = win.id

@@ -1,6 +1,6 @@
 {
-  "name": "thor-sync",
-  "version": "0.0.0",
+  "name": "org.vechain.sync",
+  "version": "0.0.1",
   "author": "vechain.org",
   "description": "An electron-vue project",
   "license": "LGPL-3.0",
@@ -21,8 +21,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "thor-sync",
-    "appId": "org.vechain.thor",
+    "productName": "Sync",
+    "appId": "org.vechain.sync",
     "directories": {
       "output": "build"
     },
