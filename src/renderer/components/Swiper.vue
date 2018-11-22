@@ -11,7 +11,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 
 const arrowSize = 120
 @Component
@@ -61,38 +61,39 @@ export default class Swiper extends Vue {
     created() {
         const win = remote.getCurrentWindow()
 
-        const listeners = {
-            'scroll-touch-begin': () => {
-                this.gesture.begin()
-                this.leftArrowRatio = this.rightArrowRatio = 0
-            },
-            'scroll-touch-end': () => {
-                if (this.gesture.seized) {
-                    if (this.gesture.dir === 'right') {
-                        if (this.gesture.ratio < 1) {
-                            this.leftArrowRatio = 0
+        const bwEventListener = (_: any, event: string) => {
+            switch (event) {
+                case 'scroll-touch-begin':
+                    this.gesture.begin()
+                    this.leftArrowRatio = this.rightArrowRatio = 0
+                    break
+                case 'scroll-touch-end':
+                    if (this.gesture.seized) {
+                        if (this.gesture.dir === 'right') {
+                            if (this.gesture.ratio < 1) {
+                                this.leftArrowRatio = 0
+                            } else {
+                                this.leftArrowRatio = 1
+                                this.swipe('right')
+                            }
                         } else {
-                            this.leftArrowRatio = 1
-                            this.swipe('right')
-                        }
-                    } else {
-                        if (this.gesture.ratio < 1) {
-                            this.rightArrowRatio = 0
-                        } else {
-                            this.rightArrowRatio = 1
-                            this.swipe('left')
+                            if (this.gesture.ratio < 1) {
+                                this.rightArrowRatio = 0
+                            } else {
+                                this.rightArrowRatio = 1
+                                this.swipe('left')
+                            }
                         }
                     }
-                }
-                this.gesture.end()
-            },
-            'scroll-touch-edge': () => {
-                this.gesture.edge()
+                    this.gesture.end()
+                    break
+                case 'scroll-touch-edge':
+                    this.gesture.edge()
+                    break
             }
         }
-        for (const k in listeners) {
-            win.addListener(k as any, (listeners as any)[k])
-        }
+
+        ipcRenderer.addListener('browser-window-event', bwEventListener)
 
         const keydownListener = () => {
             // end gesture on any key down
@@ -102,9 +103,7 @@ export default class Swiper extends Vue {
         }
         window.addEventListener('keydown', keydownListener)
         this._unbind = () => {
-            for (const k in listeners) {
-                win.removeListener(k as any, (listeners as any)[k])
-            }
+            ipcRenderer.removeListener('browser-window-event', bwEventListener)
             window.removeEventListener('keydown', keydownListener)
         }
     }

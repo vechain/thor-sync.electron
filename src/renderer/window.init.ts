@@ -1,5 +1,5 @@
 import { Vue } from 'vue-property-decorator'
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 import Database from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-utils'
@@ -38,30 +38,49 @@ Object.defineProperty(window, 'BUS', {
     value: new Vue()
 })
 
-trackTxLoop()
+const win = remote.getCurrentWindow()
+remote.app.EXTENSION.registerBrowserWindowEvent(win.id, [
+    'enter-full-screen',
+    'leave-full-screen',
+    'focus',
+    'blur',
+    'scroll-touch-begin',
+    'scroll-touch-end',
+    'scroll-touch-edge'
+])
+
 
 const bodyElem = document.body
 bodyElem.classList.add(process.platform)
 const fullScreenClass = 'full-screen'
 const blurClass = 'blur'
 
-const win = remote.getCurrentWindow()
 if (win.isFullScreen()) {
     bodyElem.classList.add(fullScreenClass)
 }
 if (!win.isFocused()) {
     bodyElem.classList.add(blurClass)
 }
-win.on('enter-full-screen', () => {
-    bodyElem.classList.add(fullScreenClass)
-}).on('leave-full-screen', () => {
-    bodyElem.classList.remove(fullScreenClass)
-}).on('focus', () => {
-    bodyElem.classList.remove(blurClass)
-}).on('blur', () => {
-    bodyElem.classList.add(blurClass)
-})
 
 if (process.platform === 'darwin') {
     win.setSheetOffset(72)
 }
+
+ipcRenderer.on('browser-window-event', (_: any, event: string) => {
+    switch (event) {
+        case 'enter-full-screen':
+            bodyElem.classList.add(fullScreenClass)
+            break
+        case 'leave-full-screen':
+            bodyElem.classList.remove(fullScreenClass)
+            break
+        case 'focus':
+            bodyElem.classList.remove(blurClass)
+            break
+        case 'blur':
+            bodyElem.classList.add(blurClass)
+            break
+    }
+})
+
+trackTxLoop()
