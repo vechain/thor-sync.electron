@@ -42,7 +42,7 @@ export default class AccessHistory extends Vue {
     }
 
     public queryHistory(keyword: string) {
-        keyword = keyword.split(titleSplitter).filter(p => !!p).join(' ')
+        keyword = keyword.split(' ').filter(p => !!p).join(' ')
         return DB.history
             .where('tokens')
             .startsWithIgnoreCase(keyword)
@@ -51,10 +51,8 @@ export default class AccessHistory extends Vue {
     }
 }
 
-const titleSplitter = /[,;.:!" ]/
-
 function tokenizeTitle(title: string) {
-    const parts = title.split(titleSplitter).filter(p => !!p)
+    const parts = title.split(' ').filter(p => !!p)
     const tokens = []
     for (let i = 0; i < parts.length; i++) {
         tokens.push(parts.slice(i).join(' '))
@@ -68,7 +66,7 @@ function tokenizeHref(href: string) {
     const hostname = NodeUrl.parse(href).hostname || ''
     const parts = hostname.split('.')
 
-    const tokens = [href]
+    const tokens = []
     for (let i = 0; i < parts.length - 1; i++) {
         tokens.push(parts.slice(i).join('.'))
     }
