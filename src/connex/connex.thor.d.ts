@@ -9,9 +9,6 @@ declare namespace Connex {
         block(revision: string | number): Thor.BlockVisitor
         transaction(id: string, options?: { head?: string }): Thor.TransactionVisitor
         filter<T extends 'event' | 'transfer'>(kind: T, criteriaSet: Array<Thor.Criteria<T>>): Thor.Filter<T>
-        subscribe<T extends 'event' | 'transfer' | 'block'>
-            (subject: T, criteria: Thor.Criteria<T>, options?: { position?: string }): Thor.Subscription<T>
-
         explain(clauses: Thor.Clause[], options?: Thor.CallOptions & { revision?: string | number }): Promise<Thor.VMOutput[]>
     }
 
@@ -84,7 +81,6 @@ declare namespace Connex {
         interface EventVisitor {
             asCriteria(indexed: object): Event.Criteria
             filter(indexed: object[]): Filter<'decoded-event'>
-            subscribe(indexed: object, options?: { position?: string }): Subscription<'decoded-event'>
         }
 
         interface TransactionVisitor {
@@ -199,24 +195,6 @@ declare namespace Connex {
             unit: 'block' | 'time'
             from: number
             to: number
-        }
-
-        interface Subscription<T extends 'event' | 'block' | 'transfer' | 'decoded-event'> {
-            readonly subject: T
-            next(): Promise<Subscription.Message<T>>
-            unsubscribe(): void
-        }
-
-        namespace Subscription {
-            type Message<T extends 'block' | 'event' | 'transfer' | 'decoded-event'> = (
-                T extends 'block' ? Block :
-                T extends 'event' ? (Event & Log.Meta) :
-                T extends 'transfer' ? (Transfer & Log.Meta) :
-                (Event & Decoded & Log.Meta)) & ObsoleteFlag
-        }
-
-        type ObsoleteFlag = {
-            obsolete: boolean
         }
 
         type TrunkFlag = {

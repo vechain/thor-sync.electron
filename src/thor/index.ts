@@ -2,7 +2,6 @@ import Thor = Connex.Thor
 import { createAccountVisitor } from './account-visitor'
 import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
-import { createSubscription } from './subscription'
 import { createFilter } from './filter'
 
 export function create(
@@ -37,9 +36,6 @@ export function create(
         },
         filter(kind, criteriaSet) {
             return createFilter(wire, kind, criteriaSet)
-        },
-        subscribe(subject, criteria, options) {
-            return createSubscription(wire, subject, criteria, options || {})
         },
         explain(clauses, options) {
             options = options || {}
