@@ -58,7 +58,7 @@ import { Entities } from '@/renderer/database';
 import WalletsLoader from '../mixin/wallets-loader'
 import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
-import * as _ from 'lodash'
+import debounce from 'lodash.debounce'
 import * as NodeUrl from 'url'
 import { remote } from 'electron'
 
@@ -86,7 +86,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
 
     updateShowContent !: () => void
     created() {
-        this.updateShowContent = _.debounce(() => {
+        this.updateShowContent = debounce(() => {
             this.showContent = this.open
         }, 500)
     }

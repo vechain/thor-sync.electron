@@ -1,10 +1,10 @@
 <template>
     <div v-bind="$attrs" @wheel.capture.passive="onWheel" style="position:relative">
         <slot/>
-        <div class="arrow-container" z-index="1000" :style="leftArrowStyleObject">
+        <div class="arrow-container" z-index="2" :style="leftArrowStyleObject">
             <v-icon>arrow_back</v-icon>
         </div>
-        <div class="arrow-container" z-index="1000" :style="rightArrowStyleObject">
+        <div class="arrow-container" z-index="2" :style="rightArrowStyleObject">
             <v-icon>arrow_forward</v-icon>
         </div>
     </div>

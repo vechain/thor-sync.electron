@@ -39,7 +39,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
-import * as _ from 'lodash'
+import debounce from 'lodash.debounce'
 import AccessHistory from '../mixin/access-history'
 
 @Component
@@ -100,7 +100,7 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
 
     debouncedQuery!: () => void
     created() {
-        this.debouncedQuery = _.debounce(() => {
+        this.debouncedQuery = debounce(() => {
             const keyword = this.keyword
             if (keyword.length > 0) {
                 this.queryHistory(keyword)
