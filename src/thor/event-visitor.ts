@@ -1,7 +1,6 @@
 import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 import { createFilter } from './filter'
-import { createSubscription } from './subscription'
 
 export function createEventVisitor(
     wire: Thor.Site.Wire,
@@ -50,24 +49,6 @@ export function createEventVisitor(
                 }
             }
             return transformed
-        },
-        subscribe(indexed, options?: { position?: string }) {
-            const criteria = this.asCriteria(indexed)
-            const sub = createSubscription(wire, 'event', criteria, options || {})
-            return {
-                subject: 'decoded-event',
-                next() {
-                    return sub
-                        .next()
-                        .then(msg => {
-                            const decoded = coder.decode(msg.data, msg.topics)
-                            return { ...msg, decoded }
-                        })
-                },
-                unsubscribe() {
-                    sub.unsubscribe()
-                }
-            }
         }
     }
 }
