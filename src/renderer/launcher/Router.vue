@@ -1,11 +1,11 @@
 <template>
-    <div style="height: 100%" class="white">
+    <div style="height: 100%; overflow:auto" class="white">
         <transition
             mode="out-in"
             enter-active-class="animated faster bounceInDown"
             leave-active-class="animated faster bounceOutUp"
         >
-            <router-view style="height:100%;"/>
+            <router-view/>
         </transition>
     </div>
 </template>
@@ -65,7 +65,7 @@ const routes: RouteConfig[] = [
         component: Settings,
         redirect: {
             name: 'settings-shortcut'
-        },        
+        },
         children: [
             {
                 path: 'shorcut',
@@ -133,24 +133,24 @@ const routes: RouteConfig[] = [
     animation-name: bounceInDown;
 }
 @keyframes bounceOutUp {
-  20% {
-    transform: translate3d(0, -10px, 0);
-  }
+    20% {
+        transform: translate3d(0, -10px, 0);
+    }
 
-  40%,
-  45% {
-    opacity: 1;
-    transform: translate3d(0, 20px, 0);
-  }
+    40%,
+    45% {
+        opacity: 1;
+        transform: translate3d(0, 20px, 0);
+    }
 
-  to {
-    opacity: 0;
-    transform: translate3d(0, -2000px, 0);
-  }
+    to {
+        opacity: 0;
+        transform: translate3d(0, -2000px, 0);
+    }
 }
 
 .bounceOutUp {
-  animation-name: bounceOutUp;
+    animation-name: bounceOutUp;
 }
 
 .animated {
@@ -158,6 +158,6 @@ const routes: RouteConfig[] = [
     animation-fill-mode: both;
 }
 .animated.faster {
-  animation-duration: 500ms;
+    animation-duration: 500ms;
 }
 </style>
