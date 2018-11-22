@@ -4,7 +4,7 @@
         <div class="arrow-container" z-index="1000" :style="leftArrowStyleObject">
             <v-icon>arrow_back</v-icon>
         </div>
-        <div class="arrow-container" style="right:0;" z-index="1000" :style="rightArrowStyleObject">
+        <div class="arrow-container" z-index="1000" :style="rightArrowStyleObject">
             <v-icon>arrow_forward</v-icon>
         </div>
     </div>
@@ -30,7 +30,8 @@ export default class Swiper extends Vue {
         const style = {
             width: arrowSize + 'px',
             height: arrowSize + 'px',
-            transform: `translateX(${(this.leftArrowRatio - 1) * 100}%)`,
+            left: `-${arrowSize}px`,
+            transform: `translateX(${(this.leftArrowRatio) * 100}%)`,
             opacity: 0,
             transition: 'all 0.3s'
         }
@@ -44,7 +45,8 @@ export default class Swiper extends Vue {
         const style = {
             width: arrowSize + 'px',
             height: arrowSize + 'px',
-            transform: `translateX(${(1 - this.rightArrowRatio) * 100}%)`,
+            right: `-${arrowSize}px`,
+            transform: `translateX(${- this.rightArrowRatio * 100}%)`,
             opacity: 0,
             transition: 'all 0.3s'
         }
@@ -119,7 +121,6 @@ export default class Swiper extends Vue {
                     this.leftArrowRatio = this.gesture.ratio
                 }
             } else {
-                { }
                 if (this.canSwipeLeft) {
                     this.rightArrowRatio = this.gesture.ratio
                 }
@@ -204,10 +205,13 @@ class Gesture {
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
+}
+.arrow-container * {
+  pointer-events: none;
 }
 .arrow-container .v-icon {
   font-size: 100px;
   color: white;
 }
 </style>
-
