@@ -35,6 +35,8 @@ declare module 'electron' {
                 options?: BrowserWindowConstructorOptions
             ): BrowserWindow
             getCertificate(hostname: string): CertificateVerifyProcRequest | undefined
+
+            registerBrowserWindowEvent(windowId: number, event: string[]): void
         }
     }
 }
@@ -62,7 +64,8 @@ app.EXTENSION = {
         inject(app, path, obj)
     },
     createWindow: (config, options) => winMgr.create(config, options),
-    getCertificate: (hostname) => certs.get(hostname)
+    getCertificate: (hostname) => certs.get(hostname),
+    registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) }
 }
 
 app.on('web-contents-created', (_, contents) => {
