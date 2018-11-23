@@ -51,7 +51,7 @@ import { State } from 'vuex-class'
 import { Entities } from '../database'
 import NewNetworkDialog from './NewNetworkDialog.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 
 @Component
 class NetworksLoader extends TableLoader<Entities.Preference>{

@@ -9,7 +9,7 @@
 import { Vue, Component, Mixins } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { Entities } from '@/renderer/database'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 
 @Component
 class TxRecordsLoader extends TableLoader<Entities.TxRecord> {

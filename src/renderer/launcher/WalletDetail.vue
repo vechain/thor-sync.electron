@@ -68,14 +68,14 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-import TransferMixin from '../mixin/Transfer.vue'
+import TransferMixin from '../mixins/Transfer.vue'
 import { State } from 'vuex-class'
 import Store from '../store'
 import Amount from '../components/Amount.vue'
 import { Num } from '@/common/formatter'
 import QRCodeDialog from '../components/QRCodeDialog.vue'
 import { Entities } from '../database'
-import AccountLoader from '../mixin/account-loader'
+import AccountLoader from '../mixins/account-loader'
 @Component({
     components: {
         Amount,

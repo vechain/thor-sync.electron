@@ -55,7 +55,7 @@ import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
 import { Entities } from '@/renderer/database';
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
 import debounce from 'lodash.debounce'

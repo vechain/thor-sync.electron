@@ -40,7 +40,7 @@ import { Vue, Component, Mixins } from 'vue-property-decorator'
 import NewWalletDialog from './NewWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 
 @Component
 class WalletsLoader extends TableLoader<Entities.Wallet>{

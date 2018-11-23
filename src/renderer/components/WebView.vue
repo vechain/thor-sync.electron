@@ -34,7 +34,7 @@
 import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
 import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, DidChangeThemeColorEvent } from 'electron'
 import * as NodeUrl from 'url'
-import AccessHistory from '../mixin/access-history'
+import AccessHistory from '../mixins/access-history'
 import errorMap from '../net-error-list'
 
 @Component
