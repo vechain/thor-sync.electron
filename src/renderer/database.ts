@@ -2,7 +2,6 @@ import Dexie from 'dexie'
 import 'dexie-observable'
 import { cry } from 'thor-devkit'
 import { IDatabaseChange } from 'dexie-observable/api'
-// tslint:disable:no-console
 
 export namespace Entities {
     export interface Wallet {
@@ -13,36 +12,23 @@ export namespace Entities {
         createdTime?: number
     }
 
-    export interface Preference {
+    export interface Preference<T extends 'shortcut' | 'network'
+        = 'shortcut' | 'network'> {
         id?: number
-        key: string
-        value: any
+        key: T
+        value: T extends 'shortcut' ? Preference.Shortcut :
+        T extends 'network' ? Preference.Network :
+        (string | boolean)
     }
 
-
-    export class Network implements Preference {
-        id?: number
-        key: string = 'network'
-        value: Settings.NetWork
-        constructor(val: Settings.NetWork) {
-            this.value = val
+    export namespace Preference {
+        export interface Shortcut {
+            name: string
+            href: string
         }
-
-        public static create(val: Settings.NetWork) {
-            return new Network(val)
-        }
-    }
-
-    export class Shortcut implements Preference {
-        id?: number
-        key: string = 'shortcut'
-        value: Settings.Shortcut
-        constructor(val: Settings.Shortcut) {
-            this.value = val
-        }
-
-        public static create(val: Settings.Shortcut) {
-            return new Shortcut(val)
+        export interface Network {
+            name: string
+            rpcUrl: string
         }
     }
 
@@ -78,7 +64,7 @@ export namespace Entities {
 
 class Database extends Dexie {
     public readonly wallets!: Dexie.Table<Entities.Wallet, number>
-    public readonly preferences!: Dexie.Table<Entities.Preference, string>
+    public readonly preferences!: Dexie.Table<Entities.Preference, number>
     public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
     public readonly history!: Dexie.Table<Entities.History, string>
 
@@ -90,8 +76,8 @@ class Database extends Dexie {
             txRecords: 'id, insertTime, signer, confirmed',
             history: 'href, *tokens, lastAccessTime'
         })
-        this.open()
-            .catch(err => console.error(err))
+        // tslint:disable-next-line:no-console
+        this.open().catch(err => console.error(err))
     }
 
 

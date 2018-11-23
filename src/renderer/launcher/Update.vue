@@ -38,13 +38,12 @@
 import { Vue, Component, Watch } from 'vue-property-decorator'
 import { State } from 'vuex-class'
 import { Entities } from '../database'
-import Preferences from '@/renderer/preferences'
 
 @Component
 export default class AutoUpdate extends Vue {
     name = 'auto_update'
     isAuto: any = {
-        key: Preferences.KEY_IS_AUTO_UPDATE,
+        key: 'auto-update',
         value: false
     }
     @State
@@ -64,7 +63,7 @@ export default class AutoUpdate extends Vue {
     async getConfig() {
         this.isAuto = await DB.preferences
             .where('key')
-            .equals(Preferences.KEY_IS_AUTO_UPDATE)
+            .equals('auto-update')
             .first()
     }
 }

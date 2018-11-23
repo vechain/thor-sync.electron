@@ -17,8 +17,8 @@ import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
 import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
-import Shortcut from './Shortcut.vue'
-import Network from './Network.vue'
+import Shortcuts from './Shortcuts.vue'
+import Networks from './Networks.vue'
 import Update from './Update.vue'
 
 @Component
@@ -70,7 +70,7 @@ const routes: RouteConfig[] = [
             {
                 path: 'shorcut',
                 name: 'settings-shortcut',
-                component: Shortcut,
+                component: Shortcuts,
                 meta: {
                     title: 'Settings - Shortcuts'
                 }
@@ -78,7 +78,7 @@ const routes: RouteConfig[] = [
             {
                 path: 'network',
                 name: 'settings-network',
-                component: Network,
+                component: Networks,
                 meta: {
                     title: 'Settings - Networks'
                 }

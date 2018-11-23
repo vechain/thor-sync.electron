@@ -41,18 +41,16 @@ import {
     Prop,
     Emit
 } from 'vue-property-decorator'
-import Preferences from '@/renderer/preferences'
 import { dialog } from 'electron'
 
 @Component
 export default class NewNetworkDialog extends Vue {
-    name = 'NewNetworkDialog'
     isEditing = false
     @Model('input')
     value!: boolean
 
     @Prop()
-    editItem!: Entities.Network | null
+    editItem!: Entities.Preference<'network'> | null
 
     dialog = false
     valid = true
@@ -71,7 +69,7 @@ export default class NewNetworkDialog extends Vue {
 
         if (this.editItem) {
             this.form.name = this.editItem!.value.name
-            this.form.rpcUrl = this.editItem!.value.rpcurl
+            this.form.rpcUrl = this.editItem!.value.rpcUrl
         }
         this.isEditing = !!this.editItem
     }
@@ -84,7 +82,7 @@ export default class NewNetworkDialog extends Vue {
     dialogChanged(val: boolean) { }
 
     @Emit('updated')
-    onEdited(editItem: Entities.Network) { }
+    onEdited(editItem: Entities.Preference) { }
 
     @Emit('cancel')
     onCancel() { }
@@ -103,7 +101,7 @@ export default class NewNetworkDialog extends Vue {
         if (this.isEditing) {
             let result = Object.assign({}, this.editItem)
             result.value.name = this.form.name
-            result.value.rpcurl = this.form.rpcUrl
+            result.value.rpcUrl = this.form.rpcUrl
             DB.preferences
                 .update(this.editItem!.id as any, { value: result.value })
                 .then(updated => {
@@ -117,12 +115,13 @@ export default class NewNetworkDialog extends Vue {
                 })
         } else {
             DB.preferences
-                .add(
-                    Entities.Network.create({
+                .add({
+                    key: 'network',
+                    value: {
                         name: this.form.name,
-                        rpcurl: this.form.rpcUrl
-                    })
-                )
+                        rpcUrl: this.form.rpcUrl
+                    }
+                })
                 .then(() => {
                     this.clear()
                 })

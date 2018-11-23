@@ -54,8 +54,8 @@ export default class NewShortcutDialog extends Vue {
         domain: ''
     }
     rules = {
-        name: [(v:string) => !!v || 'Name is required'],
-        domain: [(v:string) => !!v || 'Domain is required']
+        name: [(v: string) => !!v || 'Name is required'],
+        domain: [(v: string) => !!v || 'Domain is required']
     }
 
     @Model('input')
@@ -66,7 +66,7 @@ export default class NewShortcutDialog extends Vue {
         this.dialog = this.value
         if (this.editItem) {
             this.form.name = this.editItem.value.name
-            this.form.domain = this.editItem.value.domain
+            this.form.domain = this.editItem.value.href
         }
 
         this.isEditing = !!this.editItem
@@ -77,16 +77,16 @@ export default class NewShortcutDialog extends Vue {
         this.dialogChanged(val)
     }
     @Emit('input')
-    dialogChanged(val: boolean) {}
+    dialogChanged(val: boolean) { }
 
     @Emit('updated')
-    onEdited(editItem: Entities.Shortcut) {}
+    onEdited(editItem: Entities.Preference) { }
 
     @Emit('cancel')
-    onCancel() {}
+    onCancel() { }
 
     @Prop()
-    editItem!: Entities.Shortcut | null
+    editItem!: Entities.Preference<'shortcut'> | null
 
     clear() {
         this.dialog = false
@@ -102,7 +102,7 @@ export default class NewShortcutDialog extends Vue {
         if (this.isEditing) {
             let result = Object.assign({}, this.editItem)
             result.value.name = this.form.name
-            result.value.domain = this.form.domain
+            result.value.href = this.form.domain
             DB.preferences
                 .update(this.editItem!.id as any, result)
                 .then(updated => {
@@ -116,13 +116,13 @@ export default class NewShortcutDialog extends Vue {
                 })
         } else {
             DB.preferences
-                .add(
-                    Entities.Shortcut.create({
+                .add({
+                    key: 'shortcut',
+                    value: {
                         name: this.form.name,
-                        domain: this.form.domain
-                    })
-                )
-                .then(() => {
+                        href: this.form.domain
+                    }
+                }).then(() => {
                     this.clear()
                 })
         }
