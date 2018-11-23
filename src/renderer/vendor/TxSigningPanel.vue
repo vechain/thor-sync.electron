@@ -87,7 +87,7 @@ import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorato
 import { Entities } from '../database'
 import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
-import AccountLoader from '../mixin/account-loader'
+import AccountLoader from '../mixins/account-loader'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 
 namespace TxSigningPanel {

@@ -22,7 +22,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 import debounce from 'lodash.debounce'
 import { Entities } from '@/renderer/database';
 

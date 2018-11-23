@@ -51,7 +51,7 @@ import { State } from 'vuex-class'
 import { Entities } from '../database'
 import NewShortcutDialog from './NewShortcutDialog.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 
 @Component
 class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>>{

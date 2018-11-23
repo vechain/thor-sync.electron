@@ -24,7 +24,7 @@
 <script lang="ts">
 import { Vue, Prop, Component, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
-import TableLoader from '../mixin/table-loader'
+import TableLoader from '../mixins/table-loader'
 
 @Component
 class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {

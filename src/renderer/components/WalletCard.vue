@@ -31,7 +31,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Mixins } from 'vue-property-decorator'
 import { Entities } from '../database'
-import AccountLoader from '../mixin/account-loader'
+import AccountLoader from '../mixins/account-loader'
 
 @Component
 export default class WalletCard extends Mixins(AccountLoader) {

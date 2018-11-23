@@ -40,7 +40,7 @@
 import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
 import debounce from 'lodash.debounce'
-import AccessHistory from '../mixin/access-history'
+import AccessHistory from '../mixins/access-history'
 
 @Component
 export default class AccessHistoryPanel extends Mixins(AccessHistory) {
