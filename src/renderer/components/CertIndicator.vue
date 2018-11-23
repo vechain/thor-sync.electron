@@ -1,16 +1,14 @@
 <template>
-    <div style="position:relative" @click="onClick">
-        <v-icon style="font-size:95%">mdi-lock</v-icon>
-        <v-icon
-            v-show="!secure"
-            color="error"
-            style="position:absolute;left:0;top:0;right:0;bottom:0;font-size:95%"
-        >mdi-close</v-icon>
-    </div>
+    <v-icon
+        style="font-size:100%;"
+        @click="onClick"
+        :color="secure?'':'red'"
+    >{{secure? 'mdi-lock': 'mdi-lock-question'}}</v-icon>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { remote } from 'electron'
+import errorMap from '../net-error-list'
 
 @Component
 export default class CertIndicator extends Vue {
@@ -23,7 +21,12 @@ export default class CertIndicator extends Vue {
         if (this.secure) {
             message = `Securely accessing '${this.cert.hostname}'`
         } else {
-            message = `Certificate from '${this.cert.hostname}' is broken!`
+            const err = errorMap.get(this.cert.errorCode) || {name: '', desc: ''}
+            message = `Connection is not secure!
+
+${this.cert.verificationResult}
+
+${err.desc}`
         }
         remote.dialog
             .showCertificateTrustDialog(
