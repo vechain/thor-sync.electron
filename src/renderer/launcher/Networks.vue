@@ -3,21 +3,21 @@
         <v-layout row justify-center>
             <v-flex sm12>
                 <v-toolbar>
-                    <v-toolbar-title>Shortcuts</v-toolbar-title>
+                    <v-toolbar-title>Networks</v-toolbar-title>
                     <v-divider class="mx-3" inset vertical></v-divider>
-                    <span>Your favourite DApp will appear below</span>
+                    <span>SYNC already built-in networks for you, you can also add a custom RPC URL on your own</span>
                     <v-spacer/>
-                    <NewShortcutDialog
+                    <NewNetworkDialog
                         @cancel="onCancelEdit"
                         @updated="onUpdate"
                         :editItem="editItem"
                         v-model="dialog"
                     />
                 </v-toolbar>
-                <v-data-table hide-actions width="800px" :headers="headers" :items="shortcuts">
+                <v-data-table hide-actions width="800px" :headers="headers" :items="rows">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
-                        <td class="text-xs-center">{{props.item.value.domain}}</td>
+                        <td class="text-xs-center">{{props.item.value.rpcurl}}</td>
                         <td class="text-xs-center">
                             <v-btn
                                 dark
@@ -46,24 +46,35 @@
     </v-container>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
 import { State } from 'vuex-class'
-import Preferences from '@/renderer/preferences'
 import { Entities } from '../database'
-import NewShortcutDialog from './NewShortcutDialog.vue'
+import NewNetworkDialog from './NewNetworkDialog.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import TableLoader from '../mixin/table-loader'
+
+@Component
+class NetworksLoader extends TableLoader<Entities.Preference>{
+    tableName = DB.preferences.name
+    filter = () => DB.preferences
+        .where('key')
+        .equals('network')
+        .reverse()
+        .sortBy('id')
+}
 
 @Component({
     components: {
-        NewShortcutDialog,
+        NewNetworkDialog,
         ConfirmDialog
     }
 })
-export default class Shortcuts extends Vue {
-    name = 'shortcuts'
+export default class Networks extends Mixins(NetworksLoader) {
+
+
     dialog = false
-    editItem: Entities.Shortcut | null = null
-    shortcuts: Entities.Shortcut[] = []
+    editItem: Entities.Preference | null = null
+
     headers = [
         {
             text: 'Name',
@@ -72,8 +83,8 @@ export default class Shortcuts extends Vue {
             sortable: false
         },
         {
-            text: 'Absolute domain name',
-            value: 'domain',
+            text: 'RPC URL',
+            value: 'name',
             align: 'center',
             sortable: false
         },
@@ -85,31 +96,16 @@ export default class Shortcuts extends Vue {
         }
     ]
 
-    created() {
-        this.loadList()
-    }
-
-    onEdit(val: Entities.Shortcut) {
-        this.editItem = val
+    onEdit(network: Entities.Preference) {
+        this.editItem = network
         this.dialog = true
     }
 
-    onUpdate(shortcut: Entities.Shortcut) {
-        const index = this.shortcuts.findIndex(item => {
-            return item.id === shortcut.id
-        })
-
-        this.$set(this.shortcuts, index, shortcut)
-    }
-    onCancelEdit() {
-        this.editItem = null
-    }
-
-    async onDelete(item: Entities.Shortcut) {
+    async onDelete(item: Entities.Preference) {
         let conDig = this.$refs.confirm as ConfirmDialog
         conDig.confirm().then(
             () => {
-                return DB.preferences.delete(item.id as any)
+                return DB.preferences.delete(item.id!)
             },
             () => {
                 console.log('cancel')
@@ -117,16 +113,13 @@ export default class Shortcuts extends Vue {
         )
     }
 
-    @State
-    preferencesRevision!: number
-
-    @Watch('preferencesRevision')
-    async loadList() {
-        this.shortcuts = await DB.preferences
-            .where('key')
-            .equals('shortcut')
-            .reverse()
-            .sortBy('id')
+    onUpdate(network: Entities.Preference) {
+        DB.preferences.update(network.id!, {
+            value: network.value
+        })
+    }
+    onCancelEdit() {
+        this.editItem = null
     }
 }
 </script>

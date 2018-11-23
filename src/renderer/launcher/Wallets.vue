@@ -12,7 +12,7 @@
         </ImportWalletDialog>
         <v-layout row wrap="">
             <v-flex
-                v-for="wallet in wallets"
+                v-for="wallet in rows"
                 :key="wallet.address"
                 xs12
                 sm6
@@ -40,7 +40,13 @@ import { Vue, Component, Mixins } from 'vue-property-decorator'
 import NewWalletDialog from './NewWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
-import WalletsLoader from '../mixin/wallets-loader'
+import TableLoader from '../mixin/table-loader'
+
+@Component
+class WalletsLoader extends TableLoader<Entities.Wallet>{
+    tableName = DB.wallets.name
+    filter = () => DB.wallets.toArray()
+}
 
 @Component({
     components: {

@@ -1,38 +1,36 @@
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { Entities } from '../database'
 
 @Component
-export default class WalletsLoader extends Vue {
-    public wallets: Entities.Wallet[] = []
+export default class TableLoader<T> extends Vue {
+    public tableName!: string
+    public rows: T[] = []
     public loading = false
 
     private _unsubscribe !: () => void
+    public filter = () => Promise.resolve<T[]>([])
 
-    public filter = () => {
-        return DB.wallets
-            .orderBy('id')
-            .toArray()
-    }
+
     public created() {
-        this._unsubscribe = DB.subscribe(DB.wallets.name, () => this.query()).unsubscribe
-        this.query()
+        if (!this.tableName) {
+            throw new Error('TableLoader: table name not set')
+        }
+        this._unsubscribe = DB.subscribe(this.tableName, () => this._query()).unsubscribe
+        this._query()
     }
-
     public destroyed() {
         this._unsubscribe()
     }
 
-
     @Watch('filter')
     private filterChanged() {
-        this.wallets = []
-        this.query()
+        this.rows = []
+        this._query()
     }
 
-    private async query() {
+    private async _query() {
         try {
             this.loading = true
-            this.wallets = await this.filter()
+            this.rows = await this.filter()
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.warn(err)

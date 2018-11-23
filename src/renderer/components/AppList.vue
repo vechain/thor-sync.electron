@@ -22,58 +22,55 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Component, Emit } from 'vue-property-decorator'
+import { Vue, Prop, Component, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
+import TableLoader from '../mixin/table-loader'
 
 @Component
-export default class DApps extends Vue {
-    private apps: Dapp.Item[] = [
-        {
-            name: 'Insight',
-            newTab: true,
-            src: new URL(`insight.html`, ENV.dapps).href
-        },
-        {
-            name: 'Wallets',
-            newTab: false,
-            src: {
-                name: 'wallets'
-            }
-        },
-        {
-            name: 'Settings',
-            newTab: false,
-            src: {
-                name: 'settings'
-            }
-        }
-    ]
+class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
+    tableName = DB.preferences.name
+    filter = () => DB.preferences
+        .where('key')
+        .equals('shortcut')
+        .sortBy('id')
+}
 
-    private DApi: Dapp.Item = {
-        name: 'api',
-        newTab: true,
-        src: new URL(`api.html`, ENV.dapps).href
-    }
+@Component
+export default class DApps extends Mixins(ShortcutsLoader) {
 
-    async created() {
-        ENV.devMode ? this.apps.push(this.DApi) : this.apps
-        this.apps = this.apps.concat(await this.getShortcuts())
-    }
-
-    async getShortcuts() {
-        const list = await DB.preferences
-            .where('key')
-            .equals('shortcut')
-            .reverse()
-            .sortBy('id')
-
-        return list.map<any>(item => {
-            return {
-                name: item.value.name,
+    get apps() {
+        return [
+            {
+                name: 'Insight',
                 newTab: true,
-                src: item.value.domain
+                src: new URL(`insight.html`, ENV.dapps).href
+            },
+            {
+                name: 'Wallets',
+                newTab: false,
+                src: {
+                    name: 'wallets'
+                }
+            },
+            {
+                name: 'Settings',
+                newTab: false,
+                src: {
+                    name: 'settings'
+                }
+            },
+            {
+                name: 'api',
+                newTab: true,
+                src: new URL(`api.html`, ENV.dapps).href
             }
-        })
+        ].concat(this.rows.map(r => {
+            return {
+                name: r.value.name,
+                newTab: true,
+                src: r.value.href
+            }
+        }))
     }
 
     openDapp(data: Dapp.Item) {

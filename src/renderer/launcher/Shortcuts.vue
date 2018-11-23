@@ -3,21 +3,21 @@
         <v-layout row justify-center>
             <v-flex sm12>
                 <v-toolbar>
-                    <v-toolbar-title>Networks</v-toolbar-title>
+                    <v-toolbar-title>Shortcuts</v-toolbar-title>
                     <v-divider class="mx-3" inset vertical></v-divider>
-                    <span>SYNC already built-in networks for you, you can also add a custom RPC URL on your own</span>
+                    <span>Your favourite DApp will appear below</span>
                     <v-spacer/>
-                    <NewNetworkDialog
+                    <NewShortcutDialog
                         @cancel="onCancelEdit"
                         @updated="onUpdate"
                         :editItem="editItem"
                         v-model="dialog"
                     />
                 </v-toolbar>
-                <v-data-table hide-actions width="800px" :headers="headers" :items="list">
+                <v-data-table hide-actions width="800px" :headers="headers" :items="rows">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
-                        <td class="text-xs-center">{{props.item.value.rpcurl}}</td>
+                        <td class="text-xs-center">{{props.item.value.domain}}</td>
                         <td class="text-xs-center">
                             <v-btn
                                 dark
@@ -28,7 +28,13 @@
                             >
                                 <v-icon small>edit</v-icon>
                             </v-btn>
-                            <v-btn @click="onDelete(props.item)" dark small icon color="blue-grey lighten-3">
+                            <v-btn
+                                @click="onDelete(props.item)"
+                                dark
+                                small
+                                icon
+                                color="blue-grey lighten-3"
+                            >
                                 <v-icon small>delete</v-icon>
                             </v-btn>
                         </td>
@@ -40,24 +46,34 @@
     </v-container>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
 import { State } from 'vuex-class'
-import Preferences from '@/renderer/preferences'
 import { Entities } from '../database'
-import NewNetworkDialog from './NewNetworkDialog.vue'
+import NewShortcutDialog from './NewShortcutDialog.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import TableLoader from '../mixin/table-loader'
+
+@Component
+class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>>{
+    tableName = DB.preferences.name
+    filter = () => DB.preferences
+        .where('key')
+        .equals('shortcut')
+        .reverse()
+        .sortBy('id')
+}
 
 @Component({
     components: {
-        NewNetworkDialog,
+        NewShortcutDialog,
         ConfirmDialog
     }
 })
-export default class Networks extends Vue {
-    name = 'networks'
+export default class Shortcuts extends Mixins(ShortcutsLoader) {
     dialog = false
-    editItem: Entities.Network | null = null
-    list: Entities.Network[] = []
+
+    editItem: Entities.Preference | null = null
+
     headers = [
         {
             text: 'Name',
@@ -66,8 +82,8 @@ export default class Networks extends Vue {
             sortable: false
         },
         {
-            text: 'RPC URL',
-            value: 'name',
+            text: 'Absolute domain name',
+            value: 'domain',
             align: 'center',
             sortable: false
         },
@@ -79,27 +95,23 @@ export default class Networks extends Vue {
         }
     ]
 
-    created() {
-        this.loadList()
-    }
-    @State
-    preferencesRevision!: number
-
-    @Watch('preferencesRevision')
-    async loadList() {
-        this.list = await DB.preferences
-            .where('key')
-            .equals('network')
-            .reverse()
-            .sortBy('id')
-    }
-
-    onEdit(network: Entities.Network) {
-        this.editItem = network
+    onEdit(val: Entities.Preference<'shortcut'>) {
+        this.editItem = val
         this.dialog = true
     }
 
-    async onDelete(item: Entities.Network) {
+    onUpdate(shortcut: Entities.Preference<'shortcut'>) {
+        // const index = this.rows.findIndex(item => {
+        //     return item.id === shortcut.id
+        // })
+
+        // this.$set(this.shortcuts, index, shortcut)
+    }
+    onCancelEdit() {
+        this.editItem = null
+    }
+
+    async onDelete(item: Entities.Preference) {
         let conDig = this.$refs.confirm as ConfirmDialog
         conDig.confirm().then(
             () => {
@@ -109,17 +121,6 @@ export default class Networks extends Vue {
                 console.log('cancel')
             }
         )
-    }
-
-    onUpdate(network: Entities.Network) {
-        const index = this.list.findIndex(item => {
-            return item.id === network.id
-        })
-
-        this.$set(this.list, index, network)
-    }
-    onCancelEdit() {
-        this.editItem = null
     }
 }
 </script>

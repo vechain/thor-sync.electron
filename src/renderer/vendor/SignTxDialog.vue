@@ -55,7 +55,7 @@ import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
 import { Entities } from '@/renderer/database';
-import WalletsLoader from '../mixin/wallets-loader'
+import TableLoader from '../mixin/table-loader'
 import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
 import debounce from 'lodash.debounce'
@@ -63,6 +63,11 @@ import * as NodeUrl from 'url'
 import { remote } from 'electron'
 
 type Clause = Connex.Vendor.Message<'tx'>[number]
+@Component
+class WalletsLoader extends TableLoader<Entities.Wallet>{
+    tableName = DB.wallets.name
+    filter = () => DB.wallets.toArray()
+}
 
 @Component({
     components: {
@@ -112,14 +117,14 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         if (!remote.webContents.fromId(contentsId).isFocused()) {
             throw new Error('rejected')
         }
-        if (this.wallets.length === 0) { throw new Error('rejected') }
+        if (this.rows.length === 0) { throw new Error('rejected') }
 
         message = normalizeClauses(message)
         options = normalizeTxSignOptions(options)
 
         let walletIndex = 0
         if (options.signer) {
-            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
+            walletIndex = this.rows.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
             if (walletIndex < 0) {
                 throw new Error('bad options: no such signer')
             }
@@ -128,7 +133,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         this.referer = referer
         this.initValue = {
             clauses: message.slice(),
-            wallets: this.wallets.slice(),
+            wallets: this.rows.slice(),
             selectedWallet: walletIndex,
             suggestedGas: options.gas || 0,
         }
