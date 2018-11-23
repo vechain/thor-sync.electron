@@ -2,22 +2,40 @@
     <div
         v-bind="$attrs"
         v-on="$listeners"
-        :style="{visibility: visible?'visible': 'hidden', 'background-color': backgroundColor}"
+        style="position:relative"
+        :style="{visibility: visible?'visible': 'hidden'}"
     >
         <webview
             ref="webview"
             :partition="partition"
             :preload="preload"
             style="width:100%;height:100%;"
+            :style="{'background-color': backgroundColor} "
             webpreferences="scrollBounce"
         />
+        <v-layout
+            v-if="!!errorCode"
+            style="position:absolute;left:0;top:0;right:0;bottom:0;"
+            class="grey lighten-4"
+            align-center
+            justify-center
+        >
+            <div style="width:500px;line-height:250%;">
+                <v-icon large class="mb-2 display-3">mdi-hamburger</v-icon>
+                <div class="display-1 font-weight-light">Failed to open</div>
+                <b>{{currentHref}}</b>
+                <div>{{errorName}} {{errorCode}}</div>
+                <q>{{errorDesc}}</q>
+            </div>
+        </v-layout>
     </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote } from 'electron'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, DidChangeThemeColorEvent } from 'electron'
 import * as NodeUrl from 'url'
 import AccessHistory from '../mixin/access-history'
+import errorMap from '../net-error-list'
 
 @Component
 export default class WebView extends Mixins(AccessHistory) {
@@ -29,6 +47,9 @@ export default class WebView extends Mixins(AccessHistory) {
     favicon = ''
     cert: Electron.CertificateVerifyProcRequest | null = null
     backgroundColor = ''
+    errorCode = 0
+    errorName = ''
+    errorDesc = ''
 
     get currentUrl() { return NodeUrl.parse(this.currentHref) }
 
@@ -101,6 +122,9 @@ export default class WebView extends Mixins(AccessHistory) {
                 domReady = false
                 this.backgroundColor = ''
                 this.progress = 0.1
+                this.errorCode = 0
+                this.errorName = ''
+                this.errorDesc = ''
                 fakeProgress()
             } else if (ev.type === 'did-stop-loading') {
                 this.title = this.webview.getTitle()
@@ -118,6 +142,9 @@ export default class WebView extends Mixins(AccessHistory) {
                 }
             } else if (ev.type === 'page-title-updated') {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
+            } else if (ev.type === 'did-change-theme-color') {
+                const didChangeThemeColor = ev as DidChangeThemeColorEvent
+                this.backgroundColor = didChangeThemeColor.themeColor || ''
             } else if (ev.type === 'dom-ready') {
                 domReady = true
                 this.webview
@@ -146,6 +173,20 @@ export default class WebView extends Mixins(AccessHistory) {
             } else if (ev.type === 'leave-html-full-screen') {
                 if (this.visible) {
                     document.body.classList.remove('html-full-screen')
+                }
+            } else if (ev.type === 'did-fail-load') {
+                const didFailLoad = ev as DidFailLoadEvent
+                if (didFailLoad.isMainFrame && didFailLoad.errorCode !== -3) {
+                    this.title = ''
+                    this.favicon = ''
+                    this.cert = null
+
+                    this.currentHref = didFailLoad.validatedURL
+                    this.updateHref(this.currentHref)
+                    this.errorCode = didFailLoad.errorCode
+                    const obj = errorMap.get(didFailLoad.errorCode) || { name: '', desc: '' }
+                    this.errorName = obj.name
+                    this.errorDesc = obj.desc
                 }
             }
 
