@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, DidChangeThemeColorEvent } from 'electron'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent } from 'electron'
 import * as NodeUrl from 'url'
 import AccessHistory from '../mixins/access-history'
 import errorMap from '../net-error-list'
@@ -142,9 +142,6 @@ export default class WebView extends Mixins(AccessHistory) {
                 }
             } else if (ev.type === 'page-title-updated') {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
-            } else if (ev.type === 'did-change-theme-color') {
-                const didChangeThemeColor = ev as DidChangeThemeColorEvent
-                this.backgroundColor = didChangeThemeColor.themeColor || ''
             } else if (ev.type === 'dom-ready') {
                 domReady = true
                 this.webview
