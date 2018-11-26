@@ -114,10 +114,14 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         }) {
 
         if (this.open) { throw new Error('busy') }
-        if (!remote.webContents.fromId(contentsId).isFocused()) {
+        if (this.rows.length === 0) { throw new Error('rejected') }
+
+        const callingWebContents = remote.webContents.fromId(contentsId)
+        // either focused or dev tools opened
+        if (!remote.webContents.fromId(contentsId).isFocused() &&
+            !callingWebContents.isDevToolsOpened()) {
             throw new Error('rejected')
         }
-        if (this.rows.length === 0) { throw new Error('rejected') }
 
         message = normalizeClauses(message)
         options = normalizeTxSignOptions(options)
