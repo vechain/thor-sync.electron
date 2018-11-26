@@ -44,7 +44,7 @@ export default class AutoUpdate extends Vue {
     name = 'auto_update'
     isAuto: any = {
         key: 'auto-update',
-        value: false
+        value: true
     }
     @State
     preferencesRevision!: number
@@ -54,17 +54,24 @@ export default class AutoUpdate extends Vue {
     }
 
     onChange() {
-        DB.preferences.update(this.isAuto.id as any, {
-            value: this.isAuto.value
-        })
+        if (this.isAuto.id) {
+            DB.preferences.update(this.isAuto.id as any, {
+                value: this.isAuto.value
+            })
+        } else {
+            DB.preferences.add(this.isAuto)
+        }
     }
 
     @Watch('preferencesRevision')
     async getConfig() {
-        this.isAuto = await DB.preferences
+        let temp = await DB.preferences
             .where('key')
             .equals('auto-update')
             .first()
+        if (temp) {
+            this.isAuto = temp
+        }
     }
 }
 </script>

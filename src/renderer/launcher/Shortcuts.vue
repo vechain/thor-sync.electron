@@ -9,7 +9,6 @@
                     <v-spacer/>
                     <NewShortcutDialog
                         @cancel="onCancelEdit"
-                        @updated="onUpdate"
                         :editItem="editItem"
                         v-model="dialog"
                     />
@@ -17,7 +16,7 @@
                 <v-data-table hide-actions width="800px" :headers="headers" :items="rows">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
-                        <td class="text-xs-center">{{props.item.value.domain}}</td>
+                        <td class="text-xs-center">{{props.item.value.href}}</td>
                         <td class="text-xs-center">
                             <v-btn
                                 dark
@@ -54,13 +53,14 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 import TableLoader from '../mixins/table-loader'
 
 @Component
-class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>>{
+class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
     tableName = DB.preferences.name
-    filter = () => DB.preferences
-        .where('key')
-        .equals('shortcut')
-        .reverse()
-        .sortBy('id')
+    filter = () =>
+        DB.preferences
+            .where('key')
+            .equals('shortcut')
+            .reverse()
+            .sortBy('id')
 }
 
 @Component({
@@ -100,13 +100,6 @@ export default class Shortcuts extends Mixins(ShortcutsLoader) {
         this.dialog = true
     }
 
-    onUpdate(shortcut: Entities.Preference<'shortcut'>) {
-        // const index = this.rows.findIndex(item => {
-        //     return item.id === shortcut.id
-        // })
-
-        // this.$set(this.shortcuts, index, shortcut)
-    }
     onCancelEdit() {
         this.editItem = null
     }

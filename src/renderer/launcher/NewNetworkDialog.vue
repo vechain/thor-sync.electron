@@ -81,9 +81,6 @@ export default class NewNetworkDialog extends Vue {
     @Emit('input')
     dialogChanged(val: boolean) { }
 
-    @Emit('updated')
-    onEdited(editItem: Entities.Preference) { }
-
     @Emit('cancel')
     onCancel() { }
 
@@ -107,7 +104,6 @@ export default class NewNetworkDialog extends Vue {
                 .then(updated => {
                     if (updated) {
                         this.isEditing = false
-                        this.onEdited(result)
                         this.clear()
                     } else {
                         console.error('Edit newwork failed')

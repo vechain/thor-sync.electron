@@ -9,7 +9,6 @@
                     <v-spacer/>
                     <NewNetworkDialog
                         @cancel="onCancelEdit"
-                        @updated="onUpdate"
                         :editItem="editItem"
                         v-model="dialog"
                     />
@@ -17,7 +16,7 @@
                 <v-data-table hide-actions width="800px" :headers="headers" :items="rows">
                     <template slot="items" slot-scope="props">
                         <td class="text-xs-center">{{props.item.value.name}}</td>
-                        <td class="text-xs-center">{{props.item.value.rpcurl}}</td>
+                        <td class="text-xs-center">{{props.item.value.rpcUrl}}</td>
                         <td class="text-xs-center">
                             <v-btn
                                 dark
@@ -111,12 +110,6 @@ export default class Networks extends Mixins(NetworksLoader) {
                 console.log('cancel')
             }
         )
-    }
-
-    onUpdate(network: Entities.Preference) {
-        DB.preferences.update(network.id!, {
-            value: network.value
-        })
     }
     onCancelEdit() {
         this.editItem = null
