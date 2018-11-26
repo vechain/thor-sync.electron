@@ -113,14 +113,14 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
             title: string
         }) {
 
-        if (this.open) { throw new Error('busy') }
-        if (this.rows.length === 0) { throw new Error('rejected') }
+        if (this.open) { throw new SignRejectedError('request is in progress') }
+        if (this.rows.length === 0) { throw new SignRejectedError('no wallet available') }
 
         const callingWebContents = remote.webContents.fromId(contentsId)
         // either focused or dev tools opened
         if (!remote.webContents.fromId(contentsId).isFocused() &&
             !callingWebContents.isDevToolsOpened()) {
-            throw new Error('rejected')
+            throw new SignRejectedError('not in focuse')
         }
 
         message = normalizeClauses(message)
@@ -130,7 +130,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         if (options.signer) {
             walletIndex = this.rows.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
             if (walletIndex < 0) {
-                throw new Error('bad options: no such signer')
+                throw new SignRejectedError('bad options: no such signer')
             }
         }
         this.summary = options.summary || describe(message)
@@ -149,7 +149,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
 
             const ret = await returnValue
             if (!ret) {
-                throw new Error('rejected')
+                throw new SignRejectedError('user cancelled')
             }
             await DB.txRecords.add({
                 id: ret.txId,
@@ -181,6 +181,13 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         if (this.returnValue) {
             this.returnValue.resolve(val)
         }
+    }
+}
+
+class SignRejectedError extends Error {
+    constructor(msg?: string) {
+        super(msg)
+        this.name = SignRejectedError.name
     }
 }
 
