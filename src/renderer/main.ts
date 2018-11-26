@@ -25,6 +25,7 @@ import AccessHistoryPanel from './components/AccessHistoryPanel.vue'
 import Activity from './components/Activity.vue'
 import AddressLabel from './components/AddressLabel.vue'
 import Amount from './components/Amount.vue'
+import AppButton from './components/AppButton.vue'
 import CertIndicator from './components/CertIndicator.vue'
 import ClauseItem from './components/ClauseItem.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
@@ -49,6 +50,7 @@ Vue.component('AccessHistoryPanel', AccessHistoryPanel)
 Vue.component('Activity', Activity)
 Vue.component('AddressLabel', AddressLabel)
 Vue.component('Amount', Amount)
+Vue.component('AppButton', AppButton)
 Vue.component('CertIndicator', CertIndicator)
 Vue.component('ClauseItem', ClauseItem)
 Vue.component('ConfirmDialog', ConfirmDialog)
