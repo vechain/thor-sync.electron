@@ -21,7 +21,7 @@
             justify-center
         >
             <div style="width:500px;line-height:250%;">
-                <v-icon large class="mb-2 display-3">mdi-hamburger</v-icon>
+                <v-icon large class="mb-2 display-3" style="transition: none">mdi-hamburger</v-icon>
                 <div class="display-1 font-weight-light">Failed to open</div>
                 <b>{{currentHref}}</b>
                 <div>{{errorName}} {{errorCode}}</div>
