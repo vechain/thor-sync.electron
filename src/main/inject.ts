@@ -29,11 +29,10 @@ function promisify(fn: (...args: any[]) => void) {
         return new Promise((resolve, reject) => {
             fn(..._args, (err: any, result: any) => {
                 if (err) {
-                    // here the error should have been processed by 'serialize-error'
-                    // convert it back to Error
-                    const _err = new Error(err.message)
-                    _err.stack = err.stack
-                    return reject(_err)
+                    return reject({
+                        name: err.name,
+                        message: err.message
+                    })
                 }
                 resolve(result)
             })
