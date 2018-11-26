@@ -79,9 +79,6 @@ export default class NewShortcutDialog extends Vue {
     @Emit('input')
     dialogChanged(val: boolean) { }
 
-    @Emit('updated')
-    onEdited(editItem: Entities.Preference) { }
-
     @Emit('cancel')
     onCancel() { }
 
@@ -108,7 +105,6 @@ export default class NewShortcutDialog extends Vue {
                 .then(updated => {
                     if (updated) {
                         this.isEditing = false
-                        this.onEdited(result)
                         this.clear()
                     } else {
                         console.error('shortcut edit failed')
