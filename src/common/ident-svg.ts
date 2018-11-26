@@ -4,16 +4,21 @@ import MersenneTwister from 'mersenne-twister'
 import Color from 'color'
 
 const colors = [
-    '#01888C', // teal
-    '#FC7500', // bright orange
-    '#034F5D', // dark teal
-    '#F73F01', // orangered
-    '#FC1960', // magenta
-    '#C7144C', // raspberry
-    '#F3C100', // goldenrod
-    '#1598F2', // lightning blue
-    '#2465E1', // sail blue
-    '#F19E02', // gold
+    '#f44336',
+    '#e91e63',
+    '#9c27b0',
+    '#673ab7',
+    '#3f51b5',
+    '#2196f3',
+    '#03a9f4',
+    '#00bcd4',
+    '#009688',
+    '#4caf50',
+    '#8bc34a',
+    '#cddc39',
+    '#ffc107',
+    '#ff9800',
+    '#ff5722'
 ]
 
 function hash(str: string) {
@@ -34,7 +39,7 @@ export function generate(content: string) {
     const wobble = 20
     const amount = (rand.random() * wobble) - (wobble / 2)
     const remainingColors = colors.map(hex => {
-        const color = Color(hex).rotate(amount).desaturate(0.3).darken(0.1)
+        const color = Color(hex).rotate(amount).darken(0.2)
         return color.hex()
     })
 
