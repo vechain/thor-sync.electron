@@ -3,19 +3,14 @@
         <div>
             <slot/>
             <v-container class="dapp-container">
-                <v-hover v-for="item in apps" :key="item.id" :close-delay="0">
-                    <v-card
-                        slot-scope="{hover}"
-                        :class="`elevation-${hover ? 8 : 2}`"
-                        class="dapp-item"
-                    >
-                        <v-img height="100px"></v-img>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn @click.stop="openDapp(item)" flat>{{item.name}}</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-hover>
+                <AppButton
+                    v-for="item in apps"
+                    :key="item.id"
+                    :title="item.name"
+                    :href="item.src"
+                    :favicon="favicons[item.src]"
+                    @click="openDapp(item)"
+                />
             </v-container>
         </div>
     </div>
@@ -25,6 +20,7 @@
 import { Vue, Prop, Component, Emit, Mixins } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
 import TableLoader from '../mixins/table-loader'
+import *as NodeUrl from 'url'
 
 @Component
 class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
@@ -37,9 +33,10 @@ class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
 
 @Component
 export default class DApps extends Mixins(ShortcutsLoader) {
+    favicons: { [href: string]: string } = {}
 
     get apps() {
-        return [
+        const apps = [
             {
                 name: 'Insight',
                 newTab: true,
@@ -48,16 +45,12 @@ export default class DApps extends Mixins(ShortcutsLoader) {
             {
                 name: 'Wallets',
                 newTab: false,
-                src: {
-                    name: 'wallets'
-                }
+                src: 'sync://wallets'
             },
             {
                 name: 'Settings',
                 newTab: false,
-                src: {
-                    name: 'settings'
-                }
+                src: 'sync://settings'
             },
             {
                 name: 'api',
@@ -71,18 +64,38 @@ export default class DApps extends Mixins(ShortcutsLoader) {
                 src: r.value.href
             }
         }))
+
+        apps.forEach(app => {
+            DB.history.get({ 'href': app.src }).then(r => {
+                if (r) {
+                    return r.favicon
+                }
+                const hostname = NodeUrl.parse(app.src).hostname || app.src
+
+                return DB.history
+                    .where('tokens')
+                    .startsWithIgnoreCase(hostname)
+                    .limit(1)
+                    .toArray().then(recs => {
+                        if (recs.length > 0) {
+                            return recs[0].favicon
+                        }
+                    })
+            }).then(favicon => {
+                if (favicon) {
+                    this.$set(this.favicons, app.src, favicon)
+                }
+            }).catch(console.warn)
+        })
+        return apps
     }
 
     openDapp(data: Dapp.Item) {
-        if (data.newTab) {
-            BUS.$emit('open-tab', {
-                href: data.src,
-                title: data.name,
-                mode: 'inplace'
-            })
-        } else {
-            this.$router.push(data.src)
-        }
+        BUS.$emit('open-tab', {
+            href: data.src,
+            title: data.name,
+            mode: 'inplace'
+        })
     }
 }
 </script>

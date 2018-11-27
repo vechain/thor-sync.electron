@@ -52,7 +52,7 @@ export default class AccessHistory extends Vue {
 }
 
 function tokenizeTitle(title: string) {
-    const parts = title.split(' ').filter(p => !!p)
+    const parts = title.split(' ').filter(p => p && p.length > 1)
     const tokens = []
     for (let i = 0; i < parts.length; i++) {
         tokens.push(parts.slice(i).join(' '))
