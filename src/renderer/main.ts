@@ -29,6 +29,7 @@ import AppButton from './components/AppButton.vue'
 import CertIndicator from './components/CertIndicator.vue'
 import ClauseItem from './components/ClauseItem.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
+import Favicon from './components/Favicon.vue'
 import IdentBox from './components/IdentBox.vue'
 import NetworkStatus from './components/NetworkStatus.vue'
 import NetworkStatusPanel from './components/NetworkStatusPanel.vue'
@@ -54,6 +55,7 @@ Vue.component('AppButton', AppButton)
 Vue.component('CertIndicator', CertIndicator)
 Vue.component('ClauseItem', ClauseItem)
 Vue.component('ConfirmDialog', ConfirmDialog)
+Vue.component('Favicon', Favicon)
 Vue.component('IdentBox', IdentBox)
 Vue.component('NetworkStatus', NetworkStatus)
 Vue.component('NetworkStatusPanel', NetworkStatusPanel)

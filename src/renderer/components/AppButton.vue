@@ -38,15 +38,14 @@
                             :style="{'background-color':faceColor}"
                         />
                     </div>
-
-                    <v-layout
-                        align-center
-                        justify-center
+                    <img
                         class="white"
-                        style="position:absolute;width:16px;height:16px;top:0px;right:0px;border-radius:0px 6px 0px 6px;overflow:hidden"
+                        :src="favicon"
+                        width="16px"
+                        height="16px"
+                        style="position:absolute;top:0px;right:0px;border-radius:0px 6px 0px 6px;overflow:hidden"
+                        @load="onImageLoad"
                     >
-                        <img ref="img" :src="favicon" width="16px" height="16px">
-                    </v-layout>
                 </div>
                 <div
                     :style="{'box-shadow': `${faceColor} 0px 0px 0px 0.5px inset`}"
@@ -84,10 +83,8 @@ export default class AppIcon extends Vue {
         this.loaded = false
     }
 
-    mounted() {
-        let img = this.$refs.img as HTMLImageElement
-        this.loaded = img.complete
-        img.onload = () => this.loaded = true
+    onImageLoad() {
+        this.loaded = true
     }
 }
 

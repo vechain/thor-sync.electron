@@ -8,17 +8,7 @@
             align-center
             :class="{'tab-button--active': active}"
         >
-            <v-img
-                v-if="!!faviconURL || !!faviconFont"
-                :height="16"
-                :width="16"
-                style="flex: 0 0 auto;overflow:hidden;border-radius:2px;"
-                :src="faviconURL"
-            >
-                <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-                    <v-icon small>{{faviconFont}}</v-icon>
-                </v-layout>
-            </v-img>
+            <Favicon v-show="!!faviconURL || !!faviconFont" :src="faviconURL" :icon="faviconFont"/>
             <span class="mx-2 caption text-truncate">{{title}}</span>
             <v-spacer/>
             <v-btn
@@ -57,57 +47,57 @@ export default class TabButton extends Vue {
         if (this.favicon.indexOf(':') < 0) {
             return this.favicon
         }
-        return 'mdi-file-plus'
+        return ''
     }
 }
 </script>
 <style scoped>
 .tab-button {
-  border-radius: 4px 4px 0px 0px;
-  overflow: hidden;
-  user-select: none;
-  cursor: default;
-  z-index: 0;
-  margin-left: 0.5px;
-  margin-right: 0.5px;
-  transition: background 0.15s cubic-bezier(0.25, 0.8, 0.5, 1),
-    box-shadow 0.15s cubic-bezier(0.25, 0.8, 0.5, 1), transform 0.25s,
-    width 0.3s, padding 0.3s;
+    border-radius: 4px 4px 0px 0px;
+    overflow: hidden;
+    user-select: none;
+    cursor: default;
+    z-index: 0;
+    margin-left: 0.5px;
+    margin-right: 0.5px;
+    transition: background 0.15s cubic-bezier(0.25, 0.8, 0.5, 1),
+        box-shadow 0.15s cubic-bezier(0.25, 0.8, 0.5, 1), transform 0.25s,
+        width 0.3s, padding 0.3s;
 }
 
 .theme--light .tab-button {
-  background-color: #d4d4d4;
-  box-shadow: 0px 0px 0px 0px #d4d4d4;
+    background-color: #d4d4d4;
+    box-shadow: 0px 0px 0px 0px #d4d4d4;
 }
 .darwin.blur .theme--light .tab-button {
-  background-color: #e0e0e0;
-  color: rgba(0, 0, 0, 0.6);
+    background-color: #e0e0e0;
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .theme--dark .tab-button {
-  background-color: #303030;
-  box-shadow: 0px 0px 0px 0px #303030;
+    background-color: #303030;
+    box-shadow: 0px 0px 0px 0px #303030;
 }
 
 .tab-button--active {
-  border-radius: 2px 2px 0px 0px;
-  z-index: 1;
+    border-radius: 2px 2px 0px 0px;
+    z-index: 1;
 }
 
 .theme--light .tab-button--active {
-  box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
-  background-color: #ffffff !important;
+    box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
+    background-color: #ffffff !important;
 }
 .theme--dark .tab-button--active {
-  box-shadow: 0px -1px 0px 2px #212121, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
-  background-color: #212121;
+    box-shadow: 0px -1px 0px 2px #212121, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
+    background-color: #212121;
 }
 
 .theme--light .tab-button:not(.tab-button--active):hover {
-  background-color: #e0e0e0;
+    background-color: #e0e0e0;
 }
 .theme--dark .tab-button:not(.tab-button--active):hover {
-  background-color: #282828;
+    background-color: #282828;
 }
 </style>
 

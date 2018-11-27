@@ -20,7 +20,7 @@
                     :class="{'v-list__tile--highlighted': i===listIndex}"
                 >
                     <v-layout align-center>
-                        <v-img :src="row.favicon" :height="16" :width="16" style="flex:0 0 auto"/>
+                        <Favicon :src="row.favicon"/>
                         <span class="mx-2 text-truncate" style="flex:0 0 auto;">{{row.title}}</span>
                         <v-spacer/>
                         <span
@@ -144,14 +144,14 @@ const keyCodes = {
 </script>
 <style scoped>
 .access-history-panel-inline >>> div {
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
 }
 .no-transition {
-  transition: all 0s;
+    transition: all 0s;
 }
 .access-history-panel.v-menu__content {
-  border-radius: 0px 0px 6px 6px;
-  max-width: unset;
+    border-radius: 0px 0px 6px 6px;
+    max-width: unset;
 }
 </style>
