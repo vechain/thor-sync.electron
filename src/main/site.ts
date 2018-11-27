@@ -1,6 +1,6 @@
 import { Agent } from 'http'
 import Axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
-import * as URL from 'url'
+import * as NodeUrl from 'url'
 import * as QS from 'qs'
 import * as WebSocket from 'ws'
 import { EventEmitter } from 'events'
@@ -43,9 +43,9 @@ class Wire implements Connex.Thor.Site.Wire {
 
     public ws(path: string, query?: object): Connex.Thor.Site.WebSocket {
         const url = this.resolve(path, query)
-        const parsed = URL.parse(url)
+        const parsed = NodeUrl.parse(url)
         parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
-        const ws = new WebSocket(URL.format(parsed), {
+        const ws = new WebSocket(NodeUrl.format(parsed), {
             agent: this.agent,
             headers: { 'x-genesis-id': this.config.genesis.id }
         })
@@ -94,7 +94,7 @@ class Wire implements Connex.Thor.Site.Wire {
         if (qs) {
             qs = '?' + qs
         }
-        return URL.resolve(this.config.url, `${path}${qs}`)
+        return NodeUrl.resolve(this.config.url, `${path}${qs}`)
     }
 
     private log(obj: AxiosResponse | AxiosError) {

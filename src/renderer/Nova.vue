@@ -107,7 +107,8 @@
                                         @click.stop
                                         slot="activator"
                                         v-model="activePage.userInput"
-                                        :href.sync="activePage.href"
+                                        :href="activePage.href"
+                                        @update:href="navigateTo"
                                         class="url-box"
                                         placeholder="Enter URL or app name to search"
                                         @focus="urlBoxFocused=true"
@@ -181,6 +182,7 @@ import { remote } from 'electron'
 import Vendor from './vendor'
 import Launcher from './launcher'
 import { Entities } from '@/renderer/database'
+import * as UrlUtils from '@/common/url-utils'
 
 class Page {
     static nextId = 0
@@ -266,17 +268,22 @@ export default class Nova extends Vue {
     }
 
     openTab(href: string, mode?: 'append' | 'append-active' | 'inplace') {
+        const formalized = UrlUtils.formalize(href)
         if (mode === 'append-active') {
-            const page = new Page(href)
+            const page = new Page(formalized)
             this.pages.splice(this.activePageIndex + 1, 0, page)
             this.activePageIndex++
         } else if (mode === 'inplace') {
-            this.pages[this.activePageIndex].href = href
+            this.pages[this.activePageIndex].href = formalized
         } else {
-            const page = new Page(href)
+            const page = new Page(formalized)
             this.pages.push(page)
             this.activePageIndex = this.pages.length - 1
         }
+    }
+
+    navigateTo(href: string) {
+        this.activePage.href = UrlUtils.formalize(href)
     }
 
     created() {
