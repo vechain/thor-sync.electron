@@ -138,7 +138,7 @@
                         </v-btn>
                     </TxRecordsPanel>
                 </v-layout>
-                <v-divider/>
+                <div class="sharp-line"/>
             </div>
         </div>
         <v-content>
@@ -533,5 +533,11 @@ html {
 }
 .theme--light.v-btn .v-btn__content .v-icon {
   color: rgba(0, 0, 0, 0.6);
+}
+.sharp-line {
+  height:1px;
+  background-image: linear-gradient(to top, black 0%, black 51%, transparent 51%);
+  background-size:100% 1px;
+  opacity:0.15;
 }
 </style>
