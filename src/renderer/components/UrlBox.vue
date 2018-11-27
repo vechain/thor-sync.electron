@@ -11,7 +11,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch, Emit, Model, Prop } from 'vue-property-decorator'
-import * as NodeUrl from 'url'
+import * as UrlUtils from '@/common/url-utils'
 
 
 @Component
@@ -42,14 +42,6 @@ export default class UrlBox extends Vue {
     // for input method
     composing = false
 
-    get prettyHost() {
-        const host = NodeUrl.parse(this.shadowHref).host || ''
-        if (host.startsWith('www.')) {
-            return host.slice(4)
-        }
-        return host
-    }
-
     get displayText() {
         this.shadowValue
         this.shadowHref
@@ -60,7 +52,9 @@ export default class UrlBox extends Vue {
             }
             return ''
         } else {
-            return this.shadowValue || this.prettyHost || this.shadowHref
+            return this.shadowValue ||
+                UrlUtils.prettyForDisplay(this.shadowHref) ||
+                this.shadowHref
         }
     }
 
@@ -92,7 +86,7 @@ export default class UrlBox extends Vue {
             return
         }
 
-        this.updateHref(normalizeUrl(text))
+        this.updateHref(text)
         this.updateInput('')
         this.$el.blur()
     }
@@ -105,20 +99,6 @@ export default class UrlBox extends Vue {
         this.$el.addEventListener('compositionstart', () => this.composing = true)
         this.$el.addEventListener('compositionend', () => this.composing = false)
     }
-}
-
-
-function normalizeUrl(str: string) {
-    let url = NodeUrl.parse(str)
-    if (url.protocol === 'file:' || url.hostname) {
-        return NodeUrl.format(url)
-    }
-
-    url = NodeUrl.parse('http://' + str)
-    if (/^[a-z0-9]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
-        return NodeUrl.format(url)
-    }
-    return `https://www.google.com/search?q=${encodeURIComponent(str)}`
 }
 
 </script>

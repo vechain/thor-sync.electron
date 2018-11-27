@@ -60,10 +60,10 @@ function tokenizeTitle(title: string) {
     return tokens
 }
 
-import * as NodeUrl from 'url'
+import * as UrlUtils from '@/common/url-utils'
 
 function tokenizeHref(href: string) {
-    const hostname = NodeUrl.parse(href).hostname || ''
+    const hostname = UrlUtils.hostnameOf(href)
     const parts = hostname.split('.')
 
     const tokens = []

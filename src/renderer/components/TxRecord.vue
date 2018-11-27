@@ -84,7 +84,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Entities } from '../database'
 import { Transaction } from 'thor-devkit'
-import * as NodeUrl from 'url'
+import * as UrlUtils from '@/common/url-utils'
 import BigNumber from 'bignumber.js'
 import { State } from 'vuex-class'
 import { describe } from '@/renderer/vendor/utils'
@@ -107,7 +107,7 @@ export default class TxRecord extends Vue {
     get txObject() { return Transaction.decode(Buffer.from(this.entity.raw.slice(2), 'hex')) }
     get clauses() { return this.txObject.body.clauses }
     get summary() { return this.entity.summary[0] || describe(this.clauses) }
-    get host() { return NodeUrl.parse(this.entity.referer.url).host }
+    get host() { return UrlUtils.hostOf(this.entity.referer.url) }
     get time() { return timeAgo.format(this.entity.insertTime) }
     get txid() { return this.entity.id }
     get gasPriceCoef() { return this.txObject.body.gasPriceCoef }

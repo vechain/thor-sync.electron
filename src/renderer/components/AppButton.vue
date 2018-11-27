@@ -62,8 +62,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import * as NodeUrl from 'url'
-
+import * as UrlUtils from '@/common/url-utils'
 @Component
 export default class AppIcon extends Vue {
     @Prop(String) title!: string
@@ -76,7 +75,7 @@ export default class AppIcon extends Vue {
         return this.title ? this.title[0] : '?'
     }
     get faceColor() {
-        const h = hash(NodeUrl.parse(this.href || '').hostname || '')
+        const h = hash(UrlUtils.hostnameOf(this.href || ''))
         return colors[h % colors.length]
     }
 

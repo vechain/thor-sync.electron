@@ -59,7 +59,7 @@ import TableLoader from '../mixins/table-loader'
 import TxSigningPanel from './TxSigningPanel.vue'
 import Deferred from '@/common/deferred';
 import debounce from 'lodash.debounce'
-import * as NodeUrl from 'url'
+import * as UrlUtils from '@/common/url-utils'
 import { remote } from 'electron'
 
 type Clause = Connex.Vendor.Message<'tx'>[number]
@@ -84,7 +84,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
 
     get host() {
         if (this.referer) {
-            return NodeUrl.parse(this.referer.url).host
+            return UrlUtils.hostOf(this.referer.url)
         }
         return ''
     }
