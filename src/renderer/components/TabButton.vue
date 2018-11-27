@@ -8,7 +8,12 @@
             align-center
             :class="{'tab-button--active': active}"
         >
-            <Favicon v-show="!!faviconURL || !!faviconFont" :src="faviconURL" :icon="faviconFont"/>
+            <Favicon
+                v-show="!!faviconURL || !!faviconFont"
+                :src="faviconURL"
+                :icon="faviconFont"
+                style="flex:0 0 auto"
+            />
             <span class="mx-2 caption text-truncate">{{title}}</span>
             <v-spacer/>
             <v-btn

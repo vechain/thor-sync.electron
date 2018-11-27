@@ -3,7 +3,7 @@
         v-bind="$attrs"
         v-on="$listeners"
         flat
-        style="width:auto;height:auto;"
+        style="height:auto;width:100%;"
         :ripple="false"
         class="pa-2"
     >
@@ -53,8 +53,8 @@
                 ></div>
             </v-layout>
             <span
-                class="text-truncate caption font-weight-bold"
-                style="text-transform:none"
+                class="caption font-weight-bold text-truncate"
+                style="text-transform:none;width:100%;"
             >{{title}}</span>
         </v-layout>
     </v-btn>
