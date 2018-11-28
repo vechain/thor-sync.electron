@@ -3,10 +3,7 @@
         <v-layout slot-scope="{ hover }" v-bind="$attrs" v-on="$listeners" class="tab-button">
             <div style="position:relative;width:100%;height:100%" class="px-1">
                 <div v-show="!active" class="bg" :class="{'bg--hilight': hover}"/>
-                <div class="active-bg" :style="{opacity: active ? 1: 0}">
-                    <div class="left-corner"/>
-                    <div class="right-corner"/>
-                </div>
+                <div class="active-bg" :style="{opacity: active ? 1: 0}"/>
                 <v-layout
                     align-center
                     style="position:relative;width:100%;height:100%;overflow:hidden;z-index:1;"
@@ -76,7 +73,7 @@ export default class TabButton extends Vue {
     top: 0px;
     right: 0px;
     bottom: 0px;
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
 }
 
 .active-bg {
@@ -86,27 +83,28 @@ export default class TabButton extends Vue {
     top: -3px;
     right: -3px;
     bottom: 0px;
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
     z-index: 1;
-    box-shadow: 0px 1px 2px 0.5px rgba(0, 0, 0, 0.12);
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.15));
     transition: opacity 0.15s;
 }
-
-.left-corner {
+.active-bg::before {
     position: absolute;
-    left: -4px;
+    content: "";
+    left: -5px;
     bottom: 0px;
-    width: 5px;
-    height: 4px;
+    width: 6px;
+    height: 5px;
     clip-path: url(#left-corner);
     background-color: inherit;
 }
-.right-corner {
+.active-bg::after {
     position: absolute;
-    right: -4px;
+    content: "";
+    right: -5px;
     bottom: 0px;
-    width: 5px;
-    height: 4px;
+    width: 6px;
+    height: 5px;
     clip-path: url(#right-corner);
     background-color: inherit;
 }
