@@ -4,10 +4,10 @@
         <svg height="0" width="0">
             <defs>
                 <clipPath id="left-corner">
-                    <path d="M4 0 h1 v4 h-5 a4 4 90 0 0 4 -4"></path>
+                    <path d="M5 0 h1 v5 h-6 a5 5 90 0 0 5 -5"></path>
                 </clipPath>
                 <clipPath id="right-corner">
-                    <path d="M1 0 a4 4 90 0 0 4 4 h-5"></path>
+                    <path d="M1 0 a5 5 90 0 0 5 5 h-6"></path>
                 </clipPath>
             </defs>
         </svg>
