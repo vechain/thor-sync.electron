@@ -1,5 +1,16 @@
 <template>
     <v-app v-resize="onResize">
+        <!-- required by tab button -->
+        <svg height="0" width="0">
+            <defs>
+                <clipPath id="left-corner">
+                    <path d="M4 0 h1 v4 h-5 a4 4 90 0 0 4 -4"></path>
+                </clipPath>
+                <clipPath id="right-corner">
+                    <path d="M1 0 a4 4 90 0 0 4 4 h-5"></path>
+                </clipPath>
+            </defs>
+        </svg>
         <div class="toolbar">
             <transition-group
                 tag="v-layout"
@@ -383,168 +394,174 @@ export default class Nova extends Vue {
 
 <style lang="scss">
 html {
-  overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+    overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
 }
 
 .toolbar {
-  overflow: hidden;
+    overflow: hidden;
 }
 .html-full-screen .toolbar {
-  display: none;
+    display: none;
 }
 
 .theme--light .toolbar {
-  background-color: #e6e6e6;
+    background-color: #e6e6e6;
 }
 
 .theme--dark .toolbar {
-  background-color: #404040;
+    background-color: #404040;
 }
 
 .darwin.blur .theme--light .toolbar {
-  background-color: #f4f4f4;
+    background-color: #f4f4f4;
 }
 .darwin.blur .theme--dark .toolbar {
-  background-color: #383838;
+    background-color: #383838;
 }
 
 .tab-bar {
-  overflow: hidden;
-  padding: 8px 8px 0px 80px;
-  transition: padding 0.2s;
+    overflow: hidden;
+    padding: 8px 8px 0px 80px;
+    transition: padding 0.2s;
 }
 
 .darwin.full-screen .tab-bar {
-  padding-left: 8px;
-  padding-top: 3px;
+    padding-left: 8px;
+    padding-top: 3px;
 }
 .tab-button {
-  flex: 0 1 auto;
-  width: 220px;
+    flex: 0 1 auto;
+    width: 220px;
 }
 .drag {
-  -webkit-app-region: drag;
+    -webkit-app-region: drag;
 }
 .no-drag {
-  -webkit-app-region: no-drag;
+    -webkit-app-region: no-drag;
 }
 
 .sync-dapp-list.default-content {
-  width: 75%;
-  max-width: 1000px;
-  margin: 50px auto;
+    width: 75%;
+    max-width: 1000px;
+    margin: 50px auto;
 }
 .sync-dapp-list.default-content .search {
-  margin: 50px auto 50px;
-  width: 70%;
+    margin: 50px auto 50px;
+    width: 70%;
 }
 .tab-tools {
-  float: right;
+    float: right;
 }
 .sync-viewport-container {
-  z-index: 0;
+    z-index: 0;
 }
 .sync-viewport-container.current {
-  z-index: 2;
+    z-index: 2;
 }
 
 .label {
-  color: #fff;
-  padding: 0px 4px;
-  border-radius: 2px;
-  font-size: 10px;
+    color: #fff;
+    padding: 0px 4px;
+    border-radius: 2px;
+    font-size: 10px;
 }
 .break-all {
-  word-break: break-all;
+    word-break: break-all;
 }
 .theme--light.v-menu__content {
-  box-shadow: 0px 5px 24px 2px rgba(0, 0, 0, 0.25),
-    rgba(0, 0, 0, 0.5) 0px 0px 0.5px 0px;
-  border-radius: 6px;
+    box-shadow: 0px 5px 24px 2px rgba(0, 0, 0, 0.25),
+        rgba(0, 0, 0, 0.5) 0px 0px 0.5px 0px;
+    border-radius: 6px;
 }
 .theme--light .v-dialog {
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
-    0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12),
-    rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px;
-  border-radius: 6px;
+    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+        0px 24px 38px 3px rgba(0, 0, 0, 0.14),
+        0px 9px 46px 8px rgba(0, 0, 0, 0.12),
+        rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px;
+    border-radius: 6px;
 }
 
 .theme--light .outline {
-  position: relative;
+    position: relative;
 }
 .theme--light .outline::before {
-  pointer-events: none;
-  border-radius: inherit;
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
+    pointer-events: none;
+    border-radius: inherit;
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
 }
 .v-overlay--active:before {
-  opacity: 0.2;
+    opacity: 0.2;
 }
 .v-expansion-panel__header {
-  padding-right: 12px !important;
+    padding-right: 12px !important;
 }
 .v-expansion-panel__header__icon {
-  margin-left: 12px !important;
+    margin-left: 12px !important;
 }
 
 .tab-button-enter {
-  width: 0px;
-  padding: 0px !important;
+    width: 0px;
+    opacity: 0;
 }
 .tab-button-leave-active {
-  position: absolute;
-  opacity: 0;
+    position: absolute;
+    opacity: 0;
 }
 
 .theme--light .nav-bar {
-  background-color: #ffffff;
+    background-color: #ffffff;
 }
 .theme--dark .nav-bar {
-  background-color: #212121;
+    background-color: #212121;
 }
 
 .nav-box {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  overflow: hidden;
-  height: 26px;
-  box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05) inset;
-  flex: 1 1 auto;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 26px;
+    box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05) inset;
+    flex: 1 1 auto;
 }
 
 .nav-box-focused {
-  box-shadow: 0px 0px 0px 2px rgba(25, 118, 210, 0.7);
+    box-shadow: 0px 0px 0px 2px rgba(25, 118, 210, 0.7);
 }
 
 .url-box {
-  width: 100%;
-  height: 100%;
-  outline: none;
-  color: rgba(0, 0, 0, 0.6);
-  cursor: default;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    color: rgba(0, 0, 0, 0.6);
+    cursor: default;
 }
 .url-box:focus {
-  color: rgba(0, 0, 0, 0.9);
-  cursor: text;
+    color: rgba(0, 0, 0, 0.9);
+    cursor: text;
 }
 
 .url-box-with-icon:focus-within {
-  background-color: #ffffff;
-  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
 }
 .theme--light.v-btn .v-btn__content .v-icon {
-  color: rgba(0, 0, 0, 0.6);
+    color: rgba(0, 0, 0, 0.6);
 }
 .sharp-line {
-  height:1px;
-  background-image: linear-gradient(to top, black 0%, black 51%, transparent 51%);
-  background-size:100% 1px;
-  opacity:0.15;
+    height: 1px;
+    background-image: linear-gradient(
+        to top,
+        black 0%,
+        black 51%,
+        transparent 51%
+    );
+    background-size: 100% 1px;
+    opacity: 0.15;
 }
 </style>
