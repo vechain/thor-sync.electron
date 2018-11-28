@@ -3,7 +3,7 @@
 import MersenneTwister from 'mersenne-twister'
 import Color from 'color'
 
-const colors = [
+const allColors = [
     '#f44336',
     '#e91e63',
     '#9c27b0',
@@ -36,32 +36,31 @@ function hash(str: string) {
 export function generate(content: string) {
     const seed = hash(content)
     const rand = new MersenneTwister(seed)
-    const wobble = 20
-    const amount = (rand.random() * wobble) - (wobble / 2)
-    const remainingColors = colors.map(hex => {
-        const color = Color(hex).rotate(amount).darken(0.2)
+
+    const colors = allColors.map(hex => {
+        const color = Color(hex).darken(0.2)
         return color.hex()
     })
 
     const genColor = () => {
-        const idx = Math.floor(remainingColors.length * rand.random())
-        return remainingColors.splice(idx, 1)[0]
+        const idx = Math.floor(colors.length * rand.random())
+        return colors.splice(idx, 1)[0]
     }
 
     const bgStr = `<rect fill="${genColor()}" width="100" height="100"/>`
     let shapesStr = ''
     const layers = 3
-    for (let i = 0; i < layers; i++) {
-        const firstRot = rand.random()
-        const angle = Math.PI * 2 * firstRot
-        const velocity = 100 / layers * rand.random() + (i * 100 / layers)
-        const tx = (Math.cos(angle) * velocity)
-        const ty = (Math.sin(angle) * velocity)
-        const secondRot = rand.random()
-        const rot = (firstRot * 360) + secondRot * 180
+    const rs = [35, 40, 45, 50, 55, 60]
+    const cxs = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    const cys = [30, 40, 50, 60, 70]
 
-        // tslint:disable-next-line:max-line-length
-        shapesStr += `<rect width="100" height="100" fill="${genColor()}" transform="translate(${tx} ${ty}) rotate(${rot.toFixed(1)} 50 50)"/>`
+    for (let i = 0; i < layers; i++) {
+        const r = rs.splice(Math.floor(rs.length * rand.random()), 1)[0]
+        const cx = cxs.splice(Math.floor(cxs.length * rand.random()), 1)[0]
+        const cy = cys.splice(Math.floor(cys.length * rand.random()), 1)[0]
+        const fill = genColor()
+
+        shapesStr += `<circle r="${r}" cx="${cx}" cy="${cy}" fill="${fill}" opacity="0.5"/>`
     }
     return `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${bgStr}${shapesStr}</svg>`
 }
