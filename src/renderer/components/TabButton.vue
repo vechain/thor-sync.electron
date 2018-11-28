@@ -1,32 +1,37 @@
 <template>
     <v-hover :close-delay="0" :open-delay="50">
-        <v-layout
-            slot-scope="{ hover }"
-            v-bind="$attrs"
-            v-on="$listeners"
-            class="tab-button pl-2 pr-1 py-1"
-            align-center
-            :class="{'tab-button--active': active}"
-        >
-            <Favicon
-                v-show="!!faviconURL || !!faviconFont"
-                :src="faviconURL"
-                :icon="faviconFont"
-                style="flex:0 0 auto"
-            />
-            <span class="mx-2 caption text-truncate">{{title}}</span>
-            <v-spacer/>
-            <v-btn
-                flat
-                small
-                class="ma-0"
-                @click.stop="close"
-                style="height:auto;width:auto;min-width:auto;padding:1px"
-                :ripple="false"
-                :style="{opacity: hover? 1: 0,visibility: hover? 'visible': 'hidden' }"
-            >
-                <v-icon small>close</v-icon>
-            </v-btn>
+        <v-layout slot-scope="{ hover }" v-bind="$attrs" v-on="$listeners" class="tab-button">
+            <div style="position:relative;width:100%;height:100%" class="px-1">
+                <div v-show="!active" class="bg" :class="{'bg--hilight': hover}"/>
+                <div class="active-bg" :style="{opacity: active ? 1: 0}">
+                    <div class="left-corner"/>
+                    <div class="right-corner"/>
+                </div>
+                <v-layout
+                    align-center
+                    style="position:relative;width:100%;height:100%;overflow:hidden;z-index:1;"
+                >
+                    <Favicon
+                        v-show="!!faviconURL || !!faviconFont"
+                        :src="faviconURL"
+                        :icon="faviconFont"
+                        style="flex:0 0 auto;"
+                    />
+                    <span class="mx-2 caption text-truncate">{{title}}</span>
+                    <v-spacer/>
+                    <v-btn
+                        flat
+                        small
+                        class="ma-0"
+                        @click.stop="close"
+                        style="height:auto;width:auto;min-width:auto;padding:1px"
+                        :ripple="false"
+                        :style="{opacity: hover? 1: 0,visibility: hover? 'visible': 'hidden' }"
+                    >
+                        <v-icon small>close</v-icon>
+                    </v-btn>
+                </v-layout>
+            </div>
         </v-layout>
     </v-hover>
 </template>  
@@ -58,51 +63,63 @@ export default class TabButton extends Vue {
 </script>
 <style scoped>
 .tab-button {
-    border-radius: 4px 4px 0px 0px;
-    overflow: hidden;
     user-select: none;
     cursor: default;
-    z-index: 0;
-    margin-left: 0.5px;
-    margin-right: 0.5px;
-    transition: background 0.15s cubic-bezier(0.25, 0.8, 0.5, 1),
-        box-shadow 0.15s cubic-bezier(0.25, 0.8, 0.5, 1), transform 0.25s,
-        width 0.3s, padding 0.3s;
+    margin-left: 1px;
+    transition: width 0.3s, transform 0.3s;
 }
 
-.theme--light .tab-button {
+.bg {
     background-color: #d4d4d4;
-    box-shadow: 0px 0px 0px 0px #d4d4d4;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    border-radius: 4px 4px 0px 0px;
 }
-.darwin.blur .theme--light .tab-button {
-    background-color: #e0e0e0;
+
+.active-bg {
+    background-color: white;
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    right: -3px;
+    bottom: 0px;
+    border-radius: 4px 4px 0px 0px;
+    z-index: 1;
+    box-shadow: 0px 1px 2px 0.5px rgba(0, 0, 0, 0.12);
+    transition: opacity 0.15s;
+}
+
+.left-corner {
+    position: absolute;
+    left: -4px;
+    bottom: 0px;
+    width: 5px;
+    height: 4px;
+    clip-path: url(#left-corner);
+    background-color: inherit;
+}
+.right-corner {
+    position: absolute;
+    right: -4px;
+    bottom: 0px;
+    width: 5px;
+    height: 4px;
+    clip-path: url(#right-corner);
+    background-color: inherit;
+}
+
+.bg--hilight {
+    background-color: #e0e0e0 !important;
+}
+
+.darwin.blur .tab-button {
     color: rgba(0, 0, 0, 0.6);
 }
-
-.theme--dark .tab-button {
-    background-color: #303030;
-    box-shadow: 0px 0px 0px 0px #303030;
-}
-
-.tab-button--active {
-    border-radius: 2px 2px 0px 0px;
-    z-index: 1;
-}
-
-.theme--light .tab-button--active {
-    box-shadow: 0px -1px 0px 2px #ffffff, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
-    background-color: #ffffff !important;
-}
-.theme--dark .tab-button--active {
-    box-shadow: 0px -1px 0px 2px #212121, 0px 0px 3px 1px rgba(0, 0, 0, 0.4);
-    background-color: #212121;
-}
-
-.theme--light .tab-button:not(.tab-button--active):hover {
+.darwin.blur .bg {
     background-color: #e0e0e0;
-}
-.theme--dark .tab-button:not(.tab-button--active):hover {
-    background-color: #282828;
 }
 </style>
 
