@@ -9,6 +9,11 @@
                 <clipPath id="right-corner">
                     <path d="M1 0 a5 5 90 0 0 5 5 h-6"></path>
                 </clipPath>
+                <clipPath id="app-button-badge">
+                    <path
+                        d="M 0 0 h 14 a 7 7 90 0 1 7 7 v 14 a 3 3 -90 0 0 -3 -3 h -8 a 7 7 90 0 1 -7 -7 v -8 a 3 3 -90 0 0 -3 -3"
+                    ></path>
+                </clipPath>
             </defs>
         </svg>
         <div class="toolbar">
