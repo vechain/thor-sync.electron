@@ -24,6 +24,8 @@
                 @mousedown.native.self.prevent
                 name="tab-button"
             >
+                <!-- here use @mouseup instead of @click, 
+                since the area of window title is not responsive on osx-->
                 <TabButton
                     v-for="(page,i) in pages"
                     class="tab-button"
@@ -515,8 +517,7 @@ html {
     opacity: 0;
 }
 .tab-button-leave-active {
-    position: absolute;
-    opacity: 0;
+    display: none;
 }
 
 .theme--light .nav-bar {
@@ -530,7 +531,7 @@ html {
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 4px;
     overflow: hidden;
-    height: 26px;
+    height: 24px;
     box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05) inset;
     flex: 1 1 auto;
 }
@@ -545,6 +546,7 @@ html {
     outline: none;
     color: rgba(0, 0, 0, 0.6);
     cursor: default;
+    font-size: 13px;
 }
 .url-box:focus {
     color: rgba(0, 0, 0, 0.9);
