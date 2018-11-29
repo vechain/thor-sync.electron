@@ -35,11 +35,19 @@ export default class Launcher extends Vue {
         } else {
             this.updateHref('sync:/' + path)
         }
+        let favicon 
+        if(path.includes('wallets')) {  
+            favicon = 'mdi-cards'                      
+        }else if(path.includes('settings')) {
+            favicon = 'mdi-settings-outline'
+        }else {
+            favicon = 'mdi-home-outline'
+        }
 
-        const history = this.router.$router.history
+        const history = this.router.$router.history        
         this.updateStatus({
             title: (this.router.$route.meta || {}).title || '',
-            favicon: '',
+            favicon,
             progress: 1,
             canGoBack: history.index !== 0,
             canGoForward: history.index < history.stack.length - 1,
