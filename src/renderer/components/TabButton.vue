@@ -74,6 +74,7 @@ export default class TabButton extends Vue {
     right: 0px;
     bottom: 0px;
     border-radius: 5px 5px 0px 0px;
+    transition: background 0.15s;
 }
 
 .active-bg {
