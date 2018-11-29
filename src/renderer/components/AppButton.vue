@@ -17,13 +17,11 @@
             >
                 <span class="white--text headline font-weight-light">{{firstChar}}</span>
                 <div v-show="loaded" class="badge">
-                    <img
+                    <Favicon
                         :src="favicon"
-                        width="16px"
-                        height="16px"
                         style="position:absolute;top:1px;right:1px;"
-                        @load="onImageLoad"
-                    >
+                        @update:loaded="loaded=$event"
+                    />
                     <div
                         style="position:absolute;top:0px;right:0px;left:-2px;bottom:-2px;border-radius:0px 7px 0px 0px;"
                         :style="{'box-shadow': `${faceColor} 0px 0px 0px 0.5px inset`}"

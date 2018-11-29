@@ -8,7 +8,7 @@
             :style="{'z-index': active?1:0}"
         >
             <div
-                class="px-1 bg"
+                class="pl-2 pr-1 bg"
                 :class="{'bg--hilight': hover}"
                 style="position:relative;width:100%;height:100%"
             >
@@ -18,12 +18,13 @@
                     style="position:relative;width:100%;height:100%;overflow:hidden;"
                 >
                     <Favicon
-                        v-show="!!faviconURL || !!faviconFont"
-                        :src="faviconURL"
-                        :icon="faviconFont"
+                        v-show="iconLoaded || !!placeholder"
+                        :src="favicon"
+                        :placeholder="placeholder"
                         style="flex:0 0 auto;"
+                        @update:loaded="iconLoaded=$event"
                     />
-                    <span class="mx-2 caption text-truncate">{{title}}</span>
+                    <span class="mx-1 caption text-truncate">{{title}}</span>
                     <v-spacer/>
                     <v-btn
                         flat
@@ -47,24 +48,14 @@ import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
 @Component
 export default class TabButton extends Vue {
     @Prop(Boolean) active !: boolean
-    @Prop({ default: '', type: String }) title !: string
-    @Prop({ default: '', type: String }) favicon !: string
+    @Prop(String) title !: string
+    @Prop(String) favicon !: string
+    @Prop(String) placeholder !: string
+
+    iconLoaded = false
+
     @Emit('close')
     close() { }
-
-    get faviconURL() {
-        if (this.favicon.indexOf(':') >= 0) {
-            return this.favicon
-        }
-        return ''
-    }
-
-    get faviconFont() {
-        if (this.favicon.indexOf(':') < 0) {
-            return this.favicon
-        }
-        return ''
-    }
 }
 </script>
 <style scoped>
