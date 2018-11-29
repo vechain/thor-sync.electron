@@ -1,12 +1,21 @@
 <template>
     <v-hover :close-delay="0" :open-delay="50">
-        <v-layout slot-scope="{ hover }" v-bind="$attrs" v-on="$listeners" class="tab-button">
-            <div style="position:relative;width:100%;height:100%" class="px-1">
-                <div v-show="!active" class="bg" :class="{'bg--hilight': hover}"/>
+        <v-layout
+            slot-scope="{ hover }"
+            v-bind="$attrs"
+            v-on="$listeners"
+            class="tab-button"
+            :style="{'z-index': active?1:0}"
+        >
+            <div
+                class="px-1 bg"
+                :class="{'bg--hilight': hover}"
+                style="position:relative;width:100%;height:100%"
+            >
                 <div class="active-bg" :style="{opacity: active ? 1: 0}"/>
                 <v-layout
                     align-center
-                    style="position:relative;width:100%;height:100%;overflow:hidden;z-index:1;"
+                    style="position:relative;width:100%;height:100%;overflow:hidden;"
                 >
                     <Favicon
                         v-show="!!faviconURL || !!faviconFont"
@@ -20,7 +29,7 @@
                         flat
                         small
                         class="ma-0"
-                        @click.stop="close"
+                        @mouseup.native.stop="close"
                         style="height:auto;width:auto;min-width:auto;padding:1px"
                         :ripple="false"
                         :style="{opacity: hover? 1: 0,visibility: hover? 'visible': 'hidden' }"
@@ -77,6 +86,10 @@ export default class TabButton extends Vue {
     transition: background 0.15s;
 }
 
+.bg--hilight {
+    background-color: #dddddd !important;
+}
+
 .active-bg {
     background-color: white;
     position: absolute;
@@ -85,7 +98,6 @@ export default class TabButton extends Vue {
     right: -3px;
     bottom: 0px;
     border-radius: 5px 5px 0px 0px;
-    z-index: 1;
     filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.15));
     transition: opacity 0.15s;
 }
@@ -108,10 +120,6 @@ export default class TabButton extends Vue {
     height: 5px;
     clip-path: url(#right-corner);
     background-color: inherit;
-}
-
-.bg--hilight {
-    background-color: #e0e0e0 !important;
 }
 
 .darwin.blur .tab-button {
