@@ -1,16 +1,15 @@
 <template>
-    <div style="height: 100%; overflow:auto" class="white">
+    <div style="position:relative;width:100%;height:100%;overflow:auto">
         <transition
-            mode="out-in"
-            enter-active-class="animated faster bounceInDown"
-            leave-active-class="animated faster bounceOutUp"
+            :enter-active-class="`animated faster ${enterClass}`"
+            :leave-active-class="`animated faster ${leaveClass}`"
         >
-            <router-view/>
+            <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;"/>
         </transition>
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Portal from './Portal.vue'
 import DApps from '../components/AppList.vue'
@@ -31,6 +30,25 @@ export default class Router extends Vue {
                 routes: routes
             })
         })
+    }
+
+    historyIndex = 0
+    enterClass = ''
+    leaveClass = ''
+
+    @Watch('$route')
+    routed() {
+        const newIndex = this.$router.history.index
+        if (newIndex > this.historyIndex) {
+            // forward
+            this.enterClass = 'slide-in'
+            this.leaveClass = 'fade-out'
+        } else if (newIndex < this.historyIndex) {
+            // backward
+            this.enterClass = 'fade-in'
+            this.leaveClass = 'slide-out'
+        }
+        this.historyIndex = newIndex
     }
 }
 
@@ -96,61 +114,45 @@ const routes: RouteConfig[] = [
 ]
 </script>
 <style>
-/* https://github.com/daneden/animate.css */
-@keyframes bounceInDown {
-    from,
-    60%,
-    75%,
-    90%,
-    to {
-        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
-
-    0% {
+@keyframes slide-in {
+    from {
         opacity: 0;
-        transform: translate3d(0, -3000px, 0);
+        transform: translate3d(60px, 0, 0);
     }
-
-    60% {
-        opacity: 1;
-        transform: translate3d(0, 25px, 0);
-    }
-
-    75% {
-        transform: translate3d(0, -10px, 0);
-    }
-
-    90% {
-        transform: translate3d(0, 5px, 0);
-    }
-
     to {
         transform: translate3d(0, 0, 0);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 }
 
-.bounceInDown {
-    animation-name: bounceInDown;
-}
-@keyframes bounceOutUp {
-    20% {
-        transform: translate3d(0, -10px, 0);
-    }
-
-    40%,
-    45% {
-        opacity: 1;
-        transform: translate3d(0, 20px, 0);
-    }
-
+@keyframes slide-out {
     to {
         opacity: 0;
-        transform: translate3d(0, -2000px, 0);
+        transform: translate3d(60px, 0, 0);
+    }
+}
+@keyframes fade-out {
+    to {
+        opacity: 0;
     }
 }
 
-.bounceOutUp {
-    animation-name: bounceOutUp;
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+}
+.slide-in {
+    animation-name: slide-in;
+}
+.slide-out {
+    animation-name: slide-out;
+}
+.fade-in {
+    animation-name: fade-in;
+}
+.fade-out {
+    animation-name: fade-out;
 }
 
 .animated {
@@ -158,6 +160,6 @@ const routes: RouteConfig[] = [
     animation-fill-mode: both;
 }
 .animated.faster {
-    animation-duration: 500ms;
+    animation-duration: 240ms;
 }
 </style>

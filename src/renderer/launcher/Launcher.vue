@@ -1,6 +1,6 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners">
-        <div id="content" style="width:100%;height:100%"></div>
+    <div v-bind="$attrs" v-on="$listeners" style="background-color:#eaeaea">
+        <div id="content"/>
     </div>
 </template>
 <script lang="ts">
