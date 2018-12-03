@@ -19,7 +19,7 @@
                             <span class="text-truncate caption grey--text pl-2">@{{host}}</span>
                         </v-layout>
                         <div class="text-truncate">
-                            <i>{{summary}}</i>
+                            <i>{{txComment}}</i>
                         </div>
                     </div>
                     <v-expansion-panel
@@ -50,7 +50,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { normalizeClauses, normalizeTxSignOptions, describe } from './utils'
+import { normalizeMsg, normalizeTxSignOptions, describe } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
 import BigNumber from 'bignumber.js'
@@ -62,7 +62,6 @@ import debounce from 'lodash.debounce'
 import * as UrlUtils from '@/common/url-utils'
 import { remote } from 'electron'
 
-type Clause = Connex.Vendor.Message<'tx'>[number]
 @Component
 class WalletsLoader extends TableLoader<Entities.Wallet>{
     tableName = DB.wallets.name
@@ -79,7 +78,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
     referer: { url: string, title: string } | null = null
     initValue: TxSigningPanel.InitValue | null = null
     returnValue?: Deferred<TxSigningPanel.ReturnValue | null>
-    summary = ''
+    txComment = ''
     showContent = false
 
     get host() {
@@ -106,37 +105,40 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
     }
     async signTx(
         contentsId: number,
-        message: Connex.Vendor.Message<'tx'>,
-        options: Connex.Vendor.SignOptions<'tx'>,
+        message: Connex.Vendor.SigningService.Message<'tx'>,
+        options: Connex.Vendor.SigningService.Options<'tx'>,
         referer: {
             url: string
             title: string
         }) {
 
-        if (this.open) { throw new SignRejectedError('request is in progress') }
-        if (this.rows.length === 0) { throw new SignRejectedError('no wallet available') }
+        if (this.open) { throw new Rejected('request is in progress') }
+        if (this.rows.length === 0) { throw new Rejected('no wallet available') }
 
         const callingWebContents = remote.webContents.fromId(contentsId)
         // either focused or dev tools opened
         if (!remote.webContents.fromId(contentsId).isFocused() &&
             !callingWebContents.isDevToolsOpened()) {
-            throw new SignRejectedError('not in focuse')
+            throw new Rejected('not in focus')
         }
-
-        message = normalizeClauses(message)
-        options = normalizeTxSignOptions(options)
+        try {
+            message = normalizeMsg(message)
+            options = normalizeTxSignOptions(options)
+        } catch (err) {
+            throw new BadMessage(err.message)
+        }
 
         let walletIndex = 0
         if (options.signer) {
             walletIndex = this.rows.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
             if (walletIndex < 0) {
-                throw new SignRejectedError('bad options: no such signer')
+                throw new Rejected('required signer unavailable')
             }
         }
-        this.summary = options.summary || describe(message)
+        this.txComment = message.comment || describe(message.clauses)
         this.referer = referer
         this.initValue = {
-            clauses: message.slice(),
+            clauses: message.clauses.slice(),
             wallets: this.rows.slice(),
             selectedWallet: walletIndex,
             suggestedGas: options.gas || 0,
@@ -149,7 +151,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
 
             const ret = await returnValue
             if (!ret) {
-                throw new SignRejectedError('user cancelled')
+                throw new Rejected('user cancelled')
             }
             await DB.txRecords.add({
                 id: ret.txId,
@@ -158,12 +160,12 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
                 confirmed: 0,
                 raw: ret.rawTx,
                 referer: { ...referer! },
-                summary: [options.summary!, message.map(c => c.desc!)],
+                summary: [message.comment!, message.clauses.map(c => c.comment!)],
                 link: options.link || '',
                 estimatedFee: ret.estimatedFee,
                 receipt: null
             })
-            connex.txQueue.send(ret.txId, ret.rawTx)
+            TXER.send(ret.txId, ret.rawTx)
 
             return {
                 txId: ret.txId,
@@ -184,23 +186,30 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
     }
 }
 
-class SignRejectedError extends Error {
-    constructor(msg?: string) {
+class Rejected extends Error {
+    constructor(msg: string) {
         super(msg)
-        this.name = SignRejectedError.name
+        this.name = Rejected.name
+    }
+}
+
+class BadMessage extends Error {
+    constructor(msg: string) {
+        super(msg)
+        this.name = BadMessage.name
     }
 }
 
 </script>
 <style >
 .sign-dialog {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  width: auto;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: auto;
 }
 .sign-dialog-transition-enter,
 .sign-dialog-transition-leave-to {
-  transform: translateY(calc(100% + 40px));
+    transform: translateY(calc(100% + 40px));
 }
 </style>

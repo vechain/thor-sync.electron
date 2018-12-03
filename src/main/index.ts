@@ -22,8 +22,8 @@ declare module 'electron' {
         EXTENSION: {
             connect(
                 contentsId: number,
-                config: Connex.Thor.Site.Config
-            ): Connex
+                config: Thor.SiteConfig
+            ): { connex: Connex, txer: Txer }
 
             inject(
                 contentsId: number,
@@ -33,7 +33,7 @@ declare module 'electron' {
                 }): void
 
             createWindow(
-                config?: Connex.Thor.Site.Config,
+                config?: Thor.SiteConfig,
                 options?: BrowserWindowConstructorOptions
             ): BrowserWindow
             getCertificate(hostname: string): CertificateVerifyProcRequest | undefined

@@ -10,7 +10,7 @@ class Item {
 
     constructor(
         readonly rawTx: string,
-        readonly wire: Connex.Thor.Site.Wire) {
+        readonly wire: Thor.Wire) {
     }
 
     public send() {
@@ -64,7 +64,7 @@ class Item {
 class TxQueue {
     private readonly map = new Map<string, Item>()
 
-    public enqueue(id: string, raw: string, wire: Connex.Thor.Site.Wire) {
+    public enqueue(id: string, raw: string, wire: Thor.Wire) {
         let item = this.map.get(id)
         if (!item) {
             item = new Item(raw, wire)

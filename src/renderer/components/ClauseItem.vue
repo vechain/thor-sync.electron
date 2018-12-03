@@ -16,7 +16,7 @@
         </v-layout>
         <v-card style="word-break:break-all;">
             <v-card-text class="pt-1">
-                <i>{{clause.desc}}</i>
+                <i>{{clause.comment}}</i>
             </v-card-text>
             <v-card-text v-show="!!clause.data" class="pt-0">
                 <v-textarea
@@ -35,7 +35,7 @@
 <script lang="ts">
 
 import { Vue, Component, Model, Prop } from 'vue-property-decorator'
-type ClauseType = Connex.Vendor.Message<'tx'>[number]
+type ClauseType = Connex.Vendor.SigningService.Message<'tx'>['clauses'][number]
 
 @Component
 export default class ClauseItem extends Vue {

@@ -1,35 +1,35 @@
-import Thor = Connex.Thor
 import { createEventVisitor } from './event-visitor'
 import { createMethod } from './method'
 
 export function createAccountVisitor(
-    wire: Thor.Site.Wire,
+    wire: Thor.Wire,
     addr: string,
-    options: { revision?: string | number }): Thor.AccountVisitor {
+    options: { revision?: string | number }
+): Connex.Thor.AccountVisitor {
 
     const revision = options.revision
     return {
         get address() { return addr },
-        get() {
-            return wire.get<Thor.Account>(
+        get: () => {
+            return wire.get<Connex.Thor.Account>(
                 `accounts/${encodeURIComponent(addr)}`,
                 { revision })
         },
-        getCode() {
-            return wire.get<Thor.Account.Code>(
+        getCode: () => {
+            return wire.get<Connex.Thor.Code>(
                 `accounts/${encodeURIComponent(addr)}/code`,
                 { revision })
         },
-        getStorage(key) {
-            return wire.get<Thor.Account.Storage>(
+        getStorage: key => {
+            return wire.get<Connex.Thor.Storage>(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision })
         },
-        method(abiDef) {
-            return createMethod(wire, addr, abiDef, revision)
+        method: jsonABI => {
+            return createMethod(wire, addr, jsonABI, revision)
         },
-        event(abiDef) {
-            return createEventVisitor(wire, abiDef, addr)
+        event: jsonABI => {
+            return createEventVisitor(wire, jsonABI, addr)
         }
     }
 }

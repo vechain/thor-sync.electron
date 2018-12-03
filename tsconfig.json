@@ -12,7 +12,9 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "node"    ],
+      "node",
+      "@vechain/connex"
+    ],
     "paths": {
       "@/*": [
         "src/*"

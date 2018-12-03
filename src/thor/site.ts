@@ -1,15 +1,17 @@
+
 import { Agent } from 'http'
 import Axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
 import * as NodeUrl from 'url'
-import * as QS from 'qs'
 import * as WebSocket from 'ws'
+import * as QS from 'qs'
 import { EventEmitter } from 'events'
-import { Lazy } from '@/common/deferred'
+import { sleep } from '@/common/sleep'
 
-class Wire implements Connex.Thor.Site.Wire {
+
+class Wire implements Thor.Wire {
     private readonly axios: AxiosInstance
     constructor(
-        private readonly config: Connex.Thor.Site.Config,
+        private readonly config: Thor.SiteConfig,
         private readonly agent?: Agent) {
         this.axios = Axios.create({
             validateStatus: status => status >= 200 && status < 300,
@@ -41,7 +43,7 @@ class Wire implements Connex.Thor.Site.Wire {
         }
     }
 
-    public ws(path: string, query?: object): Connex.Thor.Site.WebSocket {
+    public ws(path: string, query?: object): Thor.WS {
         const url = this.resolve(path, query)
         const parsed = NodeUrl.parse(url)
         parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
@@ -114,14 +116,14 @@ class Wire implements Connex.Thor.Site.Wire {
     }
 }
 
-export class Site implements Connex.Thor.Site {
+export class Site {
     private bestBlock: Connex.Thor.Block
     private readonly emitter = new EventEmitter()
     private readonly agent: Agent
     private stop = false
 
     constructor(
-        readonly config: Connex.Thor.Site.Config,
+        readonly config: Thor.SiteConfig,
         agent?: Agent
     ) {
         this.bestBlock = config.genesis
@@ -139,7 +141,7 @@ export class Site implements Connex.Thor.Site {
     }
 
     public nextTick() {
-        return new Lazy<void>(resolve => {
+        return new Promise<void>(resolve => {
             this.emitter.once('next', () => {
                 resolve()
             })
@@ -167,7 +169,7 @@ export class Site implements Connex.Thor.Site {
         }
     }
 
-    public withWireAgent(agent?: Agent): Connex.Thor.Site {
+    public withWireAgent(agent?: Agent) {
         const overriddenCreateWire = () => {
             return new Wire(this.config, agent)
         }
@@ -189,7 +191,7 @@ export class Site implements Connex.Thor.Site {
 
     private async loop() {
         const wire = new Wire(this.config, this.agent)
-        let ws: Connex.Thor.Site.WebSocket | undefined
+        let ws: Thor.WS | undefined
         while (!this.stop) {
             if (ws) {
                 try {
@@ -228,10 +230,4 @@ export class Site implements Connex.Thor.Site {
             }
         }
     }
-}
-
-function sleep(ms: number) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    })
 }

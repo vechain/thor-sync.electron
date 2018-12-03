@@ -134,7 +134,7 @@ export default class TxRecord extends Vue {
             return 'dropped'
         }
 
-        const qStatus = connex.txQueue.status(this.entity.id)
+        const qStatus = TXER.status(this.entity.id)
         if (!qStatus) {
             return 'hanging'
         }
@@ -190,7 +190,7 @@ export default class TxRecord extends Vue {
     }
 
     onResend() {
-        connex.txQueue.send(this.entity.id, this.entity.raw)
+        TXER.send(this.entity.id, this.entity.raw)
     }
     onReveal() {
         const href = this.entity.link || this.entity.referer.url

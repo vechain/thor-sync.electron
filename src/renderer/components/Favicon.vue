@@ -8,7 +8,7 @@
             v-show="loaded"
             width="100%"
             height="100%"
-            :src="src"
+            :src="isSrcValid?src:''"
             @load="onUpdateLoaded(true)"
             @error="onUpdateLoaded(false)"
         >
@@ -35,5 +35,9 @@ export default class Favicon extends Vue {
 
     @Watch('src')
     srcChanged() { this.onUpdateLoaded(false) }
+
+    get isSrcValid() {
+        return !!this.src && this.src.indexOf(':') > 0
+    }
 }
 </script>

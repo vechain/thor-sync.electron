@@ -1,4 +1,4 @@
-const siteConfigs: Connex.Thor.Site.Config[] = [
+const siteConfigs: Thor.SiteConfig[] = [
     {
         name: 'Testnet',
         url: 'http://localhost:8669',
