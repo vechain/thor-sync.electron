@@ -12,19 +12,29 @@ declare global {
         readonly DB: Database
         // event bus
         readonly BUS: Vue
+        readonly TXER: Txer
     }
     const ENV: typeof env
     const DB: Database
     const BUS: Vue
+    const TXER: Txer
 }
 
-Object.defineProperty(window, 'connex', {
-    value: remote.app.EXTENSION.connect(
+{
+    const { connex, txer } = remote.app.EXTENSION.connect(
         remote.getCurrentWebContents().id,
         remote.getCurrentWebContents().getWebPreferences().siteConfig!
-    ),
-    enumerable: true
-})
+    )
+    Object.defineProperty(window, 'connex', {
+        value: connex,
+        enumerable: true
+    })
+    Object.defineProperty(window, 'TXER', {
+        value: txer,
+        enumerable: true
+    })
+}
+
 // bind widgets
 Object.defineProperty(window, 'ENV', {
     value: env,

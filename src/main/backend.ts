@@ -1,7 +1,6 @@
 import { app, webContents, BrowserWindow } from 'electron'
 import { Agent } from 'http'
-import { Site } from '@/main/site'
-import { create as createThor } from '../thor'
+import { create as createThor, Site } from '../thor'
 import TxQueue from './tx-queue'
 
 export class Backend {
@@ -10,8 +9,8 @@ export class Backend {
 
     public connect(
         contentsId: number,
-        config: Connex.Thor.Site.Config
-    ): Connex {
+        config: Thor.SiteConfig
+    ): { connex: Connex, txer: Txer } {
         const wireAgent = new Agent({
             maxSockets: 10
         })
@@ -38,22 +37,33 @@ export class Backend {
 
         const txQueueWire = site.withWireAgent(new Agent({ maxSockets: 10 })).createWire()
         return {
-            thor: createThor(site),
-            vendor: {
-                name: 'VeChain Sync',
-                sign: (kind, message, options) => {
-                    if (kind === 'tx') {
-                        return app.vendor[windowId].signTx(
-                            contentsId,
-                            message,
-                            options || {},
-                            { url: contents.getURL(), title: contents.getTitle() }
-                        ) as any
+            connex: {
+                thor: createThor(site),
+                vendor: {
+                    sign: kind => {
+                        if (kind === 'tx') {
+                            let txMsg: Connex.Vendor.SigningService.Message<'tx'>
+                            const service: Connex.Vendor.SigningService<'tx'> = {
+                                message: msg => {
+                                    txMsg = msg
+                                    return service
+                                },
+                                request: opts => {
+                                    return app.vendor[windowId].signTx(
+                                        contentsId,
+                                        txMsg,
+                                        opts || {},
+                                        { url: contents.getURL(), title: contents.getTitle() }
+                                    )
+                                }
+                            }
+                            return service as any
+                        }
+                        throw new Error('unsupported')
                     }
-                    throw new Error('not implemented')
                 }
             },
-            txQueue: {
+            txer: {
                 send: (id, raw) => {
                     this.txQueue.enqueue(id, raw, txQueueWire)
                 },
@@ -64,10 +74,10 @@ export class Backend {
         }
     }
 
-    private siteKey(config: Connex.Thor.Site.Config) {
+    private siteKey(config: Thor.SiteConfig) {
         return config.genesis.id + '@' + config.url
     }
-    private acquireSite(config: Connex.Thor.Site.Config) {
+    private acquireSite(config: Thor.SiteConfig) {
         const key = this.siteKey(config)
         let value = this.activeSites.get(key)
         if (value) {
@@ -86,7 +96,7 @@ export class Backend {
         return value.site
     }
 
-    private releaseSite(config: Connex.Thor.Site.Config) {
+    private releaseSite(config: Thor.SiteConfig) {
         const key = this.siteKey(config)
         const value = this.activeSites.get(key)
         if (value) {

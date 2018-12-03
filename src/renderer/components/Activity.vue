@@ -33,7 +33,7 @@ export default class Activty extends Mixins(TxRecordsLoader) {
             if (r.confirmed) {
                 return false
             }
-            const status = connex.txQueue.status(r.id)
+            const status = TXER.status(r.id)
             return status === 'sending' || status === 'sent'
         }).length
     }

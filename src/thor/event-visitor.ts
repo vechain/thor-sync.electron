@@ -1,15 +1,14 @@
-import Thor = Connex.Thor
 import { abi } from 'thor-devkit'
 import { createFilter } from './filter'
 
 export function createEventVisitor(
-    wire: Thor.Site.Wire,
-    abiDef: object,
-    addr: string): Thor.EventVisitor {
+    wire: Thor.Wire,
+    jsonABI: object,
+    addr: string): Connex.Thor.EventVisitor {
 
-    const coder = new abi.Event(abiDef as any)
+    const coder = new abi.Event(jsonABI as any)
     return {
-        asCriteria(indexed) {
+        asCriteria: indexed => {
             const topics = coder.encode(indexed)
             return {
                 address: addr,
@@ -20,35 +19,35 @@ export function createEventVisitor(
                 topic4: topics[4] || undefined
             }
         },
-        filter(indexed: object[]) {
-            let criteriaSet: Thor.Event.Criteria[]
+        filter(indexed) {
+            let criteriaSet: Connex.Thor.Event.Criteria[]
             if (indexed.length === 0) {
                 criteriaSet = [this.asCriteria({})]
             } else {
                 criteriaSet = indexed.map(i => this.asCriteria(i))
             }
-            const filter = createFilter(wire, 'event', criteriaSet)
-
-            const transformed: Thor.Filter<'decoded-event'> = {
-                kind: 'decoded-event',
-                range(range: Thor.Range) {
+            const filter = createFilter(wire, 'event').criteria(criteriaSet)
+            return {
+                criteria(set) {
+                    filter.criteria(set)
+                    return this
+                },
+                range(range: Connex.Thor.Filter.Range) {
                     filter.range(range)
-                    return transformed
+                    return this
                 },
-                order(order: 'asc' | 'desc') {
-                    filter.order(order)
-                    return transformed
+                desc() {
+                    filter.desc()
+                    return this
                 },
-                next(offset: number, limit: number) {
-                    return filter
-                        .next(offset, limit)
-                        .then(events => events.map(event => {
-                            const decoded = coder.decode(event.data, event.topics)
-                            return { ...event, decoded }
-                        }))
+                async apply(offset: number, limit: number) {
+                    const events = await filter.apply(offset, limit)
+                    return events.map(event => {
+                        const decoded = coder.decode(event.data, event.topics)
+                        return { ...event, decoded }
+                    })
                 }
             }
-            return transformed
         }
     }
 }

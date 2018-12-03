@@ -53,15 +53,6 @@ export default class AppIcon extends Vue {
         const h = hash(UrlUtils.hostnameOf(this.href || ''))
         return colors[h % colors.length]
     }
-
-    @Watch('favicon')
-    faviconChanged() {
-        this.loaded = false
-    }
-
-    onImageLoad() {
-        this.loaded = true
-    }
 }
 
 const colors = [

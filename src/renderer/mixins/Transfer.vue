@@ -7,7 +7,7 @@ export default class TransferMixin extends Vue {
     page = -1
 
     createFilter(address: string) {
-        this.filter = connex.thor.filter('transfer', [
+        this.filter = connex.thor.filter('transfer').criteria([
             {
                 sender: address
             },

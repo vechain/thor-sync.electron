@@ -1,12 +1,5 @@
 import { remote } from 'electron'
 
-declare global {
-    interface Window {
-        readonly connex: Connex
-    }
-    const connex: Connex
-}
-
 // create connex on demand
 const getConnex = (() => {
     let connex: Connex
@@ -17,14 +10,10 @@ const getConnex = (() => {
                 .getWebPreferences()
                 .siteConfig
 
-            connex = {
-                ...remote.app.EXTENSION.connect(
-                    remote.getCurrentWebContents().id,
-                    siteConfig!
-                )
-            }
-            // txQueue is private and only available for browser window
-            delete connex.txQueue
+            connex = remote.app.EXTENSION.connect(
+                remote.getCurrentWebContents().id,
+                siteConfig!
+            ).connex
         }
         return connex
     }

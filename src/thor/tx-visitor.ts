@@ -1,24 +1,22 @@
-import Thor = Connex.Thor
 
 export function createTxVisitor(
-    wire: Thor.Site.Wire,
+    wire: Thor.Wire,
     id: string,
     options: { head?: string }
-): Thor.TransactionVisitor {
+): Connex.Thor.TransactionVisitor {
     options = options || {}
     const head = options.head
 
     return {
         get id() { return id },
-        get head() { return head },
-        get() {
-            return wire.get<(Thor.Transaction & Thor.Transaction.Meta) | null>(
+        get: () => {
+            return wire.get<Connex.Thor.Transaction | null>(
                 `transactions/${encodeURIComponent(id)}`,
                 { head }
             )
         },
-        getReceipt() {
-            return wire.get<(Thor.Receipt & Thor.Transaction.Meta) | null>(
+        getReceipt: () => {
+            return wire.get<Connex.Thor.Receipt | null>(
                 `transactions/${encodeURIComponent(id)}/receipt`,
                 { head }
             )

@@ -138,7 +138,7 @@ export async function trackTxLoop() {
                     if (receipt === undefined) {
                         continue
                     }
-                    const confirmed = (receipt && head.number - receipt.meta.blockNumber >= 12) ? 1 : 0
+                    const confirmed = (receipt && head.number - receipt.meta!.blockNumber >= 12) ? 1 : 0
                     await DB.txRecords.update(records[i].id, {
                         confirmed,
                         receipt

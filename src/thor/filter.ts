@@ -1,13 +1,11 @@
-import Thor = Connex.Thor
 
 export function createFilter<T extends 'event' | 'transfer'>(
-    wire: Thor.Site.Wire,
-    kind: T,
-    criteriaSet: Array<Thor.Criteria<T>>
-): Thor.Filter<T> {
+    wire: Thor.Wire,
+    kind: T
+): Connex.Thor.Filter<T> {
 
     if (kind !== 'event' && kind !== 'transfer') {
-        throw new Error('invalid filter kind')
+        throw new Error('unsupported filter kind')
     }
     const filterBody = {
         range: {
@@ -19,24 +17,27 @@ export function createFilter<T extends 'event' | 'transfer'>(
             offset: 0,
             limit: 10
         },
-        criteriaSet,
+        criteriaSet: [] as Array<Connex.Thor.Filter.Criteria<T>>,
         order: 'asc'
     }
 
     return {
-        get kind() { return kind },
+        criteria(set) {
+            filterBody.criteriaSet = set
+            return this
+        },
         range(range) {
             filterBody.range = { ...range }
             return this
         },
-        order(order) {
-            filterBody.order = order
+        desc() {
+            filterBody.order = 'desc'
             return this
         },
-        next(offset, limit) {
+        apply(offset, limit) {
             filterBody.options.offset = offset
             filterBody.options.limit = limit
-            return wire.post<Array<Thor.Log<T>>>(`logs/${kind}`, filterBody)
+            return wire.post<Connex.Thor.Filter.Result<T>>(`logs/${kind}`, filterBody)
         }
     }
 }

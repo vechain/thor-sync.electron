@@ -68,7 +68,7 @@ export default class NetworkStatusPanel extends Vue {
         return '#' + this.chainStatus.head.number.toLocaleString()
     }
 
-    activateOrOpenWindow(config: Connex.Thor.Site.Config) {
+    activateOrOpenWindow(config: Thor.SiteConfig) {
         this.opened = false
         const wins = remote.BrowserWindow.getAllWindows()
         const found = wins.find(w => {

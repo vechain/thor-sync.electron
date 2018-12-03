@@ -1,4 +1,4 @@
-import { } from 'electron'
+import 'electron'
 
 declare module 'electron' {
     interface WebContents {
@@ -7,6 +7,6 @@ declare module 'electron' {
 
     interface WebPreferences {
         preloadURL?: string
-        siteConfig?: Connex.Thor.Site.Config
+        siteConfig?: Thor.SiteConfig
     }
 }

@@ -545,13 +545,16 @@ html {
     width: 100%;
     height: 100%;
     outline: none;
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(0, 0, 0, 0.5);
     cursor: default;
     font-size: 13px;
 }
 .url-box:focus {
-    color: rgba(0, 0, 0, 0.9);
+    color: rgba(0, 0, 0, 0.80);
     cursor: text;
+}
+.url-box::placeholder {
+    color: rgba(0, 0, 0, 0.35);
 }
 
 .url-box-with-icon:focus-within {
@@ -571,5 +574,8 @@ html {
     );
     background-size: 100% 1px;
     opacity: 0.15;
+}
+.theme--light.application {
+    color: rgba(0, 0, 0, 0.8);
 }
 </style>

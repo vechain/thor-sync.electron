@@ -1,43 +1,42 @@
-import Thor = Connex.Thor
 import { createAccountVisitor } from './account-visitor'
 import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
+import { Site } from './site'
 
 export function create(
-    site: Thor.Site
-): Thor {
+    site: Site
+): Connex.Thor {
     const wire = site.createWire()
     return {
         get genesis() { return site.config.genesis },
         get status() { return site.status },
-        ticker() {
+        ticker: () => {
             let lastKnownBlockNum = site.status.head.number
             return {
-                next() {
+                next: async () => {
                     if (lastKnownBlockNum !== site.status.head.number) {
                         lastKnownBlockNum = site.status.head.number
-                        return Promise.resolve()
+                        return
                     }
-                    return site.nextTick().then(() => {
-                        lastKnownBlockNum = site.status.head.number
-                    })
+                    await site.nextTick()
+                    lastKnownBlockNum = site.status.head.number
                 }
             }
         },
-        account(addr, options) {
+        account: (addr, options) => {
             return createAccountVisitor(wire, addr, options || {})
         },
-        block(revision) {
+        block: revision => {
             return createBlockVisitor(wire, revision)
         },
-        transaction(id, options) {
+        transaction: (id, options) => {
             return createTxVisitor(wire, id, options || {})
         },
-        filter(kind, criteriaSet) {
-            return createFilter(wire, kind, criteriaSet)
+        filter: kind => {
+            return createFilter(wire, kind)
         },
-        explain(clauses, options) {
+        explain: (clauses, options) => {
             options = options || {}
             const body = {
                 clauses: clauses.map(c => ({
@@ -50,10 +49,12 @@ export function create(
                 caller: options.caller
             }
             const revision = options.revision
-            return wire.post<Thor.VMOutput[]>(
+            return wire.post<Connex.Thor.VMOutput[]>(
                 `accounts/*`,
                 body,
                 { revision })
         }
     }
 }
+
+export * from './site'

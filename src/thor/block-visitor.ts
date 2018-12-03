@@ -1,13 +1,12 @@
-import Thor = Connex.Thor
 
 export function createBlockVisitor(
-    wire: Thor.Site.Wire,
+    wire: Thor.Wire,
     revision: string | number
-): Thor.BlockVisitor {
+): Connex.Thor.BlockVisitor {
     return {
         get revision() { return revision },
-        get() {
-            return wire.get<(Thor.Block & { isTrunk: boolean }) | null>(
+        get: () => {
+            return wire.get<Connex.Thor.Block | null>(
                 `blocks/${encodeURIComponent(revision + '')}`)
         }
     }
