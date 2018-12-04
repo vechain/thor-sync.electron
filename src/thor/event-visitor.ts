@@ -36,8 +36,8 @@ export function createEventVisitor(
                     filter.range(range)
                     return this
                 },
-                desc() {
-                    filter.desc()
+                order(order) {
+                    filter.order(order)
                     return this
                 },
                 async apply(offset: number, limit: number) {

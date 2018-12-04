@@ -30,8 +30,8 @@ export function createFilter<T extends 'event' | 'transfer'>(
             filterBody.range = { ...range }
             return this
         },
-        desc() {
-            filterBody.order = 'desc'
+        order(order) {
+            filterBody.order = order
             return this
         },
         apply(offset, limit) {
