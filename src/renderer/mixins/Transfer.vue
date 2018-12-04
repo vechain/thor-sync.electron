@@ -23,12 +23,12 @@ export default class TransferMixin extends Vue {
 
     async getTransferAsc(pageSize: number) {
         ++ this.page
-        return await this.filter.order('asc').next(this.page * pageSize, pageSize)
+        return await this.filter.apply(this.page * pageSize, pageSize)
     }
 
     async getTransferDesc(pageSize: number) {
         ++ this.page
-        return await this.filter.order('desc').next(this.page * pageSize, pageSize)
+        return await this.filter.apply(this.page * pageSize, pageSize)
     }
 }
 </script>

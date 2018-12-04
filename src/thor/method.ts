@@ -7,20 +7,45 @@ export function createMethod(
     revision?: string | number
 ): Connex.Thor.Method {
     const coder = new abi.Function(jsonABI as any)
+
+    const opts: {
+        value: string | number
+        caller?: string
+        gas?: number
+        gasPrice?: string
+    } = {
+        value: 0
+    }
+
     return {
-        asClause: (args, value) => {
+        value(val) {
+            opts.value = val
+            return this
+        },
+        caller(caller) {
+            opts.caller = caller
+            return this
+        },
+        gas(gas) {
+            opts.gas = gas
+            return this
+        },
+        gasPrice(gp) {
+            opts.gasPrice = gp
+            return this
+        },
+        asClause: (args) => {
             const data = coder.encode(...args)
             return {
                 to: addr,
-                value: value.toString(),
+                value: opts.value.toString(),
                 data
             }
         },
-        call: async (args, value, options) => {
-            options = options || {}
+        call: async (args) => {
             const data = coder.encode(...args)
             const input = {
-                ...options, data, value: value.toString()
+                ...opts, data, value: opts.value.toString()
             }
 
             const output = await wire.post<Connex.Thor.VMOutput>(

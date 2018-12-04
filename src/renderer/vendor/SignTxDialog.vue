@@ -105,8 +105,8 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
     }
     async signTx(
         contentsId: number,
-        message: Connex.Vendor.SigningService.Message<'tx'>,
-        options: Connex.Vendor.SigningService.Options<'tx'>,
+        message: Connex.Vendor.SigningService.TxMessage,
+        options: SignTx.Options,
         referer: {
             url: string
             title: string
@@ -135,10 +135,10 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
                 throw new Rejected('required signer unavailable')
             }
         }
-        this.txComment = message.comment || describe(message.clauses)
+        this.txComment = options.comment || describe(message)
         this.referer = referer
         this.initValue = {
-            clauses: message.clauses.slice(),
+            clauses: message.slice(),
             wallets: this.rows.slice(),
             selectedWallet: walletIndex,
             suggestedGas: options.gas || 0,
@@ -160,7 +160,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
                 confirmed: 0,
                 raw: ret.rawTx,
                 referer: { ...referer! },
-                summary: [message.comment!, message.clauses.map(c => c.comment!)],
+                summary: [options.comment!, message.map(c => c.comment!)],
                 link: options.link || '',
                 estimatedFee: ret.estimatedFee,
                 receipt: null

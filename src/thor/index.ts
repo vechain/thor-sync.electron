@@ -24,35 +24,57 @@ export function create(
                 }
             }
         },
-        account: (addr, options) => {
-            return createAccountVisitor(wire, addr, options || {})
+        account: (addr) => {
+            return createAccountVisitor(wire, addr)
         },
         block: revision => {
             return createBlockVisitor(wire, revision)
         },
-        transaction: (id, options) => {
-            return createTxVisitor(wire, id, options || {})
+        transaction: (id) => {
+            return createTxVisitor(wire, id)
         },
         filter: kind => {
             return createFilter(wire, kind)
         },
-        explain: (clauses, options) => {
-            options = options || {}
-            const body = {
-                clauses: clauses.map(c => ({
-                    to: c.to,
-                    value: c.value.toString(),
-                    data: c.data
-                })),
-                gas: options.gas,
-                gasPrice: options.gasPrice,
-                caller: options.caller
+        explain: () => {
+            const opts: {
+                caller?: string
+                gas?: number
+                gasPrice?: string
+            } = {}
+            let revision: string | number | undefined
+            return {
+                caller(addr) {
+                    opts.caller = addr
+                    return this
+                },
+                gas(gas) {
+                    opts.gas = gas
+                    return this
+                },
+                gasPrice(gp) {
+                    opts.gasPrice = gp
+                    return this
+                },
+                revision(rev) {
+                    revision = rev
+                    return this
+                },
+                execute(clauses) {
+                    const body = {
+                        clauses: clauses.map(c => ({
+                            to: c.to,
+                            value: c.value.toString(),
+                            data: c.data
+                        })),
+                        ...opts
+                    }
+                    return wire.post<Connex.Thor.VMOutput[]>(
+                        `accounts/*`,
+                        body,
+                        { revision })
+                }
             }
-            const revision = options.revision
-            return wire.post<Connex.Thor.VMOutput[]>(
-                `accounts/*`,
-                body,
-                { revision })
         }
     }
 }

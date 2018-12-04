@@ -131,7 +131,7 @@ export default class ClauseSign extends Vue {
                 data: '0x' + item.data
             }
         })
-        cnx.vendor.sign('tx').message({clauses}).request().then(result => {
+        cnx.vendor.sign('tx').request(clauses).then(result => {
             this.signCode = result.txId
         })
     }

@@ -3,13 +3,16 @@ import { createMethod } from './method'
 
 export function createAccountVisitor(
     wire: Thor.Wire,
-    addr: string,
-    options: { revision?: string | number }
+    addr: string
 ): Connex.Thor.AccountVisitor {
 
-    const revision = options.revision
+    let revision: string | number | undefined
     return {
         get address() { return addr },
+        revision(rev) {
+            revision = rev
+            return this
+        },
         get: () => {
             return wire.get<Connex.Thor.Account>(
                 `accounts/${encodeURIComponent(addr)}`,

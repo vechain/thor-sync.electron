@@ -28,10 +28,10 @@ export default class Vendor extends Vue {
             `vendor.${remote.getCurrentWindow().id}`, {
                 signTx: (
                     contentsId: number,
-                    message: Connex.Vendor.SigningService.Message<'tx'>,
-                    options: Connex.Vendor.SigningService.Options<'tx'>,
+                    message: Connex.Vendor.SigningService.TxMessage,
+                    options: SignTx.Options,
                     referer: { url: string, title: string },
-                    callback: (err?: Error, result?: Connex.Vendor.SigningService.Result<'tx'>) => void
+                    callback: (err?: Error, result?: Connex.Vendor.SigningService.TxResponse) => void
                 ) => {
                     signTxDlg.signTx(contentsId, message, options, referer)
                         .then(r => {

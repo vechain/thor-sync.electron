@@ -1,4 +1,4 @@
-import { app, webContents, BrowserWindow } from 'electron'
+import { app, webContents, BrowserWindow, WebContents } from 'electron'
 import { Agent } from 'http'
 import { create as createThor, Site } from '../thor'
 import TxQueue from './tx-queue'
@@ -33,35 +33,11 @@ export class Backend {
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
 
-        const windowId = BrowserWindow.fromWebContents(contents.hostWebContents || contents).id
-
         const txQueueWire = site.withWireAgent(new Agent({ maxSockets: 10 })).createWire()
         return {
             connex: {
                 thor: createThor(site),
-                vendor: {
-                    sign: kind => {
-                        if (kind === 'tx') {
-                            let txMsg: Connex.Vendor.SigningService.Message<'tx'>
-                            const service: Connex.Vendor.SigningService<'tx'> = {
-                                message: msg => {
-                                    txMsg = msg
-                                    return service
-                                },
-                                request: opts => {
-                                    return app.vendor[windowId].signTx(
-                                        contentsId,
-                                        txMsg,
-                                        opts || {},
-                                        { url: contents.getURL(), title: contents.getTitle() }
-                                    )
-                                }
-                            }
-                            return service as any
-                        }
-                        throw new Error('unsupported')
-                    }
-                }
+                vendor: this.createVendor(contents)
             },
             txer: {
                 send: (id, raw) => {
@@ -70,6 +46,44 @@ export class Backend {
                 status: id => {
                     return this.txQueue.status(id)
                 }
+            }
+        }
+    }
+
+    private createVendor(contents: WebContents): Connex.Vendor {
+        const windowId = BrowserWindow.fromWebContents(contents.hostWebContents || contents).id
+        return {
+            sign: kind => {
+                if (kind === 'tx') {
+                    const opts: SignTx.Options = {}
+                    const ss: Connex.Vendor.TxSigningService = {
+                        signer(addr) {
+                            opts.signer = addr
+                            return this
+                        },
+                        gas(gas) {
+                            opts.gas = gas
+                            return this
+                        },
+                        link(url) {
+                            opts.link = url
+                            return this
+                        },
+                        comment(text) {
+                            opts.comment = text
+                            return this
+                        },
+                        request(msg: Connex.Vendor.SigningService.TxMessage) {
+                            return app.vendor[windowId].signTx(
+                                contents.id,
+                                msg,
+                                opts,
+                                { url: contents.getURL(), title: contents.getTitle() })
+                        }
+                    }
+                    return ss as any
+                }
+                throw new Error('unsupported')
             }
         }
     }
