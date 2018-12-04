@@ -50,9 +50,10 @@ export async function estimateGas(
     suggestedGas: number,
     caller: string): Promise<EstimateGasResult> {
 
-    const outputs = await connex.thor.explain(
-        clauses,
-        { caller, gas: 2000 * 10000 })
+    const outputs = await connex.thor.explain()
+        .caller(caller)
+        .gas(2000 * 10000)
+        .execute(clauses)
 
     if (!suggestedGas) {
         const execGas = outputs.reduce((sum, out) => sum + out.gasUsed, 0)
@@ -116,7 +117,8 @@ export async function trackTxLoop() {
             const receipts = await Promise.all(records.map(async rec => {
                 try {
                     const receipt = await connex.thor
-                        .transaction(rec.id, { head: head.id })
+                        .transaction(rec.id)
+                        .head(head.id)
                         .getReceipt()
 
                     if (!receipt) {

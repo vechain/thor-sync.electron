@@ -1,12 +1,21 @@
 
-interface SignTx {
+declare interface SignTx {
     signTx(
         contentsId: number,
-        message: Connex.Vendor.SigningService.Message<'tx'>,
-        options: Connex.Vendor.SigningService.Options<'tx'>,
+        message: Connex.Vendor.SigningService.TxMessage,
+        options: SignTx.Options,
         referer: {
             url: string
             title: string
         }
-    ): Promise<Connex.Vendor.SigningService.Result<'tx'>>
+    ): Promise<Connex.Vendor.SigningService.TxResponse>
+}
+
+declare namespace SignTx {
+    type Options = {
+        signer?: string
+        gas?: number
+        link?: string
+        comment?: string
+    }
 }
