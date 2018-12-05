@@ -6,9 +6,9 @@
                 <div class="title font-weight-light">Import Wallet</div>
                 <v-stepper class="elevation-0" v-model="step">
                     <v-stepper-header class="elevation-0">
-                        <v-stepper-step :complete="step > 1" step="1">Import Wallet</v-stepper-step>
+                        <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
                         <v-divider/>
-                        <v-stepper-step :complete="step > 2" step="2">Set Password</v-stepper-step>
+                        <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
                     </v-stepper-header>
                     <div
                         class="subheading font-weight-light pl-4"
