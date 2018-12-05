@@ -30,6 +30,7 @@ Vue.directive('clipboard', {
   unbind(el: HTMLElement) {
     if (el._onclick) {
       el.removeEventListener('click', el._onclick!.callback)
+      delete el._onclick
     }
   }
 })
@@ -50,6 +51,7 @@ Vue.directive('nofocusout', {
   unbind(el: HTMLElement) {
     if (el._focusout) {
       el.removeEventListener('focusout', el._onclick!.callback)
+      delete el._focusout
     }
   }
 })
