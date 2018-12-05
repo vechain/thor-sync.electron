@@ -1,11 +1,27 @@
 <template>
     <v-layout column align-center>
-        <v-dialog>
-            <v-card>                
+        <v-dialog v-model="showEditShortcutDialog" width="350">
+            <v-card v-nofocusout>
+                <v-card-title>Shortcut</v-card-title>
+                <v-card-text>
+                    <v-text-field ref="shortcutTitle" label="Title" v-model="editingShortcut.name"/>
+                    <span class="grey--text">{{editingShortcut.href}}</span>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn small flat color="red" @click="removeShortcut">Remove</v-btn>
+                    <v-spacer/>
+                    <v-btn
+                        small
+                        :disabled="!editingShortcut.name"
+                        flat
+                        color="primary"
+                        @click="saveShortcut"
+                    >Save</v-btn>
+                </v-card-actions>
             </v-card>
         </v-dialog>
         <v-layout column align-center style="max-width:700px;width:100%" pa-3>
-            <span class="grey--text caption">Shortcuts</span>
+            <span class="grey--text title font-weight-light">Shortcuts</span>
             <div style="width:100%;">
                 <v-layout row wrap>
                     <div
@@ -46,13 +62,14 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import *as NodeUrl from 'url'
 import { State } from 'vuex-class'
 import { Entities } from '../database'
-import { setInterval } from 'timers';
-
 
 @Component
 export default class Portal extends Vue {
     favicons: { [href: string]: string } = {}
-    @State shortcuts!: Array<Entities.Preference<'shortcut'>>   
+    @State shortcuts!: Array<Entities.Preference<'shortcut'>>
+    showEditShortcutDialog = false
+
+    editingShortcut = { id: 0, name: '', href: '' }
 
     favicon(href: string) {
         if (this.favicons[href]) {
@@ -86,9 +103,32 @@ export default class Portal extends Vue {
             mode: 'inplace'
         })
     }
-
     onEditShortcut(shortcut: Entities.Preference<'shortcut'>) {
+        this.editingShortcut = {
+            id: shortcut.id!,
+            name: shortcut.value.name,
+            href: shortcut.value.href
+        }
+        this.showEditShortcutDialog = true
+        const elem = (this.$refs.shortcutTitle as Vue).$el.querySelector('input')!
+        setTimeout(() => {
+            elem.focus()
+            elem.select()
+        }, 0)
+    }
+    removeShortcut() {
+        DB.preferences.delete(this.editingShortcut.id)
+        this.showEditShortcutDialog = false
+    }
 
+    saveShortcut() {
+        DB.preferences.update(this.editingShortcut.id, {
+            value: {
+                name: this.editingShortcut.name,
+                href: this.editingShortcut.href,
+            }
+        })
+        this.showEditShortcutDialog = false
     }
 }
 </script>
