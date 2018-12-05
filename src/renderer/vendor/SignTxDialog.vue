@@ -49,7 +49,7 @@
     </v-dialog>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { normalizeMsg, normalizeTxSignOptions, describe } from './utils'
 import { Transaction, cry } from 'thor-devkit'
 import { randomBytes } from 'crypto'
@@ -61,19 +61,15 @@ import Deferred from '@/common/deferred';
 import debounce from 'lodash.debounce'
 import * as UrlUtils from '@/common/url-utils'
 import { remote } from 'electron'
-
-@Component
-class WalletsLoader extends TableLoader<Entities.Wallet>{
-    tableName = DB.wallets.name
-    filter = () => DB.wallets.toArray()
-}
+import { State } from 'vuex-class'
 
 @Component({
     components: {
         TxSigningPanel,
     }
 })
-export default class SignTxDialog extends Mixins(WalletsLoader) implements SignTx {
+export default class SignTxDialog extends Vue implements SignTx {
+    @State wallets!: Entities.Wallet[]
     open = false
     referer: { url: string, title: string } | null = null
     initValue: TxSigningPanel.InitValue | null = null
@@ -113,7 +109,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         }) {
 
         if (this.open) { throw new Rejected('request is in progress') }
-        if (this.rows.length === 0) { throw new Rejected('no wallet available') }
+        if (this.wallets.length === 0) { throw new Rejected('no wallet available') }
 
         const callingWebContents = remote.webContents.fromId(contentsId)
         // either focused or dev tools opened
@@ -130,7 +126,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
 
         let walletIndex = 0
         if (options.signer) {
-            walletIndex = this.rows.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
+            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
             if (walletIndex < 0) {
                 throw new Rejected('required signer unavailable')
             }
@@ -139,7 +135,7 @@ export default class SignTxDialog extends Mixins(WalletsLoader) implements SignT
         this.referer = referer
         this.initValue = {
             clauses: message.slice(),
-            wallets: this.rows.slice(),
+            wallets: this.wallets.slice(),
             selectedWallet: walletIndex,
             suggestedGas: options.gas || 0,
         }
