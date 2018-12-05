@@ -23,10 +23,9 @@ Vue.config.productionTip = false
 // register global components
 import * as components from './components'
 
+// tslint:disable-next-line:forin
 for (const key in components) {
-  if (components.hasOwnProperty(key)) {
     Vue.component(key, (components as any)[key])
-  }
 }
 
 // the portal root

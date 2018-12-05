@@ -13,11 +13,11 @@
             </div>
             <div>
                 <v-layout row wrap>
-                    <v-flex v-for="wallet in rows" :key="wallet.address" xs3 py-2>
+                    <v-flex v-for="wallet in wallets" :key="wallet.address" xs3 py-3>
                         <WalletCard
                             flat
                             class="outline"
-                            style="border-radius:8px;width:185px;margin:auto;"
+                            style="border-radius:8px;width:170px;margin:auto;"
                             @click.native="onClick(wallet.address)"
                             :track="true"
                             :wallet="wallet"
@@ -31,17 +31,11 @@
     </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Mixins } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 import NewWalletDialog from './NewWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
 import { Entities } from '../database'
-import TableLoader from '../mixins/table-loader'
-
-@Component
-class WalletsLoader extends TableLoader<Entities.Wallet>{
-    tableName = DB.wallets.name
-    filter = () => DB.wallets.toArray()
-}
+import { State } from 'vuex-class';
 
 @Component({
     components: {
@@ -49,7 +43,8 @@ class WalletsLoader extends TableLoader<Entities.Wallet>{
         ImportWalletDialog
     }
 })
-export default class Wallets extends Mixins(WalletsLoader) {
+export default class Wallets extends Vue {
+    @State wallets!: Entities.Wallet[]
     dialog = false
     onClick(address: string) {
         this.$router.push({

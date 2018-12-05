@@ -3,9 +3,10 @@
         v-bind="$attrs"
         v-on="$listeners"
         :style="{'font-size': compact? '90%':'inherit'}"
+        style="cursor:default;"
     >
         <IdentBox :text="wallet.address.toLowerCase()">
-            <v-card-text class="white--text" :class="{'py-2': compact}">
+            <v-card-text class="white--text" :class="compact?'py-1':'py-2'">
                 <v-layout
                     column
                     fill-height
@@ -13,14 +14,14 @@
                     style="text-shadow: 0px 1px 1px #000, 0px -0.5px 1px #fff;"
                 >
                     <span
-                        class="font-weight-light text-truncate"
-                        :class="compact?'subheading':'title'"
+                        class="text-truncate"
+                        :class="compact?'body-2':'subheading'"
                     >{{wallet.name}}</span>
-                    <AddressLabel abbrev class="text-truncate">{{wallet.address}}</AddressLabel>
+                    <AddressLabel abbrev class="text-truncate caption">{{wallet.address}}</AddressLabel>
                 </v-layout>
             </v-card-text>
         </IdentBox>
-        <v-card-text class="py-2" :class="{'pa-2': compact}">
+        <v-card-text class="py-1">
             <v-layout column align-end :style="{'line-height': compact ? '120%':'inherit'}">
                 <Amount sym=" VET ">{{balance}}</Amount>
                 <Amount sym=" VTHO">{{energy}}</Amount>

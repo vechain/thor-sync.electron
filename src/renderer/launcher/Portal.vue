@@ -5,7 +5,10 @@
                 <v-card-title>Shortcut</v-card-title>
                 <v-card-text>
                     <v-text-field ref="shortcutTitle" label="Title" v-model="editingShortcut.name"/>
-                    <span class="grey--text">{{editingShortcut.href}}</span>
+                    <div
+                        class="grey--text text-truncate caption"
+                        style="width:100%;"
+                    >{{editingShortcut.href}}</div>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn small flat color="red" @click="removeShortcut">Remove</v-btn>
@@ -63,6 +66,8 @@ import *as NodeUrl from 'url'
 import { State } from 'vuex-class'
 import { Entities } from '../database'
 
+const faviconsCache: { [href: string]: string } = {}
+
 @Component
 export default class Portal extends Vue {
     favicons: { [href: string]: string } = {}
@@ -72,6 +77,9 @@ export default class Portal extends Vue {
     editingShortcut = { id: 0, name: '', href: '' }
 
     favicon(href: string) {
+        if (faviconsCache[href]) {
+            return faviconsCache[href]
+        }
         if (this.favicons[href]) {
             return this.favicons[href]
         }
@@ -93,6 +101,7 @@ export default class Portal extends Vue {
         }).then(favicon => {
             if (favicon) {
                 this.$set(this.favicons, href, favicon)
+                faviconsCache[href] = favicon
             }
         }).catch(console.warn)
     }
