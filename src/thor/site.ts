@@ -149,22 +149,12 @@ export class Site {
     }
 
     public get status(): Connex.Thor.Status {
-        const _this = this
         return {
-            get progress() {
-                const nowTs = Date.now()
-                const bestTs = _this.bestBlock.timestamp * 1000
-                if (nowTs - bestTs < 30 * 1000) {
-                    return 1
-                }
-                const genesisTs = _this.config.genesis.timestamp * 1000
-                const progress = (bestTs - genesisTs) / (nowTs - genesisTs)
-                return progress < 0 ? NaN : progress
-            },
+            progress: this.progress,
             head: {
-                id: _this.bestBlock.id,
-                number: _this.bestBlock.number,
-                timestamp: _this.bestBlock.timestamp
+                id: this.bestBlock.id,
+                number: this.bestBlock.number,
+                timestamp: this.bestBlock.timestamp
             }
         }
     }
@@ -189,14 +179,27 @@ export class Site {
         return new Wire(this.config, this.agent)
     }
 
+    private get progress() {
+        const nowTs = Date.now()
+        const bestTs = this.bestBlock.timestamp * 1000
+        if (nowTs - bestTs < 30 * 1000) {
+            return 1
+        }
+        const genesisTs = this.config.genesis.timestamp * 1000
+        const p = (bestTs - genesisTs) / (nowTs - genesisTs)
+        return p < 0 ? NaN : p
+    }
+
     private async loop() {
         const wire = new Wire(this.config, this.agent)
         let ws: Thor.WS | undefined
         while (!this.stop) {
+            const lastProgress = this.progress
             if (ws) {
                 try {
                     this.bestBlock = JSON.parse((await ws.read()).toString())
                     this.emitter.emit('next')
+                    continue
                 } catch (err) {
                     // tslint:disable-next-line:no-console
                     console.warn('subscribe block:', err)
@@ -227,6 +230,10 @@ export class Site {
                         }
                     }
                 }
+            }
+
+            if (this.progress !== lastProgress) {
+                this.emitter.emit('next')
             }
         }
     }
