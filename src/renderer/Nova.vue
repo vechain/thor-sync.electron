@@ -84,7 +84,11 @@
                     >
                         <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
                     </v-btn>
-                    <div class="mx-2 nav-box" :class="{'nav-box-focused': urlBoxFocused}">
+                    <div
+                        ref="navBox"
+                        class="mx-2 nav-box"
+                        :class="{'nav-box-focused': urlBoxFocused}"
+                    >
                         <v-layout align-center style="position:relative;" fill-height>
                             <NetworkStatusPanel>
                                 <v-btn
@@ -136,8 +140,18 @@
                                     />
                                 </AccessHistoryPanel>
                             </v-layout>
-                            <v-btn small flat style="min-width:auto" :ripple="false" class="ma-0">
-                                <v-icon style="font-size:150%">mdi-bookmark-plus-outline</v-icon>
+                            <v-btn
+                                v-show="showAddShortcutBtn"
+                                small
+                                flat
+                                style="min-width:auto"
+                                :ripple="false"
+                                class="ma-0"
+                                @click="addOrRemoveShortcut"
+                            >
+                                <v-icon
+                                    style="font-size:150%"
+                                >{{shortcutAdded ? 'mdi-bookmark-plus' : 'mdi-bookmark-plus-outline'}}</v-icon>
                             </v-btn>
                             <v-progress-linear
                                 v-for="(page,i) in pages"
@@ -177,7 +191,7 @@
                         :href.sync="page.href"
                         :nav="page.nav"
                         @update:status="page.updateStatus($event)"
-                        style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden"
+                        style="position:absolute;left:0;top:0;right:0;bottom:0;"
                         @update:href="page.userInput=''"
                     />
                     <WebView
@@ -202,6 +216,7 @@ import Vendor from './vendor'
 import Launcher from './launcher'
 import { Entities } from '@/renderer/database'
 import * as UrlUtils from '@/common/url-utils'
+import { State } from 'vuex-class'
 
 class Page {
     static nextId = 0
@@ -267,9 +282,20 @@ export default class Nova extends Vue {
     showAccessHistory = false
     keyword = ''
 
+    @State shortcuts !: Array<Entities.Preference<'shortcut'>>
+
+
     @Watch('activePage')
     activePageChanged() {
         (this.$refs.urlBoxWithIcon as Element).querySelector('input')!.blur()
+    }
+
+    get showAddShortcutBtn() {
+        return !this.activePage.isBuiltin && !this.activePage.userInput
+    }
+
+    get shortcutAdded() {
+        return (this.shortcuts || []).findIndex(s => s.value.href === this.activePage.href) >= 0
     }
 
     closeTab(index: number) {
@@ -364,7 +390,9 @@ export default class Nova extends Vue {
         const rect = (this.$refs.urlBoxWithIcon as Element).getClientRects().item(0)!
         this.accessHistoryPosition.x = Math.round(rect.left)
         this.accessHistoryPosition.y = Math.round(rect.bottom) + 5
-        this.accessHistoryWidth = Math.round(rect.width)
+
+        const navBoxRect = (this.$refs.navBox as Element).getClientRects().item(0)!
+        this.accessHistoryWidth = Math.round(navBoxRect.right - rect.left)
     }
 
     onResize() {
@@ -397,12 +425,28 @@ export default class Nova extends Vue {
             this.activePage.goForward()
         }
     }
+
+    addOrRemoveShortcut() {
+        if (this.shortcutAdded) {
+            DB.preferences.bulkDelete(
+                this.shortcuts.filter(s => s.value.href === this.activePage.href).map(s => s.id!)
+            )
+        } else {
+            DB.preferences.add({
+                key: 'shortcut',
+                value: {
+                    name: this.activePage.title,
+                    href: this.activePage.href
+                }
+            })
+        }
+    }
 }
 </script>
 
 <style lang="scss">
 html {
-    overflow-y: auto; // vuetify will set this value to 'scroll', overwrite it
+    overflow: hidden; // vuetify will set this value to 'scroll', overwrite it
 }
 
 .toolbar {
@@ -550,7 +594,7 @@ html {
     font-size: 13px;
 }
 .url-box:focus {
-    color: rgba(0, 0, 0, 0.80);
+    color: rgba(0, 0, 0, 0.8);
     cursor: text;
 }
 .url-box::placeholder {

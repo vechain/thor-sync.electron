@@ -14,7 +14,7 @@
                 >
                     <span
                         class="font-weight-light text-truncate"
-                        :class="compact?'title':'headline'"
+                        :class="compact?'subheading':'title'"
                     >{{wallet.name}}</span>
                     <AddressLabel abbrev class="text-truncate">{{wallet.address}}</AddressLabel>
                 </v-layout>
