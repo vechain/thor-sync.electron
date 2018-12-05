@@ -7,7 +7,9 @@
         :value="value"
         @input="$emit('input', $event)"
     >
-        <div slot="activator" @keydown="onKeyDown">
+        <!-- here stop propagate keydown to v-menu, since v-menu will prevent enter key,
+        which will break keypress.enter handling in activator slot-->
+        <div slot="activator" @keydown.stop="onKeyDown">
             <slot name="activator"/>
         </div>
         <v-card v-if="rows.length>0">
