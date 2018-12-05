@@ -3,9 +3,9 @@
         v-bind="$attrs"
         v-on="$listeners"
         v-model="opened"
-        @keydown.esc="onKeyEsc"
         @keydown.enter="onKeyEnter"
         max-width="800px"
+        persistent
     >
         <v-card>
             <v-card-text>
@@ -50,22 +50,16 @@
                             <span class="headline font-weight-light">Congratulations</span>
                             <div class="py-3">
                                 <v-icon small color="success">mdi-check-decagram</v-icon>
-                                <span>wallet created!</span>
+                                <span>This is your new wallet!</span>
                             </div>
-                            <v-card flat class="elevation-8">
-                                <v-card-text>
-                                    <v-layout column align-center>
-                                        <AddressLabel icon>{{checksumedAddress}}</AddressLabel>
-                                        <v-flex pt-2 headline>{{nameAndPass.name}}</v-flex>
-                                        <v-flex pb-2>
-                                            <AddressLabel class="caption">{{checksumedAddress}}</AddressLabel>
-                                        </v-flex>
-                                        <v-flex>
-                                            <QRCode :size="120">{{checksumedAddress}}</QRCode>
-                                        </v-flex>
-                                    </v-layout>
-                                </v-card-text>
-                            </v-card>
+
+                            <WalletCard
+                                flat
+                                class="outline"
+                                style="border-radius:9px;width:170px;"
+                                :wallet="result.entity"
+                            />
+                            <QRCode :size="80" class="mt-3">{{checksumedAddress}}</QRCode>
                         </v-layout>
                         <v-layout
                             v-else-if="result"
@@ -240,12 +234,12 @@ export default class NewWalletDialog extends Vue {
             state.action()
         }
     }
-    onKeyEsc() {
-        const state = this.abortBtn
-        if (state.visible && state.enabled) {
-            state.action()
-        }
-    }
+    // onKeyEsc() {
+    //     const state = this.abortBtn
+    //     if (state.visible && state.enabled) {
+    //         state.action()
+    //     }
+    // }
 }
 
 type BtnState = {
