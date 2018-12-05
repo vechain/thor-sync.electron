@@ -5,17 +5,20 @@ namespace Store {
     export type Model = {
         chainStatus: Connex.Thor.Status
         shortcuts: Array<Entities.Preference<'shortcut'>>
+        wallets: Entities.Wallet[]
     }
 }
 
 class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
     public static readonly UPDATE_SHORTCUTS = 'updateShortcuts'
+    public static readonly UPDATE_WALLETS = 'updateWallets'
     constructor() {
         super({
             state: {
                 chainStatus: connex.thor.status,
-                shortcuts: []
+                shortcuts: [],
+                wallets: []
             },
             getters: {
             },
@@ -25,6 +28,9 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_SHORTCUTS](state, payload) {
                     state.shortcuts = payload
+                },
+                [Store.UPDATE_WALLETS](state, payload) {
+                    state.wallets = payload
                 }
             }
         })
@@ -43,19 +49,25 @@ class Store extends Vuex.Store<Store.Model> {
     }
 
     private async monitorDB() {
-        const updateShortcuts = async () => {
+        const queryAndUpdateShortcuts = async () => {
             const shortcuts = await DB.preferences
                 .where({ key: 'shortcut' })
                 .toArray()
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
 
-        await updateShortcuts()
+        const queryAndUpdateWallets = async () => {
+            const wallets = await DB.wallets
+                .toArray()
+            this.commit(Store.UPDATE_WALLETS, wallets)
+        }
 
-        DB.subscribe(DB.preferences.name, updateShortcuts)
+        await queryAndUpdateShortcuts()
+        await queryAndUpdateWallets()
+
+        DB.subscribe(DB.preferences.name, queryAndUpdateShortcuts)
+        DB.subscribe(DB.wallets.name, queryAndUpdateWallets)
     }
-
-
 }
 
 export default Store
