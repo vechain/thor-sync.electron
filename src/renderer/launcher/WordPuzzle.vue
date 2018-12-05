@@ -2,19 +2,33 @@
     <div>
         <v-layout row wrap text-xs-center>
             <v-flex xs2 v-for="word in shuffledWords" :key="word.value">
-                <v-btn color="info" depressed round :disabled="word.picked" @click="pickWord(word)">
-                    {{word.value}}
-                </v-btn>
+                <v-btn
+                    class="info ma-1"
+                    depressed
+                    round
+                    :disabled="word.picked"
+                    @click="pickWord(word)"
+                >{{word.value}}</v-btn>
             </v-flex>
         </v-layout>
         <v-divider class="my-2"></v-divider>
         <v-layout row wrap text-xs-center>
             <v-flex xs2 v-for="word in pickedWords" :key="word.value">
-                <v-btn depressed round @click="unpickWord(word)" :color="verifyWord(word) ? 'success': 'error'">
-                    <v-spacer />
+                <v-btn
+                    class="ma-1"
+                    depressed
+                    round
+                    @click="unpickWord(word)"
+                    :color="verifyWord(word) ? 'success': 'error'"
+                >
                     {{word.value}}
-                    <v-spacer />
-                    <v-icon small class="caption">close</v-icon>
+                    <v-icon
+                        v-show="!verifyWord(word)"
+                        small
+                        class="caption"
+                        color="white"
+                        style="margin-right:-6px;"
+                    >close</v-icon>
                 </v-btn>
             </v-flex>
         </v-layout>

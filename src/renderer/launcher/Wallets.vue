@@ -17,9 +17,8 @@
                         <WalletCard
                             flat
                             class="outline"
-                            style="border-radius:8px;width:170px;margin:auto;"
+                            style="border-radius:9px;width:170px;margin:auto;"
                             @click.native="onClick(wallet.address)"
-                            :track="true"
                             :wallet="wallet"
                             ripple
                         ></WalletCard>
