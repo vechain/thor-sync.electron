@@ -16,9 +16,6 @@ import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
 import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
-import Shortcuts from './Shortcuts.vue'
-import Networks from './Networks.vue'
-import Update from './Update.vue'
 
 @Component
 export default class Router extends Vue {
@@ -80,36 +77,7 @@ const routes: RouteConfig[] = [
     {
         path: '/settings',
         name: 'settings',
-        component: Settings,
-        redirect: {
-            name: 'settings-shortcut'
-        },
-        children: [
-            {
-                path: 'shorcut',
-                name: 'settings-shortcut',
-                component: Shortcuts,
-                meta: {
-                    title: 'Settings - Shortcuts'
-                }
-            },
-            {
-                path: 'network',
-                name: 'settings-network',
-                component: Networks,
-                meta: {
-                    title: 'Settings - Networks'
-                }
-            },
-            {
-                path: 'update',
-                name: 'settings-update',
-                component: Update,
-                meta: {
-                    title: 'Settings - Auto Update'
-                }
-            }
-        ]
+        component: Settings
     }
 ]
 </script>
