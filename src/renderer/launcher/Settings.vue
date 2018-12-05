@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-tabs centered v-model="active">
-            <v-tab v-for="(item, index) in tabs" :key="index">{{item.name}}</v-tab>
+            <v-tab v-for="(item, index) in tabs" :key="index">{{item}}</v-tab>
             <v-tab-item>
                 <Shortcuts/>
             </v-tab-item>
@@ -30,20 +30,7 @@
     export default class Settings extends Vue {
         name: string = 'settings'
         active = 0
-        tabs = [
-            {
-                name: 'Shortcuts',
-                path: 'settings-shortcut'
-            },
-            {
-                name: 'Networks',
-                path: 'settings-network'
-            },
-            {
-                name: 'Update',
-                path: 'settings-update'
-            }
-        ]
+        tabs = ['Shortcuts', 'Networks', 'Update']
     }
 </script>
 
