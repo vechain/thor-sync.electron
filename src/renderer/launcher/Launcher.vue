@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners" style="background-color:#eaeaea">
+    <div v-bind="$attrs" v-on="$listeners" class="white">
         <div id="content"/>
     </div>
 </template>
@@ -35,16 +35,16 @@ export default class Launcher extends Vue {
         } else {
             this.updateHref('sync:/' + path)
         }
-        let favicon 
-        if(path.includes('wallets')) {  
-            favicon = 'mdi-cards'                      
-        }else if(path.includes('settings')) {
-            favicon = 'mdi-settings-outline'
-        }else {
-            favicon = 'mdi-home-outline'
+        let favicon
+        if (path.includes('wallets')) {
+            favicon = 'mdi-cards'
+        } else if (path.includes('settings')) {
+            favicon = 'mdi-settings'
+        } else {
+            favicon = 'mdi-home'
         }
 
-        const history = this.router.$router.history        
+        const history = this.router.$router.history
         this.updateStatus({
             title: (this.router.$route.meta || {}).title || '',
             favicon,

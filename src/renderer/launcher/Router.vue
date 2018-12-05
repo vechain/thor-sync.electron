@@ -1,18 +1,37 @@
 <template>
-    <div style="position:relative;width:100%;height:100%;overflow:auto">
+    <div style="position:relative;width:100%;height:100%;">
         <transition
             :enter-active-class="`animated faster ${enterClass}`"
             :leave-active-class="`animated faster ${leaveClass}`"
         >
-            <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;"/>
+            <keep-alive>
+                <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"/>
+            </keep-alive>
         </transition>
+        <v-layout style="position:absolute;right:0;top:0;">
+            <router-link tag="span" to="/">
+                <v-btn icon>
+                    <v-icon small>mdi-apps</v-icon>
+                </v-btn>
+            </router-link>
+            <router-link tag="span" to="/wallets">
+                <v-btn icon class="ml-0">
+                    <v-icon small>mdi-cards</v-icon>
+                </v-btn>
+            </router-link>
+
+            <router-link tag="span" to="/settings">
+                <v-btn icon class="ml-0">
+                    <v-icon small>mdi-settings</v-icon>
+                </v-btn>
+            </router-link>
+        </v-layout>
     </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Portal from './Portal.vue'
-import DApps from '../components/AppList.vue'
 import Wallets from './Wallets.vue'
 import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
@@ -53,9 +72,9 @@ const routes: RouteConfig[] = [
     {
         path: '/',
         name: 'portal',
-        component: DApps,
+        component: Portal,
         meta: {
-            title: 'Sync'
+            title: 'Home'
         }
     },
     {
