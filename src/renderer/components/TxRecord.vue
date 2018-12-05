@@ -30,7 +30,10 @@
                         <span class="caption grey--text">{{time}}</span>
                     </v-layout>
                     <v-layout align-center mb-2>
-                        <IdentBox :text="signer" style="width:18px;height:18px;border-radius:2px"/>
+                        <AddressLabel
+                            icon
+                            style="width:27px;height:18px;border-radius:3px"
+                        >{{signer}}</AddressLabel>
                         <span class="px-2 subheading">{{walletName}}</span>
                     </v-layout>
                     <v-layout>

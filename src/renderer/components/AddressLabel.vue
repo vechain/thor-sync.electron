@@ -12,7 +12,6 @@ export default Vue.extend({
     props: {
         icon: Boolean,
         abbrev: Boolean,
-        size: Number,
         placeholder: String
     },
     render(h) {
@@ -36,15 +35,19 @@ export default Vue.extend({
         }
 
         if (this.icon) {
-            const size = this.size || 36
-            data.props = { text: addr.toLowerCase() }
             data.style = {
                 display: 'inline-block',
-                width: size + 'px',
-                height: size + 'px',
-                'border-radius': '4%'
+                overflow: 'hidden'
             }
-            return h('IdentBox', data)
+            data.class = "white outline"
+            return h('div', data, [h('IdentBox', {
+                props: {
+                    text: addr.toLowerCase()
+                },
+                style: {
+                    height: '50%'
+                }
+            })])
         } else {
             const checksumed = Address.toChecksum(addr)!
             if (this.abbrev) {

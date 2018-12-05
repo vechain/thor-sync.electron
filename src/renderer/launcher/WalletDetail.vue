@@ -6,7 +6,7 @@
           <v-list>
             <v-list-tile avatar>
               <v-list-tile-avatar :size="90">
-                <AddressLabel :size="50" icon>{{wallet.address}}</AddressLabel>
+                <AddressLabel style="width:60px;height:40px;border-radius:5px" icon>{{wallet.address}}</AddressLabel>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
