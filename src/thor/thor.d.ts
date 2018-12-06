@@ -1,20 +1,23 @@
 
 
 declare namespace Thor {
+    interface Site {
+        readonly config: Site.Config
+        readonly status: Connex.Thor.Status
+        nextTick(): Promise<void>
+        createWire(): Wire
+    }
+
+    namespace Site {
+        type Config = {
+            name: string
+            url: string
+            genesis: Connex.Thor.Block
+        }
+    }
+
     interface Wire {
         get<T>(path: string, query?: object): Promise<T>
         post<T>(path: string, data: object, query?: object): Promise<T>
-        ws(path: string, query?: object): WS
-    }
-
-    interface WS {
-        close(): void
-        read(): Promise<string | Buffer | ArrayBuffer | Buffer[]>
-    }
-
-    type SiteConfig = {
-        name: string
-        url: string
-        genesis: Connex.Thor.Block
     }
 }

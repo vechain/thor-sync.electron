@@ -2,10 +2,9 @@ import { createAccountVisitor } from './account-visitor'
 import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
-import { Site } from './site'
 
 export function create(
-    site: Site
+    site: Thor.Site
 ): Connex.Thor {
     const wire = site.createWire()
     return {
@@ -79,4 +78,3 @@ export function create(
     }
 }
 
-export * from './site'

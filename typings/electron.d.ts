@@ -7,6 +7,6 @@ declare module 'electron' {
 
     interface WebPreferences {
         preloadURL?: string
-        siteConfig?: Thor.SiteConfig
+        siteConfig?: Thor.Site.Config
     }
 }

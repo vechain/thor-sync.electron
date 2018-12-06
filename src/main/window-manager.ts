@@ -17,7 +17,7 @@ class WindowManager {
     private xWorkerWin?: BrowserWindow
 
     public create(
-        config?: Thor.SiteConfig,
+        config?: Thor.Site.Config,
         options?: BrowserWindowConstructorOptions
     ) {
         options = { ...defaultWindowOptions, ...(options || {}) }

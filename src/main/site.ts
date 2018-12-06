@@ -1,21 +1,43 @@
-
-import { Agent } from 'http'
 import Axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import { Agent as HttpAgent } from 'http'
+import { Agent as HttpsAgent } from 'https'
 import * as NodeUrl from 'url'
 import * as WebSocket from 'ws'
 import * as QS from 'qs'
 import { EventEmitter } from 'events'
 import { sleep } from '@/common/sleep'
 
+export class Agent {
+    public readonly http: HttpAgent
+    public readonly https: HttpsAgent
+
+    constructor(opts: { maxSocket: number }) {
+        this.http = new HttpAgent({ maxSockets: opts.maxSocket, keepAlive: true })
+        this.https = new HttpsAgent({ maxSockets: opts.maxSocket, keepAlive: true })
+    }
+
+    public destroy() {
+        this.http.destroy()
+        this.https.destroy()
+    }
+}
+
+export namespace Agent {
+    export type Options = {
+        maxSocket: number
+    }
+}
 
 class Wire implements Thor.Wire {
     private readonly axios: AxiosInstance
     constructor(
-        private readonly config: Thor.SiteConfig,
-        private readonly agent?: Agent) {
+        private readonly config: Thor.Site.Config,
+        private readonly agent: Agent
+    ) {
         this.axios = Axios.create({
             validateStatus: status => status >= 200 && status < 300,
-            httpAgent: agent,
+            httpAgent: agent.http,
+            httpsAgent: agent.https,
             headers: { 'x-genesis-id': config.genesis.id }
         })
     }
@@ -31,6 +53,7 @@ class Wire implements Thor.Wire {
             throw err
         }
     }
+
     public async post<T>(path: string, data: object, query?: object): Promise<T> {
         const url = this.resolve(path, query)
         try {
@@ -41,14 +64,15 @@ class Wire implements Thor.Wire {
             this.log(err)
             throw err
         }
+
     }
 
-    public ws(path: string, query?: object): Thor.WS {
+    public ws(path: string, query?: object) {
         const url = this.resolve(path, query)
         const parsed = NodeUrl.parse(url)
         parsed.protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:'
         const ws = new WebSocket(NodeUrl.format(parsed), {
-            agent: this.agent,
+            agent: parsed.protocol === 'https:' ? this.agent.https : this.agent.http,
             headers: { 'x-genesis-id': this.config.genesis.id }
         })
         return {
@@ -89,6 +113,7 @@ class Wire implements Thor.Wire {
             }
         }
     }
+
     private resolve(
         path: string,
         query?: object): string {
@@ -100,7 +125,7 @@ class Wire implements Thor.Wire {
     }
 
     private log(obj: AxiosResponse | AxiosError) {
-        const msg = `${obj.config.method} ${obj.config.url}`
+        const msg = obj.config ? `${obj.config.method} ${obj.config.url}` : ''
         if (obj instanceof Error) {
             if (obj.response) {
                 // tslint:disable-next-line:no-console
@@ -116,30 +141,25 @@ class Wire implements Thor.Wire {
     }
 }
 
-export class Site {
+export class Site implements Thor.Site {
+    public readonly innerWire: Wire
     private bestBlock: Connex.Thor.Block
     private readonly emitter = new EventEmitter()
-    private readonly agent: Agent
     private stop = false
 
     constructor(
-        readonly config: Thor.SiteConfig,
-        agent?: Agent
+        readonly config: Thor.Site.Config,
+        readonly agent: Agent
     ) {
         this.bestBlock = config.genesis
-        this.emitter.setMaxListeners(2 ** 32 - 1)
-        this.agent = agent || new Agent({ maxSockets: 20 })
+        this.emitter.setMaxListeners(0)
+        this.innerWire = new Wire(config, agent)
         this.loop()
     }
 
-    public shutdown() {
-        if (this.stop) {
-            return
-        }
+    public close() {
         this.stop = true
-        this.agent.destroy()
     }
-
     public nextTick() {
         return new Promise<void>(resolve => {
             this.emitter.once('next', () => {
@@ -159,20 +179,19 @@ export class Site {
         }
     }
 
-    public withWireAgent(agent?: Agent) {
-        const overriddenCreateWire = () => {
-            return new Wire(this.config, agent)
-        }
-        const nameOfCreateWire = this.createWire.name
+    public fork(wireAgent: Agent): Thor.Site {
+        const _this = this
+        return {
+            get config() {
+                return _this.config
+            },
 
-        return new Proxy(this, {
-            get(target, key, receiver) {
-                if (key === nameOfCreateWire) {
-                    return overriddenCreateWire
-                }
-                return Reflect.get(target, key, receiver)
-            }
-        })
+            get status() {
+                return _this.status
+            },
+            nextTick: () => _this.nextTick(),
+            createWire: () => new Wire(_this.config, wireAgent)
+        }
     }
 
     public createWire() {
@@ -191,8 +210,7 @@ export class Site {
     }
 
     private async loop() {
-        const wire = new Wire(this.config, this.agent)
-        let ws: Thor.WS | undefined
+        let ws: ReturnType<Wire['ws']> | undefined
         while (!this.stop) {
             const lastProgress = this.progress
             if (ws) {
@@ -212,10 +230,10 @@ export class Site {
             } else {
                 const now = Date.now()
                 if (now - this.bestBlock.timestamp * 1000 < 30 * 1000) {
-                    ws = wire.ws('subscriptions/block')
+                    ws = this.innerWire.ws('subscriptions/block')
                 } else {
                     try {
-                        const best = await wire.get<Connex.Thor.Block | null>('blocks/best')
+                        const best = await this.innerWire.get<Connex.Thor.Block | null>('blocks/best')
                         if (best!.number !== this.bestBlock.number) {
                             this.bestBlock = best!
                             this.emitter.emit('next')
@@ -238,3 +256,4 @@ export class Site {
         }
     }
 }
+
