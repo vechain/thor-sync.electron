@@ -55,7 +55,7 @@
                     :rules="passwordRules"
                     ref="passwordElem"
                     @focus="passwordFocused"
-                    @keyup.enter="sign"
+                    @keypress.enter="sign"
                 />
             </v-card-text>
             <div style="position:relative">
@@ -73,7 +73,6 @@
                 <v-spacer/>
                 <v-btn
                     :disabled="signing"
-                    color="red darken-2"
                     flat
                     @click="returnValue(null)"
                 >Decline</v-btn>

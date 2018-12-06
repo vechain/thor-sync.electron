@@ -1,7 +1,11 @@
 <template>
     <v-layout column align-center>
-        <v-dialog v-model="showEditShortcutDialog" width="350">
-            <v-card v-nofocusout>
+        <v-dialog persistent v-model="showEditShortcutDialog" max-width="380px">
+            <v-card
+                v-nofocusout
+                @keypress.enter="editingShortcut.name && saveShortcut()"
+                @keydown.esc="showEditShortcutDialog=false"
+            >
                 <v-card-title>Shortcut</v-card-title>
                 <v-card-text>
                     <v-text-field ref="shortcutTitle" label="Title" v-model="editingShortcut.name"/>
@@ -13,6 +17,7 @@
                 <v-card-actions>
                     <v-btn small flat color="red" @click="removeShortcut">Remove</v-btn>
                     <v-spacer/>
+                    <v-btn small flat @click="showEditShortcutDialog=false">Cancel</v-btn>
                     <v-btn
                         small
                         :disabled="!editingShortcut.name"
@@ -23,8 +28,8 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-layout column align-center style="max-width:700px;width:100%" pa-3>
-            <span class="grey--text title font-weight-light">Shortcuts</span>
+        <v-layout column align-center style="max-width:700px;width:100%" pa-3>            
+            <div class="grey--text title font-weight-light">Shortcuts</div>
             <div style="width:100%;">
                 <v-layout row wrap>
                     <div

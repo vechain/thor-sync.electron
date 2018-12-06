@@ -1,13 +1,6 @@
 <template>
-    <v-dialog
-        v-bind="$attrs"
-        v-on="$listeners"
-        v-model="opened"
-        @keydown.enter="onKeyEnter"
-        max-width="800px"
-        persistent
-    >
-        <v-card>
+    <v-dialog v-bind="$attrs" v-on="$listeners" v-model="opened" max-width="800px" persistent>
+        <v-card v-nofocusout @keypress.enter="onKeyEnter" @keydown.esc="onKeyEsc">
             <v-card-text>
                 <div class="subheading font-weight-light">Create Wallet</div>
                 <v-stepper
@@ -76,19 +69,15 @@
                 </div>
             </v-card-text>
             <v-card-actions>
+                <v-spacer/>
                 <v-btn
+                    class="mr-5"
                     flat
                     :disabled="!abortBtn.enabled"
                     v-show="abortBtn.visible"
                     @click="abortBtn.action"
                 >{{abortBtn.text}}</v-btn>
-                <v-spacer/>
-                <v-btn
-                    flat
-                    :disabled="!backBtn.enabled"
-                    v-show="backBtn.visible"
-                    @click="backBtn.action"
-                >{{backBtn.text}}</v-btn>
+                <v-btn flat :disabled="!backBtn.enabled" @click="backBtn.action">{{backBtn.text}}</v-btn>
                 <v-btn
                     flat
                     color="primary"
@@ -234,12 +223,12 @@ export default class NewWalletDialog extends Vue {
             state.action()
         }
     }
-    // onKeyEsc() {
-    //     const state = this.abortBtn
-    //     if (state.visible && state.enabled) {
-    //         state.action()
-    //     }
-    // }
+    onKeyEsc() {
+        const state = this.abortBtn
+        if (state.visible && state.enabled) {
+            state.action()
+        }
+    }
 }
 
 type BtnState = {
