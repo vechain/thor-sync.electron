@@ -1,7 +1,7 @@
 import { app, webContents, BrowserWindow, WebContents } from 'electron'
-import { Agent } from 'http'
-import { create as createThor, Site } from '../thor'
+import { create as createThor } from '../thor'
 import TxQueue from './tx-queue'
+import { Site, Agent } from './site'
 
 export class Backend {
     private readonly activeSites = new Map<string, { site: Site, refCount: number }>()
@@ -9,12 +9,10 @@ export class Backend {
 
     public connect(
         contentsId: number,
-        config: Thor.SiteConfig
+        config: Thor.Site.Config
     ): { connex: Connex, txer: Txer } {
-        const wireAgent = new Agent({
-            maxSockets: 10
-        })
-        const site = this.acquireSite(config).withWireAgent(wireAgent)
+        const wireAgent = new Agent({ maxSocket: 5 })
+        const site = this.acquireSite(config)
         // tslint:disable-next-line:no-console
         console.log('connex connected')
 
@@ -32,16 +30,14 @@ export class Backend {
         contents.once('did-start-loading', disconnect)
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
-
-        const txQueueWire = site.withWireAgent(new Agent({ maxSockets: 10 })).createWire()
         return {
             connex: {
-                thor: createThor(site),
+                thor: createThor(site.fork(wireAgent)),
                 vendor: this.createVendor(contents)
             },
             txer: {
                 send: (id, raw) => {
-                    this.txQueue.enqueue(id, raw, txQueueWire)
+                    this.txQueue.enqueue(id, raw, site.innerWire)
                 },
                 status: id => {
                     return this.txQueue.status(id)
@@ -88,10 +84,10 @@ export class Backend {
         }
     }
 
-    private siteKey(config: Thor.SiteConfig) {
+    private siteKey(config: Thor.Site.Config) {
         return config.genesis.id + '@' + config.url
     }
-    private acquireSite(config: Thor.SiteConfig) {
+    private acquireSite(config: Thor.Site.Config) {
         const key = this.siteKey(config)
         let value = this.activeSites.get(key)
         if (value) {
@@ -100,7 +96,7 @@ export class Backend {
             console.log(`acquireSite: <${key}> #${value.refCount}`)
         } else {
             value = {
-                site: new Site(config),
+                site: new Site(config, new Agent({ maxSocket: 10 })),
                 refCount: 1
             }
             this.activeSites.set(key, value)
@@ -110,7 +106,7 @@ export class Backend {
         return value.site
     }
 
-    private releaseSite(config: Thor.SiteConfig) {
+    private releaseSite(config: Thor.Site.Config) {
         const key = this.siteKey(config)
         const value = this.activeSites.get(key)
         if (value) {
@@ -118,7 +114,7 @@ export class Backend {
             // tslint:disable-next-line:no-console
             console.log(`releaseSite: <${key}> #${value.refCount}`)
             if (value.refCount === 0) {
-                value.site.shutdown()
+                value.site.close()
                 this.activeSites.delete(key)
                 // tslint:disable-next-line:no-console
                 console.log(`releaseSite: <${key}> site destroyed`)

@@ -1,7 +1,7 @@
-const siteConfigs: Thor.SiteConfig[] = [
+const siteConfigs: Thor.Site.Config[] = [
     {
         name: 'Testnet',
-        url: 'http://localhost:8669',
+        url: 'https://sync-testnet.vechain.org',
         genesis: {
             number: 0,
             id:
@@ -26,7 +26,7 @@ const siteConfigs: Thor.SiteConfig[] = [
     },
     {
         name: 'Mainnet',
-        url: 'http://localhost:8669',
+        url: 'https://sync-mainnet.vechain.org',
         genesis: {
             number: 0,
             id:
