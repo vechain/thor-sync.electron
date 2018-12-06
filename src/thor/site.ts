@@ -46,7 +46,7 @@ class Wire implements Thor.Wire {
     public ws(path: string, query?: object): Thor.WS {
         const url = this.resolve(path, query)
         const parsed = NodeUrl.parse(url)
-        parsed.protocol = parsed.protocol === 'https' ? 'wss' : 'ws'
+        parsed.protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:'
         const ws = new WebSocket(NodeUrl.format(parsed), {
             agent: this.agent,
             headers: { 'x-genesis-id': this.config.genesis.id }
