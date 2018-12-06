@@ -65,7 +65,7 @@
         }
 
         nameRule() {
-            return !!this.name || 'Requires non-empty name'
+            return !!this.name && !!this.name.trim() || 'Requires non-empty name'
         }
         passwordRule() {
             return (

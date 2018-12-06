@@ -4,9 +4,7 @@
             :enter-active-class="`animated faster ${enterClass}`"
             :leave-active-class="`animated faster ${leaveClass}`"
         >
-            <keep-alive>
-                <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"/>
-            </keep-alive>
+            <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"/>
         </transition>
         <v-layout style="position:absolute;right:0;top:0;">
             <router-link tag="span" to="/">

@@ -548,7 +548,7 @@ html {
     box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
 }
 .v-overlay--active:before {
-    opacity: 0.2;
+    opacity: 0.1;
 }
 .v-expansion-panel__header {
     padding-right: 12px !important;
