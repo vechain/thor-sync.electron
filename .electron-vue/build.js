@@ -10,7 +10,6 @@ const Multispinner = require('multispinner')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
-const dappsConfig = require('./webpack.dapps.config')
 const preloadConfig = require('./webpack.preload.config')
 const xWorkerConfig = require('./webpack.x-worker.config')
 // const webConfig = require('./webpack.web.config')
@@ -37,7 +36,6 @@ function build() {
 
     const tasks = [
         ['main', mainConfig],
-        ['DApps', dappsConfig],
         ['renderer', rendererConfig],
         ['preload', preloadConfig],
         ['xWorker', xWorkerConfig]

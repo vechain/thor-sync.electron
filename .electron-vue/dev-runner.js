@@ -11,7 +11,6 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
-const dappsConfig = require('./webpack.dapps.config')
 const preloadConfig = require('./webpack.preload.config')
 const xWorkerConfig = require('./webpack.x-worker.config')
 
@@ -40,48 +39,6 @@ function logStats(proc, data) {
     log += '\n' + chalk.yellow.bold(`┗ ${new Array(28 + 1).join('-')}`) + '\n'
 
     console.log(log)
-}
-
-function startDapps() {
-    return new Promise(resolve => {
-        Object.keys(dappsConfig.entry).forEach(item => {
-            dappsConfig.entry[item] = [path.join(__dirname, 'dev-client')].concat(dappsConfig.entry[item])
-        })
-
-        const compiler = webpack(dappsConfig)
-
-        subHotMiddleware = webpackHotMiddleware(compiler, {
-            log: false,
-            heartbeat: 2500
-        })
-
-        compiler.plugin('compilation', compilation => {
-            compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
-                subHotMiddleware.publish({ action: 'reload' })
-                cb()
-            })
-        })
-
-        compiler.plugin('done', stats => {
-            logStats('Dapps', stats)
-        })
-
-        const server = new WebpackDevServer(
-            compiler,
-            {
-                contentBase: path.join(__dirname, '../'),
-                quiet: true,
-                before(app, ctx) {
-                    app.use(subHotMiddleware)
-                    ctx.middleware.waitUntilValid(() => {
-                        resolve()
-                    })
-                }
-            }
-        )
-
-        server.listen(9090)
-    })
 }
 
 function startRenderer() {
@@ -209,7 +166,7 @@ function greeting() {
 async function init() {
     greeting()
     try {
-        await Promise.all([startRenderer(), startDapps(), startMain(), startPreload(), startXWorker()])
+        await Promise.all([startRenderer(), startMain(), startPreload(), startXWorker()])
         startElectron()
     } catch (err) {
         console.log(err)
