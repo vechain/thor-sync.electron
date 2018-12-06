@@ -34,7 +34,7 @@ export function createMethod(
             opts.gasPrice = gp
             return this
         },
-        asClause: (args) => {
+        asClause: (...args) => {
             const data = coder.encode(...args)
             return {
                 to: addr,
@@ -42,7 +42,7 @@ export function createMethod(
                 data
             }
         },
-        call: async (args) => {
+        call: async (...args) => {
             const data = coder.encode(...args)
             const input = {
                 ...opts, data, value: opts.value.toString()
