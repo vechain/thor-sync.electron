@@ -93,6 +93,10 @@ export default class ImportWalletDialog extends Vue {
     reset() {
         const form = this.$refs.pk as ContentForm
         this.addressExist = false
+        this.nameAndPass.name = ''
+        this.nameAndPass.password = ''
+        this.nameAndPass.valid = false
+        this.step = 1
         form.reset()
     }
     preMove() {
@@ -100,7 +104,6 @@ export default class ImportWalletDialog extends Vue {
             this.step--
             return
         } else {
-            
             this.show = false
             this.reset()
         }
