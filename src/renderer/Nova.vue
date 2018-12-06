@@ -492,23 +492,8 @@ html {
     -webkit-app-region: no-drag;
 }
 
-.sync-dapp-list.default-content {
-    width: 75%;
-    max-width: 1000px;
-    margin: 50px auto;
-}
-.sync-dapp-list.default-content .search {
-    margin: 50px auto 50px;
-    width: 70%;
-}
 .tab-tools {
     float: right;
-}
-.sync-viewport-container {
-    z-index: 0;
-}
-.sync-viewport-container.current {
-    z-index: 2;
 }
 
 .label {

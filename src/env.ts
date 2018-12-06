@@ -17,10 +17,6 @@ const env = {
     xWorker: UrlUtils.filePathToUrl(devMode ?
         Path.resolve(__dirname, '..', 'dist', 'electron', 'x-worker.html') :
         Path.resolve(__dirname, 'x-worker.html')),
-
-    dapps: devMode ?
-        'http://localhost:9090/' :
-        UrlUtils.filePathToUrl(Path.resolve(__dirname, 'dapps')) + '/'
 }
 
 export default env
