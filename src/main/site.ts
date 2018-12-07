@@ -35,6 +35,7 @@ class Wire implements Thor.Wire {
         private readonly agent: Agent
     ) {
         this.axios = Axios.create({
+            timeout: 10 * 1000,
             validateStatus: status => status >= 200 && status < 300,
             httpAgent: agent.http,
             httpsAgent: agent.https,
@@ -85,6 +86,13 @@ class Wire implements Thor.Wire {
                         (ws as any)._socket.resume()
                     }
 
+                    const timeout = setTimeout(() => {
+                        reject(new Error('read timeout'))
+                        ws.removeListener('error', onError)
+                        ws.removeListener('close', onClose)
+                        ws.removeListener('message', onMsg)
+                    }, 60 * 1000)
+
                     const onMsg = (msg: WebSocket.Data) => {
                         if ((ws as any)._socket) {
                             (ws as any)._socket.pause()
@@ -92,16 +100,19 @@ class Wire implements Thor.Wire {
                         resolve(msg)
                         ws.removeListener('error', onError)
                         ws.removeListener('close', onClose)
+                        clearTimeout(timeout)
                     }
                     const onError = (err: Error) => {
                         reject(err)
                         ws.removeListener('message', onMsg)
                         ws.removeListener('close', onClose)
+                        clearTimeout(timeout)
                     }
                     const onClose = () => {
                         reject(new Error('closed'))
                         ws.removeListener('message', onMsg)
                         ws.removeListener('error', onError)
+                        clearTimeout(timeout)
                     }
                     ws.once('message', onMsg)
                         .once('error', onError)
