@@ -3,7 +3,7 @@
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-text>
-                <div class="title font-weight-light">Import Wallet</div>
+                <div class="subheading font-weight-light">Import Wallet</div>
                 <v-stepper class="elevation-0" v-model="step">
                     <v-stepper-header class="elevation-0">
                         <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
@@ -11,7 +11,7 @@
                         <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
                     </v-stepper-header>
                     <div
-                        class="subheading font-weight-light pl-4"
+                        class="title font-weight-light pl-4"
                     >{{['Import', 'Set Password'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
