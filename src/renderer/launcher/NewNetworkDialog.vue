@@ -99,7 +99,7 @@ export default class NewNetworkDialog extends Vue {
             let result = Object.assign({}, this.editItem)
             result.value.name = this.form.name
             result.value.rpcUrl = this.form.rpcUrl
-            DB.preferences
+            GDB.preferences
                 .update(this.editItem!.id as any, { value: result.value })
                 .then(updated => {
                     if (updated) {
@@ -110,7 +110,7 @@ export default class NewNetworkDialog extends Vue {
                     }
                 })
         } else {
-            DB.preferences
+            GDB.preferences
                 .add({
                     key: 'network',
                     value: {

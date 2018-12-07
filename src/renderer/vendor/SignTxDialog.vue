@@ -149,7 +149,7 @@ export default class SignTxDialog extends Vue implements SignTx {
             if (!ret) {
                 throw new Rejected('user cancelled')
             }
-            await DB.txRecords.add({
+            await BDB.txRecords.add({
                 id: ret.txId,
                 insertTime: Date.now(),
                 signer: ret.signer,

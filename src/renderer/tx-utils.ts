@@ -107,7 +107,7 @@ export async function trackTxLoop() {
     const skips = new Set<string>()
     for (; ;) {
         try {
-            const records = await DB.txRecords
+            const records = await BDB.txRecords
                 .where({ confirmed: 0 })
                 .and(r => !skips.has(r.id))
                 .toArray()
@@ -134,14 +134,14 @@ export async function trackTxLoop() {
                 }
             }))
 
-            await DB.transaction('rw', DB.txRecords, async () => {
+            await BDB.transaction('rw', BDB.txRecords, async () => {
                 for (let i = 0; i < receipts.length; i++) {
                     const receipt = receipts[i]
                     if (receipt === undefined) {
                         continue
                     }
                     const confirmed = (receipt && head.number - receipt.meta!.blockNumber >= 12) ? 1 : 0
-                    await DB.txRecords.update(records[i].id, {
+                    await BDB.txRecords.update(records[i].id, {
                         confirmed,
                         receipt
                     })

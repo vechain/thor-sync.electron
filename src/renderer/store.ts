@@ -50,14 +50,14 @@ class Store extends Vuex.Store<Store.Model> {
 
     private async monitorDB() {
         const queryAndUpdateShortcuts = async () => {
-            const shortcuts = await DB.preferences
+            const shortcuts = await GDB.preferences
                 .where({ key: 'shortcut' })
                 .toArray()
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
 
         const queryAndUpdateWallets = async () => {
-            const wallets = await DB.wallets
+            const wallets = await BDB.wallets
                 .toArray()
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
@@ -65,8 +65,8 @@ class Store extends Vuex.Store<Store.Model> {
         await queryAndUpdateShortcuts()
         await queryAndUpdateWallets()
 
-        DB.subscribe(DB.preferences.name, queryAndUpdateShortcuts)
-        DB.subscribe(DB.wallets.name, queryAndUpdateWallets)
+        GDB.subscribe(GDB.preferences.name, queryAndUpdateShortcuts)
+        BDB.subscribe(BDB.wallets.name, queryAndUpdateWallets)
     }
 }
 

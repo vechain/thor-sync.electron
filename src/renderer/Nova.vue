@@ -428,11 +428,11 @@ export default class Nova extends Vue {
 
     addOrRemoveShortcut() {
         if (this.shortcutAdded) {
-            DB.preferences.bulkDelete(
+            GDB.preferences.bulkDelete(
                 this.shortcuts.filter(s => s.value.href === this.activePage.href).map(s => s.id!)
             )
         } else {
-            DB.preferences.add({
+            GDB.preferences.add({
                 key: 'shortcut',
                 value: {
                     name: this.activePage.title,

@@ -116,7 +116,7 @@ export default class ImportWalletDialog extends Vue {
             const address = cry.publicKeyToAddress(
                 cry.secp256k1.derivePublicKey(this.pk)
             )
-            const count = await DB.wallets
+            const count = await BDB.wallets
                 .where('address')
                 .equals('0x' + address.toString('hex'))
                 .count()
@@ -139,9 +139,9 @@ export default class ImportWalletDialog extends Vue {
                     createdTime: Date.now()
                 }
                 if (this.addressExist) {
-                    await DB.wallets.where('address').equals(entity.address).modify({keystore: entity.keystore, name: entity.name})
+                    await BDB.wallets.where('address').equals(entity.address).modify({keystore: entity.keystore, name: entity.name})
                 } else {
-                    await DB.wallets.add(entity)
+                    await BDB.wallets.add(entity)
                 }
 
                 this.show = false

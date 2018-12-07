@@ -4,8 +4,8 @@ import { Entities } from '../database'
 @Component
 export default class AccessHistory extends Vue {
     public updateHistory(href: string, extra?: { title?: string, favicon?: string }) {
-        DB.transaction('rw', DB.history, async () => {
-            const entity = await DB.history.get(href)
+        GDB.transaction('rw', GDB.history, async () => {
+            const entity = await GDB.history.get(href)
             if (entity) {
                 const update = {} as Entities.History
                 update.lastAccessTime = Date.now()
@@ -21,14 +21,14 @@ export default class AccessHistory extends Vue {
                         update.tokens = [...tokens]
                     }
                 }
-                await DB.history.update(href, update)
+                await GDB.history.update(href, update)
             } else {
                 const tokens = new Set<string>()
                 tokenizeHref(href).forEach(t => tokens.add(t))
                 if (extra && extra.title) {
                     tokenizeTitle(extra.title).forEach(t => tokens.add(t))
                 }
-                await DB.history.add({
+                await GDB.history.add({
                     href,
                     lastAccessTime: Date.now(),
                     accessCount: 1,
@@ -43,7 +43,7 @@ export default class AccessHistory extends Vue {
 
     public queryHistory(keyword: string) {
         keyword = keyword.split(' ').filter(p => !!p).join(' ')
-        return DB.history
+        return GDB.history
             .where('tokens')
             .startsWithIgnoreCase(keyword)
             .distinct()

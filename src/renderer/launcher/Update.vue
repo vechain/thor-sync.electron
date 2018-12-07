@@ -55,17 +55,17 @@ export default class AutoUpdate extends Vue {
 
     onChange() {
         if (this.isAuto.id) {
-            DB.preferences.update(this.isAuto.id as any, {
+            GDB.preferences.update(this.isAuto.id as any, {
                 value: this.isAuto.value
             })
         } else {
-            DB.preferences.add(this.isAuto)
+            GDB.preferences.add(this.isAuto)
         }
     }
 
     @Watch('preferencesRevision')
     async getConfig() {
-        let temp = await DB.preferences
+        let temp = await GDB.preferences
             .where('key')
             .equals('auto-update')
             .first()
