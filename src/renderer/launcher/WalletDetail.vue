@@ -6,7 +6,10 @@
           <v-list>
             <v-list-tile avatar>
               <v-list-tile-avatar :size="90">
-                <AddressLabel style="width:60px;height:40px;border-radius:5px" icon>{{wallet.address}}</AddressLabel>
+                <AddressLabel
+                  style="width:60px;height:40px;border-radius:5px"
+                  icon
+                >{{wallet.address}}</AddressLabel>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
@@ -34,9 +37,7 @@
                     </v-tooltip>
                   </div>
                 </QRCodeDialog>
-                <ExportWalletDialog
-                  :wallet="wallet"
-                >
+                <ExportWalletDialog :wallet="wallet">
                   <div slot="activator">
                     <v-tooltip top>
                       <v-btn slot="activator" large icon>
@@ -46,12 +47,16 @@
                     </v-tooltip>
                   </div>
                 </ExportWalletDialog>
-                <v-tooltip top>
-                  <v-btn @click.stop slot="activator" large icon>
-                    <v-icon>mdi-lock-reset</v-icon>
-                  </v-btn>
-                  <span>Reset Password</span>
-                </v-tooltip>
+                <ResetPwdDialog :wallet="wallet">
+                  <div slot="activator">
+                    <v-tooltip top>
+                      <v-btn slot="activator" large icon>
+                        <v-icon>mdi-lock-reset</v-icon>
+                      </v-btn>
+                      <span>Reset Password</span>
+                    </v-tooltip>
+                  </div>
+                </ResetPwdDialog>
               </v-layout>
             </v-list-tile>
           </v-list>
@@ -99,22 +104,34 @@
   import Store from '../store'
   import { Num } from '@/common/formatter'
   import ExportWalletDialog from './ExportWalletDialog.vue'
+  import ResetPwdDialog from './ResetPwdDialog.vue'
   import { Entities } from '../database'
   import AccountLoader from '../mixins/account-loader'
   import { setTimeout } from 'timers'
+  import { Stats } from 'fs'
   @Component({
       components: {
-          ExportWalletDialog
+          ExportWalletDialog,
+          ResetPwdDialog
       }
   })
   export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
       name = 'walletDetail'
-      wallet: Entities.Wallet | null = null
+      // wallet: Entities.Wallet | null = null
       list: Connex.Thor.Transfer[] = []
       get address() {
           return (this.wallet ? this.wallet.address : '') || ''
       }
       isloading = true
+
+      get wallet() {
+          return this.wallets.find(item => {
+              return item.address === this.$route.params.address
+          })
+      }
+
+      @State
+      wallets!: Entities.Wallet[]
 
       headers = [
           {
@@ -151,11 +168,6 @@
 
       async created() {
           const address = this.$route.params.address
-          this.wallet =
-              (await BDB.wallets
-                  .where('address')
-                  .equalsIgnoreCase(address)
-                  .first()) || null
           this.createFilter(address)
           this.list = await this.getTransferDesc(10)
           this.isloading = false
