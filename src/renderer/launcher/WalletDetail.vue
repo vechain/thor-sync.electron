@@ -18,14 +18,40 @@
             <v-list-tile>
               <v-layout row>
                 <v-spacer/>
-                <v-btn v-clipboard="wallet.address" slot="activator" large icon>
-                  <v-icon>mdi-content-copy</v-icon>
-                </v-btn>
-                <QRCodeDialog width="300" :size="270" :content="wallet.address">
-                  <v-btn slot="activator" large icon>
-                    <v-icon>mdi-qrcode</v-icon>
+                <v-tooltip top>
+                  <v-btn v-clipboard="wallet.address" slot="activator" large icon>
+                    <v-icon>mdi-content-copy</v-icon>
                   </v-btn>
+                  <span>Click copy address</span>
+                </v-tooltip>
+                <QRCodeDialog width="300" :size="270" :content="wallet.address">
+                  <div slot="activator">
+                    <v-tooltip top>
+                      <v-btn slot="activator" large icon>
+                        <v-icon>mdi-qrcode</v-icon>
+                      </v-btn>
+                      <span>Show QR code</span>
+                    </v-tooltip>
+                  </div>
                 </QRCodeDialog>
+                <ExportWalletDialog
+                  :address="wallet.address"
+                >
+                  <div slot="activator">
+                    <v-tooltip top>
+                      <v-btn slot="activator" large icon>
+                        <v-icon>mdi-export-variant</v-icon>
+                      </v-btn>
+                      <span>Export Keystore</span>
+                    </v-tooltip>
+                  </div>
+                </ExportWalletDialog>
+                <v-tooltip top>
+                  <v-btn @click.stop slot="activator" large icon>
+                    <v-icon>mdi-lock-reset</v-icon>
+                  </v-btn>
+                  <span>Reset Password</span>
+                </v-tooltip>
               </v-layout>
             </v-list-tile>
           </v-list>
@@ -71,15 +97,14 @@
   import TransferMixin from '../mixins/Transfer.vue'
   import { State } from 'vuex-class'
   import Store from '../store'
-  import Amount from '../components/Amount.vue'
   import { Num } from '@/common/formatter'
-  import QRCodeDialog from '../components/QRCodeDialog.vue'
+  import ExportWalletDialog from './ExportWalletDialog.vue'
   import { Entities } from '../database'
   import AccountLoader from '../mixins/account-loader'
+  import { setTimeout } from 'timers'
   @Component({
       components: {
-          Amount,
-          QRCodeDialog
+          ExportWalletDialog
       }
   })
   export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
