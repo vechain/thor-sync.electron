@@ -28,20 +28,19 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-layout column align-center style="max-width:700px;width:100%" pa-3>            
+        <v-layout column align-center style="max-width:700px;width:100%" pa-3>
             <div class="grey--text title font-weight-light">Shortcuts</div>
             <div style="width:100%;">
-                <v-layout row wrap>
+                <v-layout row wrap :justify-center="shortcuts.length<5">
                     <div
                         v-for="shortcut in shortcuts"
                         :key="shortcut.id+''"
                         class="pa-1"
-                        style="flex:0 1 20%;max-width:20%"
+                        style="flex:0 1 20%;max-width:20%;"
                     >
                         <v-hover open-delay="500">
                             <AppButton
                                 slot-scope="{ hover }"
-                                class="ma-0"
                                 :title="shortcut.value.name"
                                 :href="shortcut.value.href"
                                 :favicon="favicon(shortcut.value.href)"

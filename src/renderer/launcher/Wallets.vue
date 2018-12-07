@@ -9,11 +9,14 @@
                     <ImportWalletDialog persistent>
                         <v-btn flat small class="caption" color="primary" slot="activator">import</v-btn>
                     </ImportWalletDialog>
+                    <router-link tag="span" to="/transfer">
+                        <v-btn flat small class="caption" color="primary">transfer</v-btn>
+                    </router-link>
                 </v-layout>
             </div>
             <div>
-                <v-layout row wrap>
-                    <v-flex v-for="wallet in wallets" :key="wallet.address" xs3 py-3>
+                <v-layout row wrap :justify-center="wallets.length<4">
+                    <v-flex v-for="wallet in wallets" :key="wallet.address" xs3 class="py-3">
                         <WalletCard
                             flat
                             class="outline"
@@ -45,6 +48,7 @@ import { State } from 'vuex-class';
 export default class Wallets extends Vue {
     @State wallets!: Entities.Wallet[]
     dialog = false
+
     onClick(address: string) {
         this.$router.push({
             name: 'wallet-detail',
