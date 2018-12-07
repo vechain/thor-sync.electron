@@ -35,7 +35,7 @@
                   </div>
                 </QRCodeDialog>
                 <ExportWalletDialog
-                  :address="wallet.address"
+                  :wallet="wallet"
                 >
                   <div slot="activator">
                     <v-tooltip top>

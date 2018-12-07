@@ -2,23 +2,51 @@
     <v-dialog v-model="show" v-bind="$attrs" v-on="$listeners" max-width="500px">
         <slot slot="activator" name="activator"/>
         <v-card>
-            <v-card-title>
-                <h3 class="headline mb-0">Export Keystore</h3>
-            </v-card-title>
             <v-card-text>
-                <v-text-field
-                    :error="error.isError"
-                    :error-messages="error.messages"
-                    type="password"
-                    label="Password"
-                    v-model="password"
-                ></v-text-field>
+                <div class="subheading font-weight-light">Export Wallet</div>
+                <v-stepper class="elevation-0" v-model="step">
+                    <v-stepper-header class="elevation-0">
+                        <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
+                        <v-divider></v-divider>
+                        <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
+                    </v-stepper-header>
+                    <div
+                        class="title font-weight-light pl-4"
+                    >{{['Verify Password', 'Keystore'][step-1]}}</div>
+                    <v-stepper-items>
+                        <v-stepper-content step="1">
+                            <v-card>
+                                <v-card-text>
+                                    <v-text-field
+                                        :error="error.isError"
+                                        :error-messages="error.messages"
+                                        type="password"
+                                        label="Password"
+                                        v-model="password"
+                                    ></v-text-field>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn flat @click="close">Cancel</v-btn>
+                                    <v-btn flat @click="checkPwd" color="primary">Next</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-stepper-content>
+                        <v-stepper-content step="2">
+                            <v-card>
+                                <v-card-text>
+                                    <v-textarea box v-model="ks"></v-textarea>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn flat @click="close">Cancel</v-btn>
+                                    <v-btn flat @click="save" color="primary">Save</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-stepper-content>
+                    </v-stepper-items>
+                </v-stepper>
             </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn flat @click="close">Cancel</v-btn>
-                <v-btn flat @click="exportKs" color="primary">Export</v-btn>
-            </v-card-actions>
         </v-card>
     </v-dialog>
 </template>
@@ -29,17 +57,17 @@
     import { Entities } from '@/renderer/database'
     import { remote } from 'electron'
     import { mkdir } from 'fs'
-    import { thistle } from 'color-name'
     const Path = require('path')
     const mkdirp = require('mkdirp')
     const fs = require('fs')
     @Component
     export default class ExportWalletDialog extends Vue {
-        @Prop(String)
-        address!: string
+        @Prop()
+        wallet!: Entities.Wallet
         password: string = ''
         show = false
         ks = ''
+        step = 1
 
         error: {
             isError: boolean
@@ -52,80 +80,95 @@
         @Watch('show')
         showChanged(val: boolean) {
             if (!val) {
-                this.password = ''
+                this.reset()
             }
         }
 
-        close() {
+        reset() {
             this.ks = ''
-            this.show = false
+            this.password = ''
+            this.step = 1
             this.error = {
                 isError: false,
                 messages: []
             }
         }
 
-        get filenName() {
+        close() {
+            this.show = false
+        }
+
+        filenName() {
             var ts = new Date()
             return [
                 'UTC--',
                 ts.toJSON().replace(/:/g, '-'),
                 '--',
-                this.address
+                this.wallet.address
             ].join('')
         }
 
-        async exportKs() {
-            const item: Entities.Wallet | undefined = await DB.wallets
-                .where('address')
-                .equals(this.address)
-                .first()
-            const ks: Keystore | null = item!.keystore || null
+        async checkPwd() {
+            const ks: Keystore | null = this.wallet!.keystore || null
             if (ks) {
                 try {
                     await cry.Keystore.decrypt(ks, this.password)
                 } catch (error) {
                     this.error.isError = true
-                    this.error.messages =['Password is invalid']
+                    this.error.messages = ['Password is invalid']
                     console.error(error)
                     return
                 }
-
-                try {
-                    this.ks = JSON.stringify(ks)
-                    await this.saveFile()
-                    this.close()
-                } catch (error) {
-                    console.error(error)
-                }
+                this.step = 2
+                this.ks = JSON.stringify(ks)
             }
         }
 
-        writeFile(path: string) {
-            if (path) {
-                mkdir(Path.dirname(path), () => {
-                    fs.writeFile(path, this.ks, 'utf8', (err: Error) => {
-                        if (err) {
-                            console.error(err)
-                        }
-                    })
-                })
+        async save() {
+            try {
+                const path = await this.saveFile()
+                await this.writeFile(path, this.ks)
+                this.close()
+            } catch (error) {
+                console.error(error)
             }
+            this.close()
+        }
+
+        async writeFile(path: string, ks: string) {
+            return new Promise<void>((resolve, reject) => {
+                if (path) {
+                    mkdir(Path.dirname(path), () => {
+                        fs.writeFile(path, ks, 'utf8', (err: Error) => {
+                            if (err) {
+                                reject(err)
+                            } else {
+                                resolve()
+                            }
+                        })
+                    })
+                }
+            })
         }
 
         async saveFile() {
-            const defaultPath = Path.join(
-                remote.app.getPath('documents'),
-                this.filenName + '.txt'
-            )
-            await remote.dialog.showSaveDialog(
-                remote.getCurrentWindow(),
-                {
-                    title: 'Save Keystore',
-                    defaultPath: defaultPath
-                },
-                this.writeFile
-            )
+            return new Promise<string>((resolve, reject) => {
+                const defaultPath = Path.join(
+                    remote.app.getPath('documents'),
+                    this.filenName() + '.txt'
+                )
+
+                remote.dialog.showSaveDialog(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Save Keystore',
+                        defaultPath: defaultPath
+                    },
+                    (path: string) => {
+                        resolve(path)
+                    }
+                )
+            })
         }
     }
 </script>
