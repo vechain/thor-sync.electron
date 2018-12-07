@@ -57,7 +57,8 @@
     "axios": "^0.18.0",
     "electron-context-menu": "^0.10.0",
     "electron-unhandled": "^1.1.0",
-    "thor-devkit": "0.3.0",
+    "mkdirp": "0.5.1",
+    "thor-devkit": "0.2.8",
     "ws": "^6.0.0"
   },
   "devDependencies": {
