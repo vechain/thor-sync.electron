@@ -135,8 +135,9 @@ export default class SignTxDialog extends Vue implements SignTx {
         this.referer = referer
         this.initValue = {
             clauses: message.slice(),
-            wallets: this.wallets.slice(),
-            selectedWallet: walletIndex,
+            // enforce using wallet
+            wallets: options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
+            selectedWallet: options.signer ? 0 : walletIndex,
             suggestedGas: options.gas || 0,
         }
         this.open = true
