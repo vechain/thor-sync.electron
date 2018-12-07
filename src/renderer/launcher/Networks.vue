@@ -54,8 +54,8 @@ import TableLoader from '../mixins/table-loader'
 
 @Component
 class NetworksLoader extends TableLoader<Entities.Preference>{
-    tableName = DB.preferences.name
-    filter = () => DB.preferences
+    tableName = GDB.preferences.name
+    filter = () => GDB.preferences
         .where('key')
         .equals('network')
         .reverse()
@@ -104,7 +104,7 @@ export default class Networks extends Mixins(NetworksLoader) {
         let conDig = this.$refs.confirm as ConfirmDialog
         conDig.confirm().then(
             () => {
-                return DB.preferences.delete(item.id!)
+                return GDB.preferences.delete(item.id!)
             },
             () => {
                 console.log('cancel')

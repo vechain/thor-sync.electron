@@ -152,7 +152,7 @@
       async created() {
           const address = this.$route.params.address
           this.wallet =
-              (await DB.wallets
+              (await BDB.wallets
                   .where('address')
                   .equalsIgnoreCase(address)
                   .first()) || null

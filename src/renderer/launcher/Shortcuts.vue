@@ -54,9 +54,9 @@ import TableLoader from '../mixins/table-loader'
 
 @Component
 class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
-    tableName = DB.preferences.name
+    tableName = GDB.preferences.name
     filter = () =>
-        DB.preferences
+        GDB.preferences
             .where('key')
             .equals('shortcut')
             .reverse()
@@ -108,7 +108,7 @@ export default class Shortcuts extends Mixins(ShortcutsLoader) {
         let conDig = this.$refs.confirm as ConfirmDialog
         conDig.confirm().then(
             () => {
-                return DB.preferences.delete(item.id as any)
+                return GDB.preferences.delete(item.id as any)
             },
             () => {
                 console.log('cancel')

@@ -14,7 +14,15 @@ export default class TableLoader<T> extends Vue {
         if (!this.tableName) {
             throw new Error('TableLoader: table name not set')
         }
-        this._unsubscribe = DB.subscribe(this.tableName, () => this._query()).unsubscribe
+        this._unsubscribe = (() => {
+            if (GDB.tables.some(t => t.name === this.tableName)) {
+                return GDB.subscribe(this.tableName, () => this._query()).unsubscribe
+            }
+            if (BDB.tables.some(t => t.name === this.tableName)) {
+                return BDB.subscribe(this.tableName, () => this._query()).unsubscribe
+            }
+            throw new Error(`unknown table ${this.tableName}`)
+        })()
         this._query()
     }
     public destroyed() {

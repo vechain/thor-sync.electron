@@ -204,7 +204,7 @@ export default class NewWalletDialog extends Vue {
                 keystore: ks,
                 createdTime: Date.now()
             }
-            await DB.wallets.add(entity)
+            await BDB.wallets.add(entity)
             this.result = { entity }
         } catch (err) {
             this.result = { err }

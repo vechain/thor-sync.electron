@@ -28,9 +28,9 @@ import { Entities } from '@/renderer/database';
 
 @Component
 class TxRecordsLoader extends TableLoader<Entities.TxRecord>{
-    tableName = DB.txRecords.name
+    tableName = BDB.txRecords.name
     filter = () => {
-        return DB.txRecords
+        return BDB.txRecords
             .where('insertTime')
             .above(Date.now() - 24 * 3600 * 1000)
             .reverse()

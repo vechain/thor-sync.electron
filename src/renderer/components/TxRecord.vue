@@ -183,7 +183,7 @@ export default class TxRecord extends Vue {
 
     timer !: any
     async created() {
-        this.wallet = (await DB.wallets
+        this.wallet = (await BDB.wallets
             .get({ address: this.entity.signer.toLowerCase() })) || null
         this.timer = setInterval(() => this.timestamp = Date.now(), 2000)
     }

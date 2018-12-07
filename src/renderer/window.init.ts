@@ -1,6 +1,6 @@
 import { Vue } from 'vue-property-decorator'
 import { remote, ipcRenderer } from 'electron'
-import Database from './database'
+import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-utils'
 
@@ -9,13 +9,15 @@ import { trackTxLoop } from './tx-utils'
 declare global {
     interface Window {
         readonly ENV: typeof env
-        readonly DB: Database
+        readonly GDB: GlobalDatabase
+        readonly BDB: BoundedDatabase
         // event bus
         readonly BUS: Vue
         readonly TXER: Txer
     }
     const ENV: typeof env
-    const DB: Database
+    const GDB: GlobalDatabase
+    const BDB: BoundedDatabase
     const BUS: Vue
     const TXER: Txer
 }
@@ -40,8 +42,12 @@ Object.defineProperty(window, 'ENV', {
     value: env,
     enumerable: true
 })
-Object.defineProperty(window, 'DB', {
-    value: new Database(),
+Object.defineProperty(window, 'GDB', {
+    value: new GlobalDatabase(),
+    enumerable: true
+})
+Object.defineProperty(window, 'BDB', {
+    value: new BoundedDatabase(remote.getCurrentWebContents().getWebPreferences().siteConfig!.genesis.id),
     enumerable: true
 })
 Object.defineProperty(window, 'BUS', {

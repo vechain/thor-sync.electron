@@ -100,7 +100,7 @@ export default class NewShortcutDialog extends Vue {
             let result = Object.assign({}, this.editItem)
             result.value.name = this.form.name
             result.value.href = this.form.domain
-            DB.preferences
+            GDB.preferences
                 .update(this.editItem!.id as any, result)
                 .then(updated => {
                     if (updated) {
@@ -111,7 +111,7 @@ export default class NewShortcutDialog extends Vue {
                     }
                 })
         } else {
-            DB.preferences
+            GDB.preferences
                 .add({
                     key: 'shortcut',
                     value: {

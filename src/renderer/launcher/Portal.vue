@@ -88,13 +88,13 @@ export default class Portal extends Vue {
         if (this.favicons[href]) {
             return this.favicons[href]
         }
-        DB.history.get({ 'href': href }).then(record => {
+        GDB.history.get({ 'href': href }).then(record => {
             if (record) {
                 return record.favicon
             }
             const hostname = NodeUrl.parse(href).hostname || href
 
-            return DB.history
+            return GDB.history
                 .where('tokens')
                 .startsWithIgnoreCase(hostname)
                 .limit(1)
@@ -131,12 +131,12 @@ export default class Portal extends Vue {
         }, 0)
     }
     removeShortcut() {
-        DB.preferences.delete(this.editingShortcut.id)
+        GDB.preferences.delete(this.editingShortcut.id)
         this.showEditShortcutDialog = false
     }
 
     saveShortcut() {
-        DB.preferences.update(this.editingShortcut.id, {
+        GDB.preferences.update(this.editingShortcut.id, {
             value: {
                 name: this.editingShortcut.name,
                 href: this.editingShortcut.href,

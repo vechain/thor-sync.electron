@@ -63,23 +63,14 @@ export namespace Entities {
 }
 
 class Database extends Dexie {
-    public readonly wallets!: Dexie.Table<Entities.Wallet, number>
-    public readonly preferences!: Dexie.Table<Entities.Preference, number>
-    public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
-    public readonly history!: Dexie.Table<Entities.History, string>
+    protected constructor(name: string) {
+        super(name)
 
-    constructor() {
-        super('main')
-        this.version(1).stores({
-            wallets: '++id, &address, name',
-            preferences: '++id, key',
-            txRecords: 'id, insertTime, signer, confirmed',
-            history: 'href, *tokens, lastAccessTime'
+        setImmediate(() => {
+            // tslint:disable-next-line:no-console
+            this.open().catch(err => console.error(err))
         })
-        // tslint:disable-next-line:no-console
-        this.open().catch(err => console.error(err))
     }
-
 
     public subscribe(tableName: string, onChange: (changes: IDatabaseChange[]) => void) {
         const ev = this.on('changes')
@@ -96,4 +87,29 @@ class Database extends Dexie {
     }
 }
 
-export default Database
+export class GlobalDatabase extends Database {
+    public readonly preferences!: Dexie.Table<Entities.Preference, number>
+    public readonly history!: Dexie.Table<Entities.History, string>
+
+    constructor() {
+        super('global')
+        this.version(1).stores({
+            preferences: '++id, key',
+            history: 'href, *tokens, lastAccessTime'
+        })
+    }
+}
+
+export class BoundedDatabase extends Database {
+    public readonly wallets!: Dexie.Table<Entities.Wallet, number>
+    public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
+
+    constructor(network: string) {
+        super(network)
+        this.version(1).stores({
+            wallets: '++id, &address, name',
+            txRecords: 'id, insertTime, signer, confirmed',
+        })
+    }
+}
+
