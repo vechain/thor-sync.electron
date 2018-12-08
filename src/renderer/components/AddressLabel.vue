@@ -45,7 +45,7 @@ export default Vue.extend({
                     text: addr.toLowerCase()
                 },
                 style: {
-                    height: '50%'
+                    height: '55%'
                 }
             })])
         } else {

@@ -33,6 +33,7 @@ import Portal from './Portal.vue'
 import Wallets from './Wallets.vue'
 import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
+import Transfer from './Transfer.vue'
 
 @Component
 export default class Router extends Vue {
@@ -94,7 +95,18 @@ const routes: RouteConfig[] = [
     {
         path: '/settings',
         name: 'settings',
-        component: Settings
+        component: Settings,
+        meta: {
+            title: 'Settings'
+        }
+    },
+    {
+        path: '/transfer',
+        name: 'transfer',
+        component: Transfer,
+        meta: {
+            title: 'Transfer'
+        }
     }
 ]
 </script>
