@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners" class="white">
+    <div v-bind="$attrs" v-on="$listeners" class="#eaeaea">
         <div id="content"/>
     </div>
 </template>
@@ -40,6 +40,8 @@ export default class Launcher extends Vue {
             favicon = 'mdi-cards'
         } else if (path.includes('settings')) {
             favicon = 'mdi-settings'
+        } else if (path.includes('transfer')) {
+            favicon = 'mdi-transfer'
         } else {
             favicon = 'mdi-home'
         }

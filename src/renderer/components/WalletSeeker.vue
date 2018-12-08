@@ -4,10 +4,11 @@
             <v-layout row align-center justify-center>
                 <WalletCard
                     flat
-                    compact
+                    :compact="!fullSize"
                     class="outline"
                     :wallet="wallet"
-                    style="border-radius:8px;width:150px;"
+                    style="border-radius:9px;"
+                    :style="{width: fullSize? '170px': '150px'}"
                 />
             </v-layout>
         </v-window-item>
@@ -48,7 +49,7 @@ export default class WalletSeeker extends Vue {
     @Prop({ default: () => [] }) wallets!: Entities.Wallet[]
     @Prop(Boolean) disabled!: boolean
     @Prop(Number) value!: number
-
+    @Prop(Boolean) fullSize!: boolean
 }
 </script>
 
