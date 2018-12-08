@@ -121,7 +121,7 @@
                                     :close-on-content-click="false"
                                     :position-x="accessHistoryPosition.x"
                                     :position-y="accessHistoryPosition.y"
-                                    :width="accessHistoryWidth"
+                                    :width="accessHistoryPosition.width"
                                     :keyword="keyword"
                                     @update:selection="activePage.userInput=$event.href"
                                     @select="onAccessHistorySelected"
@@ -237,7 +237,8 @@ class Page {
     readonly nav: WebView.Nav = {
         goBack: 0,
         goForward: 0,
-        reloadOrStop: 0
+        reloadOrStop: 0,
+        reGo: 0
     }
 
     constructor(href: string) {
@@ -277,8 +278,7 @@ export default class Nova extends Vue {
     get activePage() { return this.pages[this.activePageIndex] }
     urlBoxFocused = false
 
-    accessHistoryWidth = 0
-    accessHistoryPosition = { x: 0, y: 0 }
+    accessHistoryPosition = { x: 0, y: 0, width: 0 }
     showAccessHistory = false
     keyword = ''
 
@@ -328,7 +328,12 @@ export default class Nova extends Vue {
     }
 
     navigateTo(href: string) {
-        this.activePage.href = UrlUtils.formalize(href)
+        const newHref = UrlUtils.formalize(href)
+        if (newHref === this.activePage.href) {
+            this.activePage.nav.reGo++
+        } else {
+            this.activePage.href = newHref
+        }
     }
 
     created() {
@@ -392,7 +397,7 @@ export default class Nova extends Vue {
         this.accessHistoryPosition.y = Math.round(rect.bottom) + 5
 
         const navBoxRect = (this.$refs.navBox as Element).getClientRects().item(0)!
-        this.accessHistoryWidth = Math.round(navBoxRect.right - rect.left)
+        this.accessHistoryPosition.width = Math.round(navBoxRect.right - rect.left)
     }
 
     onResize() {

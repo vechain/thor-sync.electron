@@ -12,5 +12,6 @@ declare namespace WebView {
         goBack: number
         goForward: number
         reloadOrStop: number
+        reGo: number
     }
 }
