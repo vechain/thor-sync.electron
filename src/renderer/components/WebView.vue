@@ -87,7 +87,7 @@ export default class WebView extends Mixins(AccessHistory) {
     }
     @Watch('nav.reGo')
     reGo() {
-        this.webview.src = this.currentHref = this.href
+        this.webview.goToOffset(0)
     }
 
     _unbind !: () => void
