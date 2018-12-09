@@ -41,13 +41,22 @@ export default class AccessHistory extends Vue {
         }).catch(console.warn)
     }
 
-    public queryHistory(keyword: string) {
+    public async queryHistory(keyword: string) {
         keyword = keyword.split(' ').filter(p => !!p).join(' ')
-        return GDB.history
+        let items = await GDB.history
             .where('tokens')
             .startsWithIgnoreCase(keyword)
             .distinct()
             .toArray()
+
+        if (items.length > 0 || keyword.length < 8) {
+            return items
+        }
+        items = await GDB.history
+            .where('href')
+            .startsWith(keyword)
+            .toArray()
+        return items
     }
 }
 
