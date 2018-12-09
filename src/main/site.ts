@@ -185,7 +185,8 @@ export class Site implements Thor.Site {
             head: {
                 id: this.bestBlock.id,
                 number: this.bestBlock.number,
-                timestamp: this.bestBlock.timestamp
+                timestamp: this.bestBlock.timestamp,
+                parentID: this.bestBlock.parentID,
             }
         }
     }

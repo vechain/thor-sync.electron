@@ -3,6 +3,9 @@ import { create as createThor } from '../thor'
 import TxQueue from './tx-queue'
 import { Site, Agent } from './site'
 
+// tslint:disable-next-line:no-var-requires
+const connexVersion = require('@vechain/connex/package.json').version
+
 export class Backend {
     private readonly activeSites = new Map<string, { site: Site, refCount: number }>()
     private readonly txQueue = new TxQueue()
@@ -32,6 +35,7 @@ export class Backend {
         contents.once('destroyed', disconnect)
         return {
             connex: {
+                version: connexVersion,
                 thor: createThor(site.fork(wireAgent)),
                 vendor: this.createVendor(contents)
             },
