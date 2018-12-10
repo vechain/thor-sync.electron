@@ -6,6 +6,7 @@ import AppButton from './AppButton.vue'
 import CertIndicator from './CertIndicator.vue'
 import ClauseItem from './ClauseItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import DialogEx from './DialogEx.vue'
 import Favicon from './Favicon.vue'
 import IdentBox from './IdentBox.vue'
 import NetworkStatus from './NetworkStatus.vue'
@@ -33,6 +34,7 @@ export {
     CertIndicator,
     ClauseItem,
     ConfirmDialog,
+    DialogEx,
     Favicon,
     IdentBox,
     NetworkStatus,
