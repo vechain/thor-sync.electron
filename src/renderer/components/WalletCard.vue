@@ -11,7 +11,6 @@
                     column
                     fill-height
                     justify-center
-                    style="text-shadow: 0px 1px 1px #000, 0px -0.5px 1px #fff;"
                 >
                     <span
                         class="text-truncate"
