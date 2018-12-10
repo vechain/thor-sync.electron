@@ -1,6 +1,6 @@
 <template>
-    <v-dialog v-bind="$attrs" v-on="$listeners" v-model="opened" max-width="800px" persistent>
-        <v-card v-nofocusout @keypress.enter="onKeyEnter" @keydown.esc="onKeyEsc">
+    <DialogEx v-bind="$attrs" v-on="$listeners" v-model="opened" max-width="800px" persistent @action:ok="onKeyEnter" @action:cancel="onKeyEsc">
+        <v-card >
             <v-card-text>
                 <div class="subheading font-weight-light">Create Wallet</div>
                 <v-stepper
@@ -76,13 +76,11 @@
                     :disabled="!abortBtn.enabled"
                     v-show="abortBtn.visible"
                     @click="abortBtn.action"
-                    @keypress.enter.stop
                 >{{abortBtn.text}}</v-btn>
                 <v-btn
                     flat
                     :disabled="!backBtn.enabled"
                     @click="backBtn.action"
-                    @keypress.enter.stop
                 >{{backBtn.text}}</v-btn>
                 <v-btn
                     flat
@@ -90,12 +88,11 @@
                     :disabled="!nextBtn.enabled"
                     v-show="nextBtn.visible"
                     @click="nextBtn.action"
-                    @keypress.enter.stop
                 >{{nextBtn.text}}</v-btn>
             </v-card-actions>
         </v-card>
         <slot slot="activator" name="activator"/>
-    </v-dialog>
+    </DialogEx>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Model } from 'vue-property-decorator'

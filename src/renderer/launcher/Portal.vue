@@ -1,11 +1,13 @@
 <template>
     <v-layout column align-center>
-        <v-dialog persistent v-model="showEditShortcutDialog" max-width="380px">
-            <v-card
-                v-nofocusout
-                @keypress.enter="editingShortcut.name && saveShortcut()"
-                @keydown.esc="showEditShortcutDialog=false"
-            >
+        <DialogEx
+            persistent
+            v-model="showEditShortcutDialog"
+            max-width="380px"
+            @action:ok="saveShortcut"
+            @action:cancel="showEditShortcutDialog=false"
+        >
+            <v-card>
                 <v-card-title>Shortcut</v-card-title>
                 <v-card-text>
                     <v-text-field ref="shortcutTitle" label="Title" v-model="editingShortcut.name"/>
@@ -18,16 +20,10 @@
                     <v-btn small flat color="red" @click="removeShortcut">Remove</v-btn>
                     <v-spacer/>
                     <v-btn small flat @click="showEditShortcutDialog=false">Cancel</v-btn>
-                    <v-btn
-                        small
-                        :disabled="!editingShortcut.name"
-                        flat
-                        color="primary"
-                        @click="saveShortcut"
-                    >Save</v-btn>
+                    <v-btn small flat color="primary" @click="saveShortcut">Save</v-btn>
                 </v-card-actions>
             </v-card>
-        </v-dialog>
+        </DialogEx>
         <v-layout column align-center style="max-width:700px;width:100%" pa-3>
             <div class="grey--text title font-weight-light">Shortcuts</div>
             <div style="width:100%;">
@@ -135,6 +131,10 @@ export default class Portal extends Vue {
     }
 
     saveShortcut() {
+        if (!this.editingShortcut.name.trim()) {
+            return
+        }
+
         GDB.preferences.update(this.editingShortcut.id, {
             value: {
                 name: this.editingShortcut.name,
