@@ -76,14 +76,21 @@
                     :disabled="!abortBtn.enabled"
                     v-show="abortBtn.visible"
                     @click="abortBtn.action"
+                    @keypress.enter.stop
                 >{{abortBtn.text}}</v-btn>
-                <v-btn flat :disabled="!backBtn.enabled" @click="backBtn.action">{{backBtn.text}}</v-btn>
+                <v-btn
+                    flat
+                    :disabled="!backBtn.enabled"
+                    @click="backBtn.action"
+                    @keypress.enter.stop
+                >{{backBtn.text}}</v-btn>
                 <v-btn
                     flat
                     color="primary"
                     :disabled="!nextBtn.enabled"
                     v-show="nextBtn.visible"
                     @click="nextBtn.action"
+                    @keypress.enter.stop
                 >{{nextBtn.text}}</v-btn>
             </v-card-actions>
         </v-card>
