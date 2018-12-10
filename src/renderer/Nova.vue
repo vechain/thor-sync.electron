@@ -312,14 +312,20 @@ export default class Nova extends Vue {
         }
     }
 
-    openTab(href: string, mode?: 'append' | 'append-active' | 'inplace') {
+    openTab(href: string, mode?: 'append' | 'append-active' | 'inplace' | 'inplace-builtin') {
         const formalized = UrlUtils.formalize(href)
         if (mode === 'append-active') {
             const page = new Page(formalized)
             this.pages.splice(this.activePageIndex + 1, 0, page)
             this.activePageIndex++
         } else if (mode === 'inplace') {
-            this.pages[this.activePageIndex].href = formalized
+            this.activePage.href = formalized
+        } else if (mode === 'inplace-builtin') {
+            if (this.activePage.isBuiltin) {
+                this.activePage.href = formalized
+            } else {
+                this.openTab(href, 'append')
+            }
         } else {
             const page = new Page(formalized)
             this.pages.push(page)
