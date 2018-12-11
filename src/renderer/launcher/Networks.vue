@@ -18,7 +18,7 @@
                             <v-list-tile avatar>
                                 <v-list-tile-content>
                                     <v-list-tile-title>{{item.value.name}}</v-list-tile-title>
-                                    <v-list-tile-sub-title>{{item.value.rpcUrl}}</v-list-tile-sub-title>
+                                    <v-list-tile-sub-title>{{item.value.url}}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                                 <v-list-tile-action>
                                     <v-btn icon @click="onEdit(item)" ripple dark color="#82B1FF">
@@ -63,27 +63,6 @@
     export default class Networks extends Mixins(NetworksLoader) {
         dialog = false
         editItem: Entities.Preference | null = null
-
-        headers = [
-            {
-                text: 'Name',
-                value: 'name',
-                align: 'center',
-                sortable: false
-            },
-            {
-                text: 'RPC URL',
-                value: 'name',
-                align: 'center',
-                sortable: false
-            },
-            {
-                text: 'Actions',
-                value: 'name',
-                align: 'center',
-                sortable: false
-            }
-        ]
 
         onEdit(network: Entities.Preference) {
             this.editItem = network
