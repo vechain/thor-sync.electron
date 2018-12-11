@@ -5,6 +5,7 @@ namespace Store {
     export type Model = {
         chainStatus: Connex.Thor.Status
         shortcuts: Array<Entities.Preference<'shortcut'>>
+        networks: Array<Entities.Preference<'network'>>
         wallets: Entities.Wallet[]
     }
 }
@@ -12,12 +13,14 @@ namespace Store {
 class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
     public static readonly UPDATE_SHORTCUTS = 'updateShortcuts'
+    public static readonly UPDATE_NETWORKS = 'updateNetworks'
     public static readonly UPDATE_WALLETS = 'updateWallets'
     constructor() {
         super({
             state: {
                 chainStatus: connex.thor.status,
                 shortcuts: [],
+                networks: [],
                 wallets: []
             },
             getters: {
@@ -28,6 +31,9 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_SHORTCUTS](state, payload) {
                     state.shortcuts = payload
+                },
+                [Store.UPDATE_NETWORKS](state, payload) {
+                    state.networks = payload
                 },
                 [Store.UPDATE_WALLETS](state, payload) {
                     state.wallets = payload
@@ -55,6 +61,12 @@ class Store extends Vuex.Store<Store.Model> {
                 .toArray()
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
+        const queryAndUpdateNetworks = async () => {
+            const networks = await GDB.preferences
+                .where({ key: 'network' })
+                .toArray()
+            this.commit(Store.UPDATE_NETWORKS, networks)
+        }
 
         const queryAndUpdateWallets = async () => {
             const wallets = await BDB.wallets
@@ -63,9 +75,13 @@ class Store extends Vuex.Store<Store.Model> {
         }
 
         await queryAndUpdateShortcuts()
+        await queryAndUpdateNetworks()
         await queryAndUpdateWallets()
 
-        GDB.subscribe(GDB.preferences.name, queryAndUpdateShortcuts)
+        GDB.subscribe(GDB.preferences.name, () => {
+            queryAndUpdateShortcuts()
+            queryAndUpdateNetworks()
+        })
         BDB.subscribe(BDB.wallets.name, queryAndUpdateWallets)
     }
 }

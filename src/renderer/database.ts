@@ -22,14 +22,11 @@ export namespace Entities {
     }
 
     export namespace Preference {
-        export interface Shortcut {
+        export type Shortcut = {
             name: string
             href: string
         }
-        export interface Network {
-            name: string
-            rpcUrl: string
-        }
+        export type Network = Thor.Site.Config
     }
 
     export interface TxRecord {
