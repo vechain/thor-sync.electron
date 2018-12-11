@@ -8,16 +8,16 @@
                     <v-flex>
                         <v-form ref="form" v-model="valid">
                             <v-text-field
+                                validate-on-blur
                                 v-model="form.name"
                                 :rules="rules.name"
                                 label="Name"
-                                required
                             ></v-text-field>
                             <v-text-field
-                                :rules="rules.rpcUrl"
                                 v-model="form.rpcUrl"
+                                :error="error.isError"
+                                :error-messages="error.message"
                                 label="RPC URL"
-                                required
                             ></v-text-field>
                         </v-form>
                     </v-flex>
@@ -42,11 +42,16 @@
         Prop,
         Emit
     } from 'vue-property-decorator'
-    import { dialog } from 'electron'
+    import { dialog, remote } from 'electron'
+    import { ErrorObject } from 'serialize-error'
 
     @Component
     export default class NewNetworkDialog extends Vue {
         isEditing = false
+        error = {
+            isError: false,
+            message: ''
+        }
         @Model('input')
         value!: boolean
 
@@ -70,7 +75,7 @@
 
             if (this.editItem) {
                 this.form.name = this.editItem!.value.name
-                this.form.rpcUrl = this.editItem!.value.rpcUrl
+                this.form.rpcUrl = this.editItem!.value.url
             }
             this.isEditing = !!this.editItem
         }
@@ -96,17 +101,33 @@
             this.dialog = false
             let form = this.$refs.form as any
             form.reset()
+            this.error = {
+                isError: false,
+                message: ''
+            }
             this.onCancel()
         }
-        save() {
+        async save() {
             let form = this.$refs.form as any
             if (!form.validate()) {
                 return
             }
+
+            let genesis: Connex.Thor.Block
+            try {
+                genesis = await remote.app.EXTENSION.discoverNode(this.form.rpcUrl)
+            } catch (error) {
+                this.error.isError = true
+                this.error.message = `${error.name}: ${error.message}`
+                return
+            }
+
+            console.log('asdf')
             if (this.isEditing) {
                 let result = Object.assign({}, this.editItem)
                 result.value.name = this.form.name
-                result.value.rpcUrl = this.form.rpcUrl
+                result.value.url = this.form.rpcUrl
+                result.value.genesis = genesis
                 GDB.preferences
                     .update(this.editItem!.id as any, { value: result.value })
                     .then(updated => {
@@ -123,7 +144,8 @@
                         key: 'network',
                         value: {
                             name: this.form.name,
-                            rpcUrl: this.form.rpcUrl
+                            url: this.form.rpcUrl,
+                            genesis: genesis
                         }
                     })
                     .then(() => {
