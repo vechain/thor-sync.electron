@@ -1,34 +1,30 @@
 <template>
-    <v-container>
-        <v-layout row justify-center>
-            <v-flex sm12 lg6>
-                <v-subheader>VeChainSync</v-subheader>
-                <v-card>
-                    <v-card-text class="grey--text text--darken-1">Version {{getVersion()}}</v-card-text>
-                    <v-list>
-                        <v-list-tile>
-                            <v-list-tile-content>
-                                <v-list-tile-title class="grey--text text--darken-3">Auto Update</v-list-tile-title>
-                            </v-list-tile-content>
-                            <v-list-tile-action>
-                                <v-switch @change="onChange" v-model="isAuto.value"></v-switch>
-                            </v-list-tile-action>
-                        </v-list-tile>
-                        <v-list-tile>
-                            <v-list-tile-content>
-                                <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
-                            </v-list-tile-content>
-                            <v-list-tile-action>
-                                <v-btn @click.stop="reportIssue" icon ripple style="margin-right: 20px">
-                                    <v-icon class="grey--text text--darken-1">launch</v-icon>
-                                </v-btn>
-                            </v-list-tile-action>
-                        </v-list-tile>
-                    </v-list>
-                </v-card>
-            </v-flex>
-        </v-layout>
-    </v-container>
+    <v-layout column>
+        <v-subheader>VeChainSync</v-subheader>
+        <v-card>
+            <v-card-text class="grey--text text--darken-1">Version {{getVersion()}}</v-card-text>
+            <v-list>
+                <v-list-tile>
+                    <v-list-tile-content>
+                        <v-list-tile-title class="grey--text text--darken-3">Auto Update</v-list-tile-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                        <v-switch @change="onChange" v-model="isAuto.value"></v-switch>
+                    </v-list-tile-action>
+                </v-list-tile>
+                <v-list-tile>
+                    <v-list-tile-content>
+                        <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                        <v-btn @click.stop="reportIssue" icon ripple style="margin-right: 20px">
+                            <v-icon class="grey--text text--darken-1">launch</v-icon>
+                        </v-btn>
+                    </v-list-tile-action>
+                </v-list-tile>
+            </v-list>
+        </v-card>
+    </v-layout>
 </template>
 <script lang="ts">
     import { Vue, Component, Watch, Emit } from 'vue-property-decorator'
