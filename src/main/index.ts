@@ -3,6 +3,7 @@ import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import inject from './inject'
+import { discoverNode } from './site'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -39,6 +40,9 @@ declare module 'electron' {
             getCertificate(hostname: string): CertificateVerifyProcRequest | undefined
 
             registerBrowserWindowEvent(windowId: number, event: string[]): void
+
+            // discover node's thorest api and return discovered genesis block.
+            discoverNode(url: string): Promise<Connex.Thor.Block>
         }
     }
 }
@@ -67,7 +71,8 @@ app.EXTENSION = {
     },
     createWindow: (config, options) => winMgr.create(config, options),
     getCertificate: (hostname) => certs.get(hostname),
-    registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) }
+    registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) },
+    discoverNode: url => discoverNode(url)
 }
 
 app.on('web-contents-created', (_, contents) => {

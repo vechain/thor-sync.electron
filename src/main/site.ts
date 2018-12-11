@@ -269,3 +269,15 @@ export class Site implements Thor.Site {
     }
 }
 
+export async function discoverNode(url: string) {
+    const resp = await Axios.get<Connex.Thor.Block>(NodeUrl.resolve(url, '/blocks/0'), {
+        validateStatus: status => status >= 200 && status < 300,
+    })
+    if (!resp.data) {
+        throw new Error('invalid response: expected object')
+    }
+    if (!/^0x[0-9a-f]{64}$/i.test(resp.data.id)) {
+        throw new Error('invalid response: id expected bytes32')
+    }
+    return resp.data
+}
