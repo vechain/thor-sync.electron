@@ -19,8 +19,8 @@
                                 <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
                             </v-list-tile-content>
                             <v-list-tile-action>
-                                <v-btn @click.stop="" icon ripple style="margin-right: 20px">
-                                    <v-icon>launch</v-icon>
+                                <v-btn @click.stop="reportIssue" icon ripple style="margin-right: 20px">
+                                    <v-icon class="grey--text text--darken-1">launch</v-icon>
                                 </v-btn>
                             </v-list-tile-action>
                         </v-list-tile>
@@ -54,8 +54,11 @@
             await this.getConfig()
         }
 
-        @Emit('')
-        reportIssue(link: string){}
+        reportIssue() {
+            BUS.$emit('open-tab', {
+                href: 'https://github.com/vechain/thor-sync.electron/issues/new'
+            })
+        }
 
         onChange() {
             if (this.isAuto.id) {
