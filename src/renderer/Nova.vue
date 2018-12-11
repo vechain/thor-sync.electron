@@ -222,9 +222,10 @@ class Page {
     static nextId = 0
 
     id = Page.nextId++
-    href = ''
     userInput = ''
 
+    _href = ''
+    _savedWebviewHref = ''
     private readonly status: WebView.Status = {
         title: '',
         favicon: '',
@@ -244,6 +245,15 @@ class Page {
     constructor(href: string) {
         this.href = href
     }
+    get href() {
+        return this._href
+    }
+    set href(val: string) {
+        if (val !== this._href) {
+            this._savedWebviewHref = ''
+            this._href = val
+        }
+    }
 
     updateStatus(status: WebView.Status) { Object.assign(this.status, status) }
     get title() { return this.status.title || this.href }
@@ -251,12 +261,36 @@ class Page {
     get progress() { return this.isBuiltin ? 100 : this.status.progress * 100 }
     get loading() { return this.status.progress !== 1 }
     get isBuiltin() { return !this.href || this.href.toLowerCase().startsWith('sync:') }
-    get canGoBack() { return this.status.canGoBack }
-    get canGoForward() { return this.status.canGoForward }
+    get canGoBack() {
+        if (!this.isBuiltin && !this.status.canGoBack) {
+            return true
+        }
+        return this.status.canGoBack
+    }
+    get canGoForward() {
+        if (this.isBuiltin && !this.status.canGoForward && this._savedWebviewHref) {
+            return true
+        }
+        return this.status.canGoForward
+    }
     get cert() { return this.status.cert }
 
-    goBack() { this.nav.goBack++ }
-    goForward() { this.nav.goForward++ }
+    goBack() {
+        if (!this.isBuiltin && !this.status.canGoBack) {
+            const href = this.href
+            this.href = ''
+            this._savedWebviewHref = href
+        } else {
+            this.nav.goBack++
+        }
+    }
+    goForward() {
+        if (this.isBuiltin && !this.status.canGoForward && this._savedWebviewHref) {
+            this.href = this._savedWebviewHref
+        } else {
+            this.nav.goForward++
+        }
+    }
     reloadOrStop() { this.nav.reloadOrStop++; this.userInput = '' }
 }
 
