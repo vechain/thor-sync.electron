@@ -2,13 +2,13 @@
     <v-container>
         <v-layout row justify-center>
             <v-flex sm12 lg6 row wrap="">
-                <span class="headline">Networks</span>
-                <span>
-                    <a
-                        @click="dialog = true"
+                <v-subheader>
+                    <span class="subheading">Networks</span>
+                    <v-spacer />
+                    <a @click="dialog = true"
                         style="float: right; margin-right: 20px; margin-top: 5px;"
                     >Add</a>
-                </span>
+                </v-subheader>
                 <v-card>
                     <v-card-title v-if="!rows.length">
                         <h3 class="subheading">No network items!</h3>

@@ -2,7 +2,7 @@
     <v-container>
         <v-layout row justify-center>
             <v-flex sm12 lg6>
-                <h3 class="headline">VeChainSync</h3>
+                <v-subheader>VeChainSync</v-subheader>
                 <v-card>
                     <v-card-text class="grey--text text--darken-1">Version {{getVersion()}}</v-card-text>
                     <v-list>
