@@ -90,7 +90,7 @@
                         :class="{'nav-box-focused': urlBoxFocused}"
                     >
                         <v-layout align-center style="position:relative;" fill-height>
-                            <NetworkStatusPanel>
+                            <NodeStatusPanel :nudge-top="2">
                                 <v-btn
                                     :ripple="false"
                                     flat
@@ -98,9 +98,9 @@
                                     class="ma-0 px-1"
                                     style="min-width:auto;"
                                 >
-                                    <NetworkStatus/>
+                                    <NodeStatus/>
                                 </v-btn>
-                            </NetworkStatusPanel>
+                            </NodeStatusPanel>
                             <v-layout
                                 ref="urlBoxWithIcon"
                                 class="url-box-with-icon"

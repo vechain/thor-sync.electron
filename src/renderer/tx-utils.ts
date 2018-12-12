@@ -147,7 +147,7 @@ export async function trackTxLoop() {
                     })
                 }
             })
-            await ticker.next()
+            await Promise.race([ticker.next(), sleep(200000)])
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.warn(err)

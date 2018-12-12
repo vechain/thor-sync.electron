@@ -102,8 +102,6 @@ export default class TxRecord extends Vue {
     wallet: Entities.Wallet | null = null
     timestamp = 0
 
-    @State chainStatus!: Status
-
     get signer() { return this.entity.signer.toLowerCase() }
     get walletName() { return this.wallet ? this.wallet.name : 'Unknown' }
 

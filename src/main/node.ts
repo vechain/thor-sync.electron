@@ -31,7 +31,7 @@ export namespace Agent {
 class Wire implements Thor.Wire {
     private readonly axios: AxiosInstance
     constructor(
-        private readonly config: Thor.Site.Config,
+        private readonly config: Thor.Node.Config,
         private readonly agent: Agent
     ) {
         this.axios = Axios.create({
@@ -152,17 +152,24 @@ class Wire implements Thor.Wire {
     }
 }
 
-export class Site implements Thor.Site {
+export class Node implements Thor.Node {
     public readonly innerWire: Wire
-    private bestBlock: Connex.Thor.Block
+    private beat: Beat
     private readonly emitter = new EventEmitter()
     private stop = false
 
     constructor(
-        readonly config: Thor.Site.Config,
+        readonly config: Thor.Node.Config,
         readonly agent: Agent
     ) {
-        this.bestBlock = config.genesis
+        this.beat = {
+            number: config.genesis.number,
+            id: config.genesis.id,
+            parentID: config.genesis.parentID,
+            timestamp: config.genesis.timestamp,
+            bloom: '',
+            k: 0
+        }
         this.emitter.setMaxListeners(0)
         this.innerWire = new Wire(config, agent)
         this.loop()
@@ -183,15 +190,15 @@ export class Site implements Thor.Site {
         return {
             progress: this.progress,
             head: {
-                id: this.bestBlock.id,
-                number: this.bestBlock.number,
-                timestamp: this.bestBlock.timestamp,
-                parentID: this.bestBlock.parentID,
+                id: this.beat.id,
+                number: this.beat.number,
+                timestamp: this.beat.timestamp,
+                parentID: this.beat.parentID,
             }
         }
     }
 
-    public fork(wireAgent: Agent): Thor.Site {
+    public fork(wireAgent: Agent): Thor.Node {
         const _this = this
         return {
             get config() {
@@ -212,7 +219,7 @@ export class Site implements Thor.Site {
 
     private get progress() {
         const nowTs = Date.now()
-        const bestTs = this.bestBlock.timestamp * 1000
+        const bestTs = this.beat.timestamp * 1000
         if (nowTs - bestTs < 30 * 1000) {
             return 1
         }
@@ -224,10 +231,12 @@ export class Site implements Thor.Site {
     private async loop() {
         let ws: ReturnType<Wire['ws']> | undefined
         while (!this.stop) {
-            const lastProgress = this.progress
             if (ws) {
                 try {
-                    this.bestBlock = JSON.parse((await ws.read()).toString())
+                    const beat = JSON.parse((await ws.read()).toString())
+                    if (beat.id !== this.beat.id) {
+                        this.beat = beat
+                    }
                     this.emitter.emit('next')
                     continue
                 } catch (err) {
@@ -241,13 +250,19 @@ export class Site implements Thor.Site {
                 }
             } else {
                 const now = Date.now()
-                if (now - this.bestBlock.timestamp * 1000 < 30 * 1000) {
-                    ws = this.innerWire.ws('subscriptions/block')
+                if (now - this.beat.timestamp * 1000 < 30 * 1000) {
+                    ws = this.innerWire.ws('subscriptions/beat')
                 } else {
                     try {
-                        const best = await this.innerWire.get<Connex.Thor.Block | null>('blocks/best')
-                        if (best!.number !== this.bestBlock.number) {
-                            this.bestBlock = best!
+                        const best = (await this.innerWire.get<Connex.Thor.Block | null>('blocks/best'))!
+                        if (best.id !== this.beat.id) {
+                            this.beat.number = best.number
+                            this.beat.id = best.id
+                            this.beat.parentID = best.parentID
+                            this.beat.timestamp = best.timestamp
+                            this.beat.bloom = ''
+                            this.beat.k = 0
+
                             this.emitter.emit('next')
                             continue
                         }
@@ -260,10 +275,6 @@ export class Site implements Thor.Site {
                         }
                     }
                 }
-            }
-
-            if (this.progress !== lastProgress) {
-                this.emitter.emit('next')
             }
         }
     }
@@ -280,4 +291,15 @@ export async function discoverNode(url: string) {
         throw new Error('invalid response: id expected bytes32')
     }
     return resp.data
+}
+
+
+type Beat = {
+    number: number
+    id: string
+    parentID: string
+    timestamp: number
+
+    bloom: string
+    k: number
 }

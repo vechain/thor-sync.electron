@@ -12,7 +12,7 @@ export default class AccountLoader extends Vue {
         this.update()
     }
 
-    @Watch('$store.state.chainStatus')
+    @Watch('$store.state.chainHead')
     @Watch('address')
     private update() {
         if (Address.isValid(this.address)) {

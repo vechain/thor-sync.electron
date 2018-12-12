@@ -57,6 +57,7 @@
     "axios": "^0.18.0",
     "electron-context-menu": "^0.10.0",
     "electron-unhandled": "^1.1.0",
+    "lodash.clonedeep": "^4.5.0",
     "mkdirp": "0.5.1",
     "thor-devkit": "0.3.0",
     "ws": "^6.0.0"
@@ -66,6 +67,7 @@
     "@types/bignumber.js": "^5.0.0",
     "@types/chai": "^4.1.4",
     "@types/color": "^3.0.0",
+    "@types/lodash.clonedeep": "^4.5.4",
     "@types/lodash.debounce": "^4.0.4",
     "@types/lru-cache": "^4.1.1",
     "@types/mersenne-twister": "^1.1.2",

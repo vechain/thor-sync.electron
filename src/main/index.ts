@@ -3,7 +3,7 @@ import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import inject from './inject'
-import { discoverNode } from './site'
+import { discoverNode } from './node'
 
 // tslint:disable-next-line:no-var-requires
 require('electron-unhandled')({
@@ -23,7 +23,7 @@ declare module 'electron' {
         EXTENSION: {
             connect(
                 contentsId: number,
-                config: Thor.Site.Config
+                config: Thor.Node.Config
             ): { connex: Connex, txer: Txer }
 
             inject(
@@ -34,7 +34,7 @@ declare module 'electron' {
                 }): void
 
             createWindow(
-                config?: Thor.Site.Config,
+                config?: Thor.Node.Config,
                 options?: BrowserWindowConstructorOptions
             ): BrowserWindow
             getCertificate(hostname: string): CertificateVerifyProcRequest | undefined

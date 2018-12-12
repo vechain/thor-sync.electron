@@ -1,5 +1,7 @@
 <template>
     <OverlayedMenu
+        v-bind="$attrs"
+        v-on="$listeners"
         right
         offset-y
         :close-on-content-click="false"
@@ -10,7 +12,8 @@
         <v-card flat width="250">
             <v-card-text>
                 <v-layout row align-center>
-                    <div class="text-truncate title" style="flex:1 1 auto">{{config.name}}</div>
+                    <div class="text-truncate subheading">{{config.name}}</div>
+                    <v-spacer/>
                     <v-btn icon small class="ma-0" @click="onSettings">
                         <v-icon small>mdi-settings</v-icon>
                     </v-btn>
@@ -27,17 +30,22 @@
                     {{progressText}}
                 </v-layout>
             </v-card-text>
-            <v-list>
-                <template v-for="site in otherConfigs">
-                    <v-divider :key="`${site.genesis.id}@${site.url}-divider`"></v-divider>
+            <v-list two-line dense>
+                <template v-for="config in otherConfigs">
+                    <v-divider :key="`${config.genesis.id}@${config.url}-divider`"></v-divider>
                     <v-list-tile
                         two-line
-                        :key="`${site.genesis.id}@${site.url}`"
-                        @click="activateOrOpenWindow(site)"
+                        :key="`${config.genesis.id}@${config.url}`"
+                        @click="activateOrOpenWindow(config)"
                     >
                         <v-list-tile-content>
-                            <v-list-tile-title>{{site.name}}</v-list-tile-title>
-                            <v-list-tile-sub-title class="caption">{{site.url}}</v-list-tile-sub-title>
+                            <v-list-tile-title>
+                                <span
+                                    class="label caption secondary text-uppercase font-weight-bold"
+                                >{{nameOfNetork(config.genesis.id)}}</span>
+                                {{config.name}}
+                            </v-list-tile-title>
+                            <v-list-tile-sub-title class="caption">{{config.url}}</v-list-tile-sub-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </template>
@@ -49,45 +57,51 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
-import siteConfigs from '../../site-configs'
-import { Entities } from '@/renderer/database';
+import { presets, nameOfNetwork } from '@/node-configs'
+import { Entities } from '@/renderer/database'
+import Store from '@/renderer/store'
 
 type Status = Connex.Thor.Status
 
 @Component
-export default class NetworkStatusPanel extends Vue {
-    config = remote.getCurrentWebContents().getWebPreferences().siteConfig!
+export default class NodeStatusPanel extends Vue {
+    config = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
 
     get configs() {
         const networks = this.$store.state.networks as Entities.Preference<'network'>[]
-        return [...siteConfigs, ...networks.map(n => n.value)]
+        return [...presets, ...networks.map(n => n.value)]
     }
 
     get otherConfigs() {
         return this.configs.filter(c => c.url !== this.config.url || c.genesis.id !== this.config.genesis.id)
     }
 
-    @State chainStatus!: Status
     opened = false
 
     get progressText() {
-        if (this.chainStatus.progress === 1) {
+        const syncStatus = (this.$store as Store).state.syncStatus
+        if (syncStatus.flag === 'synced') {
             return 'Synced'
+        } else {
+            const progress = `${Math.floor(syncStatus.progress * 10000) / 100}%`
+            if (syncStatus.flag === 'syncing') {
+                return `Syncing [${progress}]`
+            } else {
+                return `Out of sync [${progress}]`
+            }
         }
-
-        return `Syncing (${Math.floor(this.chainStatus.progress * 10000) / 100}%)`
     }
 
     get headNumberText() {
-        return this.chainStatus.head.number.toLocaleString()
+        return (this.$store as Store).state.chainHead.number.toLocaleString()
     }
 
-    activateOrOpenWindow(config: Thor.Site.Config) {
+    activateOrOpenWindow(config: Thor.Node.Config) {
         this.opened = false
         const wins = remote.BrowserWindow.getAllWindows()
         const found = wins.find(w => {
             try {
-                const c = w.webContents.getWebPreferences().siteConfig!
+                const c = w.webContents.getWebPreferences().nodeConfig!
                 return c.url === config.url && c.genesis.id === config.genesis.id
             } catch{
                 return false
@@ -102,6 +116,10 @@ export default class NetworkStatusPanel extends Vue {
     onSettings() {
         BUS.$emit('open-tab', { href: 'sync://settings', mode: 'inplace-builtin' })
         this.opened = false
+    }
+
+    nameOfNetork(genesisId: string) {
+        return nameOfNetwork(genesisId)
     }
 }
 </script>

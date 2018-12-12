@@ -9,8 +9,8 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import DialogEx from './DialogEx.vue'
 import Favicon from './Favicon.vue'
 import IdentBox from './IdentBox.vue'
-import NetworkStatus from './NetworkStatus.vue'
-import NetworkStatusPanel from './NetworkStatusPanel.vue'
+import NodeStatus from './NodeStatus.vue'
+import NodeStatusPanel from './NodeStatusPanel.vue'
 import OverlayedMenu from './OverlayedMenu.vue'
 import Priority from './Priority.vue'
 import QRCode from './QRCode.vue'
@@ -37,8 +37,8 @@ export {
     DialogEx,
     Favicon,
     IdentBox,
-    NetworkStatus,
-    NetworkStatusPanel,
+    NodeStatus,
+    NodeStatusPanel,
     OverlayedMenu,
     Priority,
     QRCode,

@@ -25,7 +25,7 @@ declare global {
 {
     const { connex, txer } = remote.app.EXTENSION.connect(
         remote.getCurrentWebContents().id,
-        remote.getCurrentWebContents().getWebPreferences().siteConfig!
+        remote.getCurrentWebContents().getWebPreferences().nodeConfig!
     )
     Object.defineProperty(window, 'connex', {
         value: connex,
@@ -47,7 +47,7 @@ Object.defineProperty(window, 'GDB', {
     enumerable: true
 })
 Object.defineProperty(window, 'BDB', {
-    value: new BoundedDatabase(remote.getCurrentWebContents().getWebPreferences().siteConfig!.genesis.id),
+    value: new BoundedDatabase(remote.getCurrentWebContents().getWebPreferences().nodeConfig!.genesis.id),
     enumerable: true
 })
 Object.defineProperty(window, 'BUS', {

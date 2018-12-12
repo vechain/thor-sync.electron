@@ -1,21 +1,21 @@
 import { app, webContents, BrowserWindow, WebContents } from 'electron'
 import { create as createThor } from '../thor'
 import TxQueue from './tx-queue'
-import { Site, Agent } from './site'
+import { Node, Agent } from './node'
 
 // tslint:disable-next-line:no-var-requires
 const connexVersion = require('@vechain/connex/package.json').version
 
 export class Backend {
-    private readonly activeSites = new Map<string, { site: Site, refCount: number }>()
+    private readonly activeNodes = new Map<string, { node: Node, refCount: number }>()
     private readonly txQueue = new TxQueue()
 
     public connect(
         contentsId: number,
-        config: Thor.Site.Config
+        config: Thor.Node.Config
     ): { connex: Connex, txer: Txer } {
         const wireAgent = new Agent({ maxSocket: 5 })
-        const site = this.acquireSite(config)
+        const node = this.acquireNode(config)
         // tslint:disable-next-line:no-console
         console.log('connex connected')
 
@@ -28,7 +28,7 @@ export class Backend {
             wireAgent.destroy()
             // tslint:disable-next-line:no-console
             console.log('connex disconnected')
-            this.releaseSite(config)
+            this.releaseNode(config)
         }
         contents.once('did-start-loading', disconnect)
         contents.once('crashed', disconnect)
@@ -36,12 +36,12 @@ export class Backend {
         return {
             connex: {
                 version: connexVersion,
-                thor: createThor(site.fork(wireAgent)),
+                thor: createThor(node.fork(wireAgent)),
                 vendor: this.createVendor(contents)
             },
             txer: {
                 send: (id, raw) => {
-                    this.txQueue.enqueue(id, raw, site.innerWire)
+                    this.txQueue.enqueue(id, raw, node.innerWire)
                 },
                 status: id => {
                     return this.txQueue.status(id)
@@ -88,44 +88,44 @@ export class Backend {
         }
     }
 
-    private siteKey(config: Thor.Site.Config) {
+    private nodeKey(config: Thor.Node.Config) {
         return config.genesis.id + '@' + config.url
     }
-    private acquireSite(config: Thor.Site.Config) {
-        const key = this.siteKey(config)
-        let value = this.activeSites.get(key)
+    private acquireNode(config: Thor.Node.Config) {
+        const key = this.nodeKey(config)
+        let value = this.activeNodes.get(key)
         if (value) {
             value.refCount++
             // tslint:disable-next-line:no-console
-            console.log(`acquireSite: <${key}> #${value.refCount}`)
+            console.log(`acquireNode: <${key}> #${value.refCount}`)
         } else {
             value = {
-                site: new Site(config, new Agent({ maxSocket: 10 })),
+                node: new Node(config, new Agent({ maxSocket: 10 })),
                 refCount: 1
             }
-            this.activeSites.set(key, value)
+            this.activeNodes.set(key, value)
             // tslint:disable-next-line:no-console
-            console.log(`acquireSite: <${key}> site created`)
+            console.log(`acquireNode: <${key}> node created`)
         }
-        return value.site
+        return value.node
     }
 
-    private releaseSite(config: Thor.Site.Config) {
-        const key = this.siteKey(config)
-        const value = this.activeSites.get(key)
+    private releaseNode(config: Thor.Node.Config) {
+        const key = this.nodeKey(config)
+        const value = this.activeNodes.get(key)
         if (value) {
             value.refCount--
             // tslint:disable-next-line:no-console
-            console.log(`releaseSite: <${key}> #${value.refCount}`)
+            console.log(`releaseNode: <${key}> #${value.refCount}`)
             if (value.refCount === 0) {
-                value.site.close()
-                this.activeSites.delete(key)
+                value.node.close()
+                this.activeNodes.delete(key)
                 // tslint:disable-next-line:no-console
-                console.log(`releaseSite: <${key}> site destroyed`)
+                console.log(`releaseNode: <${key}> node destroyed`)
             }
         } else {
             // tslint:disable-next-line:no-console
-            console.warn(`releaseSite: <${key}> found`)
+            console.warn(`releaseNode: <${key}> found`)
         }
     }
 }
