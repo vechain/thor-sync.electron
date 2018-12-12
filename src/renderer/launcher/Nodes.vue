@@ -6,23 +6,34 @@
             <a @click="dialog = true" style="float: right; margin-right: 20px; margin-top: 5px;">Add</a>
         </v-subheader>
         <v-card>
-            <v-card-title v-if="!rows.length">
-                <h3 class="subheading">No node items!</h3>
-            </v-card-title>
-            <v-list v-if="rows.length" two-line subheader>
-                <div v-for="(item, index) in rows" :key="index">
+            <v-list two-line subheader>
+                <div v-for="(item, index) in initNodes" :key="index">
                     <v-list-tile avatar>
                         <v-list-tile-content>
-                            <v-list-tile-title>{{item.value.name}}</v-list-tile-title>
+                            <v-list-tile-title>{{item.name}}</v-list-tile-title>
+                            <v-list-tile-sub-title>{{item.url}}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-divider v-if="index !== (initNodes.length - 1)"></v-divider>
+                </div>
+                <v-divider v-if="!!nodes.length"></v-divider>
+                <div v-for="(item, index) in nodes" :key="index">
+                    <v-list-tile avatar>
+                        <v-list-tile-content>
+                            <v-list-tile-title>
+                                <span
+                                    class="label caption secondary text-uppercase font-weight-bold"
+                                >{{typeOfNode(item.value.genesis.id)}}</span>
+                                {{item.value.name}}</v-list-tile-title>
                             <v-list-tile-sub-title>{{item.value.url}}</v-list-tile-sub-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
-                            <v-btn icon @click="onEdit(item)" ripple dark color="#82B1FF">
+                            <v-btn icon @click="onEdit(item)" ripple>
                                 <v-icon small>edit</v-icon>
                             </v-btn>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-divider v-if="index !== (rows.length - 1)"></v-divider>
+                    <v-divider v-if="index !== (nodes.length - 1)"></v-divider>
                 </div>
             </v-list>
         </v-card>
@@ -30,40 +41,38 @@
     </v-layout>
 </template>
 <script lang="ts">
-    import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
-    import { State } from 'vuex-class'
-    import { Entities } from '../database'
-    import NewNodeDialog from './NewNodeDialog.vue'
-    import ConfirmDialog from '../components/ConfirmDialog.vue'
-    import TableLoader from '../mixins/table-loader'
+import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
+import { State } from 'vuex-class'
+import { Entities } from '../database'
+import NewNodeDialog from './NewNodeDialog.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
+import TableLoader from '../mixins/table-loader'
+import { nameOfNetwork, presets } from '@/node-configs'
+import Store from '@/renderer/store'
 
-    @Component
-    class NodesLoader extends TableLoader<Entities.Preference> {
-        tableName = GDB.preferences.name
-        filter = () =>
-            GDB.preferences
-                .where('key')
-                .equals('node')
-                .reverse()
-                .sortBy('id')
+@Component({
+    components: {
+        NewNodeDialog,
+        ConfirmDialog
+    }
+})
+export default class Nodes extends Vue {
+    dialog = false
+    editItem: Entities.Preference | null = null
+    initNodes = presets
+    get nodes() {
+        return (this.$store as Store).state.nodes
     }
 
-    @Component({
-        components: {
-            NewNodeDialog,
-            ConfirmDialog
-        }
-    })
-    export default class Nodes extends Mixins(NodesLoader) {
-        dialog = false
-        editItem: Entities.Preference | null = null
-
-        onEdit(network: Entities.Preference) {
-            this.editItem = network
-            this.dialog = true
-        }
-        onCancelEdit() {
-            this.editItem = null
-        }
+    onEdit(network: Entities.Preference) {
+        this.editItem = network
+        this.dialog = true
     }
+    typeOfNode(id: string) {
+        return nameOfNetwork(id)
+    }
+    onCancelEdit() {
+        this.editItem = null
+    }
+}
 </script>
