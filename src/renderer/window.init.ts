@@ -99,4 +99,7 @@ ipcRenderer.on('browser-window-event', (_: any, event: string) => {
     }
 })
 
+document.addEventListener('dragover', ev => ev.preventDefault())
+document.addEventListener('drop', ev => ev.preventDefault())
+
 trackTxLoop()
