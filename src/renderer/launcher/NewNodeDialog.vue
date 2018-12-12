@@ -3,7 +3,7 @@
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-text>
-                <div class="headline">{{isEditing ? 'Edit Network' : 'New Network'}}</div>
+                <div class="headline">{{isEditing ? 'Edit Node' : 'New Node'}}</div>
                 <v-layout>
                     <v-flex>
                         <v-form ref="form" v-model="valid">
@@ -46,7 +46,7 @@
     import { ErrorObject } from 'serialize-error'
 
     @Component
-    export default class NewNetworkDialog extends Vue {
+    export default class NewNodeDialog extends Vue {
         isEditing = false
         error = {
             isError: false,
@@ -56,7 +56,7 @@
         value!: boolean
 
         @Prop()
-        editItem!: Entities.Preference<'network'> | null
+        editItem!: Entities.Preference<'node'> | null
 
         dialog = false
         valid = true
@@ -121,8 +121,6 @@
                 this.error.message = `${error.name}: ${error.message}`
                 return
             }
-
-            console.log('asdf')
             if (this.isEditing) {
                 let result = Object.assign({}, this.editItem)
                 result.value.name = this.form.name
@@ -135,13 +133,13 @@
                             this.isEditing = false
                             this.clear()
                         } else {
-                            console.error('Edit newwork failed')
+                            console.error('Edit node failed')
                         }
                     })
             } else {
                 GDB.preferences
                     .add({
-                        key: 'network',
+                        key: 'node',
                         value: {
                             name: this.form.name,
                             url: this.form.rpcUrl,
