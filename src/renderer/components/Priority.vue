@@ -40,5 +40,9 @@ export default class Priority extends Vue {
         const r = Math.round(this.priority * (this.max - 1) / 255 + 1)
         this.rating = Math.min(Math.max(r, 1), this.max)
     }
+
+    created() {
+        this.priorityChanged()
+    }
 }
 </script>
