@@ -19,7 +19,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_CHAIN_HEAD = 'updateChainHead'
     public static readonly UPDATE_SYNC_STATUS = 'updateSyncStatus'
     public static readonly UPDATE_SHORTCUTS = 'updateShortcuts'
-    public static readonly UPDATE_NETWORKS = 'updateNetworks'
+    public static readonly UPDATE_NODES = 'updateNodes'
     public static readonly UPDATE_WALLETS = 'updateWallets'
     constructor() {
         super({
@@ -45,7 +45,7 @@ class Store extends Vuex.Store<Store.Model> {
                 [Store.UPDATE_SHORTCUTS](state, payload) {
                     state.shortcuts = payload
                 },
-                [Store.UPDATE_NETWORKS](state, payload) {
+                [Store.UPDATE_NODES](state, payload) {
                     state.nodes = payload
                 },
                 [Store.UPDATE_WALLETS](state, payload) {
@@ -93,10 +93,10 @@ class Store extends Vuex.Store<Store.Model> {
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
         const queryAndUpdateNetworks = async () => {
-            const networks = await GDB.preferences
-                .where({ key: 'network' })
+            const nodes = await GDB.preferences
+                .where({ key: 'node' })
                 .toArray()
-            this.commit(Store.UPDATE_NETWORKS, networks)
+            this.commit(Store.UPDATE_NODES, nodes)
         }
 
         const queryAndUpdateWallets = async () => {
