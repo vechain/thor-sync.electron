@@ -31,11 +31,11 @@
                 </v-layout>
             </v-card-text>
             <v-list two-line dense>
-                <template v-for="config in otherConfigs">
-                    <v-divider :key="`${config.genesis.id}@${config.url}-divider`"></v-divider>
+                <template v-for="(config, i) in otherConfigs">
+                    <v-divider :key="`${i}-divider`"></v-divider>
                     <v-list-tile
                         two-line
-                        :key="`${config.genesis.id}@${config.url}`"
+                        :key="i"
                         @click="activateOrOpenWindow(config)"
                     >
                         <v-list-tile-content>
