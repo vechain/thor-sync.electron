@@ -22,7 +22,11 @@
                     :class="{'v-list__tile--highlighted': i===listIndex}"
                 >
                     <v-layout align-center>
-                        <Favicon :src="row.favicon" placeholder="mdi-link-variant"/>
+                        <Favicon
+                            :src="row.favicon"
+                            placeholder="mdi-link-variant"
+                            style="flex:0 0 auto"
+                        />
                         <span class="mx-2 text-truncate" style="flex:0 0 auto;">{{row.title}}</span>
                         <v-spacer/>
                         <span
