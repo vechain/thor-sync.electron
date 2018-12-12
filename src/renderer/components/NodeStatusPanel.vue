@@ -68,8 +68,8 @@ export default class NodeStatusPanel extends Vue {
     config = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
 
     get configs() {
-        const networks = this.$store.state.networks as Entities.Preference<'network'>[]
-        return [...presets, ...networks.map(n => n.value)]
+        const nodes = this.$store.state.nodes as Entities.Preference<'node'>[]
+        return [...presets, ...nodes.map(n => n.value)]
     }
 
     get otherConfigs() {

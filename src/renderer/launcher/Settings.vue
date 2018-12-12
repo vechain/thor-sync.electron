@@ -5,19 +5,19 @@
                 <Update></Update>
             </div>
             <div>
-                <Networks></Networks>
+                <Nodes></Nodes>
             </div>
         </v-layout>
     </v-layout>
 </template>
 <script lang="ts">
     import { Vue, Component } from 'vue-property-decorator'
-    import Networks from './Networks.vue'
+    import Nodes from './Nodes.vue'
     import Update from './Update.vue'
 
     @Component({
         components: {
-            Networks,
+            Nodes,
             Update
         }
     })

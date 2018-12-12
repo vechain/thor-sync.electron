@@ -12,12 +12,12 @@ export namespace Entities {
         createdTime?: number
     }
 
-    export interface Preference<T extends 'shortcut' | 'network'
-        = 'shortcut' | 'network'> {
+    export interface Preference<T extends 'shortcut' | 'node'
+        = 'shortcut' | 'node'> {
         id?: number
         key: T
         value: T extends 'shortcut' ? Preference.Shortcut :
-        T extends 'network' ? Preference.Network :
+        T extends 'node' ? Preference.Node :
         (string | boolean)
     }
 
@@ -26,7 +26,7 @@ export namespace Entities {
             name: string
             href: string
         }
-        export type Network = Thor.Node.Config
+        export type Node = Thor.Node.Config
     }
 
     export interface TxRecord {

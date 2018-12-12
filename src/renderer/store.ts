@@ -10,7 +10,7 @@ namespace Store {
             flag: 'synced' | 'syncing' | 'outOfSync'
         }
         shortcuts: Array<Entities.Preference<'shortcut'>>
-        networks: Array<Entities.Preference<'network'>>
+        nodes: Array<Entities.Preference<'node'>>
         wallets: Entities.Wallet[]
     }
 }
@@ -30,7 +30,7 @@ class Store extends Vuex.Store<Store.Model> {
                     flag: 'syncing'
                 },
                 shortcuts: [],
-                networks: [],
+                nodes: [],
                 wallets: []
             },
             getters: {
@@ -46,7 +46,7 @@ class Store extends Vuex.Store<Store.Model> {
                     state.shortcuts = payload
                 },
                 [Store.UPDATE_NETWORKS](state, payload) {
-                    state.networks = payload
+                    state.nodes = payload
                 },
                 [Store.UPDATE_WALLETS](state, payload) {
                     state.wallets = payload

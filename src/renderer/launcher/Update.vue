@@ -1,15 +1,19 @@
 <template>
     <v-layout column>
-        <v-subheader>VeChainSync</v-subheader>
+        <v-subheader>General</v-subheader>
         <v-card>
-            <v-card-text class="grey--text text--darken-1">Version {{getVersion()}}</v-card-text>
+            <v-card-text>
+                <span>About VeChainSync</span>
+                <br>
+                <span class="grey--text text--darken-1">Sync {{getVersion()}} / Connex {{connexV}}</span>
+            </v-card-text>
             <v-list>
                 <v-list-tile>
                     <v-list-tile-content>
-                        <v-list-tile-title class="grey--text text--darken-3">Auto Update</v-list-tile-title>
+                        <v-list-tile-title class="grey--text text--darken-3">Check Update</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <v-switch @change="onChange" v-model="isAuto.value"></v-switch>
+                        <a>Check</a>
                     </v-list-tile-action>
                 </v-list-tile>
                 <v-list-tile>
@@ -17,8 +21,8 @@
                         <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <v-btn @click.stop="reportIssue" icon ripple style="margin-right: 20px">
-                            <v-icon class="grey--text text--darken-1">launch</v-icon>
+                        <v-btn @click.stop="reportIssue" icon ripple>
+                            <v-icon class="grey--text text--light-1">launch</v-icon>
                         </v-btn>
                     </v-list-tile-action>
                 </v-list-tile>
@@ -35,10 +39,7 @@
     @Component
     export default class AutoUpdate extends Vue {
         name = 'auto_update'
-        isAuto: any = {
-            key: 'auto-update',
-            value: true
-        }
+        connexV = connex.version
 
         getVersion() {
             return remote.app.getVersion()
@@ -46,35 +47,10 @@
         @State
         preferencesRevision!: number
 
-        async created() {
-            await this.getConfig()
-        }
-
         reportIssue() {
             BUS.$emit('open-tab', {
                 href: 'https://github.com/vechain/thor-sync.electron/issues/new'
             })
-        }
-
-        onChange() {
-            if (this.isAuto.id) {
-                GDB.preferences.update(this.isAuto.id as any, {
-                    value: this.isAuto.value
-                })
-            } else {
-                GDB.preferences.add(this.isAuto)
-            }
-        }
-
-        @Watch('preferencesRevision')
-        async getConfig() {
-            let temp = await GDB.preferences
-                .where('key')
-                .equals('auto-update')
-                .first()
-            if (temp) {
-                this.isAuto = temp
-            }
         }
     }
 </script>
