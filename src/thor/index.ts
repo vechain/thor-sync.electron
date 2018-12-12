@@ -2,24 +2,27 @@ import { createAccountVisitor } from './account-visitor'
 import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
+import cloneDeep from 'lodash.clonedeep'
 
 export function create(
-    site: Thor.Site
+    node: Thor.Node,
+    // cache: Thor.Cache
 ): Connex.Thor {
-    const wire = site.createWire()
+    const genesis = cloneDeep(node.config.genesis)
+    const wire = node.createWire()
     return {
-        get genesis() { return site.config.genesis },
-        get status() { return site.status },
+        get genesis() { return genesis },
+        get status() { return node.status },
         ticker: () => {
-            let lastKnownBlockNum = site.status.head.number
+            let lastKnownBlockId = node.status.head.id
             return {
                 next: async () => {
-                    if (lastKnownBlockNum !== site.status.head.number) {
-                        lastKnownBlockNum = site.status.head.number
+                    if (lastKnownBlockId !== node.status.head.id) {
+                        lastKnownBlockId = node.status.head.id
                         return
                     }
-                    await site.nextTick()
-                    lastKnownBlockNum = site.status.head.number
+                    await node.nextTick()
+                    lastKnownBlockId = node.status.head.id
                 }
             }
         },

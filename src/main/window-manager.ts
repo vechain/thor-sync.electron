@@ -1,6 +1,6 @@
 import { app, BrowserWindowConstructorOptions, BrowserWindow } from 'electron'
 import env from '@/env'
-import siteConfigs from '../site-configs'
+import { presets, nameOfNetwork } from '../node-configs'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
@@ -17,16 +17,19 @@ class WindowManager {
     private xWorkerWin?: BrowserWindow
 
     public create(
-        config?: Thor.Site.Config,
+        config?: Thor.Node.Config,
         options?: BrowserWindowConstructorOptions
     ) {
+        config = config || (() =>
+            presets.find(n => nameOfNetwork(n.genesis.id) === (env.devMode ? 'testnet' : 'mainnet'))!
+        )()
         options = { ...defaultWindowOptions, ...(options || {}) }
         options.webPreferences = options.webPreferences || {}
         // options.webPreferences.partition = 'persist:' + config.genesis.id
-        options.webPreferences.siteConfig = config || siteConfigs[0]
 
+        options.webPreferences.nodeConfig = config
         if (!options.title) {
-            options.title = `Sync @${options.webPreferences.siteConfig.name}`
+            options.title = `Sync - ${nameOfNetwork(config.genesis.id)}:${config.name}`
         }
 
         const win = new BrowserWindow(options)

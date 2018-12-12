@@ -5,14 +5,14 @@ const getConnex = (() => {
     let connex: Connex
     return () => {
         if (!connex) {
-            const siteConfig = remote.getCurrentWindow()
+            const nodeConfig = remote.getCurrentWindow()
                 .webContents
                 .getWebPreferences()
-                .siteConfig
+                .nodeConfig
 
             connex = remote.app.EXTENSION.connect(
                 remote.getCurrentWebContents().id,
-                siteConfig!
+                nodeConfig!
             ).connex
         }
         return connex

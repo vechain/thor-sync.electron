@@ -1,9 +1,14 @@
 import Vuex from 'vuex'
 import { Entities } from './database'
+import { sleep } from '@/common/sleep'
 
 namespace Store {
     export type Model = {
-        chainStatus: Connex.Thor.Status
+        chainHead: Connex.Thor.Status['head']
+        syncStatus: {
+            progress: number
+            flag: 'synced' | 'syncing' | 'outOfSync'
+        }
         shortcuts: Array<Entities.Preference<'shortcut'>>
         networks: Array<Entities.Preference<'network'>>
         wallets: Entities.Wallet[]
@@ -11,14 +16,19 @@ namespace Store {
 }
 
 class Store extends Vuex.Store<Store.Model> {
-    public static readonly UPDATE_CHAIN_STATUS = 'updateChainStatus'
+    public static readonly UPDATE_CHAIN_HEAD = 'updateChainHead'
+    public static readonly UPDATE_SYNC_STATUS = 'updateSyncStatus'
     public static readonly UPDATE_SHORTCUTS = 'updateShortcuts'
     public static readonly UPDATE_NETWORKS = 'updateNetworks'
     public static readonly UPDATE_WALLETS = 'updateWallets'
     constructor() {
         super({
             state: {
-                chainStatus: connex.thor.status,
+                chainHead: connex.thor.status.head,
+                syncStatus: {
+                    progress: connex.thor.status.progress,
+                    flag: 'syncing'
+                },
                 shortcuts: [],
                 networks: [],
                 wallets: []
@@ -26,8 +36,11 @@ class Store extends Vuex.Store<Store.Model> {
             getters: {
             },
             mutations: {
-                [Store.UPDATE_CHAIN_STATUS](state) {
-                    state.chainStatus = connex.thor.status
+                [Store.UPDATE_CHAIN_HEAD](state) {
+                    state.chainHead = connex.thor.status.head
+                },
+                [Store.UPDATE_SYNC_STATUS](state, payload) {
+                    state.syncStatus = payload
                 },
                 [Store.UPDATE_SHORTCUTS](state, payload) {
                     state.shortcuts = payload
@@ -46,11 +59,29 @@ class Store extends Vuex.Store<Store.Model> {
     }
 
     private async monitorChain() {
-        this.commit(Store.UPDATE_CHAIN_STATUS)
         const ticker = connex.thor.ticker()
+        let lastHeadId = connex.thor.status.head.id
+        let idleTimes = 0
         for (; ;) {
-            await ticker.next()
-            this.commit(Store.UPDATE_CHAIN_STATUS)
+            const status = connex.thor.status
+            let flag: Store.Model['syncStatus']['flag']
+            if (lastHeadId !== status.head.id) {
+                lastHeadId = status.head.id
+                idleTimes = 0
+                this.commit(Store.UPDATE_CHAIN_HEAD, status.head)
+            } else {
+                idleTimes++
+            }
+
+            if (status.progress === 1) {
+                flag = 'synced'
+            } else if (idleTimes > 6) {
+                flag = 'outOfSync'
+            } else {
+                flag = 'syncing'
+            }
+            this.commit(Store.UPDATE_SYNC_STATUS, { progress: status.progress, flag })
+            await Promise.race([ticker.next(), sleep(5000)])
         }
     }
 

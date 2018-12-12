@@ -13,7 +13,7 @@
                             class="unset-cursor"
                             :open-on-click="false"
                             offset-y
-                            :nudge-bottom="-18"
+                            :nudge-top="18"
                         >
                             <v-text-field
                                 ref="address"
