@@ -1,14 +1,13 @@
 <template>
-    <v-layout column align-center>
-        <v-layout column style="max-width: 800px; width: 100%" class="pa-3">
-            <div>
-                <Update></Update>
-            </div>
-            <div>
-                <Nodes></Nodes>
-            </div>
-        </v-layout>
-    </v-layout>
+    <div style="max-width: 800px; width: 100%; margin: 0 auto;" class="pa-3">
+        <div>
+            <Update></Update>
+        </div>
+        <div>
+            <Nodes></Nodes>
+        </div>
+        <div></div>
+    </div>
 </template>
 <script lang="ts">
     import { Vue, Component } from 'vue-property-decorator'
