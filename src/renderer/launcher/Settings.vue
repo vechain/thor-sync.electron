@@ -1,12 +1,13 @@
 <template>
-    <div style="max-width: 800px; width: 100%; margin: 0 auto;" class="pa-3">
-        <div>
-            <Update></Update>
+    <div class="pa-3">
+        <div style="max-width: 800px; width: 100%; margin: 0 auto;">
+            <div>
+                <Update></Update>
+            </div>
+            <div>
+                <Nodes></Nodes>
+            </div>
         </div>
-        <div>
-            <Nodes></Nodes>
-        </div>
-        <div></div>
     </div>
 </template>
 <script lang="ts">
