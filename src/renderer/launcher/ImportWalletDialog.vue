@@ -10,9 +10,7 @@
                         <v-divider/>
                         <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
                     </v-stepper-header>
-                    <div
-                        class="title font-weight-light pl-4"
-                    >{{['Import', 'Set Password'][step-1]}}</div>
+                    <div class="title font-weight-light pl-4">{{['Import', 'Set Password'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
                             <ContentForm v-if="show" ref="pk" v-model="content"></ContentForm>
@@ -42,115 +40,121 @@
     </v-dialog>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import ContentForm from './WalletContentForm.vue'
-import NameAndPass from './NameAndPass.vue'
-import { cry } from 'thor-devkit'
+    import { Vue, Component, Watch } from 'vue-property-decorator'
+    import ContentForm from './WalletContentForm.vue'
+    import NameAndPass from './NameAndPass.vue'
+    import { cry } from 'thor-devkit'
 
-@Component({
-    components: {
-        ContentForm,
-        NameAndPass
-    }
-})
-export default class ImportWalletDialog extends Vue {
-    name = 'ImportWalletDialog'
-    addressExist = false
-    show = false
-    overWrite = false
-    step = 1
-    pk?: Buffer
-    nameAndPass: NameAndPass.Value = { name: '', password: '', valid: false }
-    content: WalletContentForm.Value = {
-        type: 0,
-        pwd: '',
-        content: '',
-        valid: false
-    }
-
-    get BackBtnStatus() {
-        return {
-            text: this.step === 1 ? 'Abort' : 'Back'
+    @Component({
+        components: {
+            ContentForm,
+            NameAndPass
         }
-    }
+    })
+    export default class ImportWalletDialog extends Vue {
+        name = 'ImportWalletDialog'
+        addressExist = false
+        show = false
+        overWrite = false
+        step = 1
+        pk?: Buffer
+        nameAndPass: NameAndPass.Value = { name: '', password: '', valid: false }
+        content: WalletContentForm.Value = {
+            type: 0,
+            pwd: '',
+            content: '',
+            valid: false
+        }
 
-    get preBtnStatus() {
-        let disable = false
-        if (this.step === 1) {
-            disable = !this.content.valid
-        } else {
-            if (this.addressExist) {
-                disable = !this.overWrite || !this.nameAndPass.valid
+        get BackBtnStatus() {
+            return {
+                text: this.step === 1 ? 'Abort' : 'Back'
+            }
+        }
+
+        get preBtnStatus() {
+            let disable = false
+            if (this.step === 1) {
+                disable = !this.content.valid
             } else {
-                disable = !this.nameAndPass.valid
-            }
-        }
-        return {
-            text: this.step === 1 ? 'Next' : 'import',
-            disable: disable
-        }
-    }
-    reset() {
-        const form = this.$refs.pk as ContentForm
-        this.addressExist = false
-        this.nameAndPass.name = ''
-        this.nameAndPass.password = ''
-        this.nameAndPass.valid = false
-        this.step = 1
-        form.reset()
-    }
-    preMove() {
-        if (this.step === 2) {
-            this.step--
-            return
-        } else {
-            this.show = false
-            this.reset()
-        }
-    }
-
-    async nextMove() {
-        if (this.step === 1) {
-            const form = this.$refs.pk as ContentForm
-            this.pk = await form.getPrivateKey()
-            const address = cry.publicKeyToAddress(
-                cry.secp256k1.derivePublicKey(this.pk)
-            )
-            const count = await BDB.wallets
-                .where('address')
-                .equals('0x' + address.toString('hex'))
-                .count()
-            if (count) {
-                this.addressExist = true
-            }
-            this.step++
-        } else {
-            try {
-                const privateKey = this.pk
-
-                const ks = await cry.Keystore.encrypt(
-                    privateKey!,
-                    this.nameAndPass.password
-                )
-                const entity = {
-                    name: this.nameAndPass.name,
-                    address: '0x' + ks.address,
-                    keystore: ks,
-                    createdTime: Date.now()
-                }
                 if (this.addressExist) {
-                    await BDB.wallets.where('address').equals(entity.address).modify({keystore: entity.keystore, name: entity.name})
+                    disable = !this.overWrite || !this.nameAndPass.valid
                 } else {
-                    await BDB.wallets.add(entity)
+                    disable = !this.nameAndPass.valid
                 }
-
+            }
+            return {
+                text: this.step === 1 ? 'Next' : 'import',
+                disable: disable
+            }
+        }
+        reset() {
+            const form = this.$refs.pk as ContentForm
+            this.addressExist = false
+            this.nameAndPass.name = ''
+            this.nameAndPass.password = ''
+            this.nameAndPass.valid = false
+            this.step = 1
+            form.reset()
+        }
+        preMove() {
+            if (this.step === 2) {
+                this.step--
+                return
+            } else {
                 this.show = false
                 this.reset()
-            } catch (err) {
-                console.log(err)
+            }
+        }
+
+        async nextMove() {
+            if (this.step === 1) {
+                const form = this.$refs.pk as ContentForm
+                this.pk = await form.getPrivateKey()
+                const address = cry.publicKeyToAddress(
+                    cry.secp256k1.derivePublicKey(this.pk)
+                )
+                const count = await BDB.wallets
+                    .where('address')
+                    .equals('0x' + address.toString('hex'))
+                    .count()
+                if (count) {
+                    this.addressExist = true
+                }
+                this.step++
+            } else {
+                try {
+                    const privateKey = this.pk
+
+                    const ks = await cry.Keystore.encrypt(
+                        privateKey!,
+                        this.nameAndPass.password
+                    )
+                    const entity = {
+                        name: this.nameAndPass.name,
+                        address: '0x' + ks.address,
+                        keystore: ks,
+                        createdTime: Date.now()
+                    }
+                    if (this.addressExist) {
+                        await BDB.wallets
+                            .where('address')
+                            .equals(entity.address)
+                            .modify({
+                                keystore: entity.keystore,
+                                name: entity.name
+                            })
+                    } else {
+                        await BDB.wallets.add(entity)
+                    }
+
+                    this.show = false
+                    this.reset()
+                } catch (err) {
+                    console.log(err)
+                }
             }
         }
     }
-}
 </script>
 
