@@ -1,101 +1,113 @@
 <template>
-  <v-container>
-    <v-layout column justify-space-around>
-      <v-flex>
-        <v-card v-if="wallet">
-          <v-list>
-            <v-list-tile avatar>
-              <v-list-tile-avatar :size="90">
-                <AddressLabel
-                  style="width:60px;height:40px;border-radius:5px"
-                  icon
-                >{{wallet.address}}</AddressLabel>
-              </v-list-tile-avatar>
-              <v-list-tile-content>
-                <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
-                <v-list-tile-sub-title>
-                  <AddressLabel>{{wallet.address}}</AddressLabel>
-                </v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-list-tile>
-              <v-layout row>
-                <v-spacer/>
-                <v-tooltip top>
-                  <v-btn v-clipboard="wallet.address" slot="activator" large icon>
-                    <v-icon>mdi-content-copy</v-icon>
-                  </v-btn>
-                  <span>Click copy address</span>
-                </v-tooltip>
-                <QRCodeDialog width="300" :size="270" :content="wallet.address">
-                  <div slot="activator">
-                    <v-tooltip top>
-                      <v-btn slot="activator" large icon>
-                        <v-icon>mdi-qrcode</v-icon>
-                      </v-btn>
-                      <span>Show QR code</span>
-                    </v-tooltip>
-                  </div>
-                </QRCodeDialog>
-                <ExportWalletDialog :wallet="wallet">
-                  <div slot="activator">
-                    <v-tooltip top>
-                      <v-btn slot="activator" large icon>
-                        <v-icon>mdi-export-variant</v-icon>
-                      </v-btn>
-                      <span>Export Keystore</span>
-                    </v-tooltip>
-                  </div>
-                </ExportWalletDialog>
-                <ResetPwdDialog :wallet="wallet">
-                  <div slot="activator">
-                    <v-tooltip top>
-                      <v-btn slot="activator" large icon>
-                        <v-icon>mdi-lock-reset</v-icon>
-                      </v-btn>
-                      <span>Reset Password</span>
-                    </v-tooltip>
-                  </div>
-                </ResetPwdDialog>
-              </v-layout>
-            </v-list-tile>
-          </v-list>
-          <v-layout row>
-            <v-flex sm6 class="text-sm-center headline">
-              <Amount sym=" VET">{{balance}}</Amount>
-            </v-flex>
-            <v-flex sm6 class="text-sm-center headline">
-              <Amount sym=" VTHO">{{energy}}</Amount>
-            </v-flex>
-          </v-layout>
-        </v-card>
-      </v-flex>
-      <v-flex class="mt-3">
-        <v-toolbar class="elevation-0">
-          <v-toolbar-title>Transfer Logs (Top 10)</v-toolbar-title>
-        </v-toolbar>
-        <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
-          <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-          <template slot="items" slot-scope="props">
-            <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
-            <td class="text-xs-center">{{props.item.meta.txID | shortTxId}}</td>
-            <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
-            <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
-            <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
-            <td class="text-xs-left">
-              <v-icon
-                color="orange darken-1"
-                small
-                v-if="props.item.sender === address"
-              >mdi-inbox-arrow-up</v-icon>
-              <v-icon color="green lighten-1" small v-else>mdi-inbox-arrow-down</v-icon>
-              {{props.item.amount | balance}}
-            </td>
-          </template>
-        </v-data-table>
-      </v-flex>
-    </v-layout>
-  </v-container>
+  <div class="pa-3">
+    <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
+      <v-layout column justify-space-around>
+        <v-flex>
+          <v-card v-if="wallet">
+            <v-list>
+              <v-list-tile avatar>
+                <v-list-tile-avatar :size="90">
+                  <AddressLabel
+                    style="width:60px;height:40px;border-radius:5px"
+                    icon
+                  >{{wallet.address}}</AddressLabel>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
+                  <v-list-tile-sub-title>
+                    <AddressLabel>{{wallet.address}}</AddressLabel>
+                  </v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+              <v-list-tile>
+                <v-layout row>
+                  <v-spacer/>
+                  <v-tooltip top>
+                    <v-btn v-clipboard="wallet.address" slot="activator" large icon>
+                      <v-icon>mdi-content-copy</v-icon>
+                    </v-btn>
+                    <span>Click copy address</span>
+                  </v-tooltip>
+                  <QRCodeDialog width="300" :size="270" :content="wallet.address">
+                    <div slot="activator">
+                      <v-tooltip top>
+                        <v-btn slot="activator" large icon>
+                          <v-icon>mdi-qrcode</v-icon>
+                        </v-btn>
+                        <span>Show QR code</span>
+                      </v-tooltip>
+                    </div>
+                  </QRCodeDialog>
+                  <ExportWalletDialog :wallet="wallet">
+                    <div slot="activator">
+                      <v-tooltip top>
+                        <v-btn slot="activator" large icon>
+                          <v-icon>mdi-export-variant</v-icon>
+                        </v-btn>
+                        <span>Export Keystore</span>
+                      </v-tooltip>
+                    </div>
+                  </ExportWalletDialog>
+                  <ResetPwdDialog :wallet="wallet">
+                    <div slot="activator">
+                      <v-tooltip top>
+                        <v-btn slot="activator" large icon>
+                          <v-icon>mdi-lock-reset</v-icon>
+                        </v-btn>
+                        <span>Reset Password</span>
+                      </v-tooltip>
+                    </div>
+                  </ResetPwdDialog>
+                  <DeleteWalletDialog :wallet="wallet">
+                    <div slot="activator">
+                      <v-tooltip top>
+                        <v-btn slot="activator" large icon>
+                          <v-icon>delete_forever</v-icon>
+                        </v-btn>
+                        <span>Delete wallet</span>
+                      </v-tooltip>
+                    </div>
+                  </DeleteWalletDialog>
+                </v-layout>
+              </v-list-tile>
+            </v-list>
+            <v-layout row>
+              <v-flex sm6 class="text-sm-center headline">
+                <Amount sym=" VET">{{balance}}</Amount>
+              </v-flex>
+              <v-flex sm6 class="text-sm-center headline">
+                <Amount sym=" VTHO">{{energy}}</Amount>
+              </v-flex>
+            </v-layout>
+          </v-card>
+        </v-flex>
+        <v-flex class="mt-3">
+          <v-toolbar class="elevation-0">
+            <v-toolbar-title>Transfer Logs (Top 10)</v-toolbar-title>
+          </v-toolbar>
+          <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
+            <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+            <template slot="items" slot-scope="props">
+              <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
+              <td class="text-xs-center">{{props.item.meta.txID | shortTxId}}</td>
+              <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
+              <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
+              <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
+              <td class="text-xs-left">
+                <v-icon
+                  color="orange darken-1"
+                  small
+                  v-if="props.item.sender === address"
+                >mdi-inbox-arrow-up</v-icon>
+                <v-icon color="green lighten-1" small v-else>mdi-inbox-arrow-down</v-icon>
+                {{props.item.amount | balance}}
+              </td>
+            </template>
+          </v-data-table>
+        </v-flex>
+      </v-layout>
+    </div>
+  </div>
 </template>
 <script lang="ts">
   import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
@@ -105,6 +117,7 @@
   import { Num } from '@/common/formatter'
   import ExportWalletDialog from './ExportWalletDialog.vue'
   import ResetPwdDialog from './ResetPwdDialog.vue'
+  import DeleteWalletDialog from './DeleteWalletDialog.vue'
   import { Entities } from '../database'
   import AccountLoader from '../mixins/account-loader'
   import { setTimeout } from 'timers'
@@ -112,7 +125,8 @@
   @Component({
       components: {
           ExportWalletDialog,
-          ResetPwdDialog
+          ResetPwdDialog,
+          DeleteWalletDialog
       }
   })
   export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
