@@ -24,6 +24,7 @@ import UrlBox from './UrlBox.vue'
 import WalletCard from './WalletCard.vue'
 import WalletSeeker from './WalletSeeker.vue'
 import WebView from './WebView.vue'
+import NetworkName from './NetworkName.vue'
 
 export {
     AccessHistoryPanel,
@@ -51,5 +52,6 @@ export {
     UrlBox,
     WalletCard,
     WalletSeeker,
-    WebView
+    WebView,
+    NetworkName
 }
