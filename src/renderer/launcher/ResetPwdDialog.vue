@@ -42,6 +42,13 @@
                                         label="New Password"
                                         v-model="newPassword"
                                     ></v-text-field>
+                                    <v-text-field
+                                        validate-on-blur
+                                        :rules="[repeatedPasswordRule]"
+                                        label="Repeat password"
+                                        type="password"
+                                        v-model="repeatedPassword"
+                                    ></v-text-field>
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
@@ -68,6 +75,7 @@
         show = false
         password = ''
         newPassword = ''
+        repeatedPassword = ''
         step = 1
         privateKey: Buffer | null = null
         error: {
@@ -88,6 +96,7 @@
         reset() {
             this.password = ''
             this.newPassword = ''
+            this.repeatedPassword = ''
             this.step = 1
             this.error = {
                 isError: false,
@@ -105,6 +114,9 @@
                 'Requires at least 6 characters'
             )
         }
+        repeatedPasswordRule() {
+            return this.repeatedPassword === this.password || 'Password not matched'
+        }
 
         async checkPwd() {
             const ks: Keystore | null = this.wallet!.keystore || null
@@ -121,7 +133,16 @@
             }
         }
 
+        get valid() {
+            return (
+                this.passwordRule() === true && this.repeatedPasswordRule() === true
+            )
+        }
+
         async resetPwd() {
+            if (!this.valid) {
+                return
+            }
             if (this.privateKey && this.wallet.id) {
                 const ks = await cry.Keystore.encrypt(
                     this.privateKey,
