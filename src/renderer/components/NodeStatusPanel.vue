@@ -40,9 +40,7 @@
                     >
                         <v-list-tile-content>
                             <v-list-tile-title>
-                                <span
-                                    class="label caption secondary text-uppercase font-weight-bold"
-                                >{{nameOfNetork(config.genesis.id)}}</span>
+                                <NetworkName :genesis="config.genesis.id"/>
                                 {{config.name}}
                             </v-list-tile-title>
                             <v-list-tile-sub-title class="caption">{{config.url}}</v-list-tile-sub-title>
@@ -57,7 +55,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
-import { presets, nameOfNetwork } from '@/node-configs'
+import { presets } from '@/node-configs'
 import { Entities } from '@/renderer/database'
 import Store from '@/renderer/store'
 
@@ -116,10 +114,6 @@ export default class NodeStatusPanel extends Vue {
     onSettings() {
         BUS.$emit('open-tab', { href: 'sync://settings', mode: 'inplace-builtin' })
         this.opened = false
-    }
-
-    nameOfNetork(genesisId: string) {
-        return nameOfNetwork(genesisId)
     }
 }
 </script>

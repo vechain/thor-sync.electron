@@ -3,27 +3,27 @@
         <v-subheader>General</v-subheader>
         <v-card>
             <v-card-text>
-                <span>About VeChainSync</span>
+                <span>About VeChain Sync</span>
                 <br>
                 <span class="grey--text text--darken-1">Sync {{getVersion()}} / Connex {{connexV}}</span>
             </v-card-text>
+            <v-divider/>
             <v-list>
                 <v-list-tile>
                     <v-list-tile-content>
                         <v-list-tile-title class="grey--text text--darken-3">Check Update</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <a>Check</a>
+                        <v-btn color="primary" class="font-weight-regular" @click.stop="checkUpdate" flat ripple>Check</v-btn>
                     </v-list-tile-action>
                 </v-list-tile>
+                <v-divider/>
                 <v-list-tile>
                     <v-list-tile-content>
                         <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <v-btn @click.stop="reportIssue" icon ripple>
-                            <v-icon class="grey--text text--light-1">launch</v-icon>
-                        </v-btn>
+                        <v-btn color="primary" class="font-weight-regular" @click.stop="reportIssue" flat ripple>Open</v-btn>
                     </v-list-tile-action>
                 </v-list-tile>
             </v-list>
