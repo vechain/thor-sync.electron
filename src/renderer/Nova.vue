@@ -80,6 +80,7 @@
                         small
                         :ripple="false"
                         icon
+                        :disabled="activePage.isBuiltin"
                         @click="activePage.reloadOrStop()"
                     >
                         <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
