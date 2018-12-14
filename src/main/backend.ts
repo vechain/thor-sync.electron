@@ -1,5 +1,5 @@
 import { app, webContents, BrowserWindow, WebContents } from 'electron'
-import { create as createThor } from '../thor'
+import { create as createThor } from './thor'
 import TxQueue from './tx-queue'
 import { Node, Agent } from './node'
 
@@ -12,7 +12,7 @@ export class Backend {
 
     public connect(
         contentsId: number,
-        config: Thor.Node.Config
+        config: NodeConfig
     ): { connex: Connex, txer: Txer } {
         const wireAgent = new Agent({ maxSocket: 5 })
         const node = this.acquireNode(config)
@@ -36,7 +36,7 @@ export class Backend {
         return {
             connex: {
                 version: connexVersion,
-                thor: createThor(node.fork(wireAgent)),
+                thor: createThor(node.fork(wireAgent), node.cache),
                 vendor: this.createVendor(contents)
             },
             txer: {
@@ -88,10 +88,10 @@ export class Backend {
         }
     }
 
-    private nodeKey(config: Thor.Node.Config) {
+    private nodeKey(config: NodeConfig) {
         return config.genesis.id + '@' + config.url
     }
-    private acquireNode(config: Thor.Node.Config) {
+    private acquireNode(config: NodeConfig) {
         const key = this.nodeKey(config)
         let value = this.activeNodes.get(key)
         if (value) {
@@ -110,7 +110,7 @@ export class Backend {
         return value.node
     }
 
-    private releaseNode(config: Thor.Node.Config) {
+    private releaseNode(config: NodeConfig) {
         const key = this.nodeKey(config)
         const value = this.activeNodes.get(key)
         if (value) {

@@ -3,8 +3,7 @@ import { abi } from 'thor-devkit'
 export function createMethod(
     wire: Thor.Wire,
     addr: string,
-    jsonABI: object,
-    revision?: string | number
+    jsonABI: object
 ): Connex.Thor.Method {
     const coder = new abi.Function(jsonABI as any)
 
@@ -43,6 +42,7 @@ export function createMethod(
             }
         },
         call: async (...args) => {
+            const revision = wire.head.id
             const data = coder.encode(...args)
             const input = {
                 ...opts, data, value: opts.value.toString()

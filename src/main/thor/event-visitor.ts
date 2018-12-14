@@ -4,7 +4,8 @@ import { createFilter } from './filter'
 export function createEventVisitor(
     wire: Thor.Wire,
     jsonABI: object,
-    addr: string): Connex.Thor.EventVisitor {
+    addr: string
+): Connex.Thor.EventVisitor {
 
     const coder = new abi.Event(jsonABI as any)
     return {

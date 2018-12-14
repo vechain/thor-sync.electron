@@ -17,7 +17,7 @@ class WindowManager {
     private xWorkerWin?: BrowserWindow
 
     public create(
-        config?: Thor.Node.Config,
+        config?: NodeConfig,
         options?: BrowserWindowConstructorOptions
     ) {
         config = config || (() =>
