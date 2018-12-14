@@ -3,37 +3,56 @@ import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
 import cloneDeep from 'lodash.clonedeep'
+import * as validator from './validator'
 
 export function create(
     node: Thor.Node,
-    // cache: Thor.Cache
+    cache: Thor.Cache
 ): Connex.Thor {
-    const genesis = cloneDeep(node.config.genesis)
+    const genesis = cloneDeep(node.genesis)
     const wire = node.createWire()
     return {
         get genesis() { return genesis },
-        get status() { return node.status },
+        get status() {
+            return {
+                head: {
+                    ...node.head
+                },
+                progress: node.progress
+            }
+        },
         ticker: () => {
-            let lastKnownBlockId = node.status.head.id
+            let lastHeadId = node.head.id
             return {
                 next: async () => {
-                    if (lastKnownBlockId !== node.status.head.id) {
-                        lastKnownBlockId = node.status.head.id
+                    if (lastHeadId !== node.head.id) {
+                        lastHeadId = node.head.id
                         return
                     }
                     await node.nextTick()
-                    lastKnownBlockId = node.status.head.id
+                    lastHeadId = node.head.id
                 }
             }
         },
         account: (addr) => {
-            return createAccountVisitor(wire, addr)
+            validator.address(addr, `'addr' is not valid`)
+            return createAccountVisitor(wire, cache, addr)
         },
         block: revision => {
-            return createBlockVisitor(wire, revision)
+            if (typeof revision === 'string') {
+                validator.bytes32(revision, `'revision' is not valid block id`)
+            } else if (typeof revision === 'number') {
+                validator.blockNumber(revision, `'revision' is not valid block number`)
+            } else if (typeof revision === 'undefined') {
+                revision = node.head.id
+            } else {
+                throw new validator.BadParameter(`'revision' has invalid type`)
+            }
+            return createBlockVisitor(wire, cache, revision)
         },
-        transaction: (id) => {
-            return createTxVisitor(wire, id)
+        transaction: id => {
+            validator.bytes32(id, `'id' is not valid`)
+            return createTxVisitor(wire, cache, id)
         },
         filter: kind => {
             return createFilter(wire, kind)
@@ -44,22 +63,19 @@ export function create(
                 gas?: number
                 gasPrice?: string
             } = {}
-            let revision: string | number | undefined
             return {
                 caller(addr) {
+                    validator.address(addr, `'addr' is not valid`)
                     opts.caller = addr
                     return this
                 },
                 gas(gas) {
+                    validator.gas(gas, `'gas' is not valid`)
                     opts.gas = gas
                     return this
                 },
                 gasPrice(gp) {
                     opts.gasPrice = gp
-                    return this
-                },
-                revision(rev) {
-                    revision = rev
                     return this
                 },
                 execute(clauses) {
@@ -74,7 +90,7 @@ export function create(
                     return wire.post<Connex.Thor.VMOutput[]>(
                         `accounts/*`,
                         body,
-                        { revision })
+                        { revision: node.head.id })
                 }
             }
         }

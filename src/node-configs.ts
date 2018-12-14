@@ -1,4 +1,4 @@
-export const presets: Thor.Node.Config[] = [{
+export const presets: NodeConfig[] = [{
     name: 'vechain.org',
     url: 'https://sync-mainnet.vechain.org',
     genesis: {

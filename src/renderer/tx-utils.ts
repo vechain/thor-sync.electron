@@ -112,13 +112,10 @@ export async function trackTxLoop() {
                 .and(r => !skips.has(r.id))
                 .toArray()
 
-            const head = connex.thor.status.head
-
             const receipts = await Promise.all(records.map(async rec => {
                 try {
                     const receipt = await connex.thor
                         .transaction(rec.id)
-                        .head(head.id)
                         .getReceipt()
 
                     if (!receipt) {
@@ -140,7 +137,8 @@ export async function trackTxLoop() {
                     if (receipt === undefined) {
                         continue
                     }
-                    const confirmed = (receipt && head.number - receipt.meta!.blockNumber >= 12) ? 1 : 0
+                    const headNum = connex.thor.status.head.number
+                    const confirmed = (receipt && headNum - receipt.meta!.blockNumber >= 12) ? 1 : 0
                     await BDB.txRecords.update(records[i].id, {
                         confirmed,
                         receipt

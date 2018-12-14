@@ -96,7 +96,7 @@ export default class NodeStatusPanel extends Vue {
         return (this.$store as Store).state.chainHead.number.toLocaleString()
     }
 
-    activateOrOpenWindow(config: Thor.Node.Config) {
+    activateOrOpenWindow(config: NodeConfig) {
         this.opened = false
         const wins = remote.BrowserWindow.getAllWindows()
         const found = wins.find(w => {

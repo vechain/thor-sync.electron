@@ -26,7 +26,7 @@ export namespace Entities {
             name: string
             href: string
         }
-        export type Node = Thor.Node.Config
+        export type Node = NodeConfig
     }
 
     export interface TxRecord {
