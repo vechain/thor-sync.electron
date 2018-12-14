@@ -52,7 +52,7 @@
                             label="Amount"
                             suffix="VET"
                             :rules="amountRules"
-                            v-model.number="amount"
+                            v-model="amount"
                         />
                     </v-form>
                 </v-card-text>
@@ -75,7 +75,7 @@ import { cry } from 'thor-devkit'
 @Component
 export default class Transfer extends Vue {
     @State wallets!: Entities.Wallet[]
-    amount = 0
+    amount = ''
     to = ''
     from = 0
     errMsg = ''
@@ -91,7 +91,7 @@ export default class Transfer extends Vue {
         (v: string) => v.toLowerCase() === v || cry.toChecksumAddress(v) === v || 'Checksum incorrect'
     ]
     readonly amountRules = [
-        (v: number) => v >= 0 || 'Invalid amount'
+        (v: string) => new BigNumber(0).lte(v) || 'Invalid amount'
     ]
 
     created() {
@@ -111,7 +111,7 @@ export default class Transfer extends Vue {
             return
         }
         try {
-            const value = '0x' + new BigNumber('1' + '0'.repeat(18)).times(this.amount).integerValue().toString(16)
+            const value = '0x' + new BigNumber('1' + '0'.repeat(18)).times(this.amount!).integerValue().toString(16)
             await connex.vendor.sign('tx').signer(this.wallets[this.from].address!).request([{
                 to: this.to,
                 value,

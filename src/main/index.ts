@@ -79,7 +79,10 @@ app.on('web-contents-created', (_, contents) => {
     contents.on('did-attach-webview', (__, wc) => {
         wc.session.setCertificateVerifyProc(certVerifyProc)
         // for all webview
-        contextMenu({ window: wc })
+        contextMenu({
+            window: wc,
+            showInspectElement: true
+        })
     })
 }).once('ready', () => {
     setupMenu()

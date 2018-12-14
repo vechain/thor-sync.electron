@@ -7,11 +7,7 @@
     >
         <IdentBox :text="wallet.address.toLowerCase()">
             <v-card-text class="white--text" :class="compact?'py-1':'py-2'">
-                <v-layout
-                    column
-                    fill-height
-                    justify-center
-                >
+                <v-layout column fill-height justify-center>
                     <span
                         class="text-truncate"
                         :class="compact?'body-2':'subheading'"
@@ -29,21 +25,15 @@
     </v-card>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Entities } from '../database'
-import AccountLoader from '../mixins/account-loader'
 
 @Component
-export default class WalletCard extends Mixins(AccountLoader) {
+export default class WalletCard extends Vue {
     @Prop(Object) wallet!: Entities.Wallet
     @Prop(Boolean) compact!: boolean
 
-    // override AccountLoader.address
-    get address() {
-        return this.wallet ? (this.wallet.address || '') : ''
-    }
-
-    get isValid() { return this.wallet && Entities.isWallet(this.wallet) }
+    account: Connex.Thor.Account | null = null
 
     get balance() {
         return this.account && this.account.balance
@@ -52,6 +42,22 @@ export default class WalletCard extends Mixins(AccountLoader) {
     get energy() {
         return this.account && this.account.energy
     }
+
+    @Watch('wallet')
+    @Watch('$store.state.chainHead')
+    async loadAccount() {
+        const addr = this.wallet.address!
+        const account = await connex.thor.account(addr).get()
+        if (addr === this.wallet.address) {
+            this.account = account
+
+        }
+    }
+
+    created() {
+        this.loadAccount()
+    }
+
 }
 </script>
 
