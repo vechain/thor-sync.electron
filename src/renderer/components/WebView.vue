@@ -20,8 +20,8 @@
             align-center
             justify-center
         >
-            <div style="width:500px;line-height:250%;">
-                <v-icon large class="mb-2 display-3" style="transition: none">mdi-hamburger</v-icon>
+            <div style="width:500px;line-height:200%;">
+                <v-icon large class="display-2" style="transition: none">mdi-hamburger</v-icon>
                 <div class="display-1 font-weight-light">Failed to open</div>
                 <b>{{currentHref}}</b>
                 <div>{{errorName}} {{errorCode}}</div>
