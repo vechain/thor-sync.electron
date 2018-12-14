@@ -7,6 +7,7 @@ import CertIndicator from './CertIndicator.vue'
 import ClauseItem from './ClauseItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import DialogEx from './DialogEx.vue'
+import ExpansionBtn from './ExpansionBtn.vue'
 import Favicon from './Favicon.vue'
 import IdentBox from './IdentBox.vue'
 import NodeStatus from './NodeStatus.vue'
@@ -36,6 +37,7 @@ export {
     ClauseItem,
     ConfirmDialog,
     DialogEx,
+    ExpansionBtn,
     Favicon,
     IdentBox,
     NodeStatus,
