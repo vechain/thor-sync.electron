@@ -141,19 +141,22 @@
                                     />
                                 </AccessHistoryPanel>
                             </v-layout>
-                            <v-btn
+                            <ExpansionBtn
                                 v-show="showAddShortcutBtn"
                                 small
                                 flat
-                                style="min-width:auto"
+                                style="min-width:auto;text-transform:none"
                                 :ripple="false"
-                                class="ma-0"
-                                @click="addOrRemoveShortcut"
+                                class="ma-0 caption"
+                                @action="addOrRemoveShortcut"
                             >
                                 <v-icon
                                     style="font-size:150%"
                                 >{{shortcutAdded ? 'mdi-bookmark-plus' : 'mdi-bookmark-plus-outline'}}</v-icon>
-                            </v-btn>
+                                <template
+                                    slot="expansion"
+                                >{{shortcutAdded?'Remove shortcut': 'Add shortcut'}}</template>
+                            </ExpansionBtn>
                             <v-progress-linear
                                 v-for="(page,i) in pages"
                                 :key="'progress'+page.id"
