@@ -14,7 +14,7 @@
                         <v-list-tile-title class="grey--text text--darken-3">Check Update</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <v-btn color="primary" class="font-weight-regular" @click.stop="checkUpdate" flat ripple>Check</v-btn>
+                        <v-btn color="primary" small class="font-weight-regular" @click.stop="checkUpdate" flat ripple>Check</v-btn>
                     </v-list-tile-action>
                 </v-list-tile>
                 <v-divider/>
@@ -23,7 +23,7 @@
                         <v-list-tile-title class="grey--text text--darken-3">Report an issue</v-list-tile-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
-                        <v-btn color="primary" class="font-weight-regular" @click.stop="reportIssue" flat ripple>Open</v-btn>
+                        <v-btn color="primary" small class="font-weight-regular" @click.stop="reportIssue" flat ripple>Open</v-btn>
                     </v-list-tile-action>
                 </v-list-tile>
             </v-list>
