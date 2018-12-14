@@ -134,9 +134,9 @@ export async function discoverNode(url: string) {
     const resp = await Axios.get<Connex.Thor.Block>(NodeUrl.resolve(url, '/blocks/0'), {
         validateStatus: status => status >= 200 && status < 300,
     })
-    const ver = resp.headers['x-thorest-ver'] as string
+    const ver = resp.headers['x-thorest-ver'] || '0.0.0'
     if (compareVersions(ver, '1.1.0') < 0) {
-        throw new Error('version too low')
+        throw new Error('node version too low')
     }
 
     if (!resp.data) {
