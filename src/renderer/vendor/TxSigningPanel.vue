@@ -71,22 +71,17 @@
             </div>
             <v-card-actions style="flex:0 0 auto">
                 <v-spacer/>
-                <v-btn
-                    :disabled="signing"
-                    flat
-                    @click="returnValue(null)"
-                >Decline</v-btn>
+                <v-btn :disabled="signing" flat @click="returnValue(null)">Decline</v-btn>
                 <v-btn :disabled="!readyToSign" color="green darken-1" flat @click="sign">Sign</v-btn>
             </v-card-actions>
         </v-layout>
     </v-card>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator'
 import { Entities } from '../database'
 import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
-import AccountLoader from '../mixins/account-loader'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 
 namespace TxSigningPanel {
@@ -105,7 +100,7 @@ namespace TxSigningPanel {
 }
 
 @Component
-class TxSigningPanel extends Mixins(AccountLoader) {
+class TxSigningPanel extends Vue {
     @Prop(Object) initValue!: TxSigningPanel.InitValue
     @Emit('returnValue')
     returnValue(val: TxSigningPanel.ReturnValue | null) { }
@@ -123,7 +118,9 @@ class TxSigningPanel extends Mixins(AccountLoader) {
         baseGasPrice: new BigNumber(0),
         error: ''
     }
-    // override
+
+    account: Connex.Thor.Account | null = null
+
     get address() { return this.wallet.address! }
     get wallets() { return this.initValue.wallets }
     get clauses() { return this.initValue.clauses }
@@ -153,6 +150,16 @@ class TxSigningPanel extends Mixins(AccountLoader) {
         return !this.signing &&
             this.passwordRules.every(r => r(this.password) === true) &&
             this.estimation.gas
+    }
+
+    @Watch('address')
+    @Watch('$store.state.chainHead')
+    async loadAccount() {
+        const addr = this.address
+        const acc = await connex.thor.account(addr).get()
+        if (addr === this.address) {
+            this.account = acc
+        }
     }
 
     readonly passwordRules = [(v: string) => !!v || 'Input password here']
@@ -240,6 +247,7 @@ class TxSigningPanel extends Mixins(AccountLoader) {
     created() {
         this.debouncedEstimateGas = debounce(() => this.estimateGas(), 500)
         this.init()
+        this.loadAccount()
     }
 
 
