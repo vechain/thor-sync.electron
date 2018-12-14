@@ -33,6 +33,7 @@
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-btn
+                                small
                                 color="primary"
                                 class="font-weight-regular"
                                 flat
