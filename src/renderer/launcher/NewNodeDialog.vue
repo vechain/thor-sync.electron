@@ -16,8 +16,9 @@
                             <v-text-field
                                 v-model="form.rpcUrl"
                                 :error="error.isError"
+                                :disabled="isEditing"
                                 :error-messages="error.message"
-                                label="RPC URL"
+                                label="URL"
                                 :loading="checking"
                             ></v-text-field>
                         </v-form>
@@ -71,7 +72,7 @@ export default class NewNodeDialog extends Vue {
     }
     rules = {
         name: [(v: string) => !!v || 'Name is required'],
-        rpcUrl: [(v: string) => !!v || 'RPC URL is required']
+        rpcUrl: [(v: string) => !!v || 'URL is required']
     }
 
     @Watch('value')
@@ -135,25 +136,12 @@ export default class NewNodeDialog extends Vue {
         if (!form.validate()) {
             return
         }
-        this.checking = true
 
-        let genesis: Connex.Thor.Block
-        try {
-            genesis = await this.getNodeInfo()
-        } catch (error) {
-            if (error) {
-                this.checking = false
-                this.error.isError = true
-                this.error.message = `${error.name}: ${error.message}`
-            }
-            return
-        }
-        this.checking = false
         if (this.isEditing) {
             let result = Object.assign({}, this.editItem)
             result.value.name = this.form.name
             result.value.url = this.form.rpcUrl
-            result.value.genesis = genesis
+            // result.value.genesis = genesis
             GDB.preferences
                 .update(this.editItem!.id as any, { value: result.value })
                 .then(updated => {
@@ -165,6 +153,19 @@ export default class NewNodeDialog extends Vue {
                     }
                 })
         } else {
+            let genesis: Connex.Thor.Block
+            this.checking = true
+            try {
+                genesis = await this.getNodeInfo()
+            } catch (error) {
+                if (error) {
+                    this.checking = false
+                    this.error.isError = true
+                    this.error.message = `${error.name}: ${error.message}`
+                }
+                return
+            }
+            this.checking = false
             GDB.preferences
                 .add({
                     key: 'node',
