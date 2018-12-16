@@ -11,7 +11,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { remote } from 'electron'
 import SignTxDialog from './SignTxDialog.vue'
-import serializeError from 'serialize-error'
 
 @Component({
     components: {
@@ -41,7 +40,7 @@ export default class Vendor extends Vue {
                             }, 500)
                             callback(undefined, r)
                         })
-                        .catch(err => callback(serializeError(err)))
+                        .catch(err => callback({ name: err.name, message: err.message }))
                 }
             })
     }

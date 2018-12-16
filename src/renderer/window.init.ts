@@ -3,6 +3,7 @@ import { remote, ipcRenderer } from 'electron'
 import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-utils'
+import { adaptError } from '@/common/adapt-error'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
@@ -28,7 +29,7 @@ declare global {
         remote.getCurrentWebContents().getWebPreferences().nodeConfig!
     )
     Object.defineProperty(window, 'connex', {
-        value: connex,
+        value: adaptError(connex, true),
         enumerable: true
     })
     Object.defineProperty(window, 'TXER', {
@@ -103,3 +104,4 @@ document.addEventListener('dragover', ev => ev.preventDefault())
 document.addEventListener('drop', ev => ev.preventDefault())
 
 trackTxLoop()
+
