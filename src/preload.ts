@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import { adaptError } from './common/adapt-error'
 
 // create connex on demand
 const getConnex = (() => {
@@ -10,10 +11,10 @@ const getConnex = (() => {
                 .getWebPreferences()
                 .nodeConfig
 
-            connex = remote.app.EXTENSION.connect(
+            connex = adaptError(remote.app.EXTENSION.connect(
                 remote.getCurrentWebContents().id,
                 nodeConfig!
-            ).connex
+            ).connex, true)
         }
         return connex
     }

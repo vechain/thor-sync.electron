@@ -2,6 +2,7 @@ import { app, webContents, BrowserWindow, WebContents } from 'electron'
 import { create as createThor } from './thor'
 import TxQueue from './tx-queue'
 import { Node, Agent } from './node'
+import { adaptError } from '@/common/adapt-error'
 
 // tslint:disable-next-line:no-var-requires
 const connexVersion = require('@vechain/connex/package.json').version
@@ -34,11 +35,11 @@ export class Backend {
         contents.once('crashed', disconnect)
         contents.once('destroyed', disconnect)
         return {
-            connex: {
+            connex: adaptError({
                 version: connexVersion,
                 thor: createThor(node.fork(wireAgent), node.cache),
                 vendor: this.createVendor(contents)
-            },
+            }, true),
             txer: {
                 send: (id, raw) => {
                     this.txQueue.enqueue(id, raw, node.innerWire)

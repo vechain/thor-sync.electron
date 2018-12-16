@@ -45,7 +45,6 @@ import {
     Emit
 } from 'vue-property-decorator'
 import { dialog, remote } from 'electron'
-import { ErrorObject } from 'serialize-error'
 import { resolve } from 'path'
 import { rejects } from 'assert'
 
