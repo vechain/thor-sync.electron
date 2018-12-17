@@ -82,7 +82,7 @@ function newError(name: string, msg: string) {
         cls = eval(`()=> class ${name} extends global.Error {
             constructor(message) {
                 super(message)
-                this.name = ${name}
+                this.name = '${name}'
             }
         }`)()
         errorClasses[name] = cls
