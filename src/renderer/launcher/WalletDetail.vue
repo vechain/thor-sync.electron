@@ -1,109 +1,96 @@
 <template>
   <div class="pa-3">
     <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
-      <v-layout column justify-space-around>
-        <v-flex>
-          <v-card v-if="wallet">
+      <div>
+        <v-layout justify-center>
+          <router-link tag="span" to="/transfer">
+            <v-btn flat small class="caption" color="primary">transfer</v-btn>
+          </router-link>
+        </v-layout>
+      </div>
+      <v-card class="elevation-0" v-if="wallet">
+        <v-layout justify-space-around>
+          <v-flex xs9>
             <v-list>
               <v-list-tile avatar>
                 <v-list-tile-avatar :size="90">
                   <AddressLabel
-                    style="width:60px;height:40px;border-radius:5px"
+                    style="width:70px;height:50px;border-radius:5px"
                     icon
                   >{{wallet.address}}</AddressLabel>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title>{{wallet.name}}</v-list-tile-title>
-                  <v-list-tile-sub-title>
-                    <AddressLabel>{{wallet.address}}</AddressLabel>
+                  <v-list-tile-title class="mt-1 mb-1 title">{{wallet.name}}</v-list-tile-title>
+                  <v-list-tile-sub-title class="pb-1">
+                    <AddressLabel class="caption">{{wallet.address}}</AddressLabel>
+                    <v-tooltip top>
+                      <v-btn v-clipboard="wallet.address" slot="activator" small icon>
+                        <v-icon small>mdi-content-copy</v-icon>
+                      </v-btn>
+                      <span>Click copy address</span>
+                    </v-tooltip>
+                    <QRCodeDialog width="300" :size="270" :content="wallet.address">
+                      <div slot="activator">
+                        <v-tooltip top>
+                          <v-btn slot="activator" small icon>
+                            <v-icon small>mdi-qrcode</v-icon>
+                          </v-btn>
+                          <span>Show QR code</span>
+                        </v-tooltip>
+                      </div>
+                    </QRCodeDialog>
                   </v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
+            </v-list>
+          </v-flex>
+          <v-flex xs3>
+            <v-list class="mt-2">
               <v-list-tile>
-                <v-layout row>
-                  <v-spacer/>
-                  <v-tooltip top>
-                    <v-btn v-clipboard="wallet.address" slot="activator" large icon>
-                      <v-icon>mdi-content-copy</v-icon>
-                    </v-btn>
-                    <span>Click copy address</span>
-                  </v-tooltip>
-                  <QRCodeDialog width="300" :size="270" :content="wallet.address">
-                    <div slot="activator">
-                      <v-tooltip top>
-                        <v-btn slot="activator" large icon>
-                          <v-icon>mdi-qrcode</v-icon>
-                        </v-btn>
-                        <span>Show QR code</span>
-                      </v-tooltip>
-                    </div>
-                  </QRCodeDialog>
-                  <ExportWalletDialog :wallet="wallet">
-                    <div slot="activator">
-                      <v-tooltip top>
-                        <v-btn slot="activator" large icon>
-                          <v-icon>mdi-export-variant</v-icon>
-                        </v-btn>
-                        <span>Export Keystore</span>
-                      </v-tooltip>
-                    </div>
-                  </ExportWalletDialog>
-                  <ResetPwdDialog :wallet="wallet">
-                    <div slot="activator">
-                      <v-tooltip top>
-                        <v-btn slot="activator" large icon>
-                          <v-icon>mdi-lock-reset</v-icon>
-                        </v-btn>
-                        <span>Reset Password</span>
-                      </v-tooltip>
-                    </div>
-                  </ResetPwdDialog>
-                  <DeleteWalletDialog :wallet="wallet">
-                    <div slot="activator">
-                      <v-tooltip top>
-                        <v-btn slot="activator" large icon>
-                          <v-icon>delete_forever</v-icon>
-                        </v-btn>
-                        <span>Delete wallet</span>
-                      </v-tooltip>
-                    </div>
-                  </DeleteWalletDialog>
-                </v-layout>
+                <v-divider inset vertical></v-divider>
+                <v-list-tile-content>
+                  <v-layout column style="width: 100%;">
+                    <v-flex class="text-xs-right">
+                      <Amount sym=" VET">{{balance}}</Amount>
+                    </v-flex>
+                    <v-flex class="text-xs-right">
+                      <Amount sym=" VTHO">{{energy}}</Amount>
+                    </v-flex>
+                  </v-layout>
+                </v-list-tile-content>
               </v-list-tile>
             </v-list>
-            <v-layout row>
-              <v-flex sm6 class="text-sm-center headline">
-                <Amount sym=" VET">{{balance}}</Amount>
-              </v-flex>
-              <v-flex sm6 class="text-sm-center headline">
-                <Amount sym=" VTHO">{{energy}}</Amount>
-              </v-flex>
-            </v-layout>
-          </v-card>
+          </v-flex>
+        </v-layout>
+      </v-card>
+      <v-layout justify-space-around>
+        <v-flex xs3 sm2 class="mt-3">
+          <div class="pt-1">
+            <ResetPwdDialog :wallet="wallet">
+              <v-btn right class="t-left" color="primary" flat slot="activator" small>Reset Password</v-btn>
+            </ResetPwdDialog>
+            <ExportWalletDialog :wallet="wallet">
+              <v-btn right class="t-left" color="primary" flat slot="activator" small>Backup</v-btn>
+            </ExportWalletDialog>
+            <DeleteWalletDialog :wallet="wallet">
+              <v-btn right class="t-left" color="error" flat slot="activator" small>Delete</v-btn>
+            </DeleteWalletDialog>
+          </div>
         </v-flex>
-        <v-flex class="mt-3">
-          <v-toolbar class="elevation-0">
-            <v-toolbar-title>Transfer Logs (Top 10)</v-toolbar-title>
-          </v-toolbar>
-          <v-data-table :loading="isloading" hide-actions :headers="headers" :items="list">
-            <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-            <template slot="items" slot-scope="props">
-              <td class="text-xs-center">{{props.item.meta.blockTimestamp | date}}</td>
-              <td class="text-xs-center">{{props.item.meta.txID | shortTxId}}</td>
-              <td class="text-xs-center">{{props.item.meta.blockNumber.toLocaleString()}}</td>
-              <td class="text-xs-center">{{props.item.sender | shortAddr}}</td>
-              <td class="text-xs-center">{{props.item.recipient | shortAddr}}</td>
-              <td class="text-xs-left">
-                <v-icon
-                  color="orange darken-1"
-                  small
-                  v-if="props.item.sender === address"
-                >mdi-inbox-arrow-up</v-icon>
-                <v-icon color="green lighten-1" small v-else>mdi-inbox-arrow-down</v-icon>
-                {{props.item.amount | balance}}
-              </td>
-            </template>
-          </v-data-table>
+        <v-flex xs8 sm9 class="mt-1">
+          <h3 class="pa-4 title">Recent Transfer</h3>
+          <v-progress-linear v-if="isloading" :indeterminate="true"></v-progress-linear>
+          <div class="text-xs-center pl-4">
+            <v-btn flat v-if="!list.length" @click="getList">
+              <v-icon medium left>search</v-icon>Load Transfer log
+            </v-btn>
+            <TransferItem
+              :isIn="item.sender !== address"
+              :item="item"
+              v-for="(item, i) in list "
+              :key="i"
+            />
+          </div>
         </v-flex>
       </v-layout>
     </div>
@@ -118,6 +105,7 @@
   import ExportWalletDialog from './ExportWalletDialog.vue'
   import ResetPwdDialog from './ResetPwdDialog.vue'
   import DeleteWalletDialog from './DeleteWalletDialog.vue'
+  import TransferItem from './TransferItem.vue'
   import { Entities } from '../database'
   import AccountLoader from '../mixins/account-loader'
   import { setTimeout } from 'timers'
@@ -126,7 +114,8 @@
       components: {
           ExportWalletDialog,
           ResetPwdDialog,
-          DeleteWalletDialog
+          DeleteWalletDialog,
+          TransferItem
       }
   })
   export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
@@ -136,7 +125,7 @@
       get address() {
           return (this.wallet ? this.wallet.address : '') || ''
       }
-      isloading = true
+      isloading = false
 
       get wallet() {
           return this.wallets.find(item => {
@@ -147,43 +136,15 @@
       @State
       wallets!: Entities.Wallet[]
 
-      headers = [
-          {
-              text: 'Date',
-              align: 'center',
-              sortable: false
-          },
-          {
-              text: 'TxID',
-              align: 'center',
-              sortable: false
-          },
-          {
-              text: 'Block #',
-              align: 'center',
-              sortable: false
-          },
-          {
-              text: 'From',
-              align: 'center',
-              sortable: false
-          },
-          {
-              text: 'To',
-              align: 'center',
-              sortable: false
-          },
-          {
-              text: 'Value',
-              align: 'left',
-              sortable: false
-          }
-      ]
-
-      async created() {
+      created() {
           const address = this.$route.params.address
           this.createFilter(address)
+      }
+
+      async getList() {
+          this.isloading = true
           this.list = await this.getTransferDesc(10)
+          console.log(this.list)
           this.isloading = false
       }
 
@@ -197,3 +158,8 @@
   }
 </script>
 
+<style>
+  .t-left .v-btn__content {
+      justify-content: left;
+  }
+</style>
