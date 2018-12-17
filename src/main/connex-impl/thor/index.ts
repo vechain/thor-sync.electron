@@ -16,9 +16,7 @@ export function create(
         get genesis() { return genesis },
         get status() {
             return {
-                head: {
-                    ...node.head
-                },
+                head: { ...node.head },
                 progress: node.progress
             }
         },
@@ -36,14 +34,14 @@ export function create(
             }
         },
         account: (addr) => {
-            ensure(V.isAddress(addr), `'addr' is not valid`)
+            ensure(V.isAddress(addr), `'addr' expected address type`)
             return createAccountVisitor(wire, cache, addr)
         },
         block: revision => {
             if (typeof revision === 'string') {
-                ensure(V.isBytes32(revision), `'revision' is not valid block id`)
+                ensure(V.isBytes32(revision), `'revision' expected bytes32 in hex string`)
             } else if (typeof revision === 'number') {
-                ensure(V.isUint32(revision), `'revision' is not valid block number`)
+                ensure(V.isUint32(revision), `'revision' expected non-neg 32bit integer`)
             } else if (typeof revision === 'undefined') {
                 revision = node.head.id
             } else {
@@ -52,7 +50,7 @@ export function create(
             return createBlockVisitor(wire, cache, revision)
         },
         transaction: id => {
-            ensure(V.isBytes32(id), `'id' is not valid`)
+            ensure(V.isBytes32(id), `'id' expected bytes32 in hex string`)
             return createTxVisitor(wire, cache, id)
         },
         filter: kind => {
@@ -66,12 +64,12 @@ export function create(
             } = {}
             return {
                 caller(addr) {
-                    ensure(V.isAddress(addr), `'addr' is not valid`)
+                    ensure(V.isAddress(addr), `'addr' expected address type`)
                     opts.caller = addr
                     return this
                 },
                 gas(gas) {
-                    ensure(gas >= 0 && Number.isSafeInteger(gas), `'gas' expected integer >= 0`)
+                    ensure(gas >= 0 && Number.isSafeInteger(gas), `'gas' expected non-neg safe integer`)
                     opts.gas = gas
                     return this
                 },
@@ -82,12 +80,23 @@ export function create(
                 },
                 execute(clauses) {
                     ensure(Array.isArray(clauses), `'clauses' expected array`)
+                    clauses.forEach((c, i) => {
+                        ensure(!c.to || V.isAddress(c.to), `'clauses#${i}.to' expected null or address`)
+                        if (typeof c.value === 'number') {
+                            ensure(Number.isSafeInteger(c.value) && c.value >= 0,
+                                `'clauses#${i}.value' expected non-neg safe integer`)
+                        } else {
+                            ensure(V.isHexString(c.value) || V.isDecString(c.value),
+                                `'clauses#${i}.value' expected integer in hex/dec string`)
+                        }
+                        ensure(!c.data || V.isHexBytes(c.data), `'clauses#${i}.data' expected bytes in hex string`)
+                    })
 
                     const body = {
                         clauses: clauses.map(c => ({
-                            to: c.to,
+                            to: c.to || null,
                             value: c.value.toString(),
-                            data: c.data
+                            data: c.data || ''
                         })),
                         ...opts
                     }
