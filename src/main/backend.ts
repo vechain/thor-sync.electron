@@ -12,7 +12,7 @@ export class Backend {
         contentsId: number,
         config: NodeConfig
     ): { connex: Connex, txer: Txer } {
-        const wireAgent = new Agent({ maxSocket: 5 })
+        const wireAgent = new Agent({ maxSocket: 10 })
         const node = this.acquireNode(config)
         // tslint:disable-next-line:no-console
         console.log('connex connected')
