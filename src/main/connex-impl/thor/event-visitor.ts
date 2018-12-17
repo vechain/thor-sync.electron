@@ -1,5 +1,6 @@
 import { abi } from 'thor-devkit'
 import { createFilter } from './filter'
+import { BadParameter } from '../ensure'
 
 export function createEventVisitor(
     wire: Thor.Wire,
@@ -8,6 +9,13 @@ export function createEventVisitor(
 ): Connex.Thor.EventVisitor {
 
     const coder = new abi.Event(jsonABI as any)
+    try {
+        // tslint:disable-next-line:no-unused-expression
+        coder.signature
+    } catch  {
+        throw new BadParameter(`'abi' is invalid`)
+    }
+
     return {
         asCriteria: indexed => {
             const topics = coder.encode(indexed)
@@ -41,12 +49,12 @@ export function createEventVisitor(
                     filter.order(order)
                     return this
                 },
-                async apply(offset: number, limit: number) {
-                    const events = await filter.apply(offset, limit)
-                    return events.map(event => {
-                        const decoded = coder.decode(event.data, event.topics)
-                        return { ...event, decoded }
-                    })
+                apply(offset: number, limit: number) {
+                    return filter.apply(offset, limit)
+                        .then(events => events.map(event => {
+                            const decoded = coder.decode(event.data, event.topics)
+                            return { ...event, decoded }
+                        }))
                 }
             }
         }

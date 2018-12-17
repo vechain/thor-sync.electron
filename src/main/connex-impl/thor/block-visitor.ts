@@ -1,3 +1,4 @@
+import cloneDeep from 'lodash.clonedeep'
 
 export function createBlockVisitor(
     wire: Thor.Wire,
@@ -10,7 +11,7 @@ export function createBlockVisitor(
             return cache.getBlock(revision, () =>
                 wire.get<Connex.Thor.Block | null>(
                     `blocks/${encodeURIComponent(revision + '')}`)
-            )
+            ).then(b => cloneDeep(b))
         }
     }
 }
