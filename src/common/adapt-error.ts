@@ -49,11 +49,13 @@ export function adaptError<T extends object>(obj: T, fromMainProcess: boolean): 
 
 async function adaptPromiseError<T>(p: Promise<T>, fromMainProcess: boolean) {
     try {
-        const resolved = await p
-        if (resolved instanceof Object) {
-            return adaptError(resolved as any, fromMainProcess)
-        }
-        return resolved
+        return await p
+        // assumed to be pure data
+
+        // if (resolved instanceof Object) {
+        //     return adaptError(resolved as any, fromMainProcess)
+        // }
+        // return resolved
     } catch (err) {
         if (fromMainProcess) {
             if (!isMainProcess) {

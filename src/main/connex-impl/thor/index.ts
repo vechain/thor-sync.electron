@@ -3,7 +3,8 @@ import { createBlockVisitor } from './block-visitor'
 import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
 import cloneDeep from 'lodash.clonedeep'
-import * as validator from './validator'
+import * as V from '@/common/validator'
+import { ensure } from '../ensure'
 
 export function create(
     node: Thor.Node,
@@ -35,23 +36,23 @@ export function create(
             }
         },
         account: (addr) => {
-            validator.address(addr, `'addr' is not valid`)
+            ensure(V.isAddress(addr), `'addr' is not valid`)
             return createAccountVisitor(wire, cache, addr)
         },
         block: revision => {
             if (typeof revision === 'string') {
-                validator.bytes32(revision, `'revision' is not valid block id`)
+                ensure(V.isBytes32(revision), `'revision' is not valid block id`)
             } else if (typeof revision === 'number') {
-                validator.blockNumber(revision, `'revision' is not valid block number`)
+                ensure(V.isUint32(revision), `'revision' is not valid block number`)
             } else if (typeof revision === 'undefined') {
                 revision = node.head.id
             } else {
-                throw new validator.BadParameter(`'revision' has invalid type`)
+                ensure(false, `'revision' has invalid type`)
             }
             return createBlockVisitor(wire, cache, revision)
         },
         transaction: id => {
-            validator.bytes32(id, `'id' is not valid`)
+            ensure(V.isBytes32(id), `'id' is not valid`)
             return createTxVisitor(wire, cache, id)
         },
         filter: kind => {
@@ -65,20 +66,23 @@ export function create(
             } = {}
             return {
                 caller(addr) {
-                    validator.address(addr, `'addr' is not valid`)
+                    ensure(V.isAddress(addr), `'addr' is not valid`)
                     opts.caller = addr
                     return this
                 },
                 gas(gas) {
-                    validator.gas(gas, `'gas' is not valid`)
+                    ensure(gas >= 0 && Number.isSafeInteger(gas), `'gas' expected integer >= 0`)
                     opts.gas = gas
                     return this
                 },
                 gasPrice(gp) {
+                    ensure(V.isDecString(gp) || V.isHexString(gp), `'gasPrice' expected integer in hex/dec string`)
                     opts.gasPrice = gp
                     return this
                 },
                 execute(clauses) {
+                    ensure(Array.isArray(clauses), `'clauses' expected array`)
+
                     const body = {
                         clauses: clauses.map(c => ({
                             to: c.to,
