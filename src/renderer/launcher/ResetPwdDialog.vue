@@ -45,7 +45,7 @@
                                     <v-text-field
                                         validate-on-blur
                                         :rules="[repeatedPasswordRule]"
-                                        label="Repeat password"
+                                        label="Repeat Password"
                                         type="password"
                                         v-model="repeatedPassword"
                                     ></v-text-field>
