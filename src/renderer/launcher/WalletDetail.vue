@@ -26,7 +26,7 @@
                   <v-card class="elevation-0">
                     <v-card-title
                       style="max-width: 300px"
-                      class="title d-block pa-0 pt-1 text-truncate"
+                      class="d-block pa-0 pt-1 text-truncate"
                     >{{wallet.name}}</v-card-title>
                     <v-card-text class="caption pa-0 pt-1">
                       <v-layout row align-content-center>
@@ -211,6 +211,7 @@
               this.isloading = false
           } catch (error) {
               this.errorMessage = `${error.name}: ${error.message}`
+              this.list = []
               this.snackbar = true
               return
           }
