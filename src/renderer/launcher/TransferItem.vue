@@ -2,9 +2,9 @@
     <v-card class="elevation-0 mt-2">
         <v-list>
             <v-list-tile avatar>
-                <v-list-tile-avatar :size="50">
-                    <v-icon color="green lighten-1" v-if="isIn">mdi-inbox-arrow-down</v-icon>
-                    <v-icon color="red darken-1" v-else>mdi-inbox-arrow-up</v-icon>
+                <v-list-tile-avatar :size="40">
+                    <v-icon color="green lighten-1" v-if="isIn">mdi-arrow-bottom-right-bold-outline</v-icon>
+                    <v-icon color="red darken-1" v-else>mdi-arrow-top-left-bold-outline</v-icon>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                     <v-list-tile-sub-title class="mt-2">
