@@ -7,6 +7,7 @@ import CertIndicator from './CertIndicator.vue'
 import ClauseItem from './ClauseItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import DialogEx from './DialogEx.vue'
+import DialogProxy from './DialogProxy.vue'
 import ExpansionBtn from './ExpansionBtn.vue'
 import Favicon from './Favicon.vue'
 import IdentBox from './IdentBox.vue'
@@ -26,6 +27,7 @@ import WalletCard from './WalletCard.vue'
 import WalletSeeker from './WalletSeeker.vue'
 import WebView from './WebView.vue'
 import NetworkName from './NetworkName.vue'
+import ShortcutEditDialog from './ShortcutEditDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -37,6 +39,7 @@ export {
     ClauseItem,
     ConfirmDialog,
     DialogEx,
+    DialogProxy,
     ExpansionBtn,
     Favicon,
     IdentBox,
@@ -55,5 +58,6 @@ export {
     WalletCard,
     WalletSeeker,
     WebView,
-    NetworkName
+    NetworkName,
+    ShortcutEditDialog
 }
