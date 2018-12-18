@@ -16,6 +16,7 @@
                 </clipPath>
             </defs>
         </svg>
+        <DialogProxy :v-show="false"/>
         <div class="toolbar">
             <transition-group
                 tag="v-layout"

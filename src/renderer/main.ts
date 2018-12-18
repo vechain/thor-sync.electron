@@ -12,12 +12,14 @@ import './directives'
 import VueRouter from 'vue-router'
 import Nova from './Nova.vue'
 import Store from './store'
+import DialogHelper from './mixins/dialog-helper'
 
 Vue.use(Vuetify, {
   iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })
 Vue.use(Vuex)
 Vue.use(VueRouter)
+Vue.use(DialogHelper)
 Vue.config.productionTip = false
 
 // register global components
