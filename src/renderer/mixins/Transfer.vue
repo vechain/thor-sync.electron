@@ -18,7 +18,7 @@ export default class TransferMixin extends Vue {
     }
 
     resetPage() {
-        this.page = 0
+        this.page = -1
     }
 
     async getTransferAsc(pageSize: number) {
