@@ -95,22 +95,47 @@
           </div>
         </v-flex>
         <v-flex xs9 sm10 class="mt-1">
-          <h3 flat v-if="list.length" class="pl-0 pt-4 pb-4 title">Recent Transfer</h3>
-          <v-progress-linear v-if="isloading" :indeterminate="true"></v-progress-linear>
-          <div class="text-xs-center" >
-            <v-btn style="margin-top: 200px" flat :disabled="isloading" v-if="!list.length" @click="getList">
-              <v-icon medium left>search</v-icon>Load Transfer log
-            </v-btn>
+          <h3 flat v-if="list.length" class="pl-0 pt-4 pb-4 title d-inline-block">Recent Transfer</h3>
+          <v-progress-circular
+            class="ml-3"
+            size="24"
+            width="2"
+            v-if="isloading && list.length"
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
+          <v-progress-linear v-if="isloading && !list.length" :indeterminate="true"></v-progress-linear>
+          <div v-if="!list.length" class="text-xs-center">
+            <div style="margin-top: 130px">
+              <v-icon style="font-size: 80px" color="grey lighten-2" medium left>search</v-icon>
+              <br>
+              <span>No logs display at this time!</span>
+            </div>
+            <v-btn
+              class="mt-3"
+              small
+              :disabled="isloading"
+              color="primary"
+              @click="onLoadClick"
+            >Load</v-btn>
           </div>
-          <TransferItem
-            :isIn="item.sender !== address"
-            :item="item"
-            v-for="(item, i) in list "
-            :key="i"
-          />
+          <div style="background: #fff">
+            <template v-for="(item, i) in list ">
+              <TransferItem
+                style="border-radios"
+                :isIn="item.sender !== address"
+                :item="item"
+                :key="i"
+              />
+              <v-divider timeout="3000" v-if="i !== (list.length - 1)" :key="`${i}-divider`" inset></v-divider>
+            </template>
+          </div>
         </v-flex>
       </v-layout>
     </div>
+    <v-snackbar v-model="snackbar" color="error" top>{{errorMessage}}
+      <v-btn flat dark @click="snackbar = false">close</v-btn>
+    </v-snackbar>
   </div>
 </template>
 <script lang="ts">
@@ -137,8 +162,10 @@
   })
   export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
       name = 'walletDetail'
-      // wallet: Entities.Wallet | null = null
       list: Connex.Thor.Transfer[] = []
+      stick = false
+      snackbar = false
+      errorMessage = ''
       get address() {
           return (this.wallet ? this.wallet.address : '') || ''
       }
@@ -153,15 +180,41 @@
       @State
       wallets!: Entities.Wallet[]
 
+      @State
+      chainHead!: Connex.Thor.Status['head']
+
+      @Watch('chainHead')
+      onChainHeadChange() {
+          if (!this.stick) {
+              return
+          }
+          this.getList()
+      }
+
       created() {
           const address = this.$route.params.address
           this.createFilter(address)
       }
 
+      async onLoadClick() {
+          this.stick = true
+          await this.getList()
+      }
+
       async getList() {
-          this.isloading = true
-          this.list = await this.getTransferDesc(10)
-          this.isloading = false
+          let list: Connex.Thor.Transfer[] = []
+          this.resetPage()
+          try {
+              this.isloading = true
+              list = await this.getTransferDesc(10)
+              this.isloading = false
+          } catch (error) {
+              this.errorMessage = `${error.name}: ${error.message}`
+              this.snackbar = true
+              return
+          }
+
+          this.list = list
       }
 
       get balance() {
