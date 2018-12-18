@@ -3,9 +3,12 @@
     <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
       <div>
         <v-layout justify-center>
-          <router-link tag="span" to="/transfer">
+          <router-link tag="span" :to="{name: 'transfer', query: {address: wallet.address}}">
             <v-btn flat small class="caption" color="primary">transfer</v-btn>
           </router-link>
+          <ExportWalletDialog :wallet="wallet">
+            <v-btn flat small right class="caption" color="primary" slot="activator">Backup</v-btn>
+          </ExportWalletDialog>
         </v-layout>
       </div>
       <v-card class="elevation-0" v-if="wallet">
@@ -20,26 +23,43 @@
                   >{{wallet.address}}</AddressLabel>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title class="mt-1 mb-1 title">{{wallet.name}}</v-list-tile-title>
-                  <v-list-tile-sub-title class="pb-1">
-                    <AddressLabel class="caption">{{wallet.address}}</AddressLabel>
-                    <v-tooltip top>
-                      <v-btn v-clipboard="wallet.address" slot="activator" small icon>
-                        <v-icon small>mdi-content-copy</v-icon>
-                      </v-btn>
-                      <span>Click copy address</span>
-                    </v-tooltip>
-                    <QRCodeDialog width="300" :size="270" :content="wallet.address">
-                      <div slot="activator">
-                        <v-tooltip top>
-                          <v-btn slot="activator" small icon>
-                            <v-icon small>mdi-qrcode</v-icon>
-                          </v-btn>
-                          <span>Show QR code</span>
-                        </v-tooltip>
-                      </div>
-                    </QRCodeDialog>
-                  </v-list-tile-sub-title>
+                  <v-card class="elevation-0">
+                    <v-card-title
+                      style="max-width: 300px"
+                      class="title d-block pa-0 pt-1 text-truncate"
+                    >{{wallet.name}}</v-card-title>
+                    <v-card-text class="caption pa-0 pt-1">
+                      <v-layout row align-content-center>
+                        <v-flex align-self-center>
+                          <AddressLabel class="grey--text text--darken-1">{{wallet.address}}</AddressLabel>
+                        </v-flex>
+                        <v-flex>
+                          <v-tooltip top>
+                            <v-btn
+                              class="ma-0 ml-3"
+                              v-clipboard="wallet.address"
+                              slot="activator"
+                              small
+                              icon
+                            >
+                              <v-icon small>mdi-content-copy</v-icon>
+                            </v-btn>
+                            <span>Click copy address</span>
+                          </v-tooltip>
+                          <QRCodeDialog width="300" :size="270" :content="wallet.address">
+                            <div slot="activator">
+                              <v-tooltip top>
+                                <v-btn class="ma-0" slot="activator" small icon>
+                                  <v-icon small>mdi-qrcode</v-icon>
+                                </v-btn>
+                                <span>Show QR code</span>
+                              </v-tooltip>
+                            </div>
+                          </QRCodeDialog>
+                        </v-flex>
+                      </v-layout>
+                    </v-card-text>
+                  </v-card>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
@@ -51,7 +71,7 @@
                 <v-list-tile-content>
                   <v-layout column style="width: 100%;">
                     <v-flex class="text-xs-right">
-                      <Amount sym=" VET">{{balance}}</Amount>
+                      <Amount sym=" VET ">{{balance}}</Amount>
                     </v-flex>
                     <v-flex class="text-xs-right">
                       <Amount sym=" VTHO">{{energy}}</Amount>
@@ -69,28 +89,25 @@
             <ResetPwdDialog :wallet="wallet">
               <v-btn right class="t-left" color="primary" flat slot="activator" small>Reset Password</v-btn>
             </ResetPwdDialog>
-            <ExportWalletDialog :wallet="wallet">
-              <v-btn right class="t-left" color="primary" flat slot="activator" small>Backup</v-btn>
-            </ExportWalletDialog>
             <DeleteWalletDialog :wallet="wallet">
               <v-btn right class="t-left" color="error" flat slot="activator" small>Delete</v-btn>
             </DeleteWalletDialog>
           </div>
         </v-flex>
-        <v-flex xs8 sm9 class="mt-1">
-          <h3 class="pa-4 title">Recent Transfer</h3>
+        <v-flex xs9 sm10 class="mt-1">
+          <h3 flat v-if="list.length" class="pl-0 pt-4 pb-4 title">Recent Transfer</h3>
           <v-progress-linear v-if="isloading" :indeterminate="true"></v-progress-linear>
-          <div class="text-xs-center pl-4">
-            <v-btn flat v-if="!list.length" @click="getList">
+          <div class="text-xs-center" >
+            <v-btn style="margin-top: 200px" flat :disabled="isloading" v-if="!list.length" @click="getList">
               <v-icon medium left>search</v-icon>Load Transfer log
             </v-btn>
-            <TransferItem
-              :isIn="item.sender !== address"
-              :item="item"
-              v-for="(item, i) in list "
-              :key="i"
-            />
           </div>
+          <TransferItem
+            :isIn="item.sender !== address"
+            :item="item"
+            v-for="(item, i) in list "
+            :key="i"
+          />
         </v-flex>
       </v-layout>
     </div>
@@ -144,7 +161,6 @@
       async getList() {
           this.isloading = true
           this.list = await this.getTransferDesc(10)
-          console.log(this.list)
           this.isloading = false
       }
 
