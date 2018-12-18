@@ -3,12 +3,12 @@
     <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
       <div>
         <v-layout justify-center>
-          <router-link tag="span" :to="{name: 'transfer', query: {from: wallet.address}}">
-            <v-btn flat small class="caption" color="primary">transfer</v-btn>
-          </router-link>
           <ExportWalletDialog :wallet="wallet">
             <v-btn flat small right class="caption" color="primary" slot="activator">Backup</v-btn>
           </ExportWalletDialog>
+          <router-link tag="span" :to="{name: 'transfer', query: {from: wallet.address}}">
+            <v-btn flat small class="caption" color="primary">transfer</v-btn>
+          </router-link>
         </v-layout>
       </div>
       <v-card class="elevation-0" v-if="wallet">
@@ -99,7 +99,7 @@
           <v-progress-circular
             class="ml-3"
             size="24"
-            width="2"
+            :width="2"
             v-if="isloading && list.length"
             indeterminate
             color="primary"
@@ -133,7 +133,8 @@
         </v-flex>
       </v-layout>
     </div>
-    <v-snackbar v-model="snackbar" color="error" top>{{errorMessage}}
+    <v-snackbar v-model="snackbar" color="error" top>
+      {{errorMessage}}
       <v-btn flat dark @click="snackbar = false">close</v-btn>
     </v-snackbar>
   </div>
