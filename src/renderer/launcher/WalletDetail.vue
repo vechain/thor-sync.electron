@@ -3,7 +3,7 @@
     <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
       <div>
         <v-layout justify-center>
-          <router-link tag="span" :to="{name: 'transfer', query: {address: wallet.address}}">
+          <router-link tag="span" :to="{name: 'transfer', query: {from: wallet.address}}">
             <v-btn flat small class="caption" color="primary">transfer</v-btn>
           </router-link>
           <ExportWalletDialog :wallet="wallet">
