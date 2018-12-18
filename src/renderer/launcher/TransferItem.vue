@@ -1,5 +1,5 @@
 <template>
-    <v-card class="elevation-0 mt-2">
+    <v-card class="elevation-0">
         <v-list>
             <v-list-tile avatar>
                 <v-list-tile-avatar :size="40">
