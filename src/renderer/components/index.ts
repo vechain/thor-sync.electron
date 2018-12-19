@@ -28,6 +28,9 @@ import WalletSeeker from './WalletSeeker.vue'
 import WebView from './WebView.vue'
 import NetworkName from './NetworkName.vue'
 import ShortcutEditDialog from './ShortcutEditDialog.vue'
+import ResetPwdDialog from './ResetPwdDialog.vue'
+import ExportWalletDialog from './ExportWalletDialog.vue'
+import DeleteWalletDialog from './DeleteWalletDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -59,5 +62,8 @@ export {
     WalletSeeker,
     WebView,
     NetworkName,
-    ShortcutEditDialog
+    ShortcutEditDialog,
+    ResetPwdDialog,
+    ExportWalletDialog,
+    DeleteWalletDialog
 }
