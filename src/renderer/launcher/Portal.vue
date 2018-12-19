@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import *as NodeUrl from 'url'
+import * as NodeUrl from 'url'
 import { State } from 'vuex-class'
 import { Entities } from '../database'
 import { ShortcutEditDialog } from '@/renderer/components'
