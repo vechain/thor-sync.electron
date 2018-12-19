@@ -4,6 +4,7 @@ import { BadParameter } from '../ensure'
 
 export function createEventVisitor(
     wire: Thor.Wire,
+    cache: Thor.Cache,
     jsonABI: object,
     addr: string
 ): Connex.Thor.EventVisitor {
@@ -35,7 +36,7 @@ export function createEventVisitor(
             } else {
                 criteriaSet = indexed.map(i => this.asCriteria(i))
             }
-            const filter = createFilter(wire, 'event').criteria(criteriaSet)
+            const filter = createFilter(wire, cache, 'event').criteria(criteriaSet)
             return {
                 criteria(set) {
                     filter.criteria(set)

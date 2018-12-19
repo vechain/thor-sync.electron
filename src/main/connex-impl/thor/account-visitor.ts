@@ -36,7 +36,7 @@ export function createAccountVisitor(
             return createMethod(wire, addr, jsonABI)
         },
         event: jsonABI => {
-            return createEventVisitor(wire, jsonABI, addr)
+            return createEventVisitor(wire, cache, jsonABI, addr)
         }
     }
 }

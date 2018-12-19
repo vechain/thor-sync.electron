@@ -34,5 +34,11 @@ declare namespace Thor {
             txId: string,
             fetch: () => Promise<Connex.Thor.Receipt | null>
         ): Promise<Connex.Thor.Receipt | null>
+
+        filter<T extends 'event' | 'transfer'>(
+            key: string,
+            bloomKeys: () => string[],
+            fetch: () => Promise<Connex.Thor.Filter.Result<T>>
+        ): Promise<Connex.Thor.Filter.Result<T>>
     }
 }
