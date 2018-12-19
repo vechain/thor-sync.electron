@@ -62,6 +62,9 @@ export class Cache implements Thor.Cache {
     }
 
     public async getBlock(rev: string | number, fetch: () => Promise<Connex.Thor.Block | null>) {
+        if (typeof rev === 'string') {
+            rev = rev.toLowerCase()
+        }
         let block = this.blockCache.get(rev) || null
         if (block) {
             return block
@@ -87,6 +90,9 @@ export class Cache implements Thor.Cache {
         rev: string,
         fetch: () => Promise<Connex.Thor.Account>
     ) {
+        addr = addr.toLowerCase()
+        rev = rev.toLowerCase()
+
         const slot = this.slots.get(rev)
         if (slot) {
             let pSlot: Slot | undefined = slot
@@ -117,6 +123,7 @@ export class Cache implements Thor.Cache {
     public async getTx(
         txId: string,
         fetch: () => Promise<Connex.Thor.Transaction | null>) {
+        txId = txId.toLowerCase()
         {
             const tx = this.txCache.get(txId) || null
             if (tx) {
@@ -144,6 +151,7 @@ export class Cache implements Thor.Cache {
     public async getReceipt(
         txId: string,
         fetch: () => Promise<Connex.Thor.Receipt | null>) {
+        txId = txId.toLowerCase()
         {
             const receipt = this.receiptCache.get(txId) || null
             if (receipt) {
