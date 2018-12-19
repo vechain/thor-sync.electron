@@ -54,7 +54,7 @@ export function create(
             return createTxVisitor(wire, cache, id)
         },
         filter: kind => {
-            return createFilter(wire, kind)
+            return createFilter(wire, cache, kind)
         },
         explain: () => {
             const opts: {

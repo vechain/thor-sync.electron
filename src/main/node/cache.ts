@@ -17,6 +17,7 @@ type Slot = {
     accounts: Map<string, AccountSnapshot>
     txs: Map<string, Connex.Thor.Transaction>
     receipts: Map<string, Connex.Thor.Receipt>
+    filters: Map<string, { result: any, bloomKeys: string[] }>
 }
 
 export class Cache implements Thor.Cache {
@@ -43,7 +44,8 @@ export class Cache implements Thor.Cache {
             bloom,
             accounts: new Map(),
             txs: new Map(),
-            receipts: new Map()
+            receipts: new Map(),
+            filters: new Map()
         }
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)
@@ -106,7 +108,7 @@ export class Cache implements Thor.Cache {
                 if (!pSlot.bloom) {
                     // always invalidate account when bloom unavailable
                     break
-                } else if (testAddress(pSlot.bloom, addr)) {
+                } else if (testBytesHex(pSlot.bloom, addr)) {
                     // account might be dirty
                     break
                 }
@@ -175,11 +177,47 @@ export class Cache implements Thor.Cache {
             return receipt
         }
     }
+
+    public async filter<T extends 'event' | 'transfer'>(
+        key: string,
+        bloomKeys: () => string[],
+        fetch: () => Promise<Connex.Thor.Filter.Result<T>>
+    ): Promise<Connex.Thor.Filter.Result<T>> {
+
+        FETCH:
+        for (let i = this.window.length - 1; i >= 0; i--) {
+            const filter = this.window[i].filters.get(key)
+            if (filter) {
+                for (let j = i + 1; j < this.window.length; j++) {
+                    const bloom = this.window[j].bloom
+                    if (bloom) {
+                        if (filter.bloomKeys.some(k => testBytesHex(bloom, k))) {
+                            break FETCH
+                        }
+                    } else {
+                        break FETCH
+                    }
+                }
+                this.window[this.window.length - 1].filters.set(key, filter)
+                return filter.result
+            }
+        }
+
+        const headSlot = this.window.length > 0 ? this.window[this.window.length - 1] : undefined
+        const result = await fetch()
+        if (headSlot) {
+            headSlot.filters.set(key, {
+                result,
+                bloomKeys: bloomKeys()
+            })
+        }
+        return result
+    }
 }
 
 
-function testAddress(bloom: Bloom, addr: string) {
-    let buf = Buffer.from(addr.slice(2), 'hex')
+function testBytesHex(bloom: Bloom, hex: string) {
+    let buf = Buffer.from(hex.slice(2), 'hex')
     const nzIndex = buf.findIndex(v => v !== 0)
     if (nzIndex < 0) {
         buf = Buffer.alloc(0)
