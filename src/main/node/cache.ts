@@ -83,6 +83,11 @@ export class Cache implements Thor.Cache {
             if (slot) {
                 slot.block = block
             }
+            if (this.window.length > 0 &&
+                block.number < this.window[0].number) {
+                this.blockCache.set(block.id, block)
+                this.blockCache.set(block.number, block)
+            }
         }
         return block
     }
