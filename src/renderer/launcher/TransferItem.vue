@@ -3,8 +3,12 @@
         <v-list>
             <v-list-tile avatar>
                 <v-list-tile-avatar :size="40">
-                    <v-icon color="green lighten-1" v-if="isIn">mdi-arrow-bottom-right-bold-outline</v-icon>
-                    <v-icon color="red darken-1" v-else>mdi-arrow-top-left-bold-outline</v-icon>
+                    <v-icon
+                        style="font-size: 19px"
+                        color="green lighten-1"
+                        v-if="isIn"
+                    >mdi-arrow-right-thick</v-icon>
+                    <v-icon style="font-size: 19px" color="red darken-1" v-else>mdi-arrow-left-thick</v-icon>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                     <v-list-tile-sub-title class="mt-2">
