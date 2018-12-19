@@ -191,7 +191,7 @@ export class Cache implements Thor.Cache {
                 for (let j = i + 1; j < this.window.length; j++) {
                     const bloom = this.window[j].bloom
                     if (bloom) {
-                        if (filter.bloomKeys.some(k => testBytesHex(bloom, k))) {
+                        if (filter.bloomKeys.length === 0 || filter.bloomKeys.some(k => testBytesHex(bloom, k))) {
                             break FETCH
                         }
                     } else {
