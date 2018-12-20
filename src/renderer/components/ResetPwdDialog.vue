@@ -88,8 +88,6 @@
         Account,
         class extends DialogHelper<Entities.Wallet, void> {}
     ) {
-        @Prop()
-        wallet!: Entities.Wallet
         show = false
         checking = false
         password = ''
@@ -108,7 +106,6 @@
         @Watch('show')
         showChanged(val: boolean) {
             if (!val) {
-                // this.reset()
                 this.result = null
             }
         }
@@ -122,17 +119,17 @@
         }
 
         requirePwd() {
-            return this.password || 'Requires non-empty password'
+            return this.newPassword.trim() || 'Requires non-empty password'
         }
 
         passwordRule() {
             return (
-                (this.password && this.password.length >= 6) ||
+                (this.newPassword && this.newPassword.length >= 6) ||
                 'Requires at least 6 characters'
             )
         }
         repeatedPasswordRule() {
-            return this.repeatedPassword === this.password || 'Password mismatch'
+            return this.repeatedPassword === this.newPassword || 'Password mismatch'
         }
         async onNext() {
             this.checking = true
@@ -155,14 +152,14 @@
             if (!(this.$refs.form as any).validate()) {
                 return
             }
-            if (this.privateKey && this.wallet.id) {
+            if (this.privateKey && this.arg.id) {
                 const ks = await cry.Keystore.encrypt(
                     this.privateKey,
                     this.newPassword
                 )
                 BDB.wallets
                     .where('id')
-                    .equals(this.wallet.id)
+                    .equals(this.arg.id)
                     .modify({ keystore: ks })
 
                 this.close()
