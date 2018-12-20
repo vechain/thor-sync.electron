@@ -1,5 +1,4 @@
 import { remote } from 'electron'
-import Deferred from './deferred'
 
 const isMainProcess = !remote
 export function proxyObject<T extends object>(obj: T, fromMainProcess: boolean, signal: { disconnected: boolean }): T {
@@ -49,29 +48,28 @@ export function proxyObject<T extends object>(obj: T, fromMainProcess: boolean, 
 }
 
 function proxyPromise<T>(p: Promise<T>, fromMainProcess: boolean, signal: { disconnected: boolean }) {
-    const deferred = new Deferred<T>()
-
-    p.then(r => {
-        if (!signal.disconnected) {
-            deferred.resolve(r)
-        }
-    }).catch(err => {
-        if (!signal.disconnected) {
-            if (fromMainProcess) {
-                if (!isMainProcess) {
-                    err = newError(err.name, err.message)
-                }
-            } else {
-                if (isMainProcess) {
-                    err = newError(err.name, err.message)
-                } else {
-                    err = { name: err.name, message: err.message }
-                }
+    return new Promise<T>((resolve, reject) => {
+        p.then(r => {
+            if (!signal.disconnected) {
+                resolve(r)
             }
-            deferred.reject(err)
-        }
+        }).catch(err => {
+            if (!signal.disconnected) {
+                if (fromMainProcess) {
+                    if (!isMainProcess) {
+                        err = newError(err.name, err.message)
+                    }
+                } else {
+                    if (isMainProcess) {
+                        err = newError(err.name, err.message)
+                    } else {
+                        err = { name: err.name, message: err.message }
+                    }
+                }
+                reject(err)
+            }
+        })
     })
-    return deferred
 }
 
 
