@@ -74,7 +74,7 @@
             )
         }
         repeatedPasswordRule() {
-            return this.repeatedPassword === this.password || 'Password not matched'
+            return this.repeatedPassword === this.password || 'Password mismatch'
         }
     }
 </script>

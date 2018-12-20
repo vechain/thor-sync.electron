@@ -132,7 +132,7 @@
             )
         }
         repeatedPasswordRule() {
-            return this.repeatedPassword === this.password || 'Password not matched'
+            return this.repeatedPassword === this.password || 'Password mismatch'
         }
         async onNext() {
             this.checking = true
