@@ -120,7 +120,7 @@
 
         async onNext() {
             this.checking = true
-            console.log(await this.checkPwd(this.password, this.arg.keystore))
+            await this.checkPwd(this.password, this.arg.keystore)
             if (await this.checkPwd(this.password, this.arg.keystore)) {
                 this.ks = JSON.stringify(this.arg.keystore)
                 this.step = 2
