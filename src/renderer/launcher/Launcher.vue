@@ -61,12 +61,15 @@ export default class Launcher extends Vue {
     goBack() { this.router.$router.back() }
     @Watch('nav.goForward')
     goForward() { this.router.$router.forward() }
-    // @Watch('nav.reloadOrStop')   
 
     mounted() {
         this.router.$mount('#content')
         this.router.$router.push(hrefToPath(this.href || ''))
         this.routed()
+
+        BUS.$on('wallet-deleted', () => {
+            this.router.$router.push({ name: 'wallets' })
+        })
     }
 }
 
