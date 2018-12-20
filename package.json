@@ -17,7 +17,7 @@
     "pack:preload": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.preload.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": ""
+    "postinstall": "electron-rebuild"
   },
   "build": {
     "productName": "Sync",
@@ -57,7 +57,7 @@
     "axios": "^0.18.0",
     "compare-versions": "^3.4.0",
     "electron-context-menu": "^0.10.0",
-    "electron-unhandled": "^1.1.0",
+    "electron-unhandled": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "mkdirp": "0.5.1",
     "thor-devkit": "0.4.0",
@@ -90,10 +90,11 @@
     "dexie": "^2.0.4",
     "dexie-observable": "^1.0.0-beta.4",
     "draggabilly": "2.2.0",
-    "electron": "2.0.9",
+    "electron": "3.0.13",
     "electron-builder": "^20.28.4",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
+    "electron-rebuild": "^1.8.2",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "fork-ts-checker-webpack-plugin": "^0.4.9",
