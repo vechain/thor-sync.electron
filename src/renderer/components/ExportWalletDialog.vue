@@ -14,22 +14,33 @@
                     >{{['Verify Password', 'Keystore'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
-                            <v-card>
-                                <v-card-text>
-                                    <v-text-field
-                                        :error="error.isError"
-                                        :error-messages="error.messages"
-                                        type="password"
-                                        label="Password"
-                                        v-model="password"
-                                    ></v-text-field>
-                                </v-card-text>
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn flat @click="close">Cancel</v-btn>
-                                    <v-btn flat @click="checkPwd" color="primary">Next</v-btn>
-                                </v-card-actions>
-                            </v-card>
+                            <form @submit.prevent="onNext">
+                                <v-card>
+                                    <v-card-text>
+                                        <v-text-field
+                                            :autofocus="true"
+                                            :error="error.isError"
+                                            :error-messages="error.messages"
+                                            type="password"
+                                            label="Password"
+                                            v-model="password"
+                                            :loading="checking"
+                                        >
+                                            <v-progress-linear
+                                                v-if="checking"
+                                                slot="progress"
+                                                indeterminate
+                                                height="2"
+                                            ></v-progress-linear>
+                                        </v-text-field>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn flat @click="close">Cancel</v-btn>
+                                        <v-btn flat type="submit" color="primary">Next</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </form>
                         </v-stepper-content>
                         <v-stepper-content step="2">
                             <v-card>
@@ -72,6 +83,8 @@
         ks = ''
         step = 1
 
+        checking = false
+
         error: {
             isError: boolean
             messages: string[]
@@ -103,16 +116,16 @@
 
         mounted() {
             this.show = true
-            const ele = (this.$refs.card as Vue).$el.querySelector('input')
-            setTimeout(()=> {
-                ele!.focus()
-            }, 0)
         }
 
         async onNext() {
+            this.checking = true
+            console.log(await this.checkPwd(this.password, this.arg.keystore))
             if (await this.checkPwd(this.password, this.arg.keystore)) {
+                this.ks = JSON.stringify(this.arg.keystore)
                 this.step = 2
             }
+            this.checking = false
         }
 
         async save() {

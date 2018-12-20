@@ -14,47 +14,60 @@
                     >{{['Verify Password', 'Reset Password'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
-                            <v-card>
-                                <v-card-text>
-                                    <v-text-field
-                                        :error="error.isError"
-                                        :error-messages="error.messages"
-                                        type="password"
-                                        label="Password"
-                                        v-model="password"
-                                    ></v-text-field>
-                                </v-card-text>
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn flat @click="close">Cancel</v-btn>
-                                    <v-btn flat @click="onNext" color="primary">Next</v-btn>
-                                </v-card-actions>
-                            </v-card>
+                            <v-form @submit.prevent="onNext">
+                                <v-card>
+                                    <v-card-text>
+                                        <v-text-field
+                                            :autofocus="true"
+                                            :error="error.isError"
+                                            :error-messages="error.messages"
+                                            type="password"
+                                            label="Password"
+                                            v-model="password"
+                                            :loading="checking"
+                                        >
+                                            <v-progress-linear
+                                                v-if="checking"
+                                                slot="progress"
+                                                indeterminate
+                                                height="2"
+                                            ></v-progress-linear>
+                                        </v-text-field>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn flat @click="close">Cancel</v-btn>
+                                        <v-btn flat type="submit" color="primary">Next</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-form>
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <v-card>
-                                <v-card-text>
-                                    <v-text-field
-                                        validate-on-blur
-                                        :rules="[passwordRule]"
-                                        type="password"
-                                        label="New Password"
-                                        v-model="newPassword"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        validate-on-blur
-                                        :rules="[repeatedPasswordRule]"
-                                        label="Repeat Password"
-                                        type="password"
-                                        v-model="repeatedPassword"
-                                    ></v-text-field>
-                                </v-card-text>
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn flat @click="close">Cancel</v-btn>
-                                    <v-btn flat @click="resetPwd" color="primary">Save</v-btn>
-                                </v-card-actions>
-                            </v-card>
+                            <v-form ref="form" @submit.prevent="resetPwd">
+                                <v-card>
+                                    <v-card-text>
+                                        <v-text-field
+                                            validate-on-blur
+                                            :rules="[passwordRule]"
+                                            type="password"
+                                            label="New Password"
+                                            v-model="newPassword"
+                                        ></v-text-field>
+                                        <v-text-field
+                                            validate-on-blur
+                                            :rules="[repeatedPasswordRule]"
+                                            label="Repeat Password"
+                                            type="password"
+                                            v-model="repeatedPassword"
+                                        ></v-text-field>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn flat @click="close">Cancel</v-btn>
+                                        <v-btn flat type="submit" color="primary">Save</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-form>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
@@ -78,6 +91,7 @@
         @Prop()
         wallet!: Entities.Wallet
         show = false
+        checking = false
         password = ''
         newPassword = ''
         repeatedPassword = ''
@@ -101,19 +115,19 @@
 
         mounted() {
             this.show = true
-            const ele = (this.$refs.card as Vue).$el.querySelector('input')
-            setTimeout(()=> {
-                ele!.focus()
-            }, 0)
         }
 
         close() {
             this.show = false
         }
 
+        requirePwd() {
+            return this.password || 'Requires non-empty password'
+        }
+
         passwordRule() {
             return (
-                (this.password && this.password.length >= 6) ||
+                (this.password && this.password.length <= 6) ||
                 'Requires at least 6 characters'
             )
         }
@@ -121,11 +135,13 @@
             return this.repeatedPassword === this.password || 'Password not matched'
         }
         async onNext() {
+            this.checking = true
             this.privateKey =
                 (await this.checkPwd(this.password, this.arg.keystore)) || null
             if (this.privateKey) {
                 this.step = 2
             }
+            this.checking = false
         }
 
         get valid() {
@@ -135,7 +151,8 @@
         }
 
         async resetPwd() {
-            if (!this.valid) {
+            // this.$refs.form.validate()
+            if (!(this.$refs.form as any).validate()) {
                 return
             }
             if (this.privateKey && this.wallet.id) {
