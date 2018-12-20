@@ -3,7 +3,7 @@ import { remote, ipcRenderer } from 'electron'
 import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-utils'
-import { adaptError } from '@/common/adapt-error'
+import { proxyObject } from '@/common/object-proxy'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
@@ -29,7 +29,7 @@ declare global {
         remote.getCurrentWebContents().getWebPreferences().nodeConfig!
     )
     Object.defineProperty(window, 'connex', {
-        value: adaptError(connex, true),
+        value: proxyObject(connex, true, { disconnected: false }),
         enumerable: true
     })
     Object.defineProperty(window, 'TXER', {
