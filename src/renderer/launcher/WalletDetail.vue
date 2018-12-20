@@ -205,16 +205,11 @@
         stick = false
         snackbar = false
         errorMessage = ''
+        wallet?: Entities.Wallet
         get address() {
             return (this.wallet ? this.wallet.address : '') || ''
         }
         isloading = false
-
-        get wallet() {
-            return this.wallets.find(item => {
-                return item.address === this.$route.params.address
-            })
-        }
 
         @State
         wallets!: Entities.Wallet[]
@@ -233,6 +228,9 @@
         created() {
             const address = this.$route.params.address
             this.createFilter(address)
+            this.wallet = this.wallets.find(item => {
+                return item.address === this.$route.params.address
+            })
         }
 
         async onLoadClick() {
