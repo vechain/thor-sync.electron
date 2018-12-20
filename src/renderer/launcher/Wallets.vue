@@ -6,16 +6,21 @@
                     <NewWalletDialog v-model="dialog">
                         <v-btn flat small class="caption" color="primary" slot="activator">New</v-btn>
                     </NewWalletDialog>
-                    <ImportWalletDialog persistent>
-                        <v-btn flat small class="caption" color="primary" slot="activator">import</v-btn>
-                    </ImportWalletDialog>
+                    <v-btn
+                        flat
+                        small
+                        class="caption"
+                        @click="onImport"
+                        color="primary"
+                        slot="activator"
+                    >Import</v-btn>
                     <router-link tag="span" to="/transfer">
-                        <v-btn flat small class="caption" color="primary">transfer</v-btn>
+                        <v-btn flat small class="caption" color="primary">Transfer</v-btn>
                     </router-link>
                 </v-layout>
             </div>
             <div>
-                <v-layout row wrap :justify-center="wallets.length<4">
+                <v-layout row wrap="" :justify-center="wallets.length<4">
                     <v-flex v-for="wallet in wallets" :key="wallet.address" xs3 class="py-3">
                         <WalletCard
                             flat
@@ -33,29 +38,33 @@
     </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import NewWalletDialog from './NewWalletDialog.vue'
-import ImportWalletDialog from './ImportWalletDialog.vue'
-import { Entities } from '../database'
-import { State } from 'vuex-class';
+    import { Vue, Component } from 'vue-property-decorator'
+    import NewWalletDialog from './NewWalletDialog.vue'
+    import { ImportWalletDialog } from '@/renderer/components'
+    import { Entities } from '../database'
+    import { State } from 'vuex-class'
 
-@Component({
-    components: {
-        NewWalletDialog,
-        ImportWalletDialog
-    }
-})
-export default class Wallets extends Vue {
-    @State wallets!: Entities.Wallet[]
-    dialog = false
+    @Component({
+        components: {
+            NewWalletDialog
+        }
+    })
+    export default class Wallets extends Vue {
+        @State
+        wallets!: Entities.Wallet[]
+        dialog = false
 
-    onClick(address: string) {
-        this.$router.push({
-            name: 'wallet-detail',
-            params: {
-                address
-            }
-        })
+        onClick(address: string) {
+            this.$router.push({
+                name: 'wallet-detail',
+                params: {
+                    address
+                }
+            })
+        }
+
+        onImport() {
+            Vue.dialog(ImportWalletDialog, null)
+        }
     }
-}
 </script>
