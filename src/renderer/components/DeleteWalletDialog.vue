@@ -84,7 +84,8 @@
         async deleteWallet() {
             if (this.arg) {
                 await BDB.wallets.delete(this.arg.id || 0)
-                this.$router.push({ name: 'wallets' })
+                this.close()
+                BUS.$emit('wallet-deleted')
             }
         }
     }
