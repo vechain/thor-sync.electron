@@ -1,13 +1,14 @@
 import { remote } from 'electron'
+import Deferred from './deferred'
 
 const isMainProcess = !remote
-export function adaptError<T extends object>(obj: T, fromMainProcess: boolean): T {
+export function proxyObject<T extends object>(obj: T, fromMainProcess: boolean, signal: { disconnected: boolean }): T {
     return new Proxy(obj, {
         get: (target, key, receiver) => {
             const prop = Reflect.get(target, key, receiver)
             if (target.hasOwnProperty(key)) {
                 if (prop instanceof Object) {
-                    return adaptError(prop, fromMainProcess)
+                    return proxyObject(prop, fromMainProcess, signal)
                 }
             }
             return prop
@@ -16,10 +17,10 @@ export function adaptError<T extends object>(obj: T, fromMainProcess: boolean): 
             try {
                 const result = Reflect.apply(target as any, thisArg, argArray)
                 if (result instanceof Promise) {
-                    return adaptPromiseError(result, fromMainProcess)
+                    return proxyPromise(result, fromMainProcess, signal)
                 }
                 if (result instanceof Object) {
-                    return adaptError(result, fromMainProcess)
+                    return proxyObject(result, fromMainProcess, signal)
                 }
                 return result
             } catch (err) {
@@ -47,29 +48,30 @@ export function adaptError<T extends object>(obj: T, fromMainProcess: boolean): 
     })
 }
 
-async function adaptPromiseError<T>(p: Promise<T>, fromMainProcess: boolean) {
-    try {
-        return await p
-        // assumed to be pure data
+function proxyPromise<T>(p: Promise<T>, fromMainProcess: boolean, signal: { disconnected: boolean }) {
+    const deferred = new Deferred<T>()
 
-        // if (resolved instanceof Object) {
-        //     return adaptError(resolved as any, fromMainProcess)
-        // }
-        // return resolved
-    } catch (err) {
-        if (fromMainProcess) {
-            if (!isMainProcess) {
-                throw newError(err.name, err.message)
-            }
-        } else {
-            if (isMainProcess) {
-                throw newError(err.name, err.message)
-            } else {
-                throw { name: err.name, message: err.message }
-            }
+    p.then(r => {
+        if (!signal.disconnected) {
+            deferred.resolve(r)
         }
-        throw err
-    }
+    }).catch(err => {
+        if (!signal.disconnected) {
+            if (fromMainProcess) {
+                if (!isMainProcess) {
+                    err = newError(err.name, err.message)
+                }
+            } else {
+                if (isMainProcess) {
+                    err = newError(err.name, err.message)
+                } else {
+                    err = { name: err.name, message: err.message }
+                }
+            }
+            deferred.reject(err)
+        }
+    })
+    return deferred
 }
 
 

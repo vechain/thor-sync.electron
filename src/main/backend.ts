@@ -1,7 +1,7 @@
 import { webContents } from 'electron'
 import TxQueue from './tx-queue'
 import { Node, Agent } from './node'
-import { adaptError } from '@/common/adapt-error'
+import { proxyObject } from '@/common/object-proxy'
 import { create as createConnex } from './connex-impl'
 
 export class Backend {
@@ -17,8 +17,11 @@ export class Backend {
         // tslint:disable-next-line:no-console
         console.log('connex connected')
 
+        const signal = {disconnected: false}
+
         const contents = webContents.fromId(contentsId)
         const disconnect = () => {
+            signal.disconnected = true
             contents.removeListener('did-start-loading', onDidStartLoading)
             contents.removeListener('crashed', disconnect)
             contents.removeListener('destroyed', disconnect)
@@ -40,7 +43,7 @@ export class Backend {
         contents.on('crashed', disconnect)
         contents.on('destroyed', disconnect)
         return {
-            connex: adaptError(createConnex(contents, node.fork(wireAgent), node.cache), true),
+            connex: proxyObject(createConnex(contents, node.fork(wireAgent), node.cache), true, signal),
             txer: {
                 send: (id, raw) => {
                     this.txQueue.enqueue(id, raw, node.innerWire)

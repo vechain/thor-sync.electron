@@ -1,5 +1,5 @@
 import { remote } from 'electron'
-import { adaptError } from './common/adapt-error'
+import { proxyObject } from './common/object-proxy'
 
 // create connex on demand
 const getConnex = (() => {
@@ -11,10 +11,10 @@ const getConnex = (() => {
                 .getWebPreferences()
                 .nodeConfig
 
-            connex = adaptError(remote.app.EXTENSION.connect(
+            connex = proxyObject(remote.app.EXTENSION.connect(
                 remote.getCurrentWebContents().id,
                 nodeConfig!
-            ).connex, true)
+            ).connex, true, { disconnected: false })
         }
         return connex
     }
