@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="show" v-bind="$attrs" v-on="$listeners" max-width="500px">
+    <DialogEx persistent v-model="show" max-width="500px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-text>
@@ -37,13 +37,14 @@
                 >{{ preBtnStatus.text }}</v-btn>
             </v-card-actions>
         </v-card>
-    </v-dialog>
+    </DialogEx>
 </template>
 <script lang="ts">
-    import { Vue, Component, Watch } from 'vue-property-decorator'
-    import ContentForm from './WalletContentForm.vue'
-    import NameAndPass from './NameAndPass.vue'
+    import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
+    import ContentForm from '../launcher/WalletContentForm.vue'
+    import NameAndPass from '../launcher/NameAndPass.vue'
     import { cry } from 'thor-devkit'
+    import DialogHelper from '@/renderer/mixins/dialog-helper'
 
     @Component({
         components: {
@@ -51,8 +52,9 @@
             NameAndPass
         }
     })
-    export default class ImportWalletDialog extends Vue {
-        name = 'ImportWalletDialog'
+    export default class ImportWalletDialog extends Mixins(
+        class extends DialogHelper<any, void> {}
+    ) {
         addressExist = false
         show = false
         overWrite = false
@@ -71,7 +73,15 @@
                 text: this.step === 1 ? 'Abort' : 'Back'
             }
         }
-
+        @Watch('show')
+        onShowChange() {
+            if(!this.show) {
+                this.result = null
+            }
+        }
+        mounted() {
+            this.show = true
+        }
         get preBtnStatus() {
             let disable = false
             if (this.step === 1) {

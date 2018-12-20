@@ -31,6 +31,7 @@ import ShortcutEditDialog from './ShortcutEditDialog.vue'
 import ResetPwdDialog from './ResetPwdDialog.vue'
 import ExportWalletDialog from './ExportWalletDialog.vue'
 import DeleteWalletDialog from './DeleteWalletDialog.vue'
+import ImportWalletDialog from './ImportWalletDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -65,5 +66,6 @@ export {
     ShortcutEditDialog,
     ResetPwdDialog,
     ExportWalletDialog,
-    DeleteWalletDialog
+    DeleteWalletDialog,
+    ImportWalletDialog
 }

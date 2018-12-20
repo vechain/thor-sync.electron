@@ -5,7 +5,7 @@
             validate-on-blur
             v-model="form.content"
             no-resize
-            clearable
+            :autofocus="true"
             :rules="[validateContent]"
             outline
             :label="types[form.type - 1]['text']"
@@ -16,7 +16,6 @@
             :error-messages="pwdError.messages"
             v-if="form.type === 1"
             v-model="form.pwd"
-            clearable
             type="password"
         ></v-text-field>
     </v-form>
