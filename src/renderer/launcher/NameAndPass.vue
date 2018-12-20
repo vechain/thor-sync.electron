@@ -69,7 +69,7 @@
         }
         passwordRule() {
             return (
-                (this.password && this.password.length <= 6) ||
+                (this.password && this.password.length >= 6) ||
                 'Requires at least 6 characters'
             )
         }
