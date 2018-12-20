@@ -21,6 +21,11 @@ export default class AccountMixin extends Vue {
 
         return null
       }
+
+      this.error = {
+        isError: false,
+        messages: []
+      }
     }
   }
 }
