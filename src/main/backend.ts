@@ -6,42 +6,42 @@ import { create as createConnex } from './connex-impl'
 
 export class Backend {
     private readonly activeNodes = new Map<string, { node: Node, refCount: number }>()
+    private readonly connections = new Map<number, { disconnect(): void }>()
     private readonly txQueue = new TxQueue()
 
     public connect(
         contentsId: number,
         config: NodeConfig
     ): { connex: Connex, txer: Txer } {
+        const existConn = this.connections.get(contentsId)
+        if (existConn) {
+            existConn.disconnect()
+        }
+
         const wireAgent = new Agent({ maxSocket: 10 })
         const node = this.acquireNode(config)
-        // tslint:disable-next-line:no-console
-        console.log('connex connected')
 
-        const signal = {disconnected: false}
+        const signal = { disconnected: false }
 
         const contents = webContents.fromId(contentsId)
         const disconnect = () => {
             signal.disconnected = true
-            contents.removeListener('did-start-loading', onDidStartLoading)
             contents.removeListener('crashed', disconnect)
             contents.removeListener('destroyed', disconnect)
+            this.connections.delete(contentsId)
 
             wireAgent.destroy()
             // tslint:disable-next-line:no-console
             console.log('connex disconnected')
             this.releaseNode(config)
         }
-
-        const onDidStartLoading = (ev: any) => {
-            // workaround
-            // in electron3, webview's did-start-loading will be emitted to its host.
-            if (ev.sender.pendingIndex >= 0) {
-                disconnect()
-            }
-        }
-        contents.on('did-start-loading', onDidStartLoading)
         contents.on('crashed', disconnect)
         contents.on('destroyed', disconnect)
+        this.connections.set(contentsId, {
+            disconnect
+        })
+        // tslint:disable-next-line:no-console
+        console.log('connex connected')
         return {
             connex: proxyObject(createConnex(contents, node.fork(wireAgent), node.cache), true, signal),
             txer: {
