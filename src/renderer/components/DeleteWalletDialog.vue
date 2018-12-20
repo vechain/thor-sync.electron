@@ -3,22 +3,33 @@
         <v-card ref="card" flat>
             <v-card-text>
                 <div class="subheading font-weight-light">Verify Password</div>
-                <v-card flat>
-                    <v-card-text>
-                        <v-text-field
-                            :error="error.isError"
-                            :error-messages="error.messages"
-                            type="password"
-                            label="Password"
-                            v-model="password"
-                        ></v-text-field>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn flat @click.stop="close">Cancel</v-btn>
-                        <v-btn flat @click="onNext" color="error">Delete</v-btn>
-                    </v-card-actions>
-                </v-card>
+                <form @submit.prevent="onNext">
+                    <v-card flat>
+                        <v-card-text>
+                            <v-text-field
+                                :error="error.isError"
+                                :autofocus="true"
+                                :error-messages="error.messages"
+                                type="password"
+                                label="Password"
+                                v-model="password"
+                                :loading="checking"
+                            >
+                                <v-progress-linear
+                                    v-if="checking"
+                                    slot="progress"
+                                    indeterminate
+                                    height="2"
+                                ></v-progress-linear>
+                            </v-text-field>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn flat @click.stop="close">Cancel</v-btn>
+                            <v-btn flat type="submit" color="error">Delete</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </form>
             </v-card-text>
         </v-card>
     </DialogEx>
@@ -30,7 +41,7 @@
     import { cry } from 'thor-devkit'
     import AccountMixin from '@/renderer/mixins/Account'
     import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { setTimeout } from 'timers';
+    import { setTimeout } from 'timers'
     @Component
     export default class DeleteWalletDialog extends Mixins(
         AccountMixin,
@@ -38,6 +49,7 @@ import { setTimeout } from 'timers';
     ) {
         password = ''
         show = false
+        checking = false
         error: {
             isError: boolean
             messages: string[]
@@ -48,10 +60,6 @@ import { setTimeout } from 'timers';
 
         mounted() {
             this.show = true
-            const ele = (this.$refs.card as Vue).$el.querySelector('input')
-            setTimeout(()=> {
-                ele!.focus()
-            }, 0)
         }
 
         @Watch('show')
@@ -62,9 +70,11 @@ import { setTimeout } from 'timers';
         }
 
         async onNext() {
+            this.checking = true
             if (await this.checkPwd(this.password, this.arg.keystore)) {
                 await this.deleteWallet()
             }
+            this.checking = false
         }
 
         close() {
