@@ -19,7 +19,7 @@ export class Backend {
 
         const contents = webContents.fromId(contentsId)
         const disconnect = () => {
-            contents.removeListener('did-start-loading', disconnect)
+            contents.removeListener('did-start-loading', onDidStartLoading)
             contents.removeListener('crashed', disconnect)
             contents.removeListener('destroyed', disconnect)
 
@@ -28,9 +28,17 @@ export class Backend {
             console.log('connex disconnected')
             this.releaseNode(config)
         }
-        contents.once('did-start-loading', disconnect)
-        contents.once('crashed', disconnect)
-        contents.once('destroyed', disconnect)
+
+        const onDidStartLoading = (ev: any) => {
+            // workaround
+            // in electron3, webview's did-start-loading will be emitted to its host.
+            if (ev.sender.pendingIndex >= 0) {
+                disconnect()
+            }
+        }
+        contents.on('did-start-loading', onDidStartLoading)
+        contents.on('crashed', disconnect)
+        contents.on('destroyed', disconnect)
         return {
             connex: adaptError(createConnex(contents, node.fork(wireAgent), node.cache), true),
             txer: {
