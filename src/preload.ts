@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 import { proxyObject } from './common/object-proxy'
 
 // create connex on demand
@@ -24,3 +24,7 @@ Object.defineProperty(window, 'connex', {
     enumerable: true,
     get() { return getConnex() }
 })
+
+window.addEventListener('wheel', ev => {
+    ipcRenderer.sendToHost('webview-wheel', { x: ev.deltaX, y: ev.deltaY })
+}, { passive: true })

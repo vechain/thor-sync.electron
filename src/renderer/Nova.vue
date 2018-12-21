@@ -183,6 +183,7 @@
         <v-content>
             <Vendor/>
             <Swiper
+                ref="swiper"
                 style="width:100%;height:100%;"
                 :canSwipeRight="activePage.canGoBack"
                 :canSwipeLeft="activePage.canGoForward"
@@ -208,6 +209,7 @@
                         :nav="page.nav"
                         @update:status="page.updateStatus($event)"
                         @update:href="page.userInput=''"
+                        @update:wheel="onWebviewWheel"
                     />
                 </template>
             </Swiper>
@@ -490,6 +492,9 @@ export default class Nova extends Vue {
                 }
             })
         }
+    }
+    onWebviewWheel(delta: { x: number, y: number }) {
+        (this.$refs.swiper as any).handleWheel(delta.x, delta.y)
     }
 }
 </script>
