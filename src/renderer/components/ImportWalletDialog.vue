@@ -19,6 +19,7 @@
                             <NameAndPass v-if="show" v-model="nameAndPass"></NameAndPass>
                             <v-checkbox
                                 v-if="addressExist"
+                                :ripple="false"
                                 label="The wallet already existed, Please check the box to agree overwriting an old wallet."
                                 v-model="overWrite"
                             ></v-checkbox>
