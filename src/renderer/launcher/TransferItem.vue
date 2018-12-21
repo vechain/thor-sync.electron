@@ -18,9 +18,13 @@
                                     class="body-2 grey--text text--darken-4 font-weight-regular"
                                 >TX#: {{item.meta.txID | shortTxId}}</span>
                                 <br>
-                                <span
-                                    class="body-2 grey--text text--darken-4 font-weight-light"
-                                >Transfer to: {{item.recipient | shortAddr}}</span>
+                                <span class="body-2 grey--text text--darken-4 font-weight-light">
+                                    <span
+                                        class="font-weight-light font-italic"
+                                    >{{ isIn ? 'Transferred to: ' : 'Recieved from: '}}
+                                    </span>
+                                    {{ (isIn ? item.sender : item.recipient) | shortAddr}}
+                                </span>
                             </v-flex>
                             <v-flex xs6 class="text-xs-right caption">
                                 <span>{{item.meta.blockTimestamp | dateTime}}</span>
