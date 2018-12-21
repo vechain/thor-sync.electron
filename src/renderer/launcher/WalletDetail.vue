@@ -232,6 +232,9 @@
 
         created() {
             const address = this.$route.params.address
+            if (!this.wallet) {
+                this.$router.back()
+            }
             this.createFilter(address)
         }
 
