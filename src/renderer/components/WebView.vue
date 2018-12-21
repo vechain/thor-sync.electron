@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent } from 'electron'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent } from 'electron'
 import * as NodeUrl from 'url'
 import AccessHistory from '../mixins/access-history'
 import errorMap from '../net-error-list'
@@ -70,6 +70,8 @@ export default class WebView extends Mixins(AccessHistory) {
     }
     @Emit('update:status')
     updateStatus(status: WebView.Status) { }
+    @Emit('update:wheel')
+    updateWheel(delta: { x: number, y: number }) { }
 
     @Prop(Object) nav!: WebView.Nav
     @Watch('nav.goBack')
@@ -122,7 +124,13 @@ export default class WebView extends Mixins(AccessHistory) {
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
                 return
-            } else if (ev.type === 'did-start-loading') {
+            } else if (ev.type === 'ipc-message') {
+                const ipcMsgEv = ev as IpcMessageEvent
+                if (ipcMsgEv.channel === 'webview-wheel') {
+                    this.updateWheel(ipcMsgEv.args[0])
+                }
+                return
+            } if (ev.type === 'did-start-loading') {
                 domReady = false
                 this.backgroundColor = ''
                 this.progress = 0.1

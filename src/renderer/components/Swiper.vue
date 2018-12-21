@@ -113,7 +113,11 @@ export default class Swiper extends Vue {
     }
 
     onWheel(ev: WheelEvent) {
-        this.gesture.wheel(ev.deltaX, ev.deltaY)
+        this.handleWheel(ev.deltaX, ev.deltaY)
+    }
+
+    handleWheel(dx: number, dy: number) {
+        this.gesture.wheel(dx, dy)
         if (this.gesture.seized) {
             if (this.gesture.dir === 'right') {
                 if (this.canSwipeRight) {
