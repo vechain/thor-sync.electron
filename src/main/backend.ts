@@ -26,6 +26,7 @@ export class Backend {
         const contents = webContents.fromId(contentsId)
         const disconnect = () => {
             signal.disconnected = true
+            contents.removeListener('did-start-navigation', onDidStartNavigation)
             contents.removeListener('crashed', disconnect)
             contents.removeListener('destroyed', disconnect)
             this.connections.delete(contentsId)
@@ -35,6 +36,14 @@ export class Backend {
             console.log('connex disconnected')
             this.releaseNode(config)
         }
+
+        const onDidStartNavigation = (ev: Event, url: string, isInPlace: boolean, isMainFrame: boolean) => {
+            if (!isInPlace && isMainFrame) {
+                disconnect()
+            }
+        }
+
+        contents.on('did-start-navigation', onDidStartNavigation)
         contents.on('crashed', disconnect)
         contents.on('destroyed', disconnect)
         this.connections.set(contentsId, {
