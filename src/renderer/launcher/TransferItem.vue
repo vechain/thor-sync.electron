@@ -21,7 +21,7 @@
                                 <span class="body-2 grey--text text--darken-4 font-weight-light">
                                     <span
                                         class="font-weight-light font-italic"
-                                    >{{ isIn ? 'Transferred to: ' : 'Recieved from: '}}
+                                    >{{ isIn ? 'Recieved from: ' : 'Transferred to: '}}
                                     </span>
                                     {{ (isIn ? item.sender : item.recipient) | shortAddr}}
                                 </span>
