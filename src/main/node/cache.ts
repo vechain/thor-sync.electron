@@ -150,6 +150,10 @@ export class Cache implements Thor.Cache {
                 if (slot) {
                     slot.txs.set(txId, tx)
                 }
+                if (this.window.length > 0 &&
+                    tx.meta.blockNumber < this.window[0].number) {
+                    this.txCache.set(tx.id, tx)
+                }
             }
             return tx
         }
@@ -177,6 +181,10 @@ export class Cache implements Thor.Cache {
                 const slot = this.slots.get(receipt.meta.blockID)
                 if (slot) {
                     slot.receipts.set(txId, receipt)
+                }
+                if (this.window.length > 0 &&
+                    receipt.meta.blockNumber < this.window[0].number) {
+                    this.receiptCache.set(txId, receipt)
                 }
             }
             return receipt
