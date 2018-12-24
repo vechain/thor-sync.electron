@@ -24,7 +24,7 @@ class WindowManager {
             presets.find(n => nameOfNetwork(n.genesis.id) === (env.devMode ? 'testnet' : 'mainnet'))!
         )()
         options = { ...defaultWindowOptions, ...(options || {}) }
-        options.webPreferences = options.webPreferences || {}
+        options.webPreferences = options.webPreferences || { navigateOnDragDrop: false }
         // options.webPreferences.partition = 'persist:' + config.genesis.id
 
         options.webPreferences.nodeConfig = config
