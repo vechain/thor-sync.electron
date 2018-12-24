@@ -32,6 +32,9 @@ import ResetPwdDialog from './ResetPwdDialog.vue'
 import ExportWalletDialog from './ExportWalletDialog.vue'
 import DeleteWalletDialog from './DeleteWalletDialog.vue'
 import ImportWalletDialog from './ImportWalletDialog.vue'
+import CreateWalletDialog from './CreateWalletDialog.vue'
+import WordPuzzle from './WordPuzzle.vue'
+import MnemonicWords from './MnemonicWords.vue'
 
 export {
     AccessHistoryPanel,
@@ -67,5 +70,8 @@ export {
     ResetPwdDialog,
     ExportWalletDialog,
     DeleteWalletDialog,
-    ImportWalletDialog
+    ImportWalletDialog,
+    CreateWalletDialog,
+    WordPuzzle,
+    MnemonicWords
 }
