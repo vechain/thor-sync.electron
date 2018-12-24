@@ -11,7 +11,7 @@
             :preload="preload"
             style="width:100%;height:100%;"
             :style="{'background-color': backgroundColor} "
-            webpreferences="scrollBounce"
+            webpreferences="scrollBounce=yes, navigateOnDragDrop=yes, safeDialogs=yes"
         />
         <v-layout
             v-if="!!errorCode"
