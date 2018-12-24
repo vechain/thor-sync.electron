@@ -87,8 +87,15 @@ export default class Transfer extends Vue {
 
     readonly addressRules = [
         (v: string) => !!v || 'Input address here',
-        (v: string) => cry.isAddress(v) || 'Invalid address',
-        (v: string) => v.toLowerCase() === v || cry.toChecksumAddress(v) === v || 'Checksum incorrect'
+        (v: string) => {
+            if (!cry.isAddress(v)) {
+                return 'Invalid address'
+            }
+            if(v !== v.toLowerCase() && cry.toChecksumAddress(v) !== v) {
+                return 'Checksum incorrect'
+            }
+            return true
+        }
     ]
     readonly amountRules = [
         (v: string) => new BigNumber(0).lte(v) || 'Invalid amount'
