@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator'
-import NewWalletDialog from '@/renderer/launcher/NewWalletDialog.vue';
 import UrlBox from './UrlBox.vue'
 
 @Component({

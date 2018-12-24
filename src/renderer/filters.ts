@@ -1,5 +1,6 @@
 import { Vue } from 'vue-property-decorator'
 import { Address, Num } from '@/common/formatter'
+import { cry } from 'thor-devkit'
 
 function isRegExpArray(v: any): v is RegExpMatchArray {
     return v !== null && v instanceof Array
@@ -42,4 +43,12 @@ Vue.filter('date', (val: number) => {
 Vue.filter('dateTime', (val: number) => {
     const date = new Date(val * 10e2)
     return date.toLocaleString('en-GB')
+})
+
+Vue.filter('checksum', (val: string) => {
+    try {
+        return cry.toChecksumAddress(val)
+    } catch (err) {
+        return err.toString()
+    }
 })
