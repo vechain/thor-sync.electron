@@ -17,6 +17,7 @@
                             <v-stepper-content step="1">
                                 <v-form ref="form">
                                     <v-text-field
+                                        v-focus
                                         validate-on-blur
                                         label="Wallet name"
                                         v-model="name"
