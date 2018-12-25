@@ -128,6 +128,7 @@ import { Entities } from '@/renderer/database'
 import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
+import AccountLoader from '@/renderer/mixins/account-loader'
 
 type Arg = {
     message: Connex.Vendor.SigningService.TxMessage,
@@ -145,7 +146,7 @@ type Result = {
 }
 
 @Component
-export default class TxSigningDialog extends Mixins(class extends DialogHelper<Arg, Result>{ }) {
+export default class TxSigningDialog extends Mixins(class extends DialogHelper<Arg, Result>{ }, AccountLoader) {
     opened = false
     signing = false
     estimating = false
@@ -156,7 +157,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         baseGasPrice: new BigNumber(0),
         error: ''
     }
-    account: Connex.Thor.Account | null = null
     password = ''
     passwordError = ''
     readonly passwordRules = [(v: string) => !!v || 'Input password here']
@@ -195,18 +195,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.passwordRules.every(r => r(this.password) === true) &&
             this.estimation.gas
     }
-
-
-    @Watch('address')
-    @Watch('$store.state.chainHead')
-    async loadAccount() {
-        const addr = this.address
-        const acc = await connex.thor.account(addr).get()
-        if (addr === this.address) {
-            this.account = acc
-        }
-    }
-
 
     @Watch('password')
     passwordChanged() {
@@ -260,7 +248,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
 
     created() {
         this.debouncedEstimateGas = debounce(() => this.estimateGas(), 500)
-        this.loadAccount()
         this.estimateGas()
     }
 
