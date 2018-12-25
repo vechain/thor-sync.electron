@@ -244,13 +244,13 @@
         }
 
         showReset() {
-            Vue.dialog(ResetPwdDialog, this.wallet!)
+            this.$dialog(ResetPwdDialog, this.wallet!)
         }
         showDelete() {
-            Vue.dialog(DeleteWalletDialog, this.wallet!)
+            this.$dialog(DeleteWalletDialog, this.wallet!)
         }
         showExport() {
-            Vue.dialog(ExportWalletDialog, this.wallet!)
+            this.$dialog(ExportWalletDialog, this.wallet!)
         }
         async getList() {
             let list: Connex.Thor.Transfer[] = []

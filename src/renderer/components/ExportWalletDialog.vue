@@ -95,7 +95,7 @@
         @Watch('show')
         showChanged(val: boolean) {
             if (!val) {
-                this.result = null
+                this.$resolve(undefined)
             }
         }
 

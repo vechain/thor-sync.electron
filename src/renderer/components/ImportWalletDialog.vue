@@ -77,7 +77,7 @@
         @Watch('show')
         onShowChange() {
             if(!this.show) {
-                this.result = null
+                this.$resolve(undefined)
             }
         }
         mounted() {

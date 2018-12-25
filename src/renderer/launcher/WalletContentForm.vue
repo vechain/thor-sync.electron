@@ -4,7 +4,7 @@
         <v-textarea
             validate-on-blur
             v-model.trim="form.content"
-            noresize
+            no-resize
             v-focus
             :rules="[validateContent]"
             outline

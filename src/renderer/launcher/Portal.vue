@@ -88,7 +88,7 @@ export default class Portal extends Vue {
     }
 
     onEditShortcut(shortcut: Entities.Preference<'shortcut'>) {
-        Vue.dialog(ShortcutEditDialog, {
+        this.$dialog(ShortcutEditDialog, {
             id: shortcut.id!,
             title: shortcut.value.name,
             href: shortcut.value.href

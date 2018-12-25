@@ -104,7 +104,7 @@ import { Entities } from '@/renderer/database';
 import { cry } from 'thor-devkit'
 
 @Component
-export default class CreateWalletDialog extends Mixins(class extends DialogHelper<void, Entities.Wallet>{ }) {
+export default class CreateWalletDialog extends Mixins(class extends DialogHelper<void, Entities.Wallet | null>{ }) {
     opened = false
     step = 1
     stepTitles = ['Personalize', 'Write down mnemonic words', 'Verify mnemonic words']
@@ -135,8 +135,8 @@ export default class CreateWalletDialog extends Mixins(class extends DialogHelpe
         this.opened = true
     }
 
-    close(rseult: Entities.Wallet | null) {
-        this.result = rseult
+    close(result: Entities.Wallet | null) {
+        this.$resolve(result)
         this.opened = false
     }
 
