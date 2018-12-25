@@ -25,39 +25,18 @@
     </v-card>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { Entities } from '../database'
+import AccountLoader from '../mixins/account-loader'
 
 @Component
-export default class WalletCard extends Vue {
+export default class WalletCard extends Mixins(AccountLoader) {
     @Prop(Object) wallet!: Entities.Wallet
     @Prop(Boolean) compact!: boolean
 
-    account: Connex.Thor.Account | null = null
-
-    get balance() {
-        return this.account && this.account.balance
-    }
-
-    get energy() {
-        return this.account && this.account.energy
-    }
-
-    @Watch('wallet')
-    @Watch('$store.state.chainHead')
-    async loadAccount() {
-        const addr = this.wallet.address!
-        const account = await connex.thor.account(addr).get()
-        if (addr === this.wallet.address) {
-            this.account = account
-
-        }
-    }
-
-    created() {
-        this.loadAccount()
-    }
-
+    get address() { return this.wallet.address! }
+    get balance() { return this.account && this.account.balance }
+    get energy() { return this.account && this.account.energy }
 }
 </script>
 
