@@ -5,7 +5,7 @@
             validate-on-blur
             v-model.trim="form.content"
             noresize
-            :autofocus="true"
+            v-focus
             :rules="[validateContent]"
             outline
             :label="types[form.type - 1]['text']"

@@ -9,7 +9,7 @@
         <v-card>
             <v-card-title>Shortcut</v-card-title>
             <v-card-text>
-                <v-text-field autofocus ref="shortcutTitle" label="Title" v-model="arg.title"/>
+                <v-text-field v-focus label="Title" v-model="arg.title"/>
                 <div class="grey--text text-truncate caption" style="width:100%;">{{arg.href}}</div>
             </v-card-text>
             <v-card-actions>
@@ -43,11 +43,6 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
 
     mounted() {
         this.open = true
-        const elem = (this.$refs.shortcutTitle as Vue).$el.querySelector('input')!
-        setTimeout(() => {
-            elem.focus()
-            elem.select()
-        }, 0)
     }
     save() {
         if (!this.arg.title.trim()) {

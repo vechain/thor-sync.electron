@@ -8,9 +8,9 @@
                         <v-card-text>
                             <v-text-field
                                 :error="error.isError"
-                                :autofocus="true"
                                 :error-messages="error.messages"
                                 type="password"
+                                v-focus
                                 label="Password"
                                 v-model="password"
                                 :loading="checking"
@@ -36,7 +36,6 @@
 </template>
 <script lang="ts">
     import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-    import { Keystore } from 'thor-devkit/dist/cry'
     import { Entities } from '@/renderer/database'
     import { cry } from 'thor-devkit'
     import AccountMixin from '@/renderer/mixins/Account'

@@ -18,7 +18,7 @@
                                 <v-card>
                                     <v-card-text>
                                         <v-text-field
-                                            :autofocus="true"
+                                            v-focus
                                             :error="error.isError"
                                             :error-messages="error.messages"
                                             type="password"
@@ -63,7 +63,6 @@
 <script lang="ts">
     import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
     import { cry } from 'thor-devkit'
-    import { Keystore } from 'thor-devkit/dist/cry'
     import { Entities } from '@/renderer/database'
     import { remote } from 'electron'
     import { mkdir } from 'fs'

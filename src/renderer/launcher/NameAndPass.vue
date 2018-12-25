@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-text-field
-            autofocus
+            v-focus
             validate-on-blur
             label="Wallet name"
             v-model="name"
