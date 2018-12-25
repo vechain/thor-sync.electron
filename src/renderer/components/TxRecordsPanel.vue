@@ -3,7 +3,7 @@
         <slot slot="activator" name="activator"/>
         <v-card width="300">
             <template v-if="showContent">
-                <template v-if="rows.length>0">
+                <div v-if="rows.length>0" style="overflow:auto">
                     <v-subheader
                         class="py-1"
                         style="height:auto;background-color:rgba(0,0,0,0.05)"
@@ -14,7 +14,7 @@
                             <TxRecord v-for="rec in rows" :key="rec.id" :entity="rec"/>
                         </v-expansion-panel>
                     </div>
-                </template>
+                </div>
                 <v-card-text v-else class="text-xs-center">No Activity</v-card-text>
             </template>
         </v-card>
