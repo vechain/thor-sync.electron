@@ -37,7 +37,7 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
     @Watch('open')
     openChanged() {
         if (!this.open) {
-            this.result = null
+            this.$resolve(undefined)
         }
     }
 

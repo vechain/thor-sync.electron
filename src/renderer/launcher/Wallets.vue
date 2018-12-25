@@ -49,11 +49,11 @@ export default class Wallets extends Vue {
     }
 
     onImport() {
-        Vue.dialog(ImportWalletDialog, null)
+        this.$dialog(ImportWalletDialog, null)
     }
 
     onCreate() {
-        Vue.dialog(CreateWalletDialog, undefined)
+        this.$dialog(CreateWalletDialog, undefined)
     }
 }
 </script>
