@@ -85,6 +85,7 @@
                     <v-spacer/>
                     <v-card-text>
                         <v-text-field
+                            v-focus
                             :disabled="signing"
                             v-model="password"
                             label="Password"
