@@ -1,5 +1,5 @@
 <template>
-    <DialogEx persistent v-model="opened" width="780" @action:ok="onNext" @action:cancel="onAbort">
+    <DialogEx persistent v-model="opened" width="780" @action:ok="onOK" @action:cancel="onCancel">
         <v-card>
             <v-card-text>
                 <v-layout column style="height:400px">
@@ -77,9 +77,17 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer/>
-                <v-btn v-show="step<4" class="mr-5" flat @click="onAbort">Abort</v-btn>
-                <v-btn v-show="step<4" flat @click="onBack">Back</v-btn>
                 <v-btn
+                    v-show="step<4"
+                    ref="abort"
+                    class="mr-5"
+                    flat
+                    @click="onAbort"
+                    tabindex="2"
+                >Abort</v-btn>
+                <v-btn v-show="step<4" flat @click="onBack" tabindex="1">Back</v-btn>
+                <v-btn
+                    ref="next"
                     :disabled="processing"
                     flat
                     color="primary"
@@ -154,8 +162,8 @@ export default class CreateWalletDialog extends Mixins(class extends DialogHelpe
         this.step++
     }
 
-    onAbort(){
-        if(this.step> 3) {
+    onAbort() {
+        if (this.step > 3) {
             return
         }
         this.close(null)
@@ -166,6 +174,18 @@ export default class CreateWalletDialog extends Mixins(class extends DialogHelpe
             return
         }
         this.step--
+    }
+
+    onOK() {
+        const el = (this.$refs.next as Vue).$el
+        el.focus()
+        el.click()
+    }
+
+    onCancel() {
+        const el = (this.$refs.abort as Vue).$el
+        el.focus()
+        el.click()
     }
 
     async encryptAndSave() {
