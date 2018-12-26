@@ -132,8 +132,8 @@ import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 import AccountLoader from '@/renderer/mixins/account-loader'
 
 type Arg = {
-    message: Connex.Vendor.SigningService.TxMessage,
-    wallets: Entities.Wallet[],
+    message: Connex.Vendor.SigningService.TxMessage
+    wallets: Entities.Wallet[]
     selectedWallet: number
     suggestedGas: number
     txComment: string
@@ -302,15 +302,3 @@ class Rejected extends Error {
     }
 }
 </script>
-<style >
-.sign-dialog {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    width: auto;
-}
-.sign-dialog-transition-enter,
-.sign-dialog-transition-leave-to {
-    transform: translateY(calc(100% + 40px));
-}
-</style>

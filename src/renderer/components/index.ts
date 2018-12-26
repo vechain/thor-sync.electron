@@ -36,6 +36,7 @@ import CreateWalletDialog from './CreateWalletDialog.vue'
 import WordPuzzle from './WordPuzzle.vue'
 import MnemonicWords from './MnemonicWords.vue'
 import TxSigningDialog from './TxSigningDialog.vue'
+import CertSigningDialog from './CertSigningDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -75,5 +76,6 @@ export {
     CreateWalletDialog,
     WordPuzzle,
     MnemonicWords,
-    TxSigningDialog
+    TxSigningDialog,
+    CertSigningDialog
 }
