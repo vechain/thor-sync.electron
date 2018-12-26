@@ -662,4 +662,17 @@ html {
 .theme--light.application {
     color: rgba(0, 0, 0, 0.8);
 }
+.sign-dialog {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: auto;
+}
+.sign-dialog-transition-enter,
+.sign-dialog-transition-leave-to {
+    transform: translateY(calc(100% + 40px));
+}
+.serif {
+    font-family: "Roboto Slab";
+}
 </style>
