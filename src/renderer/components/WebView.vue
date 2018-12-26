@@ -126,8 +126,10 @@ export default class WebView extends Mixins(AccessHistory) {
                 return
             } else if (ev.type === 'ipc-message') {
                 const ipcMsgEv = ev as IpcMessageEvent
-                if (ipcMsgEv.channel === 'webview-wheel') {
+                if (ipcMsgEv.channel === 'wheel') {
                     this.updateWheel(ipcMsgEv.args[0])
+                } else if (ipcMsgEv.channel === 'bg-color') {
+                    this.backgroundColor = ipcMsgEv.args[0]
                 }
                 return
             } if (ev.type === 'did-start-loading') {
@@ -156,11 +158,6 @@ export default class WebView extends Mixins(AccessHistory) {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
             } else if (ev.type === 'dom-ready') {
                 domReady = true
-                this.webview
-                    .getWebContents()
-                    .executeJavaScript('window.getComputedStyle(document.body).getPropertyValue("background-color")')
-                    .then((color: string) => this.backgroundColor = color)
-                    .catch(console.warn)
             } else if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {

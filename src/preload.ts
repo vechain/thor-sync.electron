@@ -24,7 +24,10 @@ Object.defineProperty(window, 'connex', {
     enumerable: true,
     get() { return getConnex() }
 })
-
+window.addEventListener('load', () => {
+    const bgColor = window.getComputedStyle(document.body).getPropertyValue('background-color')
+    ipcRenderer.sendToHost('bg-color', bgColor)
+})
 window.addEventListener('wheel', ev => {
-    ipcRenderer.sendToHost('webview-wheel', { x: ev.deltaX, y: ev.deltaY })
+    ipcRenderer.sendToHost('wheel', { x: ev.deltaX, y: ev.deltaY })
 }, { passive: true })
