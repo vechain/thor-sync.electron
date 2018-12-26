@@ -84,7 +84,6 @@
             if (this.arg) {
                 await BDB.wallets.delete(this.arg.id || 0)
                 this.close()
-                BUS.$emit('wallet-deleted')
             }
         }
     }
