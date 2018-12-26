@@ -1,8 +1,17 @@
 <template>
     <div class="pa-3">
         <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
-            <div>
+            <div v-if="wallet">
                 <v-layout justify-center>
+                    <v-btn
+                        right
+                        
+                        color="primary"
+                        @click="showReset"
+                        flat
+                        small
+                    >Reset Password</v-btn>
+                    <v-btn right color="error" flat @click="showDelete" small>Delete</v-btn>
                     <v-btn
                         flat
                         small
@@ -45,13 +54,15 @@
                                                         <v-btn
                                                             class="ma-0 ml-3"
                                                             v-clipboard="wallet.address"
+                                                            @click="textTip = 'Copied'"
+                                                            @mouseover="textTip = 'Copy'"
                                                             slot="activator"
                                                             small
                                                             icon
                                                         >
                                                             <v-icon small>mdi-content-copy</v-icon>
                                                         </v-btn>
-                                                        <span>Click copy address</span>
+                                                        <span>{{textTip}}</span>
                                                     </v-tooltip>
                                                     <QRCodeDialog
                                                         width="300"
@@ -100,35 +111,15 @@
                 </v-layout>
             </v-card>
             <v-layout justify-space-around>
-                <v-flex xs3 sm2 class="mt-3">
-                    <div class="pt-1">
-                        <v-btn
-                            right
-                            class="t-left"
-                            color="primary"
-                            @click="showReset"
-                            flat
-                            small
-                        >Reset Password</v-btn>
-                        <v-btn
-                            right
-                            class="t-left"
-                            color="error"
-                            flat
-                            @click="showDelete"
-                            small
-                        >Delete</v-btn>
-                    </div>
-                </v-flex>
                 <v-flex xs9 sm10 class="mt-1">
                     <h3
                         flat
                         v-if="list.length"
-                        class="pl-0 pt-4 pb-4 title d-inline-block"
+                        class="pl-0 pt-4 title d-inline-block"
                     >Recent Transfer</h3>
                     <v-progress-circular
                         class="ml-3"
-                        size="24"
+                        size="22"
                         :width="2"
                         v-if="isloading && list.length"
                         indeterminate
@@ -205,6 +196,7 @@
         stick = false
         snackbar = false
         errorMessage = ''
+        textTip = 'Copy'
         get address() {
             return (this.wallet ? this.wallet.address : '') || ''
         }
@@ -228,6 +220,13 @@
             return this.wallets.find(item => {
                 return item.address === this.$route.params.address
             })
+        }
+
+        @Watch('wallet')
+        walletChanged() {
+            if (!this.wallet) {
+                this.$router.back()
+            }
         }
 
         created() {
@@ -278,9 +277,3 @@
         }
     }
 </script>
-
-<style>
-    .t-left .v-btn__content {
-        justify-content: left;
-    }
-</style>
