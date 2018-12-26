@@ -50,3 +50,20 @@ export namespace Num {
         return format(toBn(n).div(e18), decimalPlace, pack)
     }
 }
+
+export function describeClauses(clauses: Connex.Thor.Clause[]) {
+    if (clauses.length === 0) {
+        return 'empty'
+    }
+    if (clauses.length === 1) {
+        if (!clauses[0].to) {
+            return 'create a contract'
+        }
+        if (clauses[0].data === '0x') {
+            return 'transfer VET'
+        }
+        return 'make contract call'
+    }
+
+    return 'perform a batch of actions'
+}

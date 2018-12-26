@@ -90,8 +90,8 @@ import { Transaction } from 'thor-devkit'
 import * as UrlUtils from '@/common/url-utils'
 import BigNumber from 'bignumber.js'
 import { State } from 'vuex-class'
-import { describe } from '@/renderer/vendor/utils'
 import TimeAgo from 'timeago.js'
+import { describeClauses } from '@/common/formatter'
 
 type Status = Connex.Thor.Status
 const timeAgo = TimeAgo()
@@ -107,7 +107,7 @@ export default class TxRecord extends Vue {
 
     get txObject() { return Transaction.decode(Buffer.from(this.entity.raw.slice(2), 'hex')) }
     get clauses() { return this.txObject.body.clauses }
-    get summary() { return this.entity.summary[0] || describe(this.clauses) }
+    get summary() { return this.entity.summary[0] || describeClauses(this.clauses) }
     get host() { return UrlUtils.hostOf(this.entity.referer.url) }
     get time() { return timeAgo.format(this.entity.insertTime) }
     get txid() { return this.entity.id }

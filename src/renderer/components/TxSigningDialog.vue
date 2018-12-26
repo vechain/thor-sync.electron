@@ -130,13 +130,14 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 import AccountLoader from '@/renderer/mixins/account-loader'
+import { describeClauses } from '@/common/formatter'
 
 type Arg = {
     message: Connex.Vendor.SigningService.TxMessage
     wallets: Entities.Wallet[]
     selectedWallet: number
     suggestedGas: number
-    txComment: string
+    txComment?: string
 }
 
 type Result = {
@@ -167,7 +168,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     debouncedEstimateGas!: () => void
 
     get suggestedGas() { return this.arg.suggestedGas }
-    get txComment() { return this.arg.txComment }
+    get txComment() { return this.arg.txComment || describeClauses(this.arg.message) }
     get wallets() { return this.arg.wallets }
     get wallet() { return this.wallets[this.arg.selectedWallet] }
     get address() { return this.wallet.address! }

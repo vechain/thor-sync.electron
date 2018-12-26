@@ -35,7 +35,7 @@ export namespace Entities {
         signer: string
         confirmed: 0 | 1
         raw: string
-        referer: { url: string, title: string }
+        referer: Referer
         summary: [string, string[]]
         link: string
         estimatedFee: string
