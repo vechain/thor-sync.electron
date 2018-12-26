@@ -5,23 +5,36 @@ type NodeConfig = {
     genesis: Connex.Thor.Block
 }
 
-declare interface SignTx {
+type Referer = {
+    url: string
+    title: string
+}
+
+declare interface VendorInterface {
     signTx(
         contentsId: number,
         message: Connex.Vendor.SigningService.TxMessage,
-        options: SignTx.Options,
-        referer: {
-            url: string
-            title: string
-        }
+        options: VendorInterface.SignTxOptions,
+        referer: Referer
     ): Promise<Connex.Vendor.SigningService.TxResponse>
+
+    signCert(
+        contentsId: number,
+        message: Connex.Vendor.SigningService.CertMessage,
+        options: VendorInterface.SignCertOptions,
+        referer: Referer
+    ): Promise<Connex.Vendor.SigningService.CertResponse>
 }
 
-declare namespace SignTx {
-    type Options = {
+declare namespace VendorInterface {
+    type SignTxOptions = {
         signer?: string
         gas?: number
         link?: string
         comment?: string
+    }
+
+    type SignCertOptions = {
+        signer?: string
     }
 }

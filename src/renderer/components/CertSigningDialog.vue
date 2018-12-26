@@ -119,16 +119,16 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             this.signing = true
             this.passwordError = ''
 
-            const keystore = this.wallet.keystore!
+            const wallet = this.wallet
             const annex = {
 
                 domain: this.arg.domain,
                 timestamp: connex.thor.status.head.timestamp,
-                signer: keystore.address!
+                signer: wallet.address!
 
             }
 
-            const privateKey = await cry.Keystore.decrypt(this.wallet.keystore!, this.password)
+            const privateKey = await cry.Keystore.decrypt(wallet.keystore!, this.password)
             const unsigned = Certificate.encode({
                 ...this.arg.message,
                 ...annex
