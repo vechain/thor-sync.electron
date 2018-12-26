@@ -5,7 +5,6 @@
                 <v-layout justify-center>
                     <v-btn
                         right
-                        
                         color="primary"
                         @click="showReset"
                         flat
