@@ -2,7 +2,7 @@
     <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
         <v-card ref="card">
             <v-card-text>
-                <div class="subheading font-weight-light">Manage</div>
+                <div class="subheading font-weight-light">Reset Password</div>
                 <v-stepper class="elevation-0" v-model="step">
                     <v-stepper-header class="elevation-0">
                         <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
@@ -147,7 +147,6 @@
         }
 
         async resetPwd() {
-            // this.$refs.form.validate()
             if (!(this.$refs.form as any).validate()) {
                 return
             }
