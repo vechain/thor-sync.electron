@@ -1,5 +1,5 @@
 import AccessHistoryPanel from './AccessHistoryPanel.vue'
-import Activity from './Activity.vue'
+import ActivitiesStatus from './ActivitiesStatus.vue'
 import AddressLabel from './AddressLabel.vue'
 import Amount from './Amount.vue'
 import AppButton from './AppButton.vue'
@@ -20,8 +20,6 @@ import QRCodeDialog from './QRCodeDialog.vue'
 import Swiper from './Swiper.vue'
 import TabButton from './TabButton.vue'
 import Tip from './Tip.vue'
-import TxRecord from './TxRecord.vue'
-import TxRecordsPanel from './TxRecordsPanel.vue'
 import UrlBox from './UrlBox.vue'
 import WalletCard from './WalletCard.vue'
 import WalletSeeker from './WalletSeeker.vue'
@@ -37,10 +35,13 @@ import WordPuzzle from './WordPuzzle.vue'
 import MnemonicWords from './MnemonicWords.vue'
 import TxSigningDialog from './TxSigningDialog.vue'
 import CertSigningDialog from './CertSigningDialog.vue'
+import TxActivityItem from './TxActivityItem.vue'
+import CertActivityItem from './CertActivityItem.vue'
+import ActivitiesPanel from './ActivitiesPanel.vue'
 
 export {
     AccessHistoryPanel,
-    Activity,
+    ActivitiesStatus,
     AddressLabel,
     Amount,
     AppButton,
@@ -61,8 +62,6 @@ export {
     Swiper,
     TabButton,
     Tip,
-    TxRecord,
-    TxRecordsPanel,
     UrlBox,
     WalletCard,
     WalletSeeker,
@@ -77,5 +76,8 @@ export {
     WordPuzzle,
     MnemonicWords,
     TxSigningDialog,
-    CertSigningDialog
+    CertSigningDialog,
+    TxActivityItem,
+    CertActivityItem,
+    ActivitiesPanel
 }

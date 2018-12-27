@@ -12,6 +12,7 @@ import { remote } from 'electron'
 import { TxSigningDialog, CertSigningDialog } from '@/renderer/components'
 import { Entities } from '@/renderer/database'
 import { State } from 'vuex-class'
+import * as UrlUtils from '@/common/url-utils'
 
 @Component
 export default class Vendor extends Vue {
@@ -99,19 +100,25 @@ export default class Vendor extends Vue {
                 wallets: options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
                 selectedWallet: options.signer ? 0 : walletIndex,
                 suggestedGas: options.gas || 0,
-                txComment: options.comment
+                txComment: options.comment || ''
             })
-            await BDB.txRecords.add({
-                id: result.txId,
-                insertTime: Date.now(),
-                signer: result.signer,
-                confirmed: 0,
-                raw: result.rawTx,
-                referer: { ...referer! },
-                summary: [options.comment!, message.map(c => c.comment!)],
-                link: options.link || '',
-                estimatedFee: result.estimatedFee,
-                receipt: null
+
+            await BDB.activities.add({
+                type: 'tx',
+                createdTime: Date.now(),
+                referer,
+                closed: 0,
+                data: {
+                    id: result.txId,
+                    message: message,
+                    timestamp: result.timestamp,
+                    comment: options.comment || '',
+                    signer: result.signer,
+                    estimatedFee: result.estimatedFee,
+                    link: options.link || '',
+                    raw: result.rawTx,
+                    receipt: null
+                }
             })
             TXER.send(result.txId, result.rawTx)
 
@@ -145,9 +152,22 @@ export default class Vendor extends Vue {
                 // enforce using wallet
                 wallets: options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
                 selectedWallet: options.signer ? 0 : walletIndex,
-                domain: new URL(referer.url).host
+                domain: UrlUtils.hostnameOf(referer.url)
             })
 
+            await BDB.activities.add({
+                type: 'cert',
+                createdTime: Date.now(),
+                referer,
+                closed: 1,
+                data: {
+                    message: message,
+                    timestamp: result.annex.timestamp,
+                    signer: result.annex.signer,
+                    domain: result.annex.domain,
+                    signature: result.signature
+                }
+            })
             return result
         } finally {
             this.dialogOpened = false
