@@ -171,11 +171,11 @@
                             />
                         </v-layout>
                     </div>
-                    <TxRecordsPanel>
+                    <ActivitiesPanel>
                         <v-btn class="my-1" icon small slot="activator" :ripple="false">
-                            <Activity/>
+                            <ActivitiesStatus/>
                         </v-btn>
-                    </TxRecordsPanel>
+                    </ActivitiesPanel>
                 </v-layout>
                 <div class="sharp-line"/>
             </div>

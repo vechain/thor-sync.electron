@@ -29,19 +29,6 @@ export namespace Entities {
         export type Node = NodeConfig
     }
 
-    export interface TxRecord {
-        id: string
-        insertTime: number
-        signer: string
-        confirmed: 0 | 1
-        raw: string
-        referer: Referer
-        summary: [string, string[]]
-        link: string
-        estimatedFee: string
-        receipt: (Connex.Thor.Receipt & Connex.Thor.Transaction.Meta) | null
-    }
-
     export interface History {
         href: string
         lastAccessTime: number
@@ -99,13 +86,13 @@ export class GlobalDatabase extends Database {
 
 export class BoundedDatabase extends Database {
     public readonly wallets!: Dexie.Table<Entities.Wallet, number>
-    public readonly txRecords!: Dexie.Table<Entities.TxRecord, string>
+    public readonly activities!: Dexie.Table<entities.Activity<'tx' | 'cert'>, number>
 
     constructor(network: string) {
         super(network)
         this.version(1).stores({
             wallets: '++id, &address, name',
-            txRecords: 'id, insertTime, signer, confirmed',
+            activities: '++id, type, createdTime, closed',
         })
     }
 }

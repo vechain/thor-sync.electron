@@ -135,13 +135,14 @@ export default class Transfer extends Vue {
             this.showHistory = false
             return
         }
-        const txs = await BDB.txRecords
+        const txs = (await BDB.activities
+            .where({type: 'tx'})
             .reverse()
             .limit(20)
-            .toArray()
+            .toArray()) as entities.Activity<'tx'>[]
 
         const addrs: string[] = []
-        txs.map(tx => tx.receipt ? tx.receipt.outputs : [])
+        txs.map(tx => tx.data.receipt ? tx.data.receipt.outputs : [])
             .forEach(outputs => {
                 outputs.forEach(output => {
                     output.transfers.forEach(tr => {

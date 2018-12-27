@@ -137,7 +137,7 @@ type Arg = {
     wallets: Entities.Wallet[]
     selectedWallet: number
     suggestedGas: number
-    txComment?: string
+    txComment: string
 }
 
 type Result = {
@@ -145,6 +145,7 @@ type Result = {
     rawTx: string
     signer: string
     estimatedFee: string
+    timestamp: number
 }
 
 @Component
@@ -269,11 +270,17 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.signing = true
             this.passwordError = ''
 
+            const timestamp = connex.thor.status.head.timestamp
             const result = await buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas)
                 .sign(this.wallet.keystore!, this.password)
 
             this.opened = false
-            this.$resolve({ ...result, signer: this.address!, estimatedFee: this.fee.toString(10) })
+            this.$resolve({
+                ...result,
+                signer: this.address!,
+                estimatedFee: this.fee.toString(10),
+                timestamp
+            })
         } catch (err) {
             console.warn(err)
             if (err.message === 'message authentication code mismatch') {

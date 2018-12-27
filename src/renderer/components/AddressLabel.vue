@@ -12,7 +12,10 @@ export default Vue.extend({
     props: {
         icon: Boolean,
         abbrev: Boolean,
-        placeholder: String
+        placeholder: {
+            type: String,
+            default: ''
+        }
     },
     render(h) {
         const data: VNodeData = {

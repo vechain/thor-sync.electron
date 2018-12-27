@@ -2,7 +2,7 @@ import { Vue } from 'vue-property-decorator'
 import { remote, ipcRenderer } from 'electron'
 import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
-import { trackTxLoop } from './tx-utils'
+import { trackTxLoop } from './tx-tracker'
 import { proxyObject } from '@/common/object-proxy'
 
 // widgets to be bound onto window.
