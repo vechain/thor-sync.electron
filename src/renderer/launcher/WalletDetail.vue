@@ -3,13 +3,7 @@
         <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
             <div v-if="wallet">
                 <v-layout justify-center>
-                    <v-btn
-                        right
-                        color="primary"
-                        @click="showReset"
-                        flat
-                        small
-                    >Reset Password</v-btn>
+                    <v-btn right color="primary" @click="showReset" flat small>Reset Password</v-btn>
                     <v-btn right color="error" flat @click="showDelete" small>Delete</v-btn>
                     <v-btn
                         flat
@@ -40,7 +34,21 @@
                                         <v-card-title
                                             style="max-width: 300px"
                                             class="d-block pa-0 pt-1 text-truncate"
-                                        >{{wallet.name}}</v-card-title>
+                                        >
+                                            <input
+                                                single-line
+                                                class="editable-name"
+                                                hide-details
+                                                v-focus
+                                                v-if="isEdit"
+                                                max="20"
+                                                @keyup.enter="editSave"
+                                                @blur="editSave"
+                                                v-model="walletName"
+                                            >
+                                            <span v-if="!isEdit">{{wallet.name}}</span>
+                                            <v-icon @click="isEdit = true" v-if="!isEdit" small>mdi-square-edit-outline</v-icon>
+                                        </v-card-title>
                                         <v-card-text class="caption pa-0">
                                             <v-layout row align-content-center>
                                                 <v-flex align-self-center>
@@ -190,12 +198,13 @@
         }
     })
     export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
-        name = 'walletDetail'
+        walletName?: string
         list: Connex.Thor.Transfer[] = []
         stick = false
         snackbar = false
         errorMessage = ''
         textTip = 'Copy'
+        isEdit = false
         get address() {
             return (this.wallet ? this.wallet.address : '') || ''
         }
@@ -215,6 +224,18 @@
             this.getList()
         }
 
+        editSave() {
+            this.isEdit = false
+            if (this.walletName && this.walletName !== this.wallet!.name) {
+                BDB.wallets
+                    .where('id')
+                    .equals(this.wallet!.id!)
+                    .modify({ name: this.walletName })
+            } else {
+                this.walletName = this.wallet!.name
+            }
+        }
+
         get wallet() {
             return this.wallets.find(item => {
                 return item.address === this.$route.params.address
@@ -230,6 +251,7 @@
 
         created() {
             const address = this.$route.params.address
+            this.walletName = this.wallet!.name
             if (!this.wallet) {
                 this.$router.back()
             }
@@ -276,3 +298,9 @@
         }
     }
 </script>
+<style scoped>
+input.editable-name {
+    outline: #1976d2 solid 1px;
+    padding-left: 5px;
+}
+</style>
