@@ -38,7 +38,7 @@ export default class ExpansionBtn extends Vue {
         }
 
         if (this.expanded) {
-            this.emitAction()
+            setTimeout(() => this.emitAction(), 200)
             this.expanded = false
         } else {
             this.expanded = true
