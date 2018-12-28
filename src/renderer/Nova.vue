@@ -451,8 +451,8 @@ export default class Nova extends Vue {
         this.updateAccessHistoryLayout()
     }
 
-
     onUrlBoxInput(val: string) {
+        val = val.trim()
         if (val.length > 0) {
             this.updateAccessHistoryLayout()
             this.keyword = val
@@ -465,7 +465,7 @@ export default class Nova extends Vue {
         this.urlBoxFocused = false
         this.showAccessHistory = false
     }
-    onAccessHistorySelected(val: Entities.History) {
+    onAccessHistorySelected(val: AccessHistoryPanel.Item) {
         this.activePage.href = val.href
         this.activePage.userInput = ''
     }

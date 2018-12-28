@@ -12,27 +12,24 @@
         <div slot="activator" @keydown.stop="onKeyDown">
             <slot name="activator"/>
         </div>
-        <v-card v-if="rows.length>0">
+        <v-card v-if="items.length>0">
             <v-list dense :style="{width:width +'px'}">
                 <v-list-tile
-                    v-for="(row,i) in rows"
-                    :key="row.href"
+                    v-for="(item,i) in items"
+                    :key="item.href"
                     @click.stop
-                    @mousedown="select(row)"
+                    @mousedown="select(item)"
                     :class="{'v-list__tile--highlighted': i===listIndex}"
                 >
                     <v-layout align-center>
                         <Favicon
-                            :src="row.favicon"
+                            :src="item.favicon"
                             placeholder="mdi-link-variant"
                             style="flex:0 0 auto"
                         />
-                        <span class="mx-2 text-truncate" style="flex:0 0 auto;">{{row.title}}</span>
+                        <span class="mx-2 text-truncate">{{item.title}}</span>
                         <v-spacer/>
-                        <span
-                            class="mx-2 caption grey--text text-truncate"
-                            style="flex:0 1 auto;"
-                        >{{row.href}}</span>
+                        <span class="mx-2 caption grey--text text-truncate">{{item.href}}</span>
                     </v-layout>
                 </v-list-tile>
             </v-list>
@@ -43,14 +40,14 @@
     </v-menu>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Emit, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator'
 import { Entities } from '@/renderer/database'
 import debounce from 'lodash.debounce'
-import AccessHistory from '../mixins/access-history'
+import * as AccessRecords from '../access-records'
 
 @Component
-export default class AccessHistoryPanel extends Mixins(AccessHistory) {
-    rows: Entities.History[] = []
+export default class AccessHistoryPanel extends Vue {
+    items: AccessHistoryPanel.Item[] = []
     listIndex = -1
     @Prop(Boolean) value!: boolean
     @Prop(String) keyword!: string
@@ -68,9 +65,9 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
     }
 
     @Emit('update:selection')
-    updateSelection(val: Entities.History) { }
+    updateSelection(val: AccessHistoryPanel.Item) { }
     @Emit('select')
-    select(val: Entities.History) { }
+    select(val: AccessHistoryPanel.Item) { }
 
     onKeyDown(ev: KeyboardEvent) {
         if (!this.value) {
@@ -81,7 +78,7 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
             ev.preventDefault()
 
             let index = this.listIndex
-            let len = this.rows.length
+            let len = this.items.length
             if (ev.keyCode === keyCodes.down) {
                 index = Math.min(index + 1, len - 1)
             } else if (ev.keyCode === keyCodes.up) {
@@ -96,7 +93,7 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
 
             if (index !== this.listIndex) {
                 this.listIndex = index
-                const item = this.rows[index]
+                const item = this.items[index]
                 if (item) {
                     this.updateSelection(item)
                 }
@@ -109,21 +106,42 @@ export default class AccessHistoryPanel extends Mixins(AccessHistory) {
         this.debouncedQuery = debounce(() => {
             const keyword = this.keyword
             if (keyword.length > 0) {
-                this.queryHistory(keyword)
+                AccessRecords.query(keyword)
                     .then(rows => {
-                        if (rows.length < 500) {
-                            this.rows = rows.sort((a, b) => {
-                                return (b.lastAccessTime + b.accessCount * 3600 * 24 * 1000) -
-                                    (a.lastAccessTime + a.accessCount * 3600 * 24 * 1000)
-                            }).slice(0, 10)
-                        } else {
-                            this.rows = rows.slice(0, 10)
+                        if (this.value && keyword === this.keyword) {
+                            if (rows.length < 50) {
+                                rows = rows.sort((a, b) => {
+                                    return b.accessCount - a.accessCount
+                                }).slice(0, 10)
+                            } else {
+                                rows = rows.slice(0, 10)
+                            }
+                            const items: AccessHistoryPanel.Item[] = []
+                            if (rows.length === 1) {
+                                rows[0].pages.forEach(p => items.push({
+                                    href: p.href,
+                                    title: p.title,
+                                    favicon: p.favicon,
+                                }))
+                            } else {
+                                rows.forEach(row => {
+                                    const p0 = row.pages[0]
+                                    items.push({
+                                        href: p0.href,
+                                        title: p0.title,
+                                        favicon: p0.favicon,
+                                    })
+                                })
+                            }
+                            this.items = items
+                            this.listIndex = -1
                         }
-                        this.listIndex = -1
                     })
             } else {
-                this.rows = []
-                this.listIndex = -1
+                if (this.value) {
+                    this.items = []
+                    this.listIndex = -1
+                }
             }
         }, 50)
     }

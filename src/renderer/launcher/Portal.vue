@@ -42,6 +42,7 @@ import * as NodeUrl from 'url'
 import { State } from 'vuex-class'
 import { Entities } from '../database'
 import { ShortcutEditDialog } from '@/renderer/components'
+import * as AccessRecords from '../access-records'
 
 const faviconsCache: { [href: string]: string } = {}
 
@@ -57,27 +58,16 @@ export default class Portal extends Vue {
         if (this.favicons[href]) {
             return this.favicons[href]
         }
-        GDB.history.get({ 'href': href }).then(record => {
-            if (record) {
-                return record.favicon
-            }
-            const hostname = NodeUrl.parse(href).hostname || href
 
-            return GDB.history
-                .where('tokens')
-                .startsWithIgnoreCase(hostname)
-                .limit(1)
-                .toArray().then(recs => {
-                    if (recs.length > 0) {
-                        return recs[0].favicon
-                    }
-                })
-        }).then(favicon => {
-            if (favicon) {
-                this.$set(this.favicons, href, favicon)
-                faviconsCache[href] = favicon
-            }
-        }).catch(console.warn)
+        AccessRecords.queryFavicon(href)
+            .then(favicon => {
+                if (favicon) {
+                    this.$set(this.favicons, href, favicon)
+                    faviconsCache[href] = favicon
+                }
+            })
+            .catch(console.warn)
+        return ''
     }
 
     navTo(shortcut: Entities.Preference<'shortcut'>) {

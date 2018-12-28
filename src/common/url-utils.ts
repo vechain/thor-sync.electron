@@ -58,5 +58,23 @@ export function prettyForDisplay(url: string) {
 
 export function filePathToUrl(path: string) {
     // WHATWG URL
-    return new NodeUrl.URL(`file:///${path}`).href
+    try {
+        return new NodeUrl.URL(`file:///${path}`).href
+    } catch (err) {
+        return ''
+    }
 }
+
+export function baseUrlOf(href: string) {
+    try {
+        return new NodeUrl.URL(href).origin
+    } catch (err) {
+        return ''
+    }
+}
+
+export function hasPath(href: string) {
+    const pathname = NodeUrl.parse(href).pathname
+    return pathname && pathname !== '/'
+}
+

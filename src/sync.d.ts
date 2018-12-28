@@ -80,7 +80,7 @@ declare namespace entities {
         }
     }
 
-    interface Preference {
+    type Preference = {
         id: number
         key: string
         value: any
@@ -96,12 +96,21 @@ declare namespace entities {
         id: number
     } & NodeConfig
 
-    interface AccessRecord {
-        id: number
+    type AccessRecord = {
+        id?: number
         baseUrl: string
+        lastAccessTime: number
+        tokens: string[]
+        accessCount: number
+        pages: {
+            title: string
+            href: string
+            favicon: string
+            accessCount: number
+        }[]
     }
 
-    interface Wallet {
+    type Wallet = {
         id?: number
         address: string
         name: string

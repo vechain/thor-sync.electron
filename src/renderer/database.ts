@@ -29,16 +29,6 @@ export namespace Entities {
         export type Node = NodeConfig
     }
 
-    export interface History {
-        href: string
-        lastAccessTime: number
-        tokens: string[]
-
-        title: string
-        favicon: string
-        accessCount: number
-    }
-
     export function isWallet(v: any): v is Wallet {
         return (
             v && cry.isAddress(v.address) && cry.Keystore.wellFormed(v.keystore)
@@ -73,13 +63,13 @@ class Database extends Dexie {
 
 export class GlobalDatabase extends Database {
     public readonly preferences!: Dexie.Table<Entities.Preference, number>
-    public readonly history!: Dexie.Table<Entities.History, string>
+    public readonly accessRecords!: Dexie.Table<entities.AccessRecord, number>
 
     constructor() {
         super('global')
         this.version(1).stores({
             preferences: '++id, key',
-            history: 'href, *tokens, lastAccessTime'
+            accessRecords: '++id, &baseUrl, lastAccessTime, *tokens'
         })
     }
 }
