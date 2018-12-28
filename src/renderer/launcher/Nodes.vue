@@ -55,7 +55,6 @@
     import { Entities } from '../database'
     import NewNodeDialog from './NewNodeDialog.vue'
     import ConfirmDialog from '../components/ConfirmDialog.vue'
-    import TableLoader from '../mixins/table-loader'
     import { presets } from '@/node-configs'
     import Store from '@/renderer/store'
 

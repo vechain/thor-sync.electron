@@ -53,8 +53,8 @@ import ConfirmDialog from '../components/ConfirmDialog.vue'
 import TableLoader from '../mixins/table-loader'
 
 @Component
-class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>> {
-    tableName = GDB.preferences.name
+class ShortcutsLoader extends TableLoader<Entities.Preference<'shortcut'>, number> {
+    table = GDB.preferences as any
     filter = () =>
         GDB.preferences
             .where('key')

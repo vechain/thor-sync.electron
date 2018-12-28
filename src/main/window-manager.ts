@@ -83,6 +83,11 @@ class WindowManager {
             })
         }
     }
+
+    public dispatchDbEvent(event: DbEvent) {
+        this.actives
+            .forEach(entry => entry.win.webContents.send('db-event', event))
+    }
 }
 
 export default WindowManager

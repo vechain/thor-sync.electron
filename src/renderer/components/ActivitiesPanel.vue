@@ -26,8 +26,8 @@ import { Vue, Component, Mixins } from 'vue-property-decorator'
 import TableLoader from '@/renderer/mixins/table-loader';
 
 @Component
-class AcititiesLoader extends TableLoader<entities.Activity<'tx' | 'cert'>> {
-    tableName = BDB.activities.name
+class AcititiesLoader extends TableLoader<entities.Activity<'tx' | 'cert'>, number> {
+    table = BDB.activities
     filter = () => {
         return BDB.activities
             .where('createdTime')

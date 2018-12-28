@@ -118,3 +118,9 @@ declare namespace entities {
         createdTime: number
     }
 }
+
+type DbEvent = {
+    db: string
+    table: string
+    changes: Array<'creating' | 'updating' | 'deleting'>
+}

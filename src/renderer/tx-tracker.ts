@@ -34,8 +34,8 @@ const handlers = new Set<number>()
 
 export function trackTxLoop() {
     dispatch()
-    BDB.subscribe(BDB.activities.name, changes => {
-        if (changes.some(c => c.type === 1 /*DatabaseChangeType.Create*/)) {
+    BDB.activities.subscribe(changes => {
+        if (changes.some(c => c === 'creating')) {
             dispatch()
         }
     })
