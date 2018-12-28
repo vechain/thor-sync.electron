@@ -86,6 +86,8 @@ const timeAgo = TimeAgo()
 export default class TxActivityItem extends Vue {
     @Prop(Object) item !: entities.Activity<'tx'>
 
+    resendCount = 0
+
     get txObject() { return Transaction.decode(Buffer.from(this.item.data.raw.slice(2), 'hex')) }
     get comment() { return this.item.data.comment || describeClauses(this.item.data.message) }
     get hostname() { return UrlUtils.hostnameOf(this.item.referer.url) }
@@ -111,6 +113,8 @@ export default class TxActivityItem extends Vue {
     }
 
     get status() {
+        this.resendCount
+        this.$store.state.syncStatus // pulse
         const headTs = this.$store.state.chainHead.timestamp as number
         if (this.item.data.receipt) {
             return this.item.closed ? 'confirmed' : 'confirming'
@@ -145,18 +149,17 @@ export default class TxActivityItem extends Vue {
         switch (this.status) {
             case 'confirmed': return 'success'
             case 'confirming': return 'info'
-            case 'sending': return 'warning'
+            case 'sending': return 'info'
             default: return 'error'
         }
     }
     get canResend() {
-        return this.status === 'error' ||
-            this.status === 'hanging' ||
-            this.status === 'timeout'
+        return this.icon === 'mdi-restart'
     }
 
     resend() {
         TXER.send(this.item.data.id, this.item.data.raw)
+        this.resendCount++
     }
 
     reveal() {
