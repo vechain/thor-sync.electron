@@ -109,11 +109,13 @@ class Store extends Vuex.Store<Store.Model> {
         await queryAndUpdateNetworks()
         await queryAndUpdateWallets()
 
-        GDB.subscribe(GDB.preferences.name, () => {
+        GDB.preferences.subscribe(() => {
             queryAndUpdateShortcuts()
             queryAndUpdateNetworks()
         })
-        BDB.subscribe(BDB.wallets.name, queryAndUpdateWallets)
+        BDB.wallets.subscribe(() => {
+            queryAndUpdateWallets()
+        })
     }
 }
 

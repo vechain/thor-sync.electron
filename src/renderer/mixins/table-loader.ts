@@ -1,8 +1,9 @@
 import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Table } from '../database'
 
 @Component
-export default class TableLoader<T> extends Vue {
-    public tableName!: string
+export default class TableLoader<T, Key> extends Vue {
+    public table!: Table<T, Key>
     public rows: T[] = []
     public loading = false
 
@@ -11,18 +12,9 @@ export default class TableLoader<T> extends Vue {
 
 
     public created() {
-        if (!this.tableName) {
-            throw new Error('TableLoader: table name not set')
-        }
-        this._unsubscribe = (() => {
-            if (GDB.tables.some(t => t.name === this.tableName)) {
-                return GDB.subscribe(this.tableName, () => this._query()).unsubscribe
-            }
-            if (BDB.tables.some(t => t.name === this.tableName)) {
-                return BDB.subscribe(this.tableName, () => this._query()).unsubscribe
-            }
-            throw new Error(`unknown table ${this.tableName}`)
-        })()
+        this._unsubscribe = this.table.subscribe(() => {
+            this._query()
+        }).unsubscribe
         this._query()
     }
     public destroyed() {

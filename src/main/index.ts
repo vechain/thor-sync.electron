@@ -43,6 +43,8 @@ declare module 'electron' {
 
             // discover node's thorest api and return discovered genesis block.
             discoverNode(url: string): Promise<Connex.Thor.Block>
+
+            dispatchDbEvent(event: DbEvent): void
         }
     }
 }
@@ -72,7 +74,8 @@ app.EXTENSION = {
     createWindow: (config, options) => winMgr.create(config, options),
     getCertificate: (hostname) => certs.get(hostname),
     registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) },
-    discoverNode: url => discoverNode(url)
+    discoverNode: url => discoverNode(url),
+    dispatchDbEvent: event => winMgr.dispatchDbEvent(event)
 }
 
 app.on('web-contents-created', (_, contents) => {

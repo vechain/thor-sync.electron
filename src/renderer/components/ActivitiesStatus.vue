@@ -11,8 +11,8 @@ import { Entities } from '@/renderer/database'
 import TableLoader from '../mixins/table-loader'
 
 @Component
-class ActivitiesLoader extends TableLoader<entities.Activity<'tx'>> {
-    tableName = BDB.activities.name
+class ActivitiesLoader extends TableLoader<entities.Activity<'tx' | 'cert'>, number> {
+    table = BDB.activities
     filter = () => {
         return BDB.activities
             .where({ closed: 0 })
