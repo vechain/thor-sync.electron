@@ -38,6 +38,7 @@ import CertSigningDialog from './CertSigningDialog.vue'
 import TxActivityItem from './TxActivityItem.vue'
 import CertActivityItem from './CertActivityItem.vue'
 import ActivitiesPanel from './ActivitiesPanel.vue'
+import NewNodeDialog from './NewNodeDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -79,5 +80,6 @@ export {
     CertSigningDialog,
     TxActivityItem,
     CertActivityItem,
-    ActivitiesPanel
+    ActivitiesPanel,
+    NewNodeDialog
 }

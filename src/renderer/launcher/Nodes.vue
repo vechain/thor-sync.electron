@@ -3,7 +3,7 @@
         <v-subheader>
             <span class="subheading">Nodes</span>
             <v-spacer/>
-            <v-btn flat @click.stop="dialog = true" color="primary" class="mr-4" icon>
+            <v-btn flat @click.stop="onEdit" color="primary" class="mr-4" icon>
                 <v-icon color="primary">add</v-icon>
             </v-btn>
         </v-subheader>
@@ -46,7 +46,6 @@
                 </div>
             </v-list>
         </v-card>
-        <NewNodeDialog @cancel="onCancelEdit" :editItem="editItem" v-model="dialog"/>
     </v-layout>
 </template>
 <script lang="ts">
