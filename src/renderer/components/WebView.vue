@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent, DidNavigateInPageEvent } from 'electron'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent } from 'electron'
 import * as NodeUrl from 'url'
 import errorMap from '../net-error-list'
 import * as AccessRecords from '../access-records'
@@ -119,7 +119,7 @@ export default class WebView extends Vue {
             setTimeout(fakeProgress, 2000)
         }
 
-        let inPageNav = false
+        let normalNavigate = false
 
         const handleEvent = (ev: Event) => {
             if (ev.type === 'new-window') {
@@ -134,7 +134,7 @@ export default class WebView extends Vue {
                 }
                 return
             } if (ev.type === 'did-start-loading') {
-                inPageNav = false
+                normalNavigate = false
                 this.backgroundColor = ''
                 this.progress = 0.1
                 this.errorCode = 0
@@ -143,18 +143,15 @@ export default class WebView extends Vue {
                 fakeProgress()
             } else if (ev.type === 'did-stop-loading') {
                 this.title = this.webview.getTitle()
-                if (!inPageNav && this.errorCode === 0) {
+                if (normalNavigate && this.errorCode === 0) {
                     AccessRecords.record(
                         this.webview.src!,
                         this.title,
                         this.favicon)
                 }
                 this.progress = 1
-            } else if (ev.type === 'did-navigate-in-page') {
-                let didNavInPage = ev as DidNavigateInPageEvent
-                if (didNavInPage.isMainFrame) {
-                    inPageNav = true
-                }
+            } else if (ev.type === 'did-navigate') {
+                normalNavigate = true
             } else if (ev.type === 'page-favicon-updated') {
                 const favicons = (ev as PageFaviconUpdatedEvent).favicons
                 if (favicons[0]) {
