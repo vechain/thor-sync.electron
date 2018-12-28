@@ -31,14 +31,14 @@
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Emit, Watch, Mixins } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent } from 'electron'
+import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
+import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent, DidNavigateInPageEvent } from 'electron'
 import * as NodeUrl from 'url'
-import AccessHistory from '../mixins/access-history'
 import errorMap from '../net-error-list'
+import * as AccessRecords from '../access-records'
 
 @Component
-export default class WebView extends Mixins(AccessHistory) {
+export default class WebView extends Vue {
     readonly partition = `persist:${connex.thor.genesis.id}`
     readonly preload = ENV.preload
     currentHref = ''
@@ -101,7 +101,6 @@ export default class WebView extends Mixins(AccessHistory) {
     destroyed() { this._unbind() }
 
     bindEvents() {
-        let domReady = false
         const emitStatus = () => {
             this.updateStatus({
                 title: this.title,
@@ -120,6 +119,8 @@ export default class WebView extends Mixins(AccessHistory) {
             setTimeout(fakeProgress, 2000)
         }
 
+        let inPageNav = false
+
         const handleEvent = (ev: Event) => {
             if (ev.type === 'new-window') {
                 BUS.$emit('open-tab', { href: (ev as NewWindowEvent).url, mode: 'append-active' })
@@ -133,7 +134,7 @@ export default class WebView extends Mixins(AccessHistory) {
                 }
                 return
             } if (ev.type === 'did-start-loading') {
-                domReady = false
+                inPageNav = false
                 this.backgroundColor = ''
                 this.progress = 0.1
                 this.errorCode = 0
@@ -142,13 +143,18 @@ export default class WebView extends Mixins(AccessHistory) {
                 fakeProgress()
             } else if (ev.type === 'did-stop-loading') {
                 this.title = this.webview.getTitle()
-                if (domReady) {
-                    this.updateHistory(this.webview.src!, {
-                        title: this.title,
-                        favicon: this.favicon
-                    })
+                if (!inPageNav && this.errorCode === 0) {
+                    AccessRecords.record(
+                        this.webview.src!,
+                        this.title,
+                        this.favicon)
                 }
                 this.progress = 1
+            } else if (ev.type === 'did-navigate-in-page') {
+                let didNavInPage = ev as DidNavigateInPageEvent
+                if (didNavInPage.isMainFrame) {
+                    inPageNav = true
+                }
             } else if (ev.type === 'page-favicon-updated') {
                 const favicons = (ev as PageFaviconUpdatedEvent).favicons
                 if (favicons[0]) {
@@ -156,8 +162,6 @@ export default class WebView extends Mixins(AccessHistory) {
                 }
             } else if (ev.type === 'page-title-updated') {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
-            } else if (ev.type === 'dom-ready') {
-                domReady = true
             } else if (ev.type === 'load-commit') {
                 const loadCommit = ev as LoadCommitEvent
                 if (loadCommit.isMainFrame) {
