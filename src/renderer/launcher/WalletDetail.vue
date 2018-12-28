@@ -31,10 +31,7 @@
                                 </v-list-tile-avatar>
                                 <v-list-tile-content>
                                     <v-card class="elevation-0">
-                                        <v-card-title
-                                            style="max-width: 300px"
-                                            class="d-block pa-0 pt-1 text-truncate"
-                                        >
+                                        <v-card-title class="pa-0 pt-1">
                                             <input
                                                 single-line
                                                 class="editable-name"
@@ -46,8 +43,17 @@
                                                 @blur="editSave"
                                                 v-model="walletName"
                                             >
-                                            <span v-if="!isEdit">{{wallet.name}}</span>
-                                            <v-icon @click="isEdit = true" v-if="!isEdit" small>mdi-square-edit-outline</v-icon>
+                                            <span
+                                                style="max-width: 300px"
+                                                class="d-block text-truncate"
+                                                v-if="!isEdit"
+                                            >{{wallet.name}}</span>
+                                            <v-icon
+                                                class="ml-1"
+                                                @click="isEdit = true"
+                                                v-if="!isEdit"
+                                                small
+                                            >mdi-square-edit-outline</v-icon>
                                         </v-card-title>
                                         <v-card-text class="caption pa-0">
                                             <v-layout row align-content-center>
@@ -224,7 +230,6 @@
         }
 
         editSave() {
-            this.isEdit = false
             if (this.walletName && this.walletName !== this.wallet!.name) {
                 BDB.wallets
                     .where('id')
@@ -233,6 +238,8 @@
             } else {
                 this.walletName = this.wallet!.name
             }
+
+            this.isEdit = false
         }
 
         get wallet() {
@@ -298,8 +305,8 @@
     }
 </script>
 <style scoped>
-input.editable-name {
-    outline: #1976d2 solid 1px;
-    padding-left: 5px;
-}
+    input.editable-name {
+        outline: #1976d2 solid 1px;
+        padding-left: 5px;
+    }
 </style>
