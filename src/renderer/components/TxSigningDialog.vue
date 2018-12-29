@@ -91,9 +91,8 @@
                             label="Password"
                             type="password"
                             :error-messages="passwordError"
-                            validate-on-blur
-                            :rules="passwordRules"
                             ref="passwordElem"
+                            @focus="onPasswordFocused"
                         />
                     </v-card-text>
                     <div style="position:relative">
@@ -161,7 +160,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
     password = ''
     passwordError = ''
-    readonly passwordRules = [(v: string) => !!v || 'Input password here']
     gasPriceCoef = 0
     estimateGasSeq = 0
     estimateGasCache = new Map<string, EstimateGasResult>()
@@ -194,7 +192,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
     get readyToSign() {
         return !this.signing &&
-            this.passwordRules.every(r => r(this.password) === true) &&
             this.estimation.gas
     }
 
@@ -265,6 +262,11 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         if (!this.readyToSign) {
             return
         }
+        if (!this.password) {
+            this.passwordError = 'Input password here'
+            return
+        }
+
         try {
             this.signing = true
             this.passwordError = ''
@@ -299,6 +301,11 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         }
         this.opened = false
         this.$reject(new Rejected('user cancelled'))
+    }
+    onPasswordFocused() {
+        if (!this.password) {
+            this.passwordError = ''
+        }
     }
 }
 
