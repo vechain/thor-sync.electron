@@ -26,12 +26,12 @@ declare namespace Thor {
         ): Promise<Connex.Thor.Account>
 
         getTx(
-            txId: string,
+            txid: string,
             fetch: () => Promise<Connex.Thor.Transaction | null>
         ): Promise<Connex.Thor.Transaction | null>
 
         getReceipt(
-            txId: string,
+            txid: string,
             fetch: () => Promise<Connex.Thor.Receipt | null>
         ): Promise<Connex.Thor.Receipt | null>
 

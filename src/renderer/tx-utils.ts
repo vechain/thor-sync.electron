@@ -92,7 +92,7 @@ export function buildTx(
             const privateKey = await cry.Keystore.decrypt(keystore, password)
             tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
             return {
-                txId: tx.id!,
+                txid: tx.id!,
                 rawTx: '0x' + tx.encode().toString('hex')
             }
         }
