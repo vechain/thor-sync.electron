@@ -33,7 +33,6 @@
 <script lang="ts">
     import { Vue, Component, Watch, Emit } from 'vue-property-decorator'
     import { State } from 'vuex-class'
-    import { Entities } from '../database'
     import { remote } from 'electron'
 
     @Component

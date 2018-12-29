@@ -26,12 +26,11 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { Entities } from '../database'
 import AccountLoader from '../mixins/account-loader'
 
 @Component
 export default class WalletCard extends Mixins(AccountLoader) {
-    @Prop(Object) wallet!: Entities.Wallet
+    @Prop(Object) wallet!: entities.Wallet
     @Prop(Boolean) compact!: boolean
 
     get address() { return this.wallet.address! }

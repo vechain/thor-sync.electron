@@ -63,7 +63,6 @@
 <script lang="ts">
     import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
     import { cry } from 'thor-devkit'
-    import { Entities } from '@/renderer/database'
     import { remote } from 'electron'
     import { mkdir } from 'fs'
     import AccountMixin from '@/renderer/mixins/Account'
@@ -75,7 +74,7 @@
     @Component
     export default class ExportWalletDialog extends Mixins(
         AccountMixin,
-        class extends DialogHelper<Entities.Wallet, void> {}
+        class extends DialogHelper<entities.Wallet, void> {}
     ) {
         password: string = ''
         show = false

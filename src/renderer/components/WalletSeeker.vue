@@ -42,11 +42,10 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Model, Emit, Watch } from 'vue-property-decorator'
-import { Entities } from '@/renderer/database'
 
 @Component
 export default class WalletSeeker extends Vue {
-    @Prop({ default: () => [] }) wallets!: Entities.Wallet[]
+    @Prop({ default: () => [] }) wallets!: entities.Wallet[]
     @Prop(Boolean) disabled!: boolean
     @Prop(Number) value!: number
     @Prop(Boolean) fullSize!: boolean

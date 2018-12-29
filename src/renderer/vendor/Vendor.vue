@@ -10,7 +10,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { TxSigningDialog, CertSigningDialog } from '@/renderer/components'
-import { Entities } from '@/renderer/database'
 import { State } from 'vuex-class'
 import * as UrlUtils from '@/common/url-utils'
 
@@ -19,7 +18,7 @@ export default class Vendor extends Vue {
     snackbar = false
     snackbarText = ''
     dialogOpened = false
-    @State wallets!: Entities.Wallet[]
+    @State wallets!: entities.Wallet[]
 
     mounted() {
         remote.app.EXTENSION.inject(

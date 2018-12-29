@@ -221,7 +221,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { remote } from 'electron'
 import Vendor from './vendor'
 import Launcher from './launcher'
-import { Entities } from '@/renderer/database'
 import * as UrlUtils from '@/common/url-utils'
 import { State } from 'vuex-class'
 
@@ -323,7 +322,7 @@ export default class Nova extends Vue {
     showAccessHistory = false
     keyword = ''
 
-    @State shortcuts !: Array<Entities.Preference<'shortcut'>>
+    @State shortcuts !: entities.Shortcut[]
 
 
     @Watch('activePage')
@@ -336,7 +335,7 @@ export default class Nova extends Vue {
     }
 
     get shortcutAdded() {
-        return (this.shortcuts || []).findIndex(s => s.value.href === this.activePage.href) >= 0
+        return (this.shortcuts || []).findIndex(s => s.href === this.activePage.href) >= 0
     }
 
     closeTab(index: number) {
@@ -480,16 +479,13 @@ export default class Nova extends Vue {
 
     addOrRemoveShortcut() {
         if (this.shortcutAdded) {
-            GDB.preferences.bulkDelete(
-                this.shortcuts.filter(s => s.value.href === this.activePage.href).map(s => s.id!)
+            GDB.shortcuts.bulkDelete(
+                this.shortcuts.filter(s => s.href === this.activePage.href).map(s => s.id!)
             )
         } else {
-            GDB.preferences.add({
-                key: 'shortcut',
-                value: {
-                    name: this.activePage.title,
-                    href: this.activePage.href
-                }
+            GDB.shortcuts.add({
+                title: this.activePage.title,
+                href: this.activePage.href
             })
         }
     }

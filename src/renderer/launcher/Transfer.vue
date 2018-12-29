@@ -68,13 +68,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { State } from 'vuex-class';
-import { Entities } from '@/renderer/database';
 import BigNumber from 'bignumber.js'
 import { cry } from 'thor-devkit'
 
 @Component
 export default class Transfer extends Vue {
-    @State wallets!: Entities.Wallet[]
+    @State wallets!: entities.Wallet[]
     amount = ''
     to = ''
     from = 0

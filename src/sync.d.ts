@@ -81,19 +81,19 @@ declare namespace entities {
     }
 
     type Preference = {
-        id: number
+        id?: number
         key: string
         value: any
     }
 
     type Shortcut = {
-        id: number
+        id?: number
         title: string
         href: string
     }
 
     type Node = {
-        id: number
+        id?: number
     } & NodeConfig
 
     type AccessRecord = {

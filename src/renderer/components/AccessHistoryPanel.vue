@@ -41,7 +41,6 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator'
-import { Entities } from '@/renderer/database'
 import debounce from 'lodash.debounce'
 import * as AccessRecords from '../access-records'
 

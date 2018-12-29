@@ -187,7 +187,6 @@
     import { ExportWalletDialog } from '@/renderer/components'
     import { DeleteWalletDialog } from '@/renderer/components'
     import TransferItem from './TransferItem.vue'
-    import { Entities } from '../database'
     import AccountLoader from '../mixins/account-loader'
     import { setTimeout } from 'timers'
     import { Stats } from 'fs'
@@ -211,7 +210,7 @@
         isloading = false
 
         @State
-        wallets!: Entities.Wallet[]
+        wallets!: entities.Wallet[]
 
         @State
         chainHead!: Connex.Thor.Status['head']
