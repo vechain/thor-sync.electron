@@ -195,6 +195,12 @@ export default class WebView extends Vue {
                     this.errorName = obj.name
                     this.errorDesc = obj.desc
                 }
+            } else if (ev.type === 'dom-ready') {
+                // here to fix focus problem(e.g. input can't be foused) when navigation finished
+                if (this.visible) {
+                    this.webview.blur()
+                    this.webview.focus()
+                }
             }
 
             if (progressEvents.has(ev.type)) {
