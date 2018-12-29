@@ -140,7 +140,7 @@ type Arg = {
 }
 
 type Result = {
-    txId: string
+    txid: string
     rawTx: string
     signer: string
     estimatedFee: string

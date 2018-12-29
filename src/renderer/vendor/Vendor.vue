@@ -81,7 +81,7 @@ export default class Vendor extends Vue {
     async signTx(
         message: Connex.Vendor.SigningService.TxMessage,
         options: VendorInterface.SignTxOptions,
-        referer: Referer) {
+        referer: Referer): Promise<Connex.Vendor.SigningService.TxResponse> {
 
         let walletIndex = 0
         if (options.signer) {
@@ -108,7 +108,7 @@ export default class Vendor extends Vue {
                 referer,
                 closed: 0,
                 data: {
-                    id: result.txId,
+                    id: result.txid,
                     message: message,
                     timestamp: result.timestamp,
                     comment: options.comment || '',
@@ -119,10 +119,10 @@ export default class Vendor extends Vue {
                     receipt: null
                 }
             })
-            TXER.send(result.txId, result.rawTx)
+            TXER.send(result.txid, result.rawTx)
 
             return {
-                txId: result.txId,
+                txid: result.txid,
                 signer: result.signer
             }
         } finally {

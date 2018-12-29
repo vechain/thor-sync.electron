@@ -128,17 +128,17 @@ export class Cache implements Thor.Cache {
     }
 
     public async getTx(
-        txId: string,
+        txid: string,
         fetch: () => Promise<Connex.Thor.Transaction | null>) {
-        txId = txId.toLowerCase()
+        txid = txid.toLowerCase()
         {
-            const tx = this.txCache.get(txId) || null
+            const tx = this.txCache.get(txid) || null
             if (tx) {
                 return tx
             }
         }
         for (const slot of this.window) {
-            const tx = slot.txs.get(txId)
+            const tx = slot.txs.get(txid)
             if (tx) {
                 return tx
             }
@@ -148,7 +148,7 @@ export class Cache implements Thor.Cache {
             if (tx) {
                 const slot = this.slots.get(tx.meta.blockID)
                 if (slot) {
-                    slot.txs.set(txId, tx)
+                    slot.txs.set(txid, tx)
                 }
                 if (this.window.length > 0 &&
                     tx.meta.blockNumber < this.window[0].number) {
@@ -160,17 +160,17 @@ export class Cache implements Thor.Cache {
     }
 
     public async getReceipt(
-        txId: string,
+        txid: string,
         fetch: () => Promise<Connex.Thor.Receipt | null>) {
-        txId = txId.toLowerCase()
+        txid = txid.toLowerCase()
         {
-            const receipt = this.receiptCache.get(txId) || null
+            const receipt = this.receiptCache.get(txid) || null
             if (receipt) {
                 return receipt
             }
         }
         for (const slot of this.window) {
-            const receipt = slot.receipts.get(txId)
+            const receipt = slot.receipts.get(txid)
             if (receipt) {
                 return receipt
             }
@@ -180,11 +180,11 @@ export class Cache implements Thor.Cache {
             if (receipt) {
                 const slot = this.slots.get(receipt.meta.blockID)
                 if (slot) {
-                    slot.receipts.set(txId, receipt)
+                    slot.receipts.set(txid, receipt)
                 }
                 if (this.window.length > 0 &&
                     receipt.meta.blockNumber < this.window[0].number) {
-                    this.receiptCache.set(txId, receipt)
+                    this.receiptCache.set(txid, receipt)
                 }
             }
             return receipt
