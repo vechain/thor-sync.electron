@@ -15,7 +15,6 @@
 import { Vue, Component, Prop, Model, Emit } from 'vue-property-decorator'
 import OverlayedMenu from './OverlayedMenu.vue'
 import WalletCard from './WalletCard.vue'
-import { Entities } from '@/renderer/database'
 
 @Component({
     components: {
@@ -24,10 +23,10 @@ import { Entities } from '@/renderer/database'
     }
 })
 export default class WalletSelection extends Vue {
-    @Prop({ default: () => [] }) wallets!: Entities.Wallet[]
-    @Model('select') selected!: Entities.Wallet
+    @Prop({ default: () => [] }) wallets!: entities.Wallet[]
+    @Model('select') selected!: entities.Wallet
     @Emit('select')
-    select(wallet: Entities.Wallet) {
+    select(wallet: entities.Wallet) {
         this.opened = false
     }
     opened = false

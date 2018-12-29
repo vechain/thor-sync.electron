@@ -56,7 +56,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
 import { presets } from '@/node-configs'
-import { Entities } from '@/renderer/database'
 import Store from '@/renderer/store'
 
 type Status = Connex.Thor.Status
@@ -66,8 +65,8 @@ export default class NodeStatusPanel extends Vue {
     config = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
 
     get configs() {
-        const nodes = this.$store.state.nodes as Entities.Preference<'node'>[]
-        return [...presets, ...nodes.map(n => n.value)]
+        const nodes = this.$store.state.nodes as entities.Node[]
+        return [...presets, ...nodes]
     }
 
     get otherConfigs() {

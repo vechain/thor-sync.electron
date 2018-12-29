@@ -1,5 +1,4 @@
 import Vuex from 'vuex'
-import { Entities } from './database'
 import { sleep } from '@/common/sleep'
 
 namespace Store {
@@ -9,9 +8,9 @@ namespace Store {
             progress: number
             flag: 'synced' | 'syncing' | 'outOfSync'
         }
-        shortcuts: Array<Entities.Preference<'shortcut'>>
-        nodes: Array<Entities.Preference<'node'>>
-        wallets: Entities.Wallet[]
+        shortcuts: entities.Shortcut[]
+        nodes: entities.Node[]
+        wallets: entities.Wallet[]
     }
 }
 
@@ -87,14 +86,12 @@ class Store extends Vuex.Store<Store.Model> {
 
     private async monitorDB() {
         const queryAndUpdateShortcuts = async () => {
-            const shortcuts = await GDB.preferences
-                .where({ key: 'shortcut' })
+            const shortcuts = await GDB.shortcuts
                 .toArray()
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
-        const queryAndUpdateNetworks = async () => {
-            const nodes = await GDB.preferences
-                .where({ key: 'node' })
+        const queryAndUpdateNodes = async () => {
+            const nodes = await GDB.nodes
                 .toArray()
             this.commit(Store.UPDATE_NODES, nodes)
         }
@@ -106,12 +103,14 @@ class Store extends Vuex.Store<Store.Model> {
         }
 
         await queryAndUpdateShortcuts()
-        await queryAndUpdateNetworks()
+        await queryAndUpdateNodes()
         await queryAndUpdateWallets()
 
-        GDB.preferences.subscribe(() => {
+        GDB.nodes.subscribe(() => {
+            queryAndUpdateNodes()
+        })
+        GDB.shortcuts.subscribe(() => {
             queryAndUpdateShortcuts()
-            queryAndUpdateNetworks()
         })
         BDB.wallets.subscribe(() => {
             queryAndUpdateWallets()

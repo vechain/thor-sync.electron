@@ -125,7 +125,6 @@
 <script lang="ts">
 import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { Entities } from '@/renderer/database'
 import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
@@ -134,7 +133,7 @@ import { describeClauses } from '@/common/formatter'
 
 type Arg = {
     message: Connex.Vendor.SigningService.TxMessage
-    wallets: Entities.Wallet[]
+    wallets: entities.Wallet[]
     selectedWallet: number
     suggestedGas: number
     txComment: string

@@ -35,7 +35,6 @@
     </v-dialog>
 </template>
 <script lang="ts">
-import { Entities } from '../database'
 import {
     Vue,
     Component,
@@ -61,7 +60,7 @@ export default class NewNodeDialog extends Vue {
     value!: boolean
 
     @Prop()
-    editItem!: Entities.Preference<'node'> | null
+    editItem!: entities.Node | null
 
     dialog = false
     valid = true
@@ -79,8 +78,8 @@ export default class NewNodeDialog extends Vue {
         this.dialog = val
 
         if (this.editItem) {
-            this.form.name = this.editItem!.value.name
-            this.form.rpcUrl = this.editItem!.value.url
+            this.form.name = this.editItem!.name
+            this.form.rpcUrl = this.editItem!.url
         }
         this.isEditing = !!this.editItem
     }
@@ -90,14 +89,14 @@ export default class NewNodeDialog extends Vue {
         this.dialogChanged(val)
     }
     @Emit('input')
-    dialogChanged(val: boolean) {}
+    dialogChanged(val: boolean) { }
 
     @Emit('cancel')
-    onCancel() {}
+    onCancel() { }
 
-    async onDelete(item: Entities.Preference) {
+    async onDelete(item: entities.Node) {
         if (this.editItem) {
-            await GDB.preferences.delete(this.editItem!.id!)
+            await GDB.nodes.delete(this.editItem!.id!)
         }
         this.clear()
     }
@@ -138,19 +137,21 @@ export default class NewNodeDialog extends Vue {
 
         if (this.isEditing) {
             let result = Object.assign({}, this.editItem)
-            result.value.name = this.form.name
-            result.value.url = this.form.rpcUrl
+            result.name = this.form.name
+            result.url = this.form.rpcUrl
             // result.value.genesis = genesis
-            GDB.preferences
-                .update(this.editItem!.id as any, { value: result.value })
-                .then(updated => {
-                    if (updated) {
-                        this.isEditing = false
-                        this.clear()
-                    } else {
-                        console.error('Edit node failed')
-                    }
-                })
+            GDB.nodes.update(this.editItem!.id!, {
+                name: result.name,
+                url: result.url,
+                genesis: result.genesis
+            }).then(updated => {
+                if (updated) {
+                    this.isEditing = false
+                    this.clear()
+                } else {
+                    console.error('Edit node failed')
+                }
+            })
         } else {
             let genesis: Connex.Thor.Block
             this.checking = true
@@ -165,15 +166,11 @@ export default class NewNodeDialog extends Vue {
                 return
             }
             this.checking = false
-            GDB.preferences
-                .add({
-                    key: 'node',
-                    value: {
-                        name: this.form.name,
-                        url: this.form.rpcUrl,
-                        genesis: genesis
-                    }
-                })
+            GDB.nodes.add({
+                name: this.form.name,
+                url: this.form.rpcUrl,
+                genesis: genesis
+            })
                 .then(() => {
                     this.clear()
                 })

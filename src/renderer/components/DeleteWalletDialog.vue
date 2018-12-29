@@ -36,7 +36,6 @@
 </template>
 <script lang="ts">
     import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-    import { Entities } from '@/renderer/database'
     import { cry } from 'thor-devkit'
     import AccountMixin from '@/renderer/mixins/Account'
     import DialogHelper from '@/renderer/mixins/dialog-helper'
@@ -44,7 +43,7 @@
     @Component
     export default class DeleteWalletDialog extends Mixins(
         AccountMixin,
-        class extends DialogHelper<Entities.Wallet, void> {}
+        class extends DialogHelper<entities.Wallet, void> {}
     ) {
         password = ''
         show = false

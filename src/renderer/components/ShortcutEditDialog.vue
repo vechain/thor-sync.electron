@@ -48,17 +48,15 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
         if (!this.arg.title.trim()) {
             return
         }
-        GDB.preferences.update(this.arg.id, {
-            value: {
-                name: this.arg.title,
-                href: this.arg.href,
-            }
+        GDB.shortcuts.update(this.arg.id, {
+            title: this.arg.title,
+            href: this.arg.href,
         })
         this.open = false
     }
 
     remove() {
-        GDB.preferences.delete(this.arg.id)
+        GDB.shortcuts.delete(this.arg.id)
         this.open = false
     }
 }

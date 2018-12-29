@@ -26,10 +26,10 @@
                     <v-list-tile avatar>
                         <v-list-tile-content>
                             <v-list-tile-title>
-                                <NetworkName :genesis="item.value.genesis.id"/>
-                                <span class="body-2">{{item.value.name}}</span>
+                                <NetworkName :genesis="item.genesis.id"/>
+                                <span class="body-2">{{item.name}}</span>
                             </v-list-tile-title>
-                            <v-list-tile-sub-title>{{item.value.url}}</v-list-tile-sub-title>
+                            <v-list-tile-sub-title>{{item.url}}</v-list-tile-sub-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-btn
@@ -50,34 +50,33 @@
     </v-layout>
 </template>
 <script lang="ts">
-    import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
-    import { State } from 'vuex-class'
-    import { Entities } from '../database'
-    import NewNodeDialog from './NewNodeDialog.vue'
-    import ConfirmDialog from '../components/ConfirmDialog.vue'
-    import { presets } from '@/node-configs'
-    import Store from '@/renderer/store'
+import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
+import { State } from 'vuex-class'
+import NewNodeDialog from './NewNodeDialog.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
+import { presets } from '@/node-configs'
+import Store from '@/renderer/store'
 
-    @Component({
-        components: {
-            NewNodeDialog,
-            ConfirmDialog
-        }
-    })
-    export default class Nodes extends Vue {
-        dialog = false
-        editItem: Entities.Preference | null = null
-        initNodes = presets
-        get nodes() {
-            return (this.$store as Store).state.nodes
-        }
-
-        onEdit(network: Entities.Preference) {
-            this.editItem = network
-            this.dialog = true
-        }
-        onCancelEdit() {
-            this.editItem = null
-        }
+@Component({
+    components: {
+        NewNodeDialog,
+        ConfirmDialog
     }
+})
+export default class Nodes extends Vue {
+    dialog = false
+    editItem: entities.Node | null = null
+    initNodes = presets
+    get nodes() {
+        return (this.$store as Store).state.nodes
+    }
+
+    onEdit(network: entities.Node) {
+        this.editItem = network
+        this.dialog = true
+    }
+    onCancelEdit() {
+        this.editItem = null
+    }
+}
 </script>

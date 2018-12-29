@@ -31,13 +31,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { ImportWalletDialog, CreateWalletDialog } from '@/renderer/components'
-import { Entities } from '../database'
 import { State } from 'vuex-class'
 
 @Component
 export default class Wallets extends Vue {
     @State
-    wallets!: Entities.Wallet[]
+    wallets!: entities.Wallet[]
 
     onClick(address: string) {
         this.$router.push({

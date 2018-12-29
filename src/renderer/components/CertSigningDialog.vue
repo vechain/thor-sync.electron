@@ -81,12 +81,11 @@
 <script lang="ts">
 import { Vue, Component, Mixins } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { Entities } from '@/renderer/database'
 import { Certificate, cry } from 'thor-devkit'
 
 type Arg = {
     message: Connex.Vendor.SigningService.CertMessage
-    wallets: Entities.Wallet[]
+    wallets: entities.Wallet[]
     selectedWallet: number
     domain: string
 }

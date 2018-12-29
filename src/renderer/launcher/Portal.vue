@@ -13,9 +13,9 @@
                         <v-hover open-delay="500">
                             <AppButton
                                 slot-scope="{ hover }"
-                                :title="shortcut.value.name"
-                                :href="shortcut.value.href"
-                                :favicon="favicon(shortcut.value.href)"
+                                :title="shortcut.title"
+                                :href="shortcut.href"
+                                :favicon="favicon(shortcut.href)"
                                 @click="navTo(shortcut)"
                             >
                                 <v-btn
@@ -40,7 +40,6 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import * as NodeUrl from 'url'
 import { State } from 'vuex-class'
-import { Entities } from '../database'
 import { ShortcutEditDialog } from '@/renderer/components'
 import * as AccessRecords from '../access-records'
 
@@ -49,7 +48,7 @@ const faviconsCache: { [href: string]: string } = {}
 @Component
 export default class Portal extends Vue {
     favicons: { [href: string]: string } = {}
-    @State shortcuts!: Array<Entities.Preference<'shortcut'>>
+    @State shortcuts!: entities.Shortcut[]
 
     favicon(href: string) {
         if (faviconsCache[href]) {
@@ -70,18 +69,18 @@ export default class Portal extends Vue {
         return ''
     }
 
-    navTo(shortcut: Entities.Preference<'shortcut'>) {
+    navTo(shortcut: entities.Shortcut) {
         BUS.$emit('open-tab', {
-            href: shortcut.value.href,
+            href: shortcut.href,
             mode: 'inplace'
         })
     }
 
-    onEditShortcut(shortcut: Entities.Preference<'shortcut'>) {
+    onEditShortcut(shortcut: entities.Shortcut) {
         this.$dialog(ShortcutEditDialog, {
             id: shortcut.id!,
-            title: shortcut.value.name,
-            href: shortcut.value.href
+            title: shortcut.title,
+            href: shortcut.href
         })
     }
 }

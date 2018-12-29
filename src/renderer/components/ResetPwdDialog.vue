@@ -77,7 +77,6 @@
 </template>
 <script lang="ts">
     import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-    import { Entities } from '@/renderer/database'
     import { cry } from 'thor-devkit'
     import DialogHelper from '@/renderer/mixins/dialog-helper'
     import Account from '@/renderer/mixins/Account'
@@ -85,7 +84,7 @@
     @Component
     export default class ResetPwdDialog extends Mixins(
         Account,
-        class extends DialogHelper<Entities.Wallet, void> {}
+        class extends DialogHelper<entities.Wallet, void> {}
     ) {
         show = false
         checking = false

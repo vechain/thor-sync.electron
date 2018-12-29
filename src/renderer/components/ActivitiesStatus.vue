@@ -7,7 +7,6 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Mixins } from 'vue-property-decorator'
-import { Entities } from '@/renderer/database'
 import TableLoader from '../mixins/table-loader'
 
 @Component

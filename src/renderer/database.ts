@@ -1,41 +1,6 @@
 import Dexie from 'dexie'
-import { cry } from 'thor-devkit'
 import { ipcRenderer, remote } from 'electron'
 import { EventEmitter } from 'events'
-
-export namespace Entities {
-    export interface Wallet {
-        id?: number
-        address?: string
-        name?: string
-        keystore?: cry.Keystore
-        createdTime?: number
-    }
-
-    export interface Preference<T extends 'shortcut' | 'node'
-        = 'shortcut' | 'node'> {
-        id?: number
-        key: T
-        value: T extends 'shortcut' ? Preference.Shortcut :
-        T extends 'node' ? Preference.Node :
-        (string | boolean)
-    }
-
-    export namespace Preference {
-        export type Shortcut = {
-            name: string
-            href: string
-        }
-        export type Node = NodeConfig
-    }
-
-    export function isWallet(v: any): v is Wallet {
-        return (
-            v && cry.isAddress(v.address) && cry.Keystore.wellFormed(v.keystore)
-        )
-    }
-}
-
 
 const emitters = new Map<string, EventEmitter>()
 
@@ -114,21 +79,25 @@ class Database extends Dexie {
 }
 
 export class GlobalDatabase extends Database {
-    public readonly preferences!: Table<Entities.Preference, number>
+    public readonly preferences!: Table<entities.Preference, number>
     public readonly accessRecords!: Table<entities.AccessRecord, number>
+    public readonly nodes !: Table<entities.Node, number>
+    public readonly shortcuts!: Table<entities.Shortcut, number>
 
     constructor() {
         super('global', (dexie: Dexie) => {
             dexie.version(1).stores({
                 preferences: '++id, key',
-                accessRecords: '++id, &baseUrl, lastAccessTime, *tokens'
+                accessRecords: '++id, &baseUrl, lastAccessTime, *tokens',
+                nodes: '++id',
+                shortcuts: '++id',
             })
         })
     }
 }
 
 export class BoundedDatabase extends Database {
-    public readonly wallets!: Table<Entities.Wallet, number>
+    public readonly wallets!: Table<entities.Wallet, number>
     public readonly activities!: Table<entities.Activity<'tx' | 'cert'>, number>
 
     constructor(network: string) {
