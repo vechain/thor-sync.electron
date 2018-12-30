@@ -60,7 +60,7 @@
     "electron-unhandled": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "mkdirp": "0.5.1",
-    "thor-devkit": "^0.5.3",
+    "thor-devkit": "^0.6.0",
     "ws": "^6.0.0"
   },
   "devDependencies": {
