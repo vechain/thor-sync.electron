@@ -21,17 +21,18 @@ function normalizeTxMessage(msg: Connex.Vendor.SigningService.TxMessage): Connex
         valueKind.data(c.value, `#${i}.value`)
         dataKind.data(c.data, `#${i}.data`)
 
-        ensure(typeof c.comment === 'string', `#${i}.comment expected string`)
+        ensure(typeof c.comment === 'string', `'#${i}.comment' expected string`)
         return c
     })
 }
 
 function normalizeCertMessage(msg: Connex.Vendor.SigningService.CertMessage) {
     ensure(typeof msg === 'object', 'expected object')
-    ensure(msg.purpose === 'agreement' || msg.purpose === 'identification', 'purpose unsupported')
-    ensure(typeof msg.payload === 'object', 'payload expected object')
-    ensure(msg.payload.type === 'text', 'payload.type unsupported')
-    ensure(typeof msg.payload.content === 'string', 'payload.content expected string')
+    ensure(msg.purpose === 'agreement' || msg.purpose === 'identification',
+        `'purpose' expected 'agreement' or 'identification'`)
+    ensure(typeof msg.payload === 'object', `'payload' expected object`)
+    ensure(msg.payload.type === 'text', `'payload.type' unsupported`)
+    ensure(typeof msg.payload.content === 'string', `'payload.content' expected string`)
     return msg
 }
 
