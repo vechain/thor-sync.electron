@@ -3,6 +3,8 @@ import * as V from '@/common/validator'
 import { cry } from 'thor-devkit'
 import cloneDeep from 'lodash.clonedeep'
 
+const MAX_LIMIT = 256
+
 export function createFilter<T extends 'event' | 'transfer'>(
     wire: Thor.Wire,
     cache: Thor.Cache,
@@ -80,7 +82,8 @@ export function createFilter<T extends 'event' | 'transfer'>(
         },
         apply(offset, limit) {
             ensure(offset >= 0 && Number.isSafeInteger(offset), `'offset' expected non-neg safe integer`)
-            ensure(limit >= 0 && Number.isSafeInteger(limit), `'limit' expected non-neg safe integer`)
+            ensure(limit >= 0 && limit <= MAX_LIMIT && Number.isInteger(limit),
+                `'limit' expected integer in [0, ${MAX_LIMIT}]`)
 
             filterBody.options.offset = offset
             filterBody.options.limit = limit
