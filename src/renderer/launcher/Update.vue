@@ -48,7 +48,7 @@
 
         reportIssue() {
             BUS.$emit('open-tab', {
-                href: 'https://github.com/vechain/thor-sync.electron/issues/new'
+                href: 'https://github.com/vechain/thor-sync.electron/issues'
             })
         }
     }
