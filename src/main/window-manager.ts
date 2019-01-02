@@ -1,6 +1,7 @@
 import { app, BrowserWindowConstructorOptions, BrowserWindow } from 'electron'
 import env from '@/env'
 import { presets, nameOfNetwork } from '../node-configs'
+import { parseDappUrl } from '@/common/url-utils'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
@@ -87,6 +88,34 @@ class WindowManager {
     public dispatchDbEvent(event: DbEvent) {
         this.actives
             .forEach(entry => entry.win.webContents.send('db-event', event))
+    }
+
+    public openDapp(dappUrl: string) {
+        const parsed = parseDappUrl(dappUrl)
+        if (!parsed) {
+            return false
+        }
+        const config = presets.find(p => nameOfNetwork(p.genesis.id) === parsed.network) || presets[0]
+        let target: BrowserWindow | undefined
+        for (const entry of this.actives) {
+            const win = entry[1].win
+            if (win.webContents.getWebPreferences().nodeConfig!.genesis.id
+                === config.genesis.id) {
+                target = win
+                break
+            }
+        }
+        if (target) {
+            target.focus()
+        } else {
+            target = this.create(config)
+        }
+        const action: TabAction = {
+            action: 'new',
+            url: parsed.url
+        }
+        app.EXTENSION.mq.post(`TabAction-${target.id}`, action)
+        return true
     }
 }
 

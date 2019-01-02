@@ -1,3 +1,4 @@
 export * from './agent'
 export * from './node'
-export * from './cache'
+export * from './wire'
+export * from './client'

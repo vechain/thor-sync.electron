@@ -1,13 +1,11 @@
-import { BadParameter, ensure } from '../ensure'
+import { BadParameter, ensure } from './ensure'
 import * as V from '@/common/validator'
-import { cry } from 'thor-devkit'
 import cloneDeep from 'lodash.clonedeep'
 
 const MAX_LIMIT = 256
 
 export function createFilter<T extends 'event' | 'transfer'>(
-    wire: Thor.Wire,
-    cache: Thor.Cache,
+    client: Client,
     kind: T
 ): Connex.Thor.Filter<T> {
 
@@ -88,33 +86,7 @@ export function createFilter<T extends 'event' | 'transfer'>(
             filterBody.options.offset = offset
             filterBody.options.limit = limit
 
-            const key = cry.blake2b256(kind, JSON.stringify(filterBody)).toString('hex')
-            const bloomKeys = () => {
-                const ks: string[] = []
-                if (kind === 'event') {
-                    (filterBody.criteriaSet as Connex.Thor.Event.Criteria[])
-                        .forEach(c => {
-                            if (c.address) { ks.push(c.address) }
-                            if (c.topic0) { ks.push(c.topic0) }
-                            if (c.topic1) { ks.push(c.topic1) }
-                            if (c.topic2) { ks.push(c.topic2) }
-                            if (c.topic3) { ks.push(c.topic3) }
-                            if (c.topic4) { ks.push(c.topic4) }
-                        })
-                } else {
-                    (filterBody.criteriaSet as Connex.Thor.Transfer.Criteria[])
-                        .forEach(c => {
-                            if (c.txOrigin) { ks.push(c.txOrigin) }
-                            if (c.sender) { ks.push(c.sender) }
-                            if (c.recipient) { ks.push(c.recipient) }
-                        })
-                }
-                return ks
-            }
-            return cache.filter<typeof kind>(
-                key,
-                bloomKeys,
-                () => wire.post<Connex.Thor.Filter.Result<T>>(`logs/${kind}`, filterBody))
+            return client.filter(kind, filterBody as any)
                 .then(cloneDeep)
         }
     }

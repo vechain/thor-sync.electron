@@ -43,6 +43,12 @@
         }
       ]
     },
+    "protocols": {
+      "name": "VeChain App Protocol",
+      "schemes": [
+        "vechain-app"
+      ]
+    },
     "mac": {
       "icon": "build/icons/icon.icns"
     },
@@ -60,7 +66,8 @@
     "electron-unhandled": "^2.1.0",
     "lodash.clonedeep": "^4.5.0",
     "mkdirp": "0.5.1",
-    "thor-devkit": "^0.6.0",
+    "thor-devkit": "^0.7.0",
+    "uuid": "^3.3.2",
     "ws": "^6.0.0"
   },
   "devDependencies": {
@@ -75,6 +82,7 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.5.5",
     "@types/qs": "^6.5.1",
+    "@types/uuid": "^3.4.4",
     "@types/ws": "^6.0.0",
     "@vechain/connex": "^0.6.0",
     "bignumber.js": "7.2.1",

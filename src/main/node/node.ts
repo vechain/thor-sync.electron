@@ -7,34 +7,49 @@ import { Bloom } from 'thor-devkit'
 import { Wire } from './wire'
 import { Agent } from './agent'
 import * as compareVersions from 'compare-versions'
+import { TxQueue } from './tx-queue'
 
-export class Node implements Thor.Node {
-    public readonly innerWire: Wire
+export class Node {
+    public static async discoverNode(url: string) {
+        const resp = await Axios.get<Connex.Thor.Block>(NodeUrl.resolve(url, '/blocks/0'), {
+            validateStatus: status => status >= 200 && status < 300,
+        })
+        const ver = resp.headers['x-thorest-ver'] || '0.0.0'
+        if (compareVersions(ver, '1.1.0') < 0) {
+            throw new Error('node version too low')
+        }
+
+        if (!resp.data) {
+            throw new Error('invalid response: expected object')
+        }
+        if (!/^0x[0-9a-f]{64}$/i.test(resp.data.id)) {
+            throw new Error('invalid response: id expected bytes32')
+        }
+        return resp.data
+    }
+
+
     public readonly cache = new Cache()
-    public readonly head: Connex.Thor.Status['head']
+    public headBlock: Connex.Thor.Block | BeatResponse
+    public readonly txQueue: TxQueue
 
     private readonly emitter = new EventEmitter()
+    private readonly wire: Wire
     private stop = false
 
 
-    constructor(
-        readonly config: NodeConfig,
-        readonly agent: Agent
-    ) {
-        this.head = {
-            number: config.genesis.number,
-            id: config.genesis.id,
-            parentID: config.genesis.parentID,
-            timestamp: config.genesis.timestamp,
-        }
+    constructor(readonly config: NodeConfig) {
+        this.headBlock = config.genesis
         this.emitter.setMaxListeners(0)
-        this.innerWire = new Wire(this, config, agent)
+        this.wire = new Wire(config, new Agent({ maxSocket: 10 }))
+        this.txQueue = new TxQueue(this.wire)
         this.loop()
     }
 
     public close() {
         this.stop = true
     }
+
     public nextTick() {
         return new Promise<void>(resolve => {
             this.emitter.once('next', () => {
@@ -44,31 +59,24 @@ export class Node implements Thor.Node {
     }
 
     public get genesis() { return this.config.genesis }
+    public get head(): Connex.Thor.Status['head'] {
+        return {
+            id: this.headBlock.id,
+            number: this.headBlock.number,
+            timestamp: this.headBlock.timestamp,
+            parentID: this.headBlock.parentID
+        }
+    }
 
     public get progress() {
         const nowTs = Date.now()
-        const bestTs = this.head.timestamp * 1000
+        const bestTs = this.headBlock.timestamp * 1000
         if (nowTs - bestTs < 30 * 1000) {
             return 1
         }
         const genesisTs = this.config.genesis.timestamp * 1000
         const p = (bestTs - genesisTs) / (nowTs - genesisTs)
         return p < 0 ? NaN : p
-    }
-
-    public fork(wireAgent: Agent): Thor.Node {
-        const _this = this
-        return {
-            get genesis() { return _this.genesis },
-            get head() { return _this.head },
-            get progress() { return _this.progress },
-            nextTick: () => _this.nextTick(),
-            createWire: () => new Wire(_this, _this.config, wireAgent)
-        }
-    }
-
-    public createWire(): Thor.Wire {
-        return new Wire(this, this.config, this.agent)
     }
 
     private async loop() {
@@ -81,11 +89,8 @@ export class Node implements Thor.Node {
                         continue
                     }
 
-                    if (beat.id !== this.head.id) {
-                        this.head.id = beat.id
-                        this.head.number = beat.number
-                        this.head.parentID = beat.parentID
-                        this.head.timestamp = beat.timestamp
+                    if (beat.id !== this.headBlock.id) {
+                        this.headBlock = beat
 
                         this.cache.advance(this.head, new Bloom(beat.k, Buffer.from(beat.bloom.slice(2), 'hex')))
                         this.emitter.emit('next')
@@ -101,17 +106,14 @@ export class Node implements Thor.Node {
                 }
             } else {
                 const now = Date.now()
-                if (now - this.head.timestamp * 1000 < 30 * 1000) {
-                    ws = this.innerWire.ws('subscriptions/beat')
+                if (now - this.headBlock.timestamp * 1000 < 30 * 1000) {
+                    ws = this.wire.ws('subscriptions/beat')
                 } else {
                     try {
-                        const best = (await this.innerWire.get<Connex.Thor.Block | null>('blocks/best'))!
-                        if (best.id !== this.head.id) {
-                            this.head.id = best.id
-                            this.head.number = best.number
-                            this.head.parentID = best.parentID
-                            this.head.timestamp = best.timestamp
-                            this.cache.advance(this.head)
+                        const best = (await this.wire.get<Connex.Thor.Block | null>('blocks/best'))!
+                        if (best.id !== this.headBlock.id) {
+                            this.headBlock = best
+                            this.cache.advance(this.head, undefined, best)
 
                             this.emitter.emit('next')
                             continue
@@ -128,24 +130,6 @@ export class Node implements Thor.Node {
             }
         }
     }
-}
-
-export async function discoverNode(url: string) {
-    const resp = await Axios.get<Connex.Thor.Block>(NodeUrl.resolve(url, '/blocks/0'), {
-        validateStatus: status => status >= 200 && status < 300,
-    })
-    const ver = resp.headers['x-thorest-ver'] || '0.0.0'
-    if (compareVersions(ver, '1.1.0') < 0) {
-        throw new Error('node version too low')
-    }
-
-    if (!resp.data) {
-        throw new Error('invalid response: expected object')
-    }
-    if (!/^0x[0-9a-f]{64}$/i.test(resp.data.id)) {
-        throw new Error('invalid response: id expected bytes32')
-    }
-    return resp.data
 }
 
 type BeatResponse = {

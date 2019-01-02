@@ -1,28 +1,26 @@
 import { remote } from 'electron'
 
-declare module 'electron' {
-    interface App {
-        xWorker: {
-            maximizeWindow(id: number): Promise<void>
-            unmaximizeWindow(id: number): Promise<void>
-            minimizeWindow(id: number): Promise<void>
+const contentsId = remote.getCurrentWebContents().id;
+
+(async () => {
+    for (; ;) {
+        const payload = await remote.app
+            .EXTENSION
+            .mq
+            .read('WindowAction', contentsId) as WindowAction
+
+        const win = remote.BrowserWindow.fromId(payload.windowId)
+        switch (payload.action) {
+            case 'maximize':
+                win.maximize()
+                break
+            case 'minimize':
+                win.minimize()
+                break
+            case 'unmaximize':
+                win.unmaximize()
+                break
         }
     }
-}
+})()
 
-remote.app.EXTENSION.inject(
-    remote.getCurrentWebContents().id,
-    'xWorker', {
-        maximizeWindow: (id: number, cb: () => void) => {
-            remote.BrowserWindow.fromId(id).maximize()
-            cb()
-        },
-        unmaximizeWindow: (id: number, cb: () => void) => {
-            remote.BrowserWindow.fromId(id).unmaximize()
-            cb()
-        },
-        minimizeWindow: (id: number, cb: () => void) => {
-            remote.BrowserWindow.fromId(id).minimize()
-            cb()
-        }
-    })

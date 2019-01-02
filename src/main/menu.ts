@@ -82,7 +82,10 @@ export function setupMenu() {
                 click() {
                     const win = BrowserWindow.getFocusedWindow()
                     if (win) {
-                        app.nova[win.id].newTab()
+                        const action: TabAction = {
+                            action: 'new'
+                        }
+                        app.EXTENSION.mq.post(`TabAction-${win.id}`, action)
                     } else {
                         app.EXTENSION.createWindow()
                     }
@@ -93,11 +96,13 @@ export function setupMenu() {
                 click() {
                     const win = BrowserWindow.getFocusedWindow()
                     if (win) {
-                        app.nova[win.id].closeTab()
+                        const action: TabAction = {
+                            action: 'close'
+                        }
+                        app.EXTENSION.mq.post(`TabAction-${win.id}`, action)
                     }
                 }
-            }
-            ]
+            }]
         })
         template.unshift({
             label: app.getName(),

@@ -4,10 +4,9 @@ import * as WebSocket from 'ws'
 import * as QS from 'qs'
 import { Agent } from './agent'
 
-export class Wire implements Thor.Wire {
+export class Wire {
     private readonly axios: AxiosInstance
     constructor(
-        private readonly node: Thor.Node,
         private readonly config: NodeConfig,
         private readonly agent: Agent,
     ) {
@@ -19,8 +18,6 @@ export class Wire implements Thor.Wire {
             headers: { 'x-genesis-id': config.genesis.id }
         })
     }
-
-    public get head() { return this.node.head }
 
     public async get<T>(path: string, query?: object): Promise<T> {
         const url = this.resolve(path, query)

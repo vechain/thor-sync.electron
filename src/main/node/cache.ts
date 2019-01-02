@@ -20,14 +20,14 @@ type Slot = {
     filters: Map<string, { result: any, bloomKeys: string[] }>
 }
 
-export class Cache implements Thor.Cache {
+export class Cache {
     private readonly blockCache = new LRU<string | number, Connex.Thor.Block>(256)
     private readonly txCache = new LRU<string, Connex.Thor.Transaction>(512)
     private readonly receiptCache = new LRU<string, Connex.Thor.Receipt>(512)
     private readonly slots = new Map<string, Slot>()
     private readonly window: Slot[] = []
 
-    public advance(head: Connex.Thor.Status['head'], bloom?: Bloom) {
+    public advance(head: Connex.Thor.Status['head'], bloom?: Bloom, block?: Connex.Thor.Block) {
         while (this.window.length > 0) {
             const last = this.window[this.window.length - 1]
             if (head.id === last.id) {
@@ -45,7 +45,8 @@ export class Cache implements Thor.Cache {
             accounts: new Map(),
             txs: new Map(),
             receipts: new Map(),
-            filters: new Map()
+            filters: new Map(),
+            block
         }
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)

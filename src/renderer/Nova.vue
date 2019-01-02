@@ -313,7 +313,7 @@ type OpenTab = {
     }
 })
 export default class Nova extends Vue {
-    pages: Page[] = [new Page('')]
+    pages: Page[] = []
     activePageIndex = 0
     get activePage() { return this.pages[this.activePageIndex] }
     urlBoxFocused = false
@@ -382,30 +382,30 @@ export default class Nova extends Vue {
         }
     }
 
-    created() {
-        remote.app.EXTENSION.inject(
-            remote.getCurrentWebContents().id,
-            `nova.${remote.getCurrentWindow().id}`,
-            {
-                newTab: (cb: () => void) => {
-                    if (!this.isModaling()) {
-                        this.openTab('')
-                    }
-                    cb()
-
-                },
-                closeTab: (cb: () => void) => {
-                    if (!this.isModaling()) {
-                        this.closeTab(this.activePageIndex)
-                    }
-                    cb()
-                }
-            }
-        )
-
+    async created() {
+        const mq = remote.app.EXTENSION.mq
+        const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
+        const initTabAction = mq.peek(tabActionTopic) as (TabAction | null)
+        if (initTabAction && initTabAction.action === 'new' && initTabAction.url) {
+            this.openTab(initTabAction.url)
+        } else {
+            this.openTab('')
+        }
         BUS.$on('open-tab', (data: OpenTab) => {
             this.openTab(data.href, data.mode)
         })
+
+        for (; ;) {
+            const action = await mq.read(tabActionTopic, remote.getCurrentWebContents().id) as TabAction
+            if (this.isModaling()) {
+                continue
+            }
+            if (action.action === 'close') {
+                this.closeTab(this.activePageIndex)
+            } else if (action.action === 'new') {
+                this.openTab(action.url || '')
+            }
+        }
     }
 
     onDblClickTitleBar() {
@@ -418,18 +418,31 @@ export default class Nova extends Vue {
             }
         })()
         const win = remote.getCurrentWindow()
+        let payload: WindowAction | undefined
         switch (action) {
             case 'Minimize':
-                remote.app.xWorker.minimizeWindow(win.id)
+                payload = {
+                    windowId: win.id,
+                    action: 'minimize'
+                }
                 break
             case 'None':
                 break
             default:
                 if (win.isMaximized()) {
-                    remote.app.xWorker.unmaximizeWindow(win.id)
+                    payload = {
+                        windowId: win.id,
+                        action: 'unmaximize'
+                    }
                 } else {
-                    remote.app.xWorker.maximizeWindow(win.id)
+                    payload = {
+                        windowId: win.id,
+                        action: 'maximize'
+                    }
                 }
+        }
+        if (payload) {
+            remote.app.EXTENSION.mq.post('WindowAction', payload)
         }
     }
 

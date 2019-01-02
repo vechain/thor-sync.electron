@@ -12,6 +12,7 @@ import { remote } from 'electron'
 import { TxSigningDialog, CertSigningDialog } from '@/renderer/components'
 import { State } from 'vuex-class'
 import * as UrlUtils from '@/common/url-utils'
+import { ipcServe } from '../ipc'
 
 @Component
 export default class Vendor extends Vue {
@@ -21,50 +22,21 @@ export default class Vendor extends Vue {
     @State wallets!: entities.Wallet[]
 
     mounted() {
-        remote.app.EXTENSION.inject(
-            remote.getCurrentWebContents().id,
-            `vendor.${remote.getCurrentWindow().id}`, {
-                signTx: (
-                    contentsId: number,
-                    message: Connex.Vendor.SigningService.TxMessage,
-                    options: VendorInterface.SignTxOptions,
-                    referer: Referer,
-                    callback: (err?: Error, result?: Connex.Vendor.SigningService.TxResponse) => void
-                ) => {
-                    this.precheck(contentsId)
-                        .then(() => this.signTx(message, options, referer))
-                        .then(result => {
-                            setTimeout(() => {
-                                this.snackbarText = 'Transaction signed and enqueued'
-                                this.snackbar = true
-                            }, 500)
-                            callback(undefined, result)
-                        }).catch(err => {
-                            console.warn(err)
-                            callback({ name: err.name, message: err.message })
-                        })
-                },
-                signCert: (
-                    contentsId: number,
-                    message: Connex.Vendor.SigningService.CertMessage,
-                    options: VendorInterface.SignCertOptions,
-                    referer: Referer,
-                    callback: (err?: Error, result?: Connex.Vendor.SigningService.CertResponse) => void
-                ) => {
-                    this.precheck(contentsId)
-                        .then(() => this.signCert(message, options, referer))
-                        .then(result => {
-                            setTimeout(() => {
-                                this.snackbarText = 'Certificate signed'
-                                this.snackbar = true
-                            }, 500)
-                            callback(undefined, result)
-                        }).catch(err => {
-                            console.warn(err)
-                            callback({ name: err.name, message: err.message })
-                        })
+        ipcServe('vendor', async (fromWebContentsId, methodName, arg) => {
+            try {
+                await this.precheck(fromWebContentsId)
+                if (methodName === 'sign-tx') {
+                    return await this.signTx(arg)
+                } else if (methodName === 'sign-cert') {
+                    return await this.signCert(arg)
                 }
-            })
+                throw new Error(`unexpected method '${methodName}'`)
+            } catch (err) {
+                // it's important to transform error into plain object,
+                // since electron's ipc will json/unjson arguments
+                throw { name: err.name, message: err.message }
+            }
+        })
     }
 
     async precheck(contentsId: number) {
@@ -78,14 +50,11 @@ export default class Vendor extends Vue {
         }
     }
 
-    async signTx(
-        message: Connex.Vendor.SigningService.TxMessage,
-        options: VendorInterface.SignTxOptions,
-        referer: Referer): Promise<Connex.Vendor.SigningService.TxResponse> {
+    async signTx(arg: SignTxArg): Promise<Connex.Vendor.SigningService.TxResponse> {
 
         let walletIndex = 0
-        if (options.signer) {
-            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
+        if (arg.options.signer) {
+            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
             if (walletIndex < 0) {
                 throw new Rejected('required signer unavailable')
             }
@@ -94,32 +63,32 @@ export default class Vendor extends Vue {
         try {
             this.dialogOpened = true
             const result = await this.$dialog(TxSigningDialog, {
-                message,
+                message: arg.message,
                 // enforce using wallet
-                wallets: options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
-                selectedWallet: options.signer ? 0 : walletIndex,
-                suggestedGas: options.gas || 0,
-                txComment: options.comment || ''
+                wallets: arg.options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
+                selectedWallet: arg.options.signer ? 0 : walletIndex,
+                suggestedGas: arg.options.gas || 0,
+                txComment: arg.options.comment || ''
             })
 
             await BDB.activities.add({
                 type: 'tx',
                 createdTime: Date.now(),
-                referer,
+                referer: arg.referer,
                 closed: 0,
                 data: {
                     id: result.txid,
-                    message: message,
+                    message: arg.message,
                     timestamp: result.timestamp,
-                    comment: options.comment || '',
+                    comment: arg.options.comment || '',
                     signer: result.signer,
                     estimatedFee: result.estimatedFee,
-                    link: options.link || '',
+                    link: arg.options.link || '',
                     raw: result.rawTx,
                     receipt: null
                 }
             })
-            TXER.send(result.txid, result.rawTx)
+            CLIENT.txer.send(result.txid, result.rawTx)
 
             return {
                 txid: result.txid,
@@ -130,15 +99,11 @@ export default class Vendor extends Vue {
         }
     }
 
-    async signCert(
-        message: Connex.Vendor.SigningService.CertMessage,
-        options: VendorInterface.SignCertOptions,
-        referer: Referer
-    ) {
+    async signCert(arg: SignCertArg) {
 
         let walletIndex = 0
-        if (options.signer) {
-            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === options.signer!.toLowerCase())
+        if (arg.options.signer) {
+            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
             if (walletIndex < 0) {
                 throw new Rejected('required signer unavailable')
             }
@@ -147,20 +112,20 @@ export default class Vendor extends Vue {
         try {
             this.dialogOpened = true
             const result = await this.$dialog(CertSigningDialog, {
-                message,
+                message: arg.message,
                 // enforce using wallet
-                wallets: options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
-                selectedWallet: options.signer ? 0 : walletIndex,
-                domain: UrlUtils.hostnameOf(referer.url)
+                wallets: arg.options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
+                selectedWallet: arg.options.signer ? 0 : walletIndex,
+                domain: UrlUtils.hostnameOf(arg.referer.url)
             })
 
             await BDB.activities.add({
                 type: 'cert',
                 createdTime: Date.now(),
-                referer,
+                referer: arg.referer,
                 closed: 1,
                 data: {
-                    message: message,
+                    message: arg.message,
                     timestamp: result.annex.timestamp,
                     signer: result.annex.signer,
                     domain: result.annex.domain,

@@ -142,7 +142,7 @@
         getNodeInfo() {
             return new Promise<Connex.Thor.Block>((resolve, reject) => {
                 this.checkingReject = reject
-                remote.app.EXTENSION.discoverNode(this.form.rpcUrl)
+                CLIENT.discoverNode(this.form.rpcUrl)
                     .then(resp => {
                         resolve(resp)
                     })

@@ -1,28 +1,27 @@
 import { abi } from 'thor-devkit'
-import { BadParameter, ensure } from '../ensure'
+import { BadParameter, ensure } from './ensure'
 import * as V from '@/common/validator'
+import cloneDeep from 'lodash.clonedeep'
 
 export function createMethod(
-    wire: Thor.Wire,
+    client: Client,
     addr: string,
     jsonABI: object
 ): Connex.Thor.Method {
-    const coder = new abi.Function(jsonABI as any)
-    try {
-        // tslint:disable-next-line:no-unused-expression
-        coder.signature
-    } catch  {
-        throw new BadParameter(`'abi' is invalid`)
-    }
+    const coder = (() => {
+        try {
+            return new abi.Function(jsonABI as any)
+        } catch  {
+            throw new BadParameter(`'abi' is invalid`)
+        }
+    })()
 
+    let value: string | number = 0
     const opts: {
-        value: string | number
         caller?: string
         gas?: number
         gasPrice?: string
-    } = {
-        value: 0
-    }
+    } = {}
 
     return {
         value(val) {
@@ -33,7 +32,7 @@ export function createMethod(
                 ensure(V.isHexString(val) || V.isDecString(val),
                     `'value' expected integer in hex/dec string`)
             }
-            opts.value = val
+            value = val
             return this
         },
         caller(caller) {
@@ -52,27 +51,26 @@ export function createMethod(
             return this
         },
         asClause: (...args) => {
-            const data = coder.encode(...args)
-            return {
-                to: addr,
-                value: opts.value.toString(),
-                data
+            try {
+                const data = coder.encode(...args)
+                return {
+                    to: addr,
+                    value: value.toString(),
+                    data
+                }
+            } catch {
+                throw new BadParameter(`'args' can not be encoded`)
             }
         },
-        call: (...args) => {
-            const revision = wire.head.id
-            const data = coder.encode(...args)
-            const input = {
-                ...opts, data, value: opts.value.toString()
-            }
-
-            return wire.post<Connex.Thor.VMOutput>(
-                `accounts/${encodeURIComponent(addr)}`,
-                input,
-                { revision })
+        call(...args) {
+            return client.call(
+                this.asClause(...args),
+                { ...opts },
+                client.head.id)
                 .then(output => {
+                    output = cloneDeep(output)
                     if (output.reverted) {
-                        return { ...output, decoded: {} }
+                        return output
                     } else {
                         const decoded = coder.decode(output.data)
                         return { ...output, decoded }
