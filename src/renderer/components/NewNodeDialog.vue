@@ -41,7 +41,6 @@
     </DialogEx>
 </template>
 <script lang="ts">
-    import { Entities } from '../database'
     import {
         Vue,
         Component,
@@ -58,7 +57,7 @@
 
     @Component
     export default class NewNodeDialog extends Mixins(
-        class extends DialogHelper<Entities.Preference<'node'> | null, void> {}
+        class extends DialogHelper<entities.Node | null, void> {}
     ) {
         isEditing = false
         show = false
@@ -107,9 +106,9 @@
         onCancel() {}
 
         created() {
-            if (this.arg!.value) {
-                this.form.name = this.arg!.value.name
-                this.form.rpcUrl = this.arg!.value.url
+            if (this.arg!.id) {
+                this.form.name = this.arg!.name
+                this.form.rpcUrl = this.arg!.url
                 this.isEditing = true
             }
         }
@@ -118,7 +117,7 @@
             this.show = true
         }
 
-        async onDelete(item: Entities.Preference) {
+        async onDelete(item: entities.Node) {
             if (this.arg) {
                 await GDB.preferences.delete(this.arg!.id!)
             }
@@ -161,11 +160,11 @@
 
             if (this.isEditing) {
                 let result = Object.assign({}, this.arg)
-                result.value.name = this.form.name
-                result.value.url = this.form.rpcUrl
+                result.name = this.form.name
+                result.url = this.form.rpcUrl
                 // result.value.genesis = genesis
-                GDB.preferences
-                    .update(this.arg!.id as any, { value: result.value })
+                GDB.nodes
+                    .update(this.arg!.id as any, { ...result })
                     .then(updated => {
                         if (updated) {
                             this.isEditing = false
@@ -188,14 +187,11 @@
                     return
                 }
                 this.checking = false
-                GDB.preferences
+                GDB.nodes
                     .add({
-                        key: 'node',
-                        value: {
-                            name: this.form.name,
-                            url: this.form.rpcUrl,
-                            genesis: genesis
-                        }
+                        name: this.form.name,
+                        url: this.form.rpcUrl,
+                        genesis: genesis
                     })
                     .then(() => {
                         this.clear()
