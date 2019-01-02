@@ -135,7 +135,7 @@
                 const pk = this.form.content.startsWith('0x')
                     ? this.form.content.substr(2)
                     : this.form.content
-                const buff = new Buffer(pk, 'hex')
+                const buff = Buffer.from(pk, 'hex')
                 const length = buff.filter(item => item === 0).length
                 return buff.length === 32 && length !== 32
             } else {
@@ -170,7 +170,7 @@
 
         async getPrivateKey(): Promise<Buffer> {
             const type = this.form.type
-            let result = new Buffer('0')
+            let result = Buffer.alloc(0)
             switch (type) {
                 case 1:
                     const ks = JSON.parse(this.form.content)
@@ -191,10 +191,9 @@
                     const pk = this.form.content.startsWith('0x')
                         ? this.form.content.substr(2)
                         : this.form.content
-                    result = new Buffer(pk, 'hex')
+                    result = Buffer.from(pk, 'hex')
                     break
             }
-
             return Promise.resolve(result)
         }
     }
