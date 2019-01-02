@@ -1,7 +1,7 @@
 <template>
     <v-layout column>
         <v-subheader>
-            <span class="subheading">Nodes</span>
+            <span>Nodes</span>
             <v-spacer/>
             <v-btn flat @click.stop="onEdit" color="primary" class="mr-4" icon>
                 <v-icon color="primary">add</v-icon>
@@ -51,19 +51,17 @@
 <script lang="ts">
 import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
 import { State } from 'vuex-class'
-import NewNodeDialog from './NewNodeDialog.vue'
+import NewNodeDialog from '../components/NewNodeDialog.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import { presets } from '@/node-configs'
 import Store from '@/renderer/store'
 
 @Component({
     components: {
-        NewNodeDialog,
         ConfirmDialog
     }
 })
 export default class Nodes extends Vue {
-    dialog = false
     editItem: entities.Node | null = null
     initNodes = presets
     get nodes() {
@@ -71,8 +69,7 @@ export default class Nodes extends Vue {
     }
 
     onEdit(network: entities.Node) {
-        this.editItem = network
-        this.dialog = true
+        this.$dialog(NewNodeDialog, network)
     }
     onCancelEdit() {
         this.editItem = null
