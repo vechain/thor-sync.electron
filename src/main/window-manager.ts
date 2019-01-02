@@ -34,6 +34,7 @@ class WindowManager {
         }
 
         const win = new BrowserWindow(options)
+        win.loadURL(env.index)
         this.attachLaunchScreen(win)
 
         const id = win.id
@@ -48,15 +49,6 @@ class WindowManager {
                 }
             }
         })
-        win.webContents.once('did-stop-loading', () => {
-            const bw = win.getBrowserView()
-            if (bw && !bw.isDestroyed()) {
-                bw.setAutoResize({ width: false, height: false })
-                bw.setBounds({ x: 0, y: 0, width: 0, height: 0 })
-                bw.destroy()
-            }
-        })
-        win.loadURL(env.index)
         return win
     }
     public get activeCount() {
@@ -142,6 +134,10 @@ class WindowManager {
         win.setBrowserView(view)
         view.webContents.once('dom-ready', () => {
             win.show()
+        })
+        win.webContents.once('did-stop-loading', () => {
+            win.setBrowserView(null as any)
+            view.destroy()
         })
     }
 }
