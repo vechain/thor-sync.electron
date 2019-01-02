@@ -1,5 +1,5 @@
 <template>
-    <v-app v-resize="onResize">
+    <v-app v-resize="onResize" style="transition: opacity 0.6s; opacity:0">
         <!-- required by tab button -->
         <svg height="0" width="0">
             <defs>
@@ -406,6 +406,10 @@ export default class Nova extends Vue {
                 this.openTab(action.url || '')
             }
         }
+    }
+
+    mounted() {
+        this.$el.style.opacity = null
     }
 
     onDblClickTitleBar() {
