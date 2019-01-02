@@ -45,7 +45,7 @@
                         <v-stepper-content step="2">
                             <v-card>
                                 <v-card-text>
-                                    <v-textarea box v-model="ks"></v-textarea>
+                                    <v-textarea readonly box v-model="ks"></v-textarea>
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
