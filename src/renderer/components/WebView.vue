@@ -154,9 +154,7 @@ export default class WebView extends Vue {
                 normalNavigate = true
             } else if (ev.type === 'page-favicon-updated') {
                 const favicons = (ev as PageFaviconUpdatedEvent).favicons
-                if (favicons[0]) {
-                    this.favicon = favicons[0]
-                }
+                this.favicon = favicons.find(i => i.includes('32x32')) || favicons[0] || ''
             } else if (ev.type === 'page-title-updated') {
                 this.title = (ev as PageTitleUpdatedEvent).title || 'Untitled'
             } else if (ev.type === 'load-commit') {
