@@ -1,5 +1,5 @@
 import { remote, ipcRenderer } from 'electron'
-import { proxyObject } from './common/object-proxy'
+import { create as createConnex } from '@/renderer/connex-impl'
 
 // create connex on demand
 const getConnex = (() => {
@@ -11,10 +11,11 @@ const getConnex = (() => {
                 .getWebPreferences()
                 .nodeConfig
 
-            connex = proxyObject(remote.app.EXTENSION.connect(
+            const client = remote.app.EXTENSION.connect(
                 remote.getCurrentWebContents().id,
                 nodeConfig!
-            ).connex, true, { disconnected: false })
+            )
+            connex = createConnex(client)
         }
         return connex
     }

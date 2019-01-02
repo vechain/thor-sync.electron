@@ -4,38 +4,36 @@ import { createTxVisitor } from './tx-visitor'
 import { createFilter } from './filter'
 import cloneDeep from 'lodash.clonedeep'
 import * as V from '@/common/validator'
-import { ensure } from '../ensure'
+import { ensure } from './ensure'
 
 export function create(
-    node: Thor.Node,
-    cache: Thor.Cache
+    client: Client
 ): Connex.Thor {
-    const genesis = cloneDeep(node.genesis)
-    const wire = node.createWire()
+    const genesis = cloneDeep(client.genesis)
     return {
         get genesis() { return genesis },
         get status() {
             return {
-                head: { ...node.head },
-                progress: node.progress
+                head: { ...client.head },
+                progress: client.progress
             }
         },
         ticker: () => {
-            let lastHeadId = node.head.id
+            let lastHeadId = client.head.id
             return {
                 next: async () => {
-                    if (lastHeadId !== node.head.id) {
-                        lastHeadId = node.head.id
+                    if (lastHeadId !== client.head.id) {
+                        lastHeadId = client.head.id
                         return
                     }
-                    await node.nextTick()
-                    lastHeadId = node.head.id
+                    await client.nextTick()
+                    lastHeadId = client.head.id
                 }
             }
         },
         account: (addr) => {
             ensure(V.isAddress(addr), `'addr' expected address type`)
-            return createAccountVisitor(wire, cache, addr)
+            return createAccountVisitor(client, addr)
         },
         block: revision => {
             if (typeof revision === 'string') {
@@ -43,18 +41,18 @@ export function create(
             } else if (typeof revision === 'number') {
                 ensure(V.isUint32(revision), `'revision' expected non-neg 32bit integer`)
             } else if (typeof revision === 'undefined') {
-                revision = node.head.id
+                revision = client.head.id
             } else {
                 ensure(false, `'revision' has invalid type`)
             }
-            return createBlockVisitor(wire, cache, revision)
+            return createBlockVisitor(client, revision)
         },
         transaction: id => {
             ensure(V.isBytes32(id), `'id' expected bytes32 in hex string`)
-            return createTxVisitor(wire, cache, id)
+            return createTxVisitor(client, id)
         },
         filter: kind => {
-            return createFilter(wire, cache, kind)
+            return createFilter(client, kind)
         },
         explain: () => {
             const opts: {
@@ -81,7 +79,7 @@ export function create(
                 execute(clauses) {
                     ensure(Array.isArray(clauses), `'clauses' expected array`)
                     clauses.forEach((c, i) => {
-                        ensure(!c.to || V.isAddress(c.to), `'clauses#${i}.to' expected null or address`)
+                        ensure(c.to === null || V.isAddress(c.to), `'clauses#${i}.to' expected null or address`)
                         if (typeof c.value === 'number') {
                             ensure(Number.isSafeInteger(c.value) && c.value >= 0,
                                 `'clauses#${i}.value' expected non-neg safe integer`)
@@ -91,19 +89,12 @@ export function create(
                         }
                         ensure(!c.data || V.isHexBytes(c.data), `'clauses#${i}.data' expected bytes in hex string`)
                     })
-
-                    const body = {
-                        clauses: clauses.map(c => ({
-                            to: c.to || null,
-                            value: c.value.toString(),
-                            data: c.data || ''
-                        })),
-                        ...opts
-                    }
-                    return wire.post<Connex.Thor.VMOutput[]>(
-                        `accounts/*`,
-                        body,
-                        { revision: node.head.id })
+                    return client.explain(clauses.map(c => ({
+                        to: c.to,
+                        value: c.value.toString(),
+                        data: c.data || ''
+                    })), { ...opts }, client.head.id)
+                        .then(cloneDeep)
                 }
             }
         }

@@ -1,32 +1,35 @@
 import { abi } from 'thor-devkit'
 import { createFilter } from './filter'
-import { BadParameter } from '../ensure'
+import { BadParameter } from './ensure'
 
 export function createEventVisitor(
-    wire: Thor.Wire,
-    cache: Thor.Cache,
+    client: Client,
     jsonABI: object,
     addr: string
 ): Connex.Thor.EventVisitor {
 
-    const coder = new abi.Event(jsonABI as any)
-    try {
-        // tslint:disable-next-line:no-unused-expression
-        coder.signature
-    } catch  {
-        throw new BadParameter(`'abi' is invalid`)
-    }
+    const coder = (() => {
+        try {
+            return new abi.Event(jsonABI as any)
+        } catch {
+            throw new BadParameter(`'abi' is invalid`)
+        }
+    })()
 
     return {
         asCriteria: indexed => {
-            const topics = coder.encode(indexed)
-            return {
-                address: addr,
-                topic0: topics[0] || undefined,
-                topic1: topics[1] || undefined,
-                topic2: topics[2] || undefined,
-                topic3: topics[3] || undefined,
-                topic4: topics[4] || undefined
+            try {
+                const topics = coder.encode(indexed)
+                return {
+                    address: addr,
+                    topic0: topics[0] || undefined,
+                    topic1: topics[1] || undefined,
+                    topic2: topics[2] || undefined,
+                    topic3: topics[3] || undefined,
+                    topic4: topics[4] || undefined
+                }
+            } catch {
+                throw new BadParameter(`'indexed' can not be encoded`)
             }
         },
         filter(indexed) {
@@ -36,7 +39,7 @@ export function createEventVisitor(
             } else {
                 criteriaSet = indexed.map(i => this.asCriteria(i))
             }
-            const filter = createFilter(wire, cache, 'event').criteria(criteriaSet)
+            const filter = createFilter(client, 'event').criteria(criteriaSet)
             return {
                 criteria(set) {
                     filter.criteria(set)

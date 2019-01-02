@@ -122,7 +122,7 @@ export default class TxActivityItem extends Vue {
             return 'dropped'
         }
 
-        const qStatus = TXER.status(this.item.data.id)
+        const qStatus = CLIENT.txer.status(this.item.data.id)
         if (!qStatus) {
             return 'hanging'
         }
@@ -158,7 +158,7 @@ export default class TxActivityItem extends Vue {
     }
 
     resend() {
-        TXER.send(this.item.data.id, this.item.data.raw)
+        CLIENT.txer.send(this.item.data.id, this.item.data.raw)
         this.resendCount++
     }
 

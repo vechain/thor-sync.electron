@@ -10,35 +10,6 @@ type Referer = {
     title: string
 }
 
-declare interface VendorInterface {
-    signTx(
-        contentsId: number,
-        message: Connex.Vendor.SigningService.TxMessage,
-        options: VendorInterface.SignTxOptions,
-        referer: Referer
-    ): Promise<Connex.Vendor.SigningService.TxResponse>
-
-    signCert(
-        contentsId: number,
-        message: Connex.Vendor.SigningService.CertMessage,
-        options: VendorInterface.SignCertOptions,
-        referer: Referer
-    ): Promise<Connex.Vendor.SigningService.CertResponse>
-}
-
-declare namespace VendorInterface {
-    type SignTxOptions = {
-        signer?: string
-        gas?: number
-        link?: string
-        comment?: string
-    }
-
-    type SignCertOptions = {
-        signer?: string
-    }
-}
-
 type Keystore = {
     address: string;
     crypto: object;
@@ -123,4 +94,81 @@ type DbEvent = {
     db: string
     table: string
     changes: Array<'creating' | 'updating' | 'deleting'>
+}
+
+interface Client {
+    readonly genesis: Connex.Thor.Block
+    readonly head: Connex.Thor.Status['head']
+    readonly progress: number
+
+    nextTick(): Promise<void>
+
+    explain(clauses: Connex.Thor.Clause[], options: {
+        caller?: string
+        gas?: number
+        gasPrice?: string
+    }, rev: string): Promise<Connex.Thor.VMOutput[]>
+
+    getAccount(addr: string, rev: string): Promise<Connex.Thor.Account>
+    getCode(addr: string, rev: string): Promise<Connex.Thor.Code>
+    getStorage(addr: string, key: string, rev: string): Promise<Connex.Thor.Storage>
+    call(
+        clause: Connex.Thor.Clause,
+        options: {
+            caller?: string
+            gas?: number
+            gasPrice?: string
+        }, rev: string): Promise<Connex.Thor.VMOutput>
+
+    getBlock(rev: string | number): Promise<Connex.Thor.Block | null>
+    getTx(id: string): Promise<Connex.Thor.Transaction | null>
+    getReceipt(id: string): Promise<Connex.Thor.Receipt | null>
+    filter<T extends 'event' | 'transfer'>(kind: T, body: {
+        range: Connex.Thor.Filter.Range
+        order: 'asc' | 'desc'
+        criteriaSet: Connex.Thor.Filter.Criteria<T>[]
+        options: { offset: number, limit: number }
+    }): Promise<Connex.Thor.Filter.Result<T>>
+
+    txer: {
+        send(id: string, raw: string): void
+        status(id: string): 'sending' | 'sent' | 'error' | undefined
+    }
+    discoverNode(url: string): Promise<Connex.Thor.Block>
+}
+
+
+type SignTxOptions = {
+    signer?: string
+    gas?: number
+    link?: string
+    comment?: string
+}
+
+type SignCertOptions = {
+    signer?: string
+}
+
+type SignTxArg = {
+    message: Connex.Vendor.SigningService.TxMessage,
+    options: SignTxOptions,
+    referer: Referer
+}
+
+type SignCertArg = {
+    message: Connex.Vendor.SigningService.CertMessage,
+    options: SignCertOptions,
+    referer: Referer
+}
+
+
+// MQ payloads
+type WindowAction = {
+    windowId: number
+    action: 'maximize' | 'unmaximize' | 'minimize'
+}
+
+type TabAction = {
+    action: 'close' | 'new'
+    url?: string
 }

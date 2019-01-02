@@ -3,7 +3,7 @@ import { remote, ipcRenderer } from 'electron'
 import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-tracker'
-import { proxyObject } from '@/common/object-proxy'
+import { create as createConnex } from './connex-impl'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
@@ -14,30 +14,28 @@ declare global {
         readonly BDB: BoundedDatabase
         // event bus
         readonly BUS: Vue
-        readonly TXER: Txer
+        readonly CLIENT: Client
     }
     const ENV: typeof env
     const GDB: GlobalDatabase
     const BDB: BoundedDatabase
     const BUS: Vue
-    const TXER: Txer
+    const CLIENT: Client
 }
 
-{
-    const { connex, txer } = remote.app.EXTENSION.connect(
-        remote.getCurrentWebContents().id,
-        remote.getCurrentWebContents().getWebPreferences().nodeConfig!
-    )
-    Object.defineProperty(window, 'connex', {
-        value: proxyObject(connex, true, { disconnected: false }),
-        enumerable: true
-    })
-    Object.defineProperty(window, 'TXER', {
-        value: txer,
-        enumerable: true
-    })
-}
+const client = remote.app.EXTENSION.connect(
+    remote.getCurrentWebContents().id,
+    remote.getCurrentWebContents().getWebPreferences().nodeConfig!
+)
 
+Object.defineProperty(window, 'connex', {
+    value: createConnex(client),
+    enumerable: true
+})
+Object.defineProperty(window, 'CLIENT', {
+    value: client,
+    enumerable: true
+})
 // bind widgets
 Object.defineProperty(window, 'ENV', {
     value: env,

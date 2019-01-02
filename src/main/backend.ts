@@ -1,24 +1,21 @@
 import { webContents } from 'electron'
-import TxQueue from './tx-queue'
-import { Node, Agent } from './node'
-import { proxyObject } from '@/common/object-proxy'
-import { create as createConnex } from './connex-impl'
+import { Node, Agent, createClient, Wire } from './node'
+import { manageObject } from './manage-object'
 
 export class Backend {
     private readonly activeNodes = new Map<string, { node: Node, refCount: number }>()
     private readonly connections = new Map<number, { disconnect(): void }>()
-    private readonly txQueue = new TxQueue()
 
     public connect(
         contentsId: number,
         config: NodeConfig
-    ): { connex: Connex, txer: Txer } {
+    ): Client {
         const existConn = this.connections.get(contentsId)
         if (existConn) {
             existConn.disconnect()
         }
 
-        const wireAgent = new Agent({ maxSocket: 10 })
+        const wireAgent = new Agent({ maxSocket: 5 })
         const node = this.acquireNode(config)
 
         const signal = { disconnected: false }
@@ -51,17 +48,8 @@ export class Backend {
         })
         // tslint:disable-next-line:no-console
         console.log('connex connected')
-        return {
-            connex: proxyObject(createConnex(contents, node.fork(wireAgent), node.cache), true, signal),
-            txer: {
-                send: (id, raw) => {
-                    this.txQueue.enqueue(id, raw, node.innerWire)
-                },
-                status: id => {
-                    return this.txQueue.status(id)
-                }
-            }
-        }
+
+        return manageObject(createClient(node, new Wire(config, wireAgent)), signal)
     }
 
     private nodeKey(config: NodeConfig) {
@@ -76,7 +64,7 @@ export class Backend {
             console.log(`acquireNode: <${key}> #${value.refCount}`)
         } else {
             value = {
-                node: new Node(config, new Agent({ maxSocket: 10 })),
+                node: new Node(config),
                 refCount: 1
             }
             this.activeNodes.set(key, value)

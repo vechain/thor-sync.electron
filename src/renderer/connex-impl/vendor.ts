@@ -1,7 +1,12 @@
-import { app, BrowserWindow, WebContents } from 'electron'
+import { remote } from 'electron'
 import * as V from '@/common/validator'
 import { ensure } from './ensure'
 import { RLP } from 'thor-devkit'
+import { ipcCall } from '../ipc'
+import { remakeError } from '@/common/custom-error'
+
+const wc = remote.getCurrentWebContents()
+const hostWcId = (wc.hostWebContents || wc).id
 
 const toKind = new RLP.NullableFixedBlobKind(20)
 const valueKind = new RLP.NumericKind(32)
@@ -37,12 +42,11 @@ function normalizeCertMessage(msg: Connex.Vendor.SigningService.CertMessage) {
 }
 
 
-export function create(contents: WebContents): Connex.Vendor {
-    const windowId = BrowserWindow.fromWebContents(contents.hostWebContents || contents).id
+export function create(): Connex.Vendor {
     return {
         sign: kind => {
             if (kind === 'tx') {
-                const opts: VendorInterface.SignTxOptions = {}
+                const opts: SignTxOptions = {}
                 const ss: Connex.Vendor.TxSigningService = {
                     signer(addr) {
                         ensure(V.isAddress(addr), `'signer' expected address type`)
@@ -65,16 +69,19 @@ export function create(contents: WebContents): Connex.Vendor {
                         return this
                     },
                     request(msg) {
-                        return app.vendor[windowId].signTx(
-                            contents.id,
-                            normalizeTxMessage(msg),
-                            opts,
-                            { url: contents.getURL(), title: contents.getTitle() })
+                        const arg: SignTxArg = {
+                            message: normalizeTxMessage(msg),
+                            options: opts,
+                            referer: { url: wc.getURL(), title: wc.getTitle() }
+                        }
+
+                        return ipcCall({ webContentsId: hostWcId, channel: 'vendor' }, 'sign-tx', arg)
+                            .catch(err => Promise.reject(remakeError(err)))
                     }
                 }
                 return ss
             } else if (kind === 'cert') {
-                const opts: VendorInterface.SignCertOptions = {}
+                const opts: SignCertOptions = {}
                 const ss: Connex.Vendor.CertSigningService = {
                     signer(addr: string) {
                         ensure(V.isAddress(addr), `'signer' expected address type`)
@@ -82,12 +89,13 @@ export function create(contents: WebContents): Connex.Vendor {
                         return this
                     },
                     request(msg) {
-                        return app.vendor[windowId].signCert(
-                            contents.id,
-                            normalizeCertMessage(msg),
-                            opts,
-                            { url: contents.getURL(), title: contents.getTitle() }
-                        )
+                        const arg: SignCertArg = {
+                            message: normalizeCertMessage(msg),
+                            options: opts,
+                            referer: { url: wc.getURL(), title: wc.getTitle() }
+                        }
+                        return ipcCall({ webContentsId: hostWcId, channel: 'vendor' }, 'sign-cert', arg)
+                            .catch(err => Promise.reject(remakeError(err)))
                     }
                 }
                 return ss as any

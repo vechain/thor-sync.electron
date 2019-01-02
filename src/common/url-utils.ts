@@ -78,3 +78,22 @@ export function hasPath(href: string) {
     return pathname && pathname !== '/'
 }
 
+export function parseDappUrl(dappUrl: string): { network: string, url: string } | null {
+    try {
+        const parsed = NodeUrl.parse(dappUrl)
+        if (parsed.protocol !== 'vechain-app:') {
+            return null
+        }
+        const network = parsed.host || 'mainnet'
+        let path = parsed.path || ''
+        while (path.startsWith('/')) {
+            path = path.slice(1)
+        }
+        return {
+            network,
+            url: decodeURIComponent(path)
+        }
+    } catch {
+        return null
+    }
+}

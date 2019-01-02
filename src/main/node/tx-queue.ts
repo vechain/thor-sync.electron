@@ -1,3 +1,4 @@
+import { Wire } from './wire'
 
 class Item {
     private static readonly MAX_RETRIES = 5
@@ -10,7 +11,7 @@ class Item {
 
     constructor(
         readonly rawTx: string,
-        readonly wire: Thor.Wire) {
+        readonly wire: Wire) {
     }
 
     public send() {
@@ -59,15 +60,15 @@ class Item {
     }
 }
 
-
-
-class TxQueue {
+export class TxQueue {
     private readonly map = new Map<string, Item>()
 
-    public enqueue(id: string, raw: string, wire: Thor.Wire) {
+    constructor(private readonly wire: Wire) { }
+
+    public enqueue(id: string, raw: string) {
         let item = this.map.get(id)
         if (!item) {
-            item = new Item(raw, wire)
+            item = new Item(raw, this.wire)
             this.map.set(id, item)
         }
         item.send()
@@ -78,5 +79,3 @@ class TxQueue {
         return item ? item.status : undefined
     }
 }
-
-export default TxQueue
