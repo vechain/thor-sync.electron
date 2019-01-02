@@ -1,4 +1,4 @@
-import { app, BrowserWindowConstructorOptions, BrowserWindow } from 'electron'
+import { app, BrowserWindowConstructorOptions, BrowserWindow, BrowserView } from 'electron'
 import env from '@/env'
 import { presets, nameOfNetwork } from '../node-configs'
 import { parseDappUrl } from '@/common/url-utils'
@@ -34,6 +34,7 @@ class WindowManager {
         }
 
         const win = new BrowserWindow(options)
+        this.attachLaunchScreen(win)
 
         const id = win.id
         this.actives.set(id, { win, events: new Set() })
@@ -46,8 +47,14 @@ class WindowManager {
                     app.quit()
                 }
             }
-        }).once('ready-to-show', () => {
-            win.show()
+        })
+        win.webContents.once('did-stop-loading', () => {
+            const bw = win.getBrowserView()
+            if (bw && !bw.isDestroyed()) {
+                bw.setAutoResize({ width: false, height: false })
+                bw.setBounds({ x: 0, y: 0, width: 0, height: 0 })
+                bw.destroy()
+            }
         })
         win.loadURL(env.index)
         return win
@@ -116,6 +123,26 @@ class WindowManager {
         }
         app.EXTENSION.mq.post(`TabAction-${target.id}`, action)
         return true
+    }
+
+    private attachLaunchScreen(win: BrowserWindow) {
+        const view = new BrowserView({
+            webPreferences: {
+                nodeIntegration: false
+            }
+        })
+        win.setBrowserView(view)
+        const contentSize = win.getContentSize()
+        view.setBounds({
+            x: 0, y: 0,
+            width: contentSize[0], height: contentSize[1]
+        })
+        view.setAutoResize({ width: true, height: true })
+        view.webContents.loadURL(env.launchScreen)
+        win.setBrowserView(view)
+        view.webContents.once('dom-ready', () => {
+            win.show()
+        })
     }
 }
 

@@ -17,6 +17,10 @@ const env = {
     xWorker: UrlUtils.filePathToUrl(devMode ?
         Path.resolve(__dirname, '..', 'dist', 'electron', 'x-worker.html') :
         Path.resolve(__dirname, 'x-worker.html')),
+
+    launchScreen: devMode ?
+        'http://localhost:9080/static/launch-screen.html' :
+        UrlUtils.filePathToUrl(Path.resolve(__dirname, 'static', 'launch-screen.html'))
 }
 
 export default env
