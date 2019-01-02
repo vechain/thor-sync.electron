@@ -389,7 +389,7 @@ export default class Nova extends Vue {
         if (initTabAction && initTabAction.action === 'new' && initTabAction.url) {
             this.openTab(initTabAction.url)
         } else {
-            this.openTab('')
+            this.pages.push(new Page(''))
         }
         BUS.$on('open-tab', (data: OpenTab) => {
             this.openTab(data.href, data.mode)

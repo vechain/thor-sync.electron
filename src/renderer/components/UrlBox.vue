@@ -66,6 +66,10 @@ export default class UrlBox extends Vue {
         }
     }
 
+    created(){
+        this.shadowHref = this.href
+    }
+
     onFocused() {
         this.focused = true
         setTimeout(() => this.element.select(), 0)
