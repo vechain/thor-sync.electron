@@ -89,7 +89,10 @@ export default class Vendor extends Vue {
                 }
             })
             CLIENT.txer.send(result.txid, result.rawTx)
-
+            setTimeout(() => {
+                this.snackbarText = 'Transaction signed'
+                this.snackbar = true
+            }, 500)
             return {
                 txid: result.txid,
                 signer: result.signer
@@ -132,6 +135,10 @@ export default class Vendor extends Vue {
                     signature: result.signature
                 }
             })
+            setTimeout(() => {
+                this.snackbarText = 'Certificate signed'
+                this.snackbar = true
+            }, 500)
             return result
         } finally {
             this.dialogOpened = false
