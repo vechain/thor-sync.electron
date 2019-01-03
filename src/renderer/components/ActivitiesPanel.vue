@@ -8,7 +8,7 @@
                     style="height:auto;background-color:rgba(0,0,0,0.05)"
                 >Activities</v-subheader>
                 <v-divider/>
-                <div style="max-height:450px;overflow-y:scroll">
+                <div style="max-height:450px;overflow-y:auto">
                     <v-expansion-panel>
                         <template v-for="row in rows">
                             <TxActivityItem v-if="row.type==='tx'" :key="row.id" :item="row"/>
