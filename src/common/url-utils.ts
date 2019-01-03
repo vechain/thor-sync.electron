@@ -85,15 +85,27 @@ export function parseDappUrl(dappUrl: string): { network: string, url: string } 
             return null
         }
         const network = parsed.host || 'mainnet'
-        let path = parsed.path || ''
-        while (path.startsWith('/')) {
-            path = path.slice(1)
+        let pathname = parsed.pathname || ''
+        while (pathname.startsWith('/')) {
+            pathname = pathname.slice(1)
         }
         return {
             network,
-            url: decodeURIComponent(path)
+            url: decodeURIComponent(pathname)
         }
     } catch {
         return null
+    }
+}
+
+export function stripOptions(url: string) {
+    try {
+        const parsed = NodeUrl.parse(url)
+        parsed.query = ''
+        parsed.search = ''
+        parsed.hash = ''
+        return NodeUrl.format(parsed)
+    } catch (err) {
+        return ''
     }
 }
