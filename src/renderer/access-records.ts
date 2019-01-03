@@ -100,6 +100,11 @@ export async function queryFavicon(href: string) {
         .get({ baseUrl })
 
     if (row) {
+        const optionsStripped = UrlUtils.stripOptions(href)
+        const r = row.pages.find(p => UrlUtils.stripOptions(p.href) === optionsStripped)
+        if (r) {
+            return r.favicon
+        }
         return row.pages[0].favicon
     }
     return ''
