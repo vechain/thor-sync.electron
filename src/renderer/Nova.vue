@@ -135,7 +135,7 @@
                                         :href="activePage.href"
                                         @update:href="navigateTo"
                                         class="url-box"
-                                        placeholder="Enter URL or app name to search"
+                                        placeholder="Enter URL | app | block | tx | account to go"
                                         @focus="urlBoxFocused=true"
                                         @blur="onUrlBoxBlur"
                                         @input="onUrlBoxInput"
