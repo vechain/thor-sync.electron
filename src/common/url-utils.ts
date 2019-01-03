@@ -1,5 +1,5 @@
 import * as NodeUrl from 'url'
-
+import * as V from './validator'
 const knownProtocols = [
     'http:',
     'https:',
@@ -8,9 +8,15 @@ const knownProtocols = [
 ]
 
 export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing') {
+    input = (input || '').trim()
     if (!input) {
         return ''
     }
+    if (V.isAddress(input) || V.isBytes32(input) ||
+        (parseInt(input, 10).toString() === input && V.isUint32(parseInt(input, 10)))) {
+        return `https://vechain.github.io/insight/search?q=${input}`
+    }
+
     let url = NodeUrl.parse(input)
     if (url.protocol && knownProtocols.indexOf(url.protocol) >= 0) {
         if (url.path || url.host) {
