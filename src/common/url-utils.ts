@@ -90,7 +90,7 @@ export function parseDappUrl(dappUrl: string): { network: string, url: string } 
         if (parsed.protocol !== 'vechain-app:') {
             return null
         }
-        const network = parsed.host || 'mainnet'
+        const network = parsed.host || ''
         let pathname = parsed.pathname || ''
         while (pathname.startsWith('/')) {
             pathname = pathname.slice(1)

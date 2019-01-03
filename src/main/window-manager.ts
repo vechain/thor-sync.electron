@@ -95,14 +95,20 @@ class WindowManager {
         if (!parsed) {
             return false
         }
-        const config = presets.find(p => nameOfNetwork(p.genesis.id) === parsed.network) || presets[0]
         let target: BrowserWindow | undefined
-        for (const entry of this.actives) {
-            const win = entry[1].win
-            if (win.webContents.getWebPreferences().nodeConfig!.genesis.id
-                === config.genesis.id) {
-                target = win
-                break
+        const config = presets.find(p => nameOfNetwork(p.genesis.id) === parsed.network)
+        if (config) {
+            for (const entry of this.actives) {
+                const win = entry[1].win
+                if (win.webContents.getWebPreferences().nodeConfig!.genesis.id
+                    === config.genesis.id) {
+                    target = win
+                    break
+                }
+            }
+        } else {
+            if (this.actives.size > 0) {
+                target = this.actives.values().next().value.win
             }
         }
         if (target) {
