@@ -54,7 +54,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     const backend = new Backend()
     const certs = new Map<string, CertificateVerifyProcRequest>()
 
-    let initDappUrl = ''
+    let initDappUrl = (env.devMode ? '' : process.argv[1]) || ''
 
     const certVerifyProc = (req: CertificateVerifyProcRequest, callback: (verificationResult: number) => void) => {
         certs.set(req.hostname, req)
@@ -107,8 +107,13 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         if (winMgr.activeCount === 0) {
             winMgr.create()
         }
-    }).on('second-instance', () => {
-        app.focus()
+    }).on('second-instance', (ev, argv) => {
+        const dappUrl = argv[1]
+        if (dappUrl) {
+            winMgr.openDapp(dappUrl)
+        } else {
+            app.focus()
+        }
     })
 } else {
     app.quit()
