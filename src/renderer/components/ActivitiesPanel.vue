@@ -11,8 +11,18 @@
                 <div style="max-height:450px;overflow-y:auto">
                     <v-expansion-panel>
                         <template v-for="row in rows">
-                            <TxActivityItem v-if="row.type==='tx'" :key="row.id" :item="row"/>
-                            <CertActivityItem v-else :key="row.id" :item="row"/>
+                            <TxActivityItem
+                                v-if="row.type==='tx'"
+                                :key="row.id"
+                                :item="row"
+                                @action="opened=false"
+                            />
+                            <CertActivityItem
+                                v-else
+                                :key="row.id"
+                                :item="row"
+                                @action="opened=false"
+                            />
                         </template>
                     </v-expansion-panel>
                 </div>

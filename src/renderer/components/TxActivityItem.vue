@@ -24,10 +24,6 @@
         </v-layout>
         <v-card class="text-truncate">
             <v-card-text class="pt-1">
-                <div v-show="!!hostname">
-                    <v-icon small class="caption grey--text">mdi-web</v-icon>
-                    <span class="text-truncate caption grey--text">{{hostname}}</span>
-                </div>
                 <v-layout align-center mb-2>
                     <AddressLabel icon style="width:27px;height:18px;border-radius:3px">{{signer}}</AddressLabel>
                     <span class="px-2 subheading">{{walletName}}</span>
@@ -48,32 +44,24 @@
                     <v-spacer/>
                     <Priority :readonly="true" :priority="gasPriceCoef"/>
                 </v-layout>
-
-                <v-layout align-center>
-                    <span class="caption grey--text">TXID</span>
-                    <v-spacer/>
-                    <v-btn primary small color="primary" flat icon class="ma-0" @click="reveal">
-                        <v-icon small style="font-size:120%">mdi-link-variant</v-icon>
-                    </v-btn>
-                    <v-btn
-                        primary
-                        v-clipboard="txid"
-                        small
-                        color="primary"
-                        flat
-                        icon
-                        class="ma-0 mr-1"
-                    >
-                        <v-icon small style="font-size:100%">mdi-content-copy</v-icon>
-                    </v-btn>
-                    <span>{{txid | shortTxId}}</span>
-                </v-layout>
+                <div>
+                    <a class="caption" @click="insight">
+                        <v-icon style="font-size:110%;color:currentColor">search</v-icon>
+                        {{txid | shortTxId}}
+                    </a>
+                </div>
+                <div v-show="!!hostname" class="py-1">
+                    <a class="caption text-truncate" @click="reveal">
+                        <v-icon style="font-size:100%;color:currentColor">mdi-link-variant</v-icon>
+                        {{hostname}}
+                    </a>
+                </div>
             </v-card-text>
         </v-card>
     </v-expansion-panel-content>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
 import { describeClauses } from '@/common/formatter'
 import * as UrlUtils from '@/common/url-utils'
 import TimeAgo from 'timeago.js'
@@ -157,6 +145,9 @@ export default class TxActivityItem extends Vue {
         return this.icon === 'mdi-restart'
     }
 
+    @Emit('action')
+    emitAction() { }
+
     resend() {
         CLIENT.txer.send(this.item.data.id, this.item.data.raw)
         this.resendCount++
@@ -165,13 +156,18 @@ export default class TxActivityItem extends Vue {
     reveal() {
         let href: string
         if (this.item.data.link) {
-            const url = new URL(this.item.data.link)
-            url.searchParams.append('txid', this.txid)
-            href = url.href
+            href = this.item.data.link.replace('{txid}', this.txid)
         } else {
             href = this.item.referer.url
         }
         BUS.$emit('open-tab', { href })
+        this.emitAction()
+    }
+
+    insight() {
+        const href = `https://vechain.github.io/insight/txs/${this.txid}`
+        BUS.$emit('open-tab', { href })
+        this.emitAction()
     }
 }
 </script>
