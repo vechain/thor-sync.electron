@@ -84,20 +84,26 @@ export function hasPath(href: string) {
     return pathname && pathname !== '/'
 }
 
-export function parseDappUrl(dappUrl: string): { network: string, url: string } | null {
+export function parseExternalUrl(url: string): { network: string, url: string } | null {
     try {
-        const parsed = NodeUrl.parse(dappUrl)
-        if (parsed.protocol !== 'vechain-app:') {
+        const parsed = NodeUrl.parse(url)
+        if (parsed.protocol === 'vechain-app:') {
+            const network = parsed.host || ''
+            let pathname = parsed.pathname || ''
+            while (pathname.startsWith('/')) {
+                pathname = pathname.slice(1)
+            }
+            return {
+                network,
+                url: decodeURIComponent(pathname)
+            }
+        } else if (knownProtocols.indexOf(parsed.protocol!) >= 0) {
+            return {
+                network: '',
+                url
+            }
+        } else {
             return null
-        }
-        const network = parsed.host || ''
-        let pathname = parsed.pathname || ''
-        while (pathname.startsWith('/')) {
-            pathname = pathname.slice(1)
-        }
-        return {
-            network,
-            url: decodeURIComponent(pathname)
         }
     } catch {
         return null

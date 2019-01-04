@@ -54,7 +54,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     const backend = new Backend()
     const certs = new Map<string, CertificateVerifyProcRequest>()
 
-    let initDappUrl = (env.devMode ? '' : process.argv[1]) || ''
+    let initExternalUrl = (env.devMode ? '' : process.argv[1]) || ''
 
     const certVerifyProc = (req: CertificateVerifyProcRequest, callback: (verificationResult: number) => void) => {
         certs.set(req.hostname, req)
@@ -85,21 +85,21 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         })
     }).on('ready', () => {
         setupMenu()
-        if (initDappUrl) {
-            if (!winMgr.openDapp(initDappUrl)) {
+        if (initExternalUrl) {
+            if (!winMgr.openUrl(initExternalUrl)) {
                 winMgr.create()
             }
         } else {
             winMgr.create()
         }
         winMgr.initXWorker()
-    }).on('open-url', (ev, dappUrl) => {
+    }).on('open-url', (ev, externalUrl) => {
         // TODO windows/linux
         ev.preventDefault()
         if (app.isReady()) {
-            winMgr.openDapp(dappUrl)
+            winMgr.openUrl(externalUrl)
         } else {
-            initDappUrl = dappUrl
+            initExternalUrl = externalUrl
         }
     }).on('activate', () => {
         // On OS X it's common to re-create a window in the app when the
@@ -108,9 +108,9 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             winMgr.create()
         }
     }).on('second-instance', (ev, argv) => {
-        const dappUrl = argv[1]
-        if (dappUrl) {
-            winMgr.openDapp(dappUrl)
+        const externalUrl = argv[1]
+        if (externalUrl) {
+            winMgr.openUrl(externalUrl)
         } else {
             app.focus()
         }
