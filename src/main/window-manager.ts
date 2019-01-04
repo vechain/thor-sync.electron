@@ -1,7 +1,7 @@
 import { app, BrowserWindowConstructorOptions, BrowserWindow, BrowserView } from 'electron'
 import env from '@/env'
 import { presets, nameOfNetwork } from '../node-configs'
-import { parseDappUrl } from '@/common/url-utils'
+import { parseExternalUrl } from '@/common/url-utils'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
@@ -90,8 +90,8 @@ class WindowManager {
             .forEach(entry => entry.win.webContents.send('db-event', event))
     }
 
-    public openDapp(dappUrl: string) {
-        const parsed = parseDappUrl(dappUrl)
+    public openUrl(externalUrl: string) {
+        const parsed = parseExternalUrl(externalUrl)
         if (!parsed) {
             return false
         }
