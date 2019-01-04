@@ -61,7 +61,9 @@ remote.app.EXTENSION.registerBrowserWindowEvent(win.id, [
     'blur',
     'scroll-touch-begin',
     'scroll-touch-end',
-    'scroll-touch-edge'
+    'scroll-touch-edge',
+    'maximize',
+    'unmaximize'
 ])
 
 
