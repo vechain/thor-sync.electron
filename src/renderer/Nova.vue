@@ -18,43 +18,45 @@
         </svg>
         <DialogProxy :v-show="false"/>
         <div class="toolbar">
-            <transition-group
-                tag="v-layout"
-                class="drag tab-bar"
-                @dblclick.native="onDblClickTitleBar"
-                @mousedown.native.self.prevent
-                name="tab-button"
-            >
-                <!-- here use @mouseup instead of @click, 
-                since the area of window title is not responsive on osx-->
-                <TabButton
-                    v-for="(page,i) in pages"
-                    class="tab-button"
-                    :class="i=== activePageIndex?'drag':'no-drag'"
-                    :key="'tab'+page.id"
-                    :title="page.title"
-                    :favicon="page.isBuiltin? '': page.favicon"
-                    :placeholder="page.isBuiltin? page.favicon : ''"
-                    :active="i===activePageIndex"
-                    @close="closeTab(i)"
-                    @mouseup.native="activePageIndex = i"
-                    @dblclick.native.stop
-                    @mousedown="i=== activePageIndex && $event.preventDefault()"
-                />
-                <v-btn
-                    class="no-drag ma-1 pa-0 ml-2"
-                    flat
-                    small
-                    key="the-new-tab-button"
-                    :ripple="false"
-                    @click="openTab('')"
-                    @dblclick.native.stop
-                    style="width:auto;height:auto;min-width:auto;"
+            <v-layout class="drag">
+                <transition-group
+                    tag="v-layout"
+                    class="tab-bar"
+                    @dblclick.native="onDblClickTitleBar"
+                    @mousedown.native.self.prevent
+                    name="tab-button"
                 >
-                    <v-icon style="font-size:150%">add</v-icon>
-                </v-btn>
-            </transition-group>
-            <div class="elevation-1 no-drag nav-bar">
+                    <!-- here use @mouseup instead of @click, 
+                    since the area of window title is not responsive on osx-->
+                    <TabButton
+                        v-for="(page,i) in pages"
+                        class="tab-button no-drag"
+                        :key="'tab'+page.id"
+                        :title="page.title"
+                        :favicon="page.isBuiltin? '': page.favicon"
+                        :placeholder="page.isBuiltin? page.favicon : ''"
+                        :active="i===activePageIndex"
+                        @close="closeTab(i)"
+                        @mouseup.native="activePageIndex = i"
+                        @dblclick.native.stop
+                        @mousedown="i=== activePageIndex && $event.preventDefault()"
+                    />
+                    <v-btn
+                        class="no-drag ma-1 pa-0 ml-2"
+                        flat
+                        small
+                        key="the-new-tab-button"
+                        :ripple="false"
+                        @click="openTab('')"
+                        @dblclick.native.stop
+                        style="width:auto;height:auto;min-width:auto;"
+                    >
+                        <v-icon style="font-size:150%">add</v-icon>
+                    </v-btn>
+                </transition-group>
+                <WindowControls v-if="!isDarwin" class="no-drag" style="flex:0 0 auto;"/>
+            </v-layout>
+            <div class="nav-bar">
                 <v-layout row align-center px-1>
                     <v-btn
                         class="my-1"
@@ -321,6 +323,7 @@ export default class Nova extends Vue {
     accessHistoryPosition = { x: 0, y: 0, width: 0 }
     showAccessHistory = false
     keyword = ''
+    isDarwin = process.platform === 'darwin'
 
     @State shortcuts !: entities.Shortcut[]
 
@@ -532,17 +535,21 @@ html {
     background-color: #404040;
 }
 
-.darwin.blur .theme--light .toolbar {
+.blur .theme--light .toolbar {
     background-color: #f4f4f4;
 }
-.darwin.blur .theme--dark .toolbar {
+.blur .theme--dark .toolbar {
     background-color: #383838;
 }
 
 .tab-bar {
     overflow: hidden;
-    padding: 8px 8px 0px 80px;
+    padding: 8px 40px 0px 8px;
     transition: padding 0.2s;
+}
+
+.darwin .tab-bar {
+    padding-left: 80px;
 }
 
 .darwin.full-screen .tab-bar {
@@ -618,6 +625,9 @@ html {
     display: none;
 }
 
+.nav-bar {
+    box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.15);
+}
 .theme--light .nav-bar {
     background-color: #ffffff;
 }

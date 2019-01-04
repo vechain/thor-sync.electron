@@ -7,6 +7,7 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
     //    useContentSize: true,
     show: false,
+    frame: false,
     width: 1000,
     minWidth: 800,
     minHeight: 600,

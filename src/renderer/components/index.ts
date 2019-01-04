@@ -39,6 +39,7 @@ import TxActivityItem from './TxActivityItem.vue'
 import CertActivityItem from './CertActivityItem.vue'
 import ActivitiesPanel from './ActivitiesPanel.vue'
 import NewNodeDialog from './NewNodeDialog.vue'
+import WindowControls from './WindowControls.vue'
 
 export {
     AccessHistoryPanel,
@@ -81,5 +82,6 @@ export {
     TxActivityItem,
     CertActivityItem,
     ActivitiesPanel,
-    NewNodeDialog
+    NewNodeDialog,
+    WindowControls,
 }
