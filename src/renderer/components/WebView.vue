@@ -54,6 +54,14 @@ export default class WebView extends Vue {
     get currentUrl() { return NodeUrl.parse(this.currentHref) }
 
     @Prop(Boolean) visible!: boolean
+    @Watch('visible')
+    visibleChanged() {
+        if (this.visible) {
+            this.webview.focus()
+        } else {
+            this.webview.blur()
+        }
+    }
 
     @Prop(String) href!: string
     @Emit('update:href')
