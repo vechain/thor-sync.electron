@@ -7,9 +7,7 @@
         :value="value"
         @input="$emit('input', $event)"
     >
-        <!-- here stop propagate keydown to v-menu, since v-menu will prevent enter key,
-        which will break keypress.enter handling in activator slot-->
-        <div slot="activator" @keydown.stop="onKeyDown">
+        <div slot="activator" @keydown="onKeyDown">
             <slot name="activator"/>
         </div>
         <v-card v-if="items.length>0">
@@ -70,6 +68,13 @@ export default class AccessHistoryPanel extends Vue {
 
     onKeyDown(ev: KeyboardEvent) {
         if (!this.value) {
+            return
+        }
+
+        if (keyCodes.enter === ev.keyCode) {
+            // here stop propagate keydown to v-menu, since v-menu will prevent enter key,
+            // which will break keypress.enter handling in activator slot
+            ev.stopPropagation()
             return
         }
         if ([keyCodes.down, keyCodes.up, keyCodes.tab].indexOf(ev.keyCode) >= 0) {
