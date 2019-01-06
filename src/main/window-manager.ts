@@ -17,7 +17,7 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
 
 class WindowManager {
     private readonly actives = new Map<number, { win: BrowserWindow, events: Set<string> }>()
-    private xWorkerWin?: BrowserWindow
+    private xWorkerView?: BrowserView
 
     public create(
         config?: NodeConfig,
@@ -45,34 +45,14 @@ class WindowManager {
         win.once('closed', () => {
             this.actives.delete(id)
             win.removeAllListeners()
-            if (this.actives.size === 0) {
-                if (process.platform !== 'darwin') {
-                    app.quit()
-                }
-            }
         })
+        this.initXWorker()
         return win
     }
     public get activeCount() {
         return this.actives.size
     }
 
-    public initXWorker() {
-        if (this.xWorkerWin) {
-            return this.xWorkerWin
-        }
-        const win = new BrowserWindow({
-            width: 0,
-            height: 0,
-            show: false,
-            webPreferences: {
-                devTools: false
-            }
-        })
-        win.loadURL(env.xWorker)
-        this.xWorkerWin = win
-        return win
-    }
 
     public registerWindowEvent(id: number, events: string[]) {
         const entry = this.actives.get(id)
@@ -147,6 +127,15 @@ class WindowManager {
             win.setBrowserView(null as any)
             view.destroy()
         })
+    }
+
+    private initXWorker() {
+        if (this.xWorkerView) {
+            return
+        }
+
+        this.xWorkerView = new BrowserView()
+        this.xWorkerView.webContents.loadURL(env.xWorker)
     }
 }
 

@@ -92,7 +92,6 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         } else {
             winMgr.create()
         }
-        winMgr.initXWorker()
     }).on('open-url', (ev, externalUrl) => {
         // TODO windows/linux
         ev.preventDefault()
@@ -113,6 +112,10 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             winMgr.openUrl(externalUrl)
         } else {
             app.focus()
+        }
+    }).on('window-all-closed', () => {
+        if (process.platform !== 'darwin') {
+            app.quit()
         }
     })
 } else {
