@@ -32,3 +32,17 @@ window.addEventListener('load', () => {
 window.addEventListener('wheel', ev => {
     ipcRenderer.sendToHost('wheel', { x: ev.deltaX, y: ev.deltaY })
 }, { passive: true })
+
+// workaround to https://github.com/electron/electron/issues/14258
+window.addEventListener('keydown', ev => {
+    ipcRenderer.sendToHost('keydown', {
+        key: ev.key,
+        keyCode: ev.keyCode,
+        code: ev.code,
+        shiftKey: ev.shiftKey,
+        altKey: ev.altKey,
+        ctrlKey: ev.ctrlKey,
+        metaKey: ev.metaKey,
+        repeat: ev.repeat
+    })
+})

@@ -51,6 +51,18 @@ export default class WebView extends Vue {
     errorName = ''
     errorDesc = ''
 
+    domReady = false
+
+    @Prop(Number) zoomfactor!: number
+    @Emit('update:zoomfactor')
+    updateZoomFactor(val: number) { }
+    @Watch('zoomfactor')
+    zoomFactorChanged() {
+        if (this.domReady) {
+            this.webview.getWebContents().setZoomFactor(this.zoomfactor)
+        }
+    }
+
     get currentUrl() { return NodeUrl.parse(this.currentHref) }
 
     @Prop(Boolean) visible!: boolean
@@ -58,6 +70,11 @@ export default class WebView extends Vue {
     visibleChanged() {
         if (this.visible) {
             this.webview.focus()
+            if (this.domReady) {
+                this.webview.getWebContents().getZoomFactor(f => {
+                    this.updateZoomFactor(f)
+                })
+            }
         } else {
             this.webview.blur()
         }
@@ -139,9 +156,27 @@ export default class WebView extends Vue {
                     this.updateWheel(ipcMsgEv.args[0])
                 } else if (ipcMsgEv.channel === 'bg-color') {
                     this.backgroundColor = ipcMsgEv.args[0]
+                } else if (ipcMsgEv.channel === 'keydown') {
+                    // workaround to https://github.com/electron/electron/issues/14258
+                    const kev = ipcMsgEv.args[0]
+                    const emulatedKeyboardEvent = new KeyboardEvent('keydown', {
+                        bubbles: true,
+                        cancelable: true,
+                        code: kev.code,
+                        key: kev.key,
+                        keyCode: kev.keyCode,
+                        shiftKey: kev.shiftKey,
+                        altKey: kev.altKey,
+                        ctrlKey: kev.ctrlKey,
+                        metaKey: kev.metaKey,
+                        repeat: kev.repeat
+                    } as KeyboardEvent)
+
+                    this.webview.dispatchEvent(emulatedKeyboardEvent)
                 }
                 return
-            } if (ev.type === 'did-start-loading') {
+            } else if (ev.type === 'did-start-loading') {
+                this.domReady = false
                 normalNavigate = false
                 this.backgroundColor = ''
                 this.progress = 0.1
@@ -150,6 +185,9 @@ export default class WebView extends Vue {
                 this.errorDesc = ''
                 fakeProgress()
             } else if (ev.type === 'did-stop-loading') {
+                if (!normalNavigate) {
+                    this.domReady = true
+                }
                 this.title = this.webview.getTitle()
                 if (normalNavigate && this.errorCode === 0) {
                     AccessRecords.record(
@@ -202,6 +240,11 @@ export default class WebView extends Vue {
                     this.errorDesc = obj.desc
                 }
             } else if (ev.type === 'dom-ready') {
+                this.domReady = true
+                this.webview.getWebContents().getZoomFactor(f => {
+                    this.updateZoomFactor(f)
+                })
+
                 // here to fix focus problem(e.g. input can't be foused) when navigation finished
                 if (this.visible) {
                     this.webview.blur()
@@ -269,10 +312,6 @@ const progressEvents = new Set([
     'load-commit',
     'did-finish-load',
     'did-fail-load',
-    'did-frame-finish-load',
-    'dom-ready',
-    'page-title-updated',
-    'page-favicon-updated',
-    'did-change-theme-color',
+    'dom-ready'
 ])
 </script>
