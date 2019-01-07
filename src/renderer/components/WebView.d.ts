@@ -11,7 +11,9 @@ declare namespace WebView {
     type Nav = {
         goBack: number
         goForward: number
-        reloadOrStop: number
+        reload : number
+        reloadIgnoringCache: number
+        stop: number
         reGo: number
     }
 }

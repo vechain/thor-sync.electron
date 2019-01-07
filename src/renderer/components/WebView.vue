@@ -103,14 +103,14 @@ export default class WebView extends Vue {
     goBack() { this.webview.goBack() }
     @Watch('nav.goForward')
     goForward() { this.webview.goForward() }
-    @Watch('nav.reloadOrStop')
-    reloadOrStop() {
-        if (this.webview.isLoading()) {
-            this.progress = 1
-            this.webview.stop()
-        } else {
-            this.webview.reload()
-        }
+    @Watch('nav.reload')
+    reload() { this.webview.reload() }
+    @Watch('nav.reloadIgnoringCache')
+    reloadIgnoreCache() { this.webview.reloadIgnoringCache() }
+    @Watch('nav.stop')
+    stop() {
+        this.progress = 1
+        this.webview.stop()
     }
     @Watch('nav.reGo')
     reGo() {
