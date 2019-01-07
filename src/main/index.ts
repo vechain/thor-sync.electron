@@ -1,4 +1,4 @@
-import { app, CertificateVerifyProcRequest } from 'electron'
+import { app, CertificateVerifyProcRequest, BrowserWindow } from 'electron'
 import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
@@ -18,6 +18,7 @@ declare module 'electron' {
                 config?: NodeConfig,
                 options?: BrowserWindowConstructorOptions
             ): BrowserWindow
+            showAbout(): void
             getCertificate(hostname: string): CertificateVerifyProcRequest | undefined
 
             registerBrowserWindowEvent(windowId: number, event: string[]): void
@@ -69,6 +70,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         mq,
         connect: (contentsId, config) => backend.connect(contentsId, config),
         createWindow: (config, options) => winMgr.create(config, options),
+        showAbout: () => winMgr.showAbout(),
         getCertificate: (hostname) => certs.get(hostname),
         registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) },
         dispatchDbEvent: event => winMgr.dispatchDbEvent(event)
@@ -109,10 +111,11 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     }).on('second-instance', (ev, argv) => {
         const externalUrl = argv[1]
         if (externalUrl) {
-            winMgr.openUrl(externalUrl)
-        } else {
-            app.focus()
+            if (winMgr.openUrl(externalUrl)) {
+                return
+            }
         }
+        winMgr.focus()
     }).on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
             app.quit()

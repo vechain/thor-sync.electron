@@ -5,7 +5,7 @@ import { parseExternalUrl } from '@/common/url-utils'
 
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
-    //    useContentSize: true,
+    useContentSize: true,
     show: false,
     frame: false,
     width: 1000,
@@ -16,8 +16,9 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
 }
 
 class WindowManager {
-    private readonly actives = new Map<number, { win: BrowserWindow, events: Set<string> }>()
+    private readonly actives: Array<{ win: BrowserWindow, events: Set<string> }> = []
     private xWorkerView?: BrowserView
+    private about?: BrowserWindow
 
     public create(
         config?: NodeConfig,
@@ -32,30 +33,57 @@ class WindowManager {
 
         options.webPreferences.nodeConfig = config
         if (!options.title) {
-            options.title = `Sync - ${nameOfNetwork(config.genesis.id)}:${config.name}`
+            options.title = `${nameOfNetwork(config.genesis.id).toUpperCase()}:${config.name}`
         }
 
         const win = new BrowserWindow(options)
         win.loadURL(env.index)
         this.attachLaunchScreen(win)
-
-        const id = win.id
-        this.actives.set(id, { win, events: new Set() })
+        this.actives.push({ win, events: new Set() })
 
         win.once('closed', () => {
-            this.actives.delete(id)
+            const i = this.actives.findIndex(e => e.win === win)
+            if (i >= 0) {
+                this.actives.splice(i, 1)
+            }
             win.removeAllListeners()
         })
         this.initXWorker()
         return win
     }
     public get activeCount() {
-        return this.actives.size
+        return this.actives.length
+    }
+
+    public showAbout() {
+        if (this.about) {
+            return
+        }
+        const win = new BrowserWindow({
+            center: true,
+            useContentSize: true,
+            width: 300,
+            height: 200,
+            resizable: false,
+            frame: false,
+            show: false
+        })
+        win.loadURL(env.about)
+        this.about = win
+        win.once('blur', () => {
+            win.close()
+        })
+        win.once('closed', () => {
+            this.about = undefined
+        })
+        win.webContents.on('dom-ready', () => {
+            win.show()
+        })
     }
 
 
     public registerWindowEvent(id: number, events: string[]) {
-        const entry = this.actives.get(id)
+        const entry = this.actives.find(a => a.win.id === id)
         if (entry) {
             events.forEach(event => {
                 if (!entry.events.has(event)) {
@@ -70,6 +98,19 @@ class WindowManager {
         this.actives
             .forEach(entry => entry.win.webContents.send('db-event', event))
     }
+    public focus() {
+        if (process.platform === 'darwin') {
+            app.focus()
+        } else {
+            if (this.activeCount > 0) {
+                const win = this.actives[0].win
+                if (win.isMinimizable()) {
+                    win.restore()
+                }
+                win.focus()
+            }
+        }
+    }
 
     public openUrl(externalUrl: string) {
         const parsed = parseExternalUrl(externalUrl)
@@ -80,7 +121,7 @@ class WindowManager {
         const config = presets.find(p => nameOfNetwork(p.genesis.id) === parsed.network)
         if (config) {
             for (const entry of this.actives) {
-                const win = entry[1].win
+                const win = entry.win
                 if (win.webContents.getWebPreferences().nodeConfig!.genesis.id
                     === config.genesis.id) {
                     target = win
@@ -88,8 +129,8 @@ class WindowManager {
                 }
             }
         } else {
-            if (this.actives.size > 0) {
-                target = this.actives.values().next().value.win
+            if (this.actives.length > 0) {
+                target = this.actives[0].win
             }
         }
         if (target) {

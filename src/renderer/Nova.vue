@@ -84,7 +84,7 @@
                         :ripple="false"
                         icon
                         :disabled="activePage.isBuiltin"
-                        @click="activePage.reloadOrStop()"
+                        @click="activePage.reloadOrStop($event.shiftKey)"
                     >
                         <v-icon style="font-size:150%">{{activePage.loading ? 'close': 'refresh'}}</v-icon>
                     </v-btn>
@@ -178,6 +178,11 @@
                             <ActivitiesStatus/>
                         </v-btn>
                     </ActivitiesPanel>
+                    <WindowMenu :items="menuItems">
+                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                            <v-icon style="font-size:150%">menu</v-icon>
+                        </v-btn>
+                    </WindowMenu>
                 </v-layout>
                 <div class="sharp-line"/>
             </div>
@@ -209,6 +214,7 @@
                         style="position:absolute;left:0;top:0;right:0;bottom:0;"
                         :href.sync="page.href"
                         :nav="page.nav"
+                        :zoomfactor.sync="page.zoomFactor"
                         @update:status="page.updateStatus($event)"
                         @update:href="page.userInput=''"
                         @update:wheel="onWebviewWheel"
@@ -231,6 +237,7 @@ class Page {
 
     id = Page.nextId++
     userInput = ''
+    zoomFactor = 0
 
     _href = ''
     _savedWebviewHref = ''
@@ -246,7 +253,9 @@ class Page {
     readonly nav: WebView.Nav = {
         goBack: 0,
         goForward: 0,
-        reloadOrStop: 0,
+        reload: 0,
+        reloadIgnoringCache: 0,
+        stop: 0,
         reGo: 0
     }
 
@@ -299,7 +308,32 @@ class Page {
             this.nav.goForward++
         }
     }
-    reloadOrStop() { this.nav.reloadOrStop++; this.userInput = '' }
+    reloadOrStop(shiftKey: boolean) {
+        if (this.progress === 100) {
+            if (shiftKey) {
+                this.nav.reloadIgnoringCache++
+            } else {
+                this.nav.reload++
+            }
+        } else {
+            this.nav.stop++
+        }
+        this.userInput = ''
+    }
+    reload() {
+        this.nav.reload++
+        this.userInput = ''
+    }
+    forceReload() {
+        this.nav.reloadIgnoringCache++
+        this.userInput = ''
+    }
+    zoomIn() {
+        this.zoomFactor = Math.min(3, this.zoomFactor + 0.2)
+    }
+    zoomOut() {
+        this.zoomFactor = Math.max(0.5, this.zoomFactor - 0.1)
+    }
 }
 
 type OpenTab = {
@@ -511,6 +545,77 @@ export default class Nova extends Vue {
     }
     onWebviewWheel(delta: { x: number, y: number }) {
         (this.$refs.swiper as any).handleWheel(delta.x, delta.y)
+    }
+
+    get menuItems(): WindowMenu.Item[] {
+        const isDarwin = process.platform === 'darwin'
+        return [{
+            label: 'New Tab',
+            keys: isDarwin ? ['command+t'] : ['ctrl+t'],
+            action: () => this.openTab(''),
+        }, {
+            label: 'Close Tab',
+            keys: isDarwin ? ['command+w'] : ['ctrl+w'],
+            action: () => this.closeTab(this.activePageIndex)
+        }, {
+            label: 'Reload',
+            keys: isDarwin ? ['command+r'] : ['f5', 'ctrl+r'],
+            disabled: this.activePage.isBuiltin,
+            action: () => { this.activePage.reload() }
+        }, {
+            label: 'Force Reload',
+            keys: isDarwin ? ['command+shift+r'] : ['ctrl+shift+r'],
+            disabled: this.activePage.isBuiltin,
+            invisible: true,
+            action: () => { this.activePage.forceReload() }
+        }, {
+            label: 'Go Back',
+            keys: isDarwin ? ['command+['] : ['ctrl+['],
+            disabled: !this.activePage.canGoBack,
+            action: () => { this.activePage.goBack() }
+        }, {
+            label: 'Go Forward',
+            keys: isDarwin ? ['command+]'] : ['ctrl+]'],
+            disabled: !this.activePage.canGoForward,
+            action: () => { this.activePage.goForward() }
+        }, {
+            label: 'Zoom In',
+            keys: isDarwin ? ['command+='] : ['ctrl+='],
+            disabled: this.activePage.isBuiltin,
+            action: () => { this.activePage.zoomIn() },
+            divider: true
+        }, {
+            label: 'Zoom Out',
+            keys: isDarwin ? ['command+-'] : ['ctrl+-'],
+            disabled: this.activePage.isBuiltin,
+            action: () => { this.activePage.zoomOut() }
+        }, {
+            label: 'Reset Zoom',
+            keys: isDarwin ? ['command+0'] : ['ctrl+0'],
+            disabled: this.activePage.isBuiltin,
+            action: () => { this.activePage.zoomFactor = 1 }
+        }, {
+            label: 'Wallets',
+            keys: [],
+            action: () => { this.openTab('sync://wallets', 'inplace-builtin') },
+            divider: true
+        }, {
+            label: 'Settings',
+            keys: isDarwin ? ['command+,'] : [],
+            action: () => { this.openTab('sync://settings', 'inplace-builtin') }
+        }, {
+            label: 'Toggle Developer Tools',
+            keys: [],
+            action: () => { remote.getCurrentWebContents().toggleDevTools() },
+            divider: true
+        }, {
+            label: 'About',
+            keys: [],
+            action: () => {
+                remote.app.EXTENSION.showAbout()
+            }
+        }]
+
     }
 }
 </script>

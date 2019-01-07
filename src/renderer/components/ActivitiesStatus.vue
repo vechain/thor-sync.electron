@@ -1,7 +1,6 @@
 <template>
     <v-icon
         :color="hasPending ? 'info':''"
-        small
         style="font-size:150%;"
     >{{hasPending ? 'mdi-progress-upload':'mdi-arrow-up-bold-circle-outline'}}</v-icon>
 </template>

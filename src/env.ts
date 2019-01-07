@@ -20,7 +20,12 @@ const env = {
 
     launchScreen: devMode ?
         'http://localhost:9080/static/launch-screen.html' :
-        UrlUtils.filePathToUrl(Path.resolve(__dirname, 'static', 'launch-screen.html'))
+        UrlUtils.filePathToUrl(Path.resolve(__dirname, 'static', 'launch-screen.html')),
+
+    about: devMode ?
+        'http://localhost:9080/static/about.html' :
+        UrlUtils.filePathToUrl(Path.resolve(__dirname, 'static', 'about.html'))
+
 }
 
 export default env
