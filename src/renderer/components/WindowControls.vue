@@ -85,18 +85,18 @@ export default class WindowControls extends Vue {
 }
 
 .close {
-    -webkit-mask: url("../../../static/svgs/chrome-close.svg") no-repeat 50% 50%;
+    -webkit-mask: url("../../../assets/svgs/chrome-close.svg") no-repeat 50% 50%;
 }
 .maximize {
-    -webkit-mask: url("../../../static/svgs/chrome-maximize.svg") no-repeat 50%
+    -webkit-mask: url("../../../assets/svgs/chrome-maximize.svg") no-repeat 50%
         50%;
 }
 .unmaximize {
-    -webkit-mask: url("../../../static/svgs/chrome-restore.svg") no-repeat 50%
+    -webkit-mask: url("../../../assets/svgs/chrome-restore.svg") no-repeat 50%
         50%;
 }
 .minimize {
-    -webkit-mask: url("../../../static/svgs/chrome-minimize.svg") no-repeat 50%
+    -webkit-mask: url("../../../assets/svgs/chrome-minimize.svg") no-repeat 50%
         50%;
 }
 
