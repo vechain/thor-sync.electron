@@ -67,14 +67,13 @@ export default class AccessHistoryPanel extends Vue {
     select(val: AccessHistoryPanel.Item) { }
 
     onKeyDown(ev: KeyboardEvent) {
-        if (!this.value) {
-            return
-        }
-
         if (keyCodes.enter === ev.keyCode) {
             // here stop propagate keydown to v-menu, since v-menu will prevent enter key,
             // which will break keypress.enter handling in activator slot
             ev.stopPropagation()
+            return
+        }
+        if (!this.value) {
             return
         }
         if ([keyCodes.down, keyCodes.up, keyCodes.tab].indexOf(ev.keyCode) >= 0) {
