@@ -63,7 +63,7 @@ class WindowManager {
             center: true,
             useContentSize: true,
             width: 300,
-            height: 200,
+            height: 300,
             resizable: false,
             frame: false,
             show: false

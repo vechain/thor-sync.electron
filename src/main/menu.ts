@@ -1,5 +1,4 @@
-import { app, Menu, MenuItemConstructorOptions, BrowserWindow } from 'electron'
-
+import { app, Menu, MenuItemConstructorOptions } from 'electron'
 
 export function setupMenu() {
     if (process.platform === 'darwin') {

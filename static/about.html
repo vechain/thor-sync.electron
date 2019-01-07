@@ -1,9 +1,55 @@
 <html>
 
+<head>
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            padding: 1rem;
+        }
+
+        pre {
+            font-family: 'Menlo', 'Courier New', Courier, monospace;
+            margin: 0.5rem;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
 <body>
-    <div style="height:100%;display:flex;justify-content: center;align-items:center;">
-        <h1 id="content" >VeChain Sync</h1>
+    <div id="content" style="height:100%;text-align: center;transition:opacity 0.3s;opacity:0">
+        <img src='logo.png' width="64" height="64">
+        <div>
+            <span style="font-size:1.4rem;font-weight:200;">VeChain</span>
+            <span style="font-size:1.5rem;">Sync</span>
+        </div>
+        <pre id="version"></pre>
+        <div id="copyright" style="font-size:0.8rem;margin-bottom:0.5rem"></div>
+        <div style="height:1px;background: #ccc"></div>
+        <div style="text-align: left;padding:0.5rem;">
+            <pre id="otherVersion" style="font-size:0.7rem;color:#555"></pre>
+        </div>
     </div>
 </body>
+<script>
+    const remote = require('electron').remote
+    const connexVersion = require('@vechain/connex/package.json').version
+    document.querySelector('#version').innerText = `v${remote.app.getVersion()}`
+    document.querySelector('#copyright').innerText = `${new Date().getFullYear()} vechain.org`
+    document.querySelector('#otherVersion').innerText =
+        `  Connex:  ${connexVersion}
+Electron:  ${process.versions.electron}
+  Chrome:  ${process.versions.chrome}
+      V8:  ${process.versions.v8}`
+    window.onload = () => {
+        document.querySelector('#content').style.opacity = null
+    }
+
+</script>
 
 </html>
