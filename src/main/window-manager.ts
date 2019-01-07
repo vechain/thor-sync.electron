@@ -29,7 +29,7 @@ class WindowManager {
         )()
         options = { ...defaultWindowOptions, ...(options || {}) }
         options.webPreferences = options.webPreferences || { navigateOnDragDrop: false }
-        // options.webPreferences.partition = 'persist:' + config.genesis.id
+        options.webPreferences.partition = `persist:${env.devMode ? 'dev' : 'pro'}`
 
         options.webPreferences.nodeConfig = config
         if (!options.title) {
