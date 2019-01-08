@@ -6,12 +6,12 @@ import { parseExternalUrl } from '@/common/url-utils'
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
     useContentSize: true,
-    frame: false,
     width: 1000,
     minWidth: 800,
     minHeight: 600,
     backgroundColor: '#f0f0f0',
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+    frame: process.platform === 'darwin'
 }
 
 class WindowManager {
