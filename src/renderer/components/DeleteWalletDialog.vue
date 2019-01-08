@@ -1,11 +1,12 @@
 <template>
     <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
-        <v-card ref="card" flat>
-            <v-card-text>
+        <v-card  ref="card" flat>
+            <v-card-text class="pb-0 pr-0">
                 <div class="subheading font-weight-light">Verify Password</div>
                 <form @submit.prevent="onNext">
                     <v-card flat>
-                        <v-card-text>
+                        <v-card-text class="pr-3">
+                            <div class="pr-3">
                             <v-text-field
                                 :error="error.isError"
                                 :error-messages="error.messages"
@@ -22,6 +23,7 @@
                                     height="2"
                                 ></v-progress-linear>
                             </v-text-field>
+                            </div>
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
