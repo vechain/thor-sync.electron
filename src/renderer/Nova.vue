@@ -1,5 +1,5 @@
 <template>
-    <v-app v-resize="onResize" style="transition: opacity 0.6s; opacity:0">
+    <v-app v-resize="onResize" class="app-fadein">
         <!-- required by tab button -->
         <svg height="0" width="0">
             <defs>
@@ -418,7 +418,9 @@ export default class Nova extends Vue {
             this.activePage.href = newHref
         }
     }
-
+    beforeMount() {
+        (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
+    }
     async created() {
         const mq = remote.app.EXTENSION.mq
         const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
@@ -443,10 +445,6 @@ export default class Nova extends Vue {
                 this.openTab(action.url || '')
             }
         }
-    }
-
-    mounted() {
-        this.$el.style.opacity = null
     }
 
     onDblClickTitleBar() {
@@ -802,5 +800,18 @@ html {
 }
 .serif {
     font-family: "Roboto Slab";
+}
+
+@keyframes app-fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.app-fadein {
+    animation: 0.6s app-fadein;
 }
 </style>
