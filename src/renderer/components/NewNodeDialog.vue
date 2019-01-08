@@ -119,7 +119,7 @@
 
         async onDelete(item: entities.Node) {
             if (this.arg) {
-                await GDB.preferences.delete(this.arg!.id!)
+                await GDB.nodes.delete(this.arg!.id!)
             }
             this.clear()
         }
