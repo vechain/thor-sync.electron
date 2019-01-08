@@ -6,7 +6,6 @@ import { parseExternalUrl } from '@/common/url-utils'
 const defaultWindowOptions: BrowserWindowConstructorOptions = {
     height: 700,
     useContentSize: true,
-    show: false,
     frame: false,
     width: 1000,
     minWidth: 800,
@@ -38,7 +37,7 @@ class WindowManager {
 
         const win = new BrowserWindow(options)
         win.loadURL(env.index)
-        this.attachLaunchScreen(win)
+
         this.actives.push({ win, events: new Set() })
 
         win.once('closed', () => {
@@ -65,19 +64,15 @@ class WindowManager {
             width: 300,
             height: 300,
             resizable: false,
-            frame: false,
-            show: false
+            closable: true,
+            maximizable: false,
+            minimizable: false,
         })
+        win.setMenu(null)
         win.loadURL(env.about)
         this.about = win
-        win.once('blur', () => {
-            win.close()
-        })
         win.once('closed', () => {
             this.about = undefined
-        })
-        win.webContents.on('dom-ready', () => {
-            win.show()
         })
     }
 
@@ -144,30 +139,6 @@ class WindowManager {
         }
         app.EXTENSION.mq.post(`TabAction-${target.id}`, action)
         return true
-    }
-
-    private attachLaunchScreen(win: BrowserWindow) {
-        const view = new BrowserView({
-            webPreferences: {
-                nodeIntegration: false
-            }
-        })
-        win.setBrowserView(view)
-        const contentSize = win.getContentSize()
-        view.setBounds({
-            x: 0, y: 0,
-            width: contentSize[0], height: contentSize[1]
-        })
-        view.setAutoResize({ width: true, height: true })
-        view.webContents.loadURL(env.launchScreen)
-        win.setBrowserView(view)
-        view.webContents.once('dom-ready', () => {
-            win.show()
-        })
-        win.webContents.once('did-stop-loading', () => {
-            win.setBrowserView(null as any)
-            view.destroy()
-        })
     }
 
     private initXWorker() {

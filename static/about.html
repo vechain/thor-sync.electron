@@ -8,21 +8,46 @@
             overflow: hidden;
         }
 
+        /* avoid vertical scroll bar at loading time on windows */
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
         body {
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
             padding: 1rem;
         }
 
         pre {
-            font-family: 'Menlo', 'Courier New', Courier, monospace;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                Menlo,
+                Courier,
+                monospace;
             margin: 0.5rem;
             font-size: 0.8rem;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fadein {
+            animation: 0.3s fadein;
         }
     </style>
 </head>
 
 <body>
-    <div id="content" style="height:100%;text-align: center;transition:opacity 0.3s;opacity:0">
+    <div class="fadein" style="height:100%;text-align: center;">
         <img src='logo.png' width="64" height="64">
         <div>
             <span style="font-size:1.4rem;font-weight:200;">VeChain</span>
@@ -46,9 +71,6 @@
 Electron:  ${process.versions.electron}
   Chrome:  ${process.versions.chrome}
       V8:  ${process.versions.v8}`
-    window.onload = () => {
-        document.querySelector('#content').style.opacity = null
-    }
 
 </script>
 
