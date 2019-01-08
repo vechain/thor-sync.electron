@@ -3,52 +3,52 @@ import { Address, Num } from '@/common/formatter'
 import { cry } from 'thor-devkit'
 
 function isRegExpArray(v: any): v is RegExpMatchArray {
-    return v !== null && v instanceof Array
+  return v !== null && v instanceof Array
 }
 
 function removeZero(str: string) {
-    const temp = str
-        .split('')
-        .reverse()
-        .join('')
-        .match(/[1-9]/)
-    if (isRegExpArray(temp)) {
-        return str.slice(0, str.length - (temp.index || 0))
-    } else {
-        return str
-    }
+  const temp = str
+    .split('')
+    .reverse()
+    .join('')
+    .match(/[1-9]/)
+  if (isRegExpArray(temp)) {
+    return str.slice(0, str.length - (temp.index || 0))
+  } else {
+    return str
+  }
 }
 
 Vue.filter('balance', (value: string, decimal: number) => {
-    return Num.formatBalance(value, decimal)
+  return Num.formatBalance(value, decimal)
 })
 
 Vue.filter('shortAddr', (addr: string) => {
-    return Address.abbrev(Address.toChecksum(addr)!)
+  return Address.abbrev(Address.toChecksum(addr)!)
 })
 
 Vue.filter('shortTxId', (txId: string) => {
-    return txId.slice(0, 8) + '…' + txId.slice(txId.length - 9)
+  return txId.slice(0, 8) + '…' + txId.slice(txId.length - 9)
 })
-Vue.filter('date', (val: number) => {
-    const date = new Date(val * 10e2)
-    return date.toLocaleString('en-GB', {
-        // formatMatcher: 'year, month, day',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    })
-})
+// Vue.filter('date', (val: number) => {
+//   const date = new Date(val * 10e2)
+//   return date.toLocaleString('', {
+//     // formatMatcher: 'year, month, day',
+//     year: 'numeric',
+//     month: '2-digit',
+//     day: '2-digit'
+//   })
+// })
 
 Vue.filter('dateTime', (val: number) => {
-    const date = new Date(val * 10e2)
-    return date.toLocaleString('en-GB')
+  const date = new Date(val * 10e2)
+  return date.toLocaleString()
 })
 
 Vue.filter('checksum', (val: string) => {
-    try {
-        return cry.toChecksumAddress(val)
-    } catch (err) {
-        return err.toString()
-    }
+  try {
+    return cry.toChecksumAddress(val)
+  } catch (err) {
+    return err.toString()
+  }
 })
