@@ -14,15 +14,18 @@
                     <v-list-tile-sub-title class="mt-2">
                         <v-layout>
                             <v-flex xs6>
-                                <span
-                                    class="body-2 grey--text text--darken-4 font-weight-regular"
-                                >TX#: {{item.meta.txID | shortTxId}}</span>
+                                <span class="body-2 grey--text text--darken-4 font-weight-regular">
+                                    TX#:
+                                    <a
+                                        @click="jumpToInsight(item.meta.txID)"
+                                        href="javascript:;"
+                                    >{{item.meta.txID | shortTxId}}</a>
+                                </span>
                                 <br>
                                 <span class="body-2 grey--text text--darken-4 font-weight-light">
                                     <span
                                         class="font-weight-light font-italic"
-                                    >{{ isIn ? 'Recieved from: ' : 'Transferred to: '}}
-                                    </span>
+                                    >{{ isIn ? 'Recieved from: ' : 'Transferred to: '}}</span>
                                     {{ (isIn ? item.sender : item.recipient) | shortAddr}}
                                 </span>
                             </v-flex>
@@ -50,5 +53,12 @@
 
         @Prop(Boolean)
         isIn!: boolean
+
+        jumpToInsight(txID: string) {
+            BUS.$emit('open-tab', {
+                href: `https://vechain.github.io/insight/txs/${txID}`,
+                mode: 'append-active'
+            })
+        }
     }
 </script>
