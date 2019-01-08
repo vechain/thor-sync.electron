@@ -38,7 +38,7 @@
                                                 hide-details
                                                 v-focus
                                                 v-if="isEdit"
-                                                max="20"
+                                                maxlength="20"
                                                 @keyup.enter="editSave"
                                                 @blur="editSave"
                                                 v-model="walletName"

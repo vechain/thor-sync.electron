@@ -4,8 +4,9 @@
             v-focus
             validate-on-blur
             label="Wallet name"
+            :counter="20"
             v-model="name"
-            :rules="[nameRule]"
+            :rules="[nameRule, nameLength]"
         ></v-text-field>
         <v-text-field
             validate-on-blur
@@ -67,6 +68,11 @@
         nameRule() {
             return !!this.name && !!this.name.trim() || 'Requires non-empty name'
         }
+
+        nameLength() {
+            return (!!this.name && !!this.name.trim() && this.name.trim().length <= 20) || `Wallet's name is longer than 20 characters`
+        }
+
         passwordRule() {
             return (
                 (this.password && this.password.length >= 6) ||
