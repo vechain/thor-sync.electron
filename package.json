@@ -63,7 +63,7 @@
     "@vechain/connex": "^0.6.0",
     "electron-context-menu": "^0.10.0",
     "electron-unhandled": "^2.1.0",
-    "thor-devkit": "^0.7.0",
+    "thor-devkit": "~0.8.1",
     "ws": "^6.0.0"
   },
   "devDependencies": {
