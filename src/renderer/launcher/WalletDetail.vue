@@ -257,10 +257,10 @@
 
         created() {
             const address = this.$route.params.address
-            this.walletName = this.wallet!.name
             if (!this.wallet) {
                 this.$router.back()
             }
+            this.walletName = this.wallet!.name
             this.createFilter(address)
         }
 
