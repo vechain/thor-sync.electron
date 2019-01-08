@@ -1,10 +1,5 @@
 <template>
-    <div style="position: absolute;left:0;top:0;right:0">
-        <v-snackbar v-model="snackbar" :timeout="6000" top right absolute>
-            {{snackbarText}}
-            <v-btn flat @click="snackbar = false">Close</v-btn>
-        </v-snackbar>
-    </div>
+    <div style="position: absolute;left:0;top:0;right:0"></div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -16,8 +11,6 @@ import { ipcServe } from '../ipc'
 
 @Component
 export default class Vendor extends Vue {
-    snackbar = false
-    snackbarText = ''
     dialogOpened = false
     @State wallets!: entities.Wallet[]
 
@@ -89,10 +82,12 @@ export default class Vendor extends Vue {
                 }
             })
             CLIENT.txer.send(result.txid, result.rawTx)
-            setTimeout(() => {
-                this.snackbarText = 'Transaction signed'
-                this.snackbar = true
-            }, 500)
+            new Notification('Tx Signed', {
+                body: result.txid
+            }).onclick = () => {
+                BUS.$emit('open-tab', { href: `https://vechain.github.io/insight/txs/${result.txid}` })
+            }
+
             return {
                 txid: result.txid,
                 signer: result.signer
@@ -135,10 +130,11 @@ export default class Vendor extends Vue {
                     signature: result.signature
                 }
             })
-            setTimeout(() => {
-                this.snackbarText = 'Certificate signed'
-                this.snackbar = true
-            }, 500)
+
+
+            new Notification('Cert Signed', {
+                body: `${result.annex.domain}: ${arg.message.purpose}`
+            })
             return result
         } finally {
             this.dialogOpened = false
