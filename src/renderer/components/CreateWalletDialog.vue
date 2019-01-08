@@ -21,6 +21,7 @@
                                         validate-on-blur
                                         label="Wallet name"
                                         v-model="name"
+                                        :counter="20"
                                         :rules="nameRules"
                                     ></v-text-field>
                                     <v-text-field
@@ -120,7 +121,8 @@ export default class CreateWalletDialog extends Mixins(class extends DialogHelpe
         return this.step > 3 && !this.wallet && !this.error
     }
     readonly nameRules = [
-        (val: string) => (!!val && !!val.trim()) || 'Requires non-empty name'
+        (val: string) => (!!val && !!val.trim()) || 'Requires non-empty name',
+        (val: string) => (!!val && !!val.trim() && val.trim().length <= 20) || `Wallet's name is longer than 20 characters`
     ]
     readonly passwordRules = [
         (val: string) => (!!val && val.length >= 6) || 'Requires at least 6 characters'
