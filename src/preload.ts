@@ -15,7 +15,7 @@ const getConnex = (() => {
                 remote.getCurrentWebContents().id,
                 nodeConfig!
             )
-            connex = createConnex(client)
+            connex = createConnex(client, 10)
         }
         return connex
     }

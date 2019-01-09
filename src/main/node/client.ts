@@ -1,8 +1,8 @@
-import { Wire } from './wire'
 import { Node } from './node'
 import { cry } from 'thor-devkit'
 
-export function createClient(node: Node, wire: Wire): Client {
+export function createClient(node: Node): Client {
+    const net = node.net
     return {
         get genesis() { return node.genesis },
         get head() { return node.head },
@@ -17,7 +17,7 @@ export function createClient(node: Node, wire: Wire): Client {
                 gasPrice?: string
             },
             rev: string) {
-            return wire.post<Connex.Thor.VMOutput[]>(
+            return net.post<Connex.Thor.VMOutput[]>(
                 `accounts/*`, {
                     clauses,
                     ...options
@@ -26,19 +26,19 @@ export function createClient(node: Node, wire: Wire): Client {
         },
         getAccount(addr: string, rev: string) {
             return node.cache.getAccount(addr, rev, () => {
-                return wire.get(
+                return net.get(
                     `accounts/${encodeURIComponent(addr)}`,
                     { revision: rev }
                 )
             })
         },
         getCode(addr: string, rev: string) {
-            return wire.get<Connex.Thor.Code>(
+            return net.get<Connex.Thor.Code>(
                 `accounts/${encodeURIComponent(addr)}/code`,
                 { revision: rev })
         },
         getStorage(addr: string, key: string, rev: string) {
-            return wire.get<Connex.Thor.Storage>(
+            return net.get<Connex.Thor.Storage>(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision: rev })
         },
@@ -51,7 +51,7 @@ export function createClient(node: Node, wire: Wire): Client {
                 gasPrice?: string
             },
             rev: string) {
-            return wire.post<Connex.Thor.VMOutput>(
+            return net.post<Connex.Thor.VMOutput>(
                 clause.to ? `accounts/${encodeURIComponent(clause.to)}` :
                     'accounts',
                 {
@@ -64,20 +64,20 @@ export function createClient(node: Node, wire: Wire): Client {
 
         getBlock(rev: string | number) {
             return node.cache.getBlock(rev, () =>
-                wire.get<Connex.Thor.Block | null>(
+                net.get<Connex.Thor.Block | null>(
                     `blocks/${encodeURIComponent(rev + '')}`)
             )
         },
 
         getTx(id: string) {
             return node.cache.getTx(id,
-                () => wire.get<Connex.Thor.Transaction | null>(
+                () => net.get<Connex.Thor.Transaction | null>(
                     `transactions/${encodeURIComponent(id)}`))
         },
 
         getReceipt(id: string) {
             return node.cache.getReceipt(id,
-                () => wire.get<Connex.Thor.Receipt | null>(
+                () => net.get<Connex.Thor.Receipt | null>(
                     `transactions/${encodeURIComponent(id)}/receipt`))
         },
 
@@ -113,7 +113,10 @@ export function createClient(node: Node, wire: Wire): Client {
             return node.cache.filter(
                 key,
                 bloomKeys,
-                () => wire.post<Connex.Thor.Filter.Result<T>>(`logs/${kind}`, body))
+                () => net.post<Connex.Thor.Filter.Result<T>>(`logs/${kind}`, body))
+        },
+        beat: b => {
+            return node.beat(b)
         },
         txer: {
             send: (id, raw) => {

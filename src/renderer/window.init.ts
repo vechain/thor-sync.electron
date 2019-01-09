@@ -4,6 +4,7 @@ import { GlobalDatabase, BoundedDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-tracker'
 import { create as createConnex } from './connex-impl'
+import * as Beater from './beater'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
@@ -29,7 +30,7 @@ const client = remote.app.EXTENSION.connect(
 )
 
 Object.defineProperty(window, 'connex', {
-    value: createConnex(client),
+    value: createConnex(client, 100),
     enumerable: true
 })
 Object.defineProperty(window, 'CLIENT', {
@@ -105,3 +106,4 @@ ipcRenderer.on('browser-window-event', (_: any, event: string) => {
 
 trackTxLoop()
 
+Beater.listen(b => client.beat(b))

@@ -1,4 +1,4 @@
-import { Wire } from './wire'
+import { Net } from './net'
 
 class Item {
     private static readonly MAX_RETRIES = 5
@@ -11,7 +11,7 @@ class Item {
 
     constructor(
         readonly rawTx: string,
-        readonly wire: Wire) {
+        readonly net: Net) {
     }
 
     public send() {
@@ -42,7 +42,7 @@ class Item {
     private async _send() {
         try {
             this.requesting = true
-            const { id } = await this.wire.post<{ id: string }>('transactions', { raw: this.rawTx })
+            const { id } = await this.net.post<{ id: string }>('transactions', { raw: this.rawTx })
             // tslint:disable-next-line:no-console
             console.log('tx sent: ' + id)
             this.sent = true
@@ -63,12 +63,12 @@ class Item {
 export class TxQueue {
     private readonly map = new Map<string, Item>()
 
-    constructor(private readonly wire: Wire) { }
+    constructor(private readonly net: Net) { }
 
     public enqueue(id: string, raw: string) {
         let item = this.map.get(id)
         if (!item) {
-            item = new Item(raw, this.wire)
+            item = new Item(raw, this.net)
             this.map.set(id, item)
         }
         item.send()

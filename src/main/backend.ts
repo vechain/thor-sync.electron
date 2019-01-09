@@ -1,5 +1,5 @@
 import { webContents } from 'electron'
-import { Node, Agent, createClient, Wire } from './node'
+import { Node, createClient } from './node'
 import { manageObject } from './manage-object'
 
 export class Backend {
@@ -15,7 +15,6 @@ export class Backend {
             existConn.disconnect()
         }
 
-        const wireAgent = new Agent({ maxSocket: 5 })
         const node = this.acquireNode(config)
 
         const signal = { disconnected: false }
@@ -28,7 +27,6 @@ export class Backend {
             contents.removeListener('destroyed', disconnect)
             this.connections.delete(contentsId)
 
-            wireAgent.destroy()
             // tslint:disable-next-line:no-console
             console.log('connex disconnected')
             this.releaseNode(config)
@@ -49,7 +47,7 @@ export class Backend {
         // tslint:disable-next-line:no-console
         console.log('connex connected')
 
-        return manageObject(createClient(node, new Wire(config, wireAgent)), signal)
+        return manageObject(createClient(node), signal)
     }
 
     private nodeKey(config: NodeConfig) {
