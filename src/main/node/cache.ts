@@ -19,6 +19,7 @@ type Slot = {
     receipts: Map<string, Connex.Thor.Receipt>
     filters: Map<string, { result: any, bloomKeys: string[] }>
 }
+const WINDOW_LEN = 12
 
 export class Cache {
     private readonly blockCache = new LRU<string | number, Connex.Thor.Block>(256)
@@ -51,7 +52,7 @@ export class Cache {
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)
 
-        while (this.window.length > 60) {
+        while (this.window.length > WINDOW_LEN) {
             const slot = this.window.shift()!
             this.slots.delete(slot.id)
 
@@ -85,7 +86,7 @@ export class Cache {
                 slot.block = block
             }
             if (this.window.length > 0 &&
-                block.number < this.window[0].number) {
+                block.number < this.window[0].number + this.window.length - WINDOW_LEN) {
                 this.blockCache.set(block.id, block)
                 this.blockCache.set(block.number, block)
             }
@@ -152,7 +153,7 @@ export class Cache {
                     slot.txs.set(txid, tx)
                 }
                 if (this.window.length > 0 &&
-                    tx.meta.blockNumber < this.window[0].number) {
+                    tx.meta.blockNumber < this.window[0].number + this.window.length - WINDOW_LEN) {
                     this.txCache.set(tx.id, tx)
                 }
             }
@@ -184,7 +185,7 @@ export class Cache {
                     slot.receipts.set(txid, receipt)
                 }
                 if (this.window.length > 0 &&
-                    receipt.meta.blockNumber < this.window[0].number) {
+                    receipt.meta.blockNumber < this.window[0].number + this.window.length - WINDOW_LEN) {
                     this.receiptCache.set(txid, receipt)
                 }
             }
