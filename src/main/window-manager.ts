@@ -46,6 +46,11 @@ class WindowManager {
                 this.actives.splice(i, 1)
             }
             win.removeAllListeners()
+            if (this.activeCount === 0) {
+                if (this.about) {
+                    this.about.close()
+                }
+            }
         })
         this.initXWorker()
         return win
