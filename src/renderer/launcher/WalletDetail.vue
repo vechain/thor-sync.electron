@@ -40,7 +40,7 @@
                                                 v-if="isEdit"
                                                 maxlength="20"
                                                 @keyup.enter="editSave"
-                                                @blur="editSave"
+                                                @blur="rollback"
                                                 v-model="walletName"
                                             >
                                             <span
@@ -227,6 +227,11 @@
                 return
             }
             this.getList()
+        }
+
+        rollback() {
+            this.walletName = this.wallet!.name
+            this.isEdit = false
         }
 
         editSave() {
