@@ -1,52 +1,63 @@
-import Axios from 'axios'
 import * as NodeUrl from 'url'
 import { EventEmitter } from 'events'
-import { sleep } from '@/common/sleep'
 import { Cache } from './cache'
 import { Bloom } from 'thor-devkit'
-import { Wire } from './wire'
-import { Agent } from './agent'
+import { Net, NetError } from './net'
 import * as compareVersions from 'compare-versions'
 import { TxQueue } from './tx-queue'
 
 export class Node {
     public static async discoverNode(url: string) {
-        const resp = await Axios.get<Connex.Thor.Block>(NodeUrl.resolve(url, '/blocks/0'), {
-            validateStatus: status => status >= 200 && status < 300,
+        const resp = await Net.request({
+            method: 'GET',
+            url: NodeUrl.resolve(url, '/blocks/0')
         })
-        const ver = resp.headers['x-thorest-ver'] || '0.0.0'
+        if (resp.statusCode < 200 || resp.statusCode >= 300) {
+            throw new NetError(`${resp.statusCode} ${resp.statusMessage}`)
+        }
+
+        const ver = resp.headers['x-thorest-ver'][0] || '0.0.0'
         if (compareVersions(ver, '1.1.0') < 0) {
             throw new Error('node version too low')
         }
 
-        if (!resp.data) {
-            throw new Error('invalid response: expected object')
+        try {
+            const genesis = JSON.parse(resp.body.toString('utf8'))
+            // TODO full validation
+            if (genesis && !/^0x[0-9a-f]{64}$/i.test(genesis.id)) {
+                throw new Error('invalid response: id expected bytes32')
+            }
+            return genesis
+        } catch {
+            throw new NetError('unable to parse response data')
         }
-        if (!/^0x[0-9a-f]{64}$/i.test(resp.data.id)) {
-            throw new Error('invalid response: id expected bytes32')
-        }
-        return resp.data
     }
 
 
     public readonly cache = new Cache()
-    public headBlock: Connex.Thor.Block | BeatResponse
+    public headBlock: Connex.Thor.Block | Beat
     public readonly txQueue: TxQueue
+    public readonly net: Net
 
     private readonly emitter = new EventEmitter()
-    private readonly wire: Wire
+
+    private timer: any
     private stop = false
 
 
     constructor(readonly config: NodeConfig) {
         this.headBlock = config.genesis
         this.emitter.setMaxListeners(0)
-        this.wire = new Wire(config, new Agent({ maxSocket: 10 }))
-        this.txQueue = new TxQueue(this.wire)
-        this.loop()
+        this.net = new Net(config)
+        this.txQueue = new TxQueue(this.net)
+        this.scheduleHttp(0)
     }
 
     public close() {
+        if (this.timer) {
+            clearTimeout(this.timer)
+            this.timer = null
+        }
         this.stop = true
     }
 
@@ -79,66 +90,49 @@ export class Node {
         return p < 0 ? NaN : p
     }
 
-    private async loop() {
-        let ws: ReturnType<Wire['ws']> | undefined
-        while (!this.stop) {
-            if (ws) {
-                try {
-                    const beat = JSON.parse((await ws.read()).toString()) as BeatResponse
-                    if (beat.obsolete) {
-                        continue
-                    }
+    public beat(b: Beat) {
+        if (b.obsolete) {
+            return
+        }
+        if (b.id === this.headBlock.id) {
+            return
+        }
+        this.headBlock = b
 
-                    if (beat.id !== this.headBlock.id) {
-                        this.headBlock = beat
+        this.cache.advance(this.head, new Bloom(b.k, Buffer.from(b.bloom.slice(2), 'hex')))
+        this.emitter.emit('next')
+        this.scheduleHttp(60 * 1000)
+    }
 
-                        this.cache.advance(this.head, new Bloom(beat.k, Buffer.from(beat.bloom.slice(2), 'hex')))
+    private scheduleHttp(afterMs: number) {
+        if (this.timer) {
+            clearTimeout(this.timer)
+            this.timer = null
+        }
+
+        if (this.stop) {
+            return
+        }
+
+        this.timer = setTimeout(async () => {
+            try {
+                const best = await this.net.get<Connex.Thor.Block>('blocks/best')
+                if (flag === this.timer) {
+                    if (best.id !== this.headBlock.id) {
+                        this.headBlock = best
+                        this.cache.advance(this.head, undefined, best)
+
                         this.emitter.emit('next')
                     }
-                } catch (err) {
-                    // tslint:disable-next-line:no-console
-                    console.warn('subscribe beat:', err)
-                    ws.close()
-                    ws = undefined
-                    if (!this.stop) {
-                        await sleep(10 * 1000)
-                    }
+                    this.scheduleHttp(5 * 1000)
                 }
-            } else {
-                const now = Date.now()
-                if (now - this.headBlock.timestamp * 1000 < 30 * 1000) {
-                    ws = this.wire.ws('subscriptions/beat')
-                } else {
-                    try {
-                        const best = (await this.wire.get<Connex.Thor.Block | null>('blocks/best'))!
-                        if (best.id !== this.headBlock.id) {
-                            this.headBlock = best
-                            this.cache.advance(this.head, undefined, best)
-
-                            this.emitter.emit('next')
-                            continue
-                        }
-                        if (!this.stop) {
-                            await sleep(5 * 1000)
-                        }
-                    } catch (err) {
-                        if (!this.stop) {
-                            await sleep(20 * 1000)
-                        }
-                    }
+            } catch (err) {
+                if (flag === this.timer) {
+                    this.scheduleHttp(20 * 1000)
                 }
             }
-        }
+
+        }, afterMs)
+        const flag = this.timer
     }
-}
-
-type BeatResponse = {
-    number: number
-    id: string
-    parentID: string
-    timestamp: number
-
-    bloom: string
-    k: number
-    obsolete: boolean
 }

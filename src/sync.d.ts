@@ -95,6 +95,16 @@ type DbEvent = {
     table: string
     changes: Array<'creating' | 'updating' | 'deleting'>
 }
+type Beat = {
+    number: number
+    id: string
+    parentID: string
+    timestamp: number
+
+    bloom: string
+    k: number
+    obsolete: boolean
+}
 
 interface Client {
     readonly genesis: Connex.Thor.Block
@@ -130,6 +140,7 @@ interface Client {
         options: { offset: number, limit: number }
     }): Promise<Connex.Thor.Filter.Result<T>>
 
+    beat(b: Beat): void
     txer: {
         send(id: string, raw: string): void
         status(id: string): 'sending' | 'sent' | 'error' | undefined
