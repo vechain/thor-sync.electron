@@ -47,7 +47,7 @@
                                                 style="max-width: 300px"
                                                 class="d-block text-truncate"
                                                 v-if="!isEdit"
-                                            >{{wallet.name}}</span>
+                                            >{{walletName}}</span>
                                             <v-icon
                                                 class="ml-1"
                                                 @click="isEdit = true"
@@ -240,8 +240,6 @@
                     .where('id')
                     .equals(this.wallet!.id!)
                     .modify({ name: this.walletName })
-            } else {
-                this.walletName = this.wallet!.name
             }
 
             this.isEdit = false
@@ -257,6 +255,8 @@
         walletChanged() {
             if (!this.wallet) {
                 this.$router.back()
+            } else {
+                this.walletName = this.wallet.name
             }
         }
 
