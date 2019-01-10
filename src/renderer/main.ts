@@ -41,7 +41,7 @@ if (isFirstTimeRun) {
             href: 'https://gitter.im/vechain/thor'
         }, {
             title: 'Insight',
-            href: 'https://vechain.github.io/insight/'
+            href: 'https://vechain.github.io/insight/#/'
         }])
     }, true)
 
