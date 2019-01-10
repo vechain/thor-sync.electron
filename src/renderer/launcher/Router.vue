@@ -10,7 +10,7 @@
             />
         </transition>
         <v-layout style="position:absolute;right:0;top:0;">
-            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+            <v-tooltip open-delay="600" bottom nudge-bottom="5" transition="fade-transition">
                 <router-link tag="span" to="/" slot="activator">
                     <v-btn icon>
                         <v-icon small>mdi-apps</v-icon>
@@ -18,7 +18,7 @@
                 </router-link>
                 <span>Home</span>
             </v-tooltip>
-            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+            <v-tooltip open-delay="600" bottom nudge-bottom="5" transition="fade-transition">
                 <router-link tag="span" to="/wallets" slot="activator">
                     <v-btn icon class="ml-0">
                         <v-icon small>mdi-cards</v-icon>
@@ -26,7 +26,7 @@
                 </router-link>
                 <span>Wallets</span>
             </v-tooltip>
-            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+            <v-tooltip open-delay="600" bottom nudge-bottom="5" transition="fade-transition">
                 <router-link tag="span" to="/settings" slot="activator">
                     <v-btn icon class="ml-0">
                         <v-icon small>mdi-settings</v-icon>

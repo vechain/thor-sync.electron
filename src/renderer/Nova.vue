@@ -94,20 +94,17 @@
                         :class="{'nav-box-focused': urlBoxFocused}"
                     >
                         <v-layout align-center style="position:relative;" fill-height>
-                            <v-tooltip open-delay="1000">
-                                <NodeStatusPanel :nudge-top="2" slot="activator">
-                                    <v-btn
-                                        :ripple="false"
-                                        flat
-                                        slot="activator"
-                                        class="ma-0 px-1"
-                                        style="min-width:auto;"
-                                    >
-                                        <NodeStatus/>
-                                    </v-btn>
-                                </NodeStatusPanel>
-                                <span>VeChain Network</span>
-                            </v-tooltip>
+                            <NodeStatusPanel :nudge-top="2" slot="activator">
+                                <v-btn
+                                    :ripple="false"
+                                    flat
+                                    slot="activator"
+                                    class="ma-0 px-1"
+                                    style="min-width:auto;"
+                                >
+                                    <NodeStatus/>
+                                </v-btn>
+                            </NodeStatusPanel>
                             <v-layout
                                 ref="urlBoxWithIcon"
                                 class="url-box-with-icon"
@@ -147,22 +144,26 @@
                                     />
                                 </AccessHistoryPanel>
                             </v-layout>
-                            <ExpansionBtn
-                                v-show="showAddShortcutBtn"
-                                small
-                                flat
-                                style="min-width:auto;text-transform:none"
-                                :ripple="false"
-                                class="ma-0 caption"
-                                @action="addOrRemoveShortcut"
-                            >
-                                <v-icon
-                                    style="font-size:150%"
-                                >{{shortcutAdded ? 'mdi-bookmark-plus' : 'mdi-bookmark-plus-outline'}}</v-icon>
-                                <template
-                                    slot="expansion"
-                                >{{shortcutAdded?'Remove shortcut': 'Add shortcut'}}</template>
-                            </ExpansionBtn>
+                            <v-tooltip open-delay="600">
+                                <ExpansionBtn
+                                    slot="activator"
+                                    v-show="showAddShortcutBtn"
+                                    small
+                                    flat
+                                    style="min-width:auto;text-transform:none"
+                                    :ripple="false"
+                                    class="ma-0 caption"
+                                    @action="addOrRemoveShortcut"
+                                >
+                                    <v-icon
+                                        style="font-size:150%"
+                                    >{{shortcutAdded ? 'mdi-bookmark-plus' : 'mdi-bookmark-plus-outline'}}</v-icon>
+                                    <template
+                                        slot="expansion"
+                                    >{{shortcutAdded?'Remove shortcut': 'Add shortcut'}}</template>
+                                </ExpansionBtn>
+                                <span>{{shortcutAdded? 'Remove shortcut':'Add shortcut'}}</span>
+                            </v-tooltip>
                             <v-progress-linear
                                 v-for="(page,i) in pages"
                                 :key="'progress'+page.id"
@@ -176,15 +177,13 @@
                             />
                         </v-layout>
                     </div>
-                    <v-tooltip open-delay="1000">
-                        <ActivitiesPanel slot="activator">
-                            <v-btn class="my-1" icon small slot="activator" :ripple="false">
-                                <ActivitiesStatus/>
-                            </v-btn>
-                        </ActivitiesPanel>
-                        <span>Activities</span>
-                    </v-tooltip>
-                    <v-tooltip open-delay="1000">
+
+                    <ActivitiesPanel>
+                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                            <ActivitiesStatus/>
+                        </v-btn>
+                    </ActivitiesPanel>
+                    <v-tooltip open-delay="600">
                         <WindowMenu :items="menuItems" slot="activator">
                             <v-btn class="my-1" icon small slot="activator" :ripple="false">
                                 <v-icon style="font-size:150%">menu</v-icon>
