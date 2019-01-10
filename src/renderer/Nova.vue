@@ -833,4 +833,35 @@ html {
 .app-fadein {
     animation: 0.6s app-fadein;
 }
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+    user-select: none;
+    cursor: default;
+}
+.v-expansion-panel__header {
+    cursor: default;
+}
+
+.v-menu__activator {
+    cursor: default;
+}
+.v-menu__activator * {
+    cursor: unset;
+}
+.v-dialog__activator {
+    cursor: default;
+}
+.v-dialog__activator * {
+    cursor: unset;
+}
+.theme--light.v-list .v-list__tile--link:hover,
+.theme--light.v-list .v-list__tile--highlighted,
+.theme--light.v-list .v-list__group__header:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.selectable {
+    user-select: auto !important;
+}
 </style>
