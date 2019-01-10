@@ -25,7 +25,7 @@
                                 append-icon="mdi-history"
                                 @click:append="onClickHistoryIcon"
                             />
-                            <v-list two-line>
+                            <v-list dense two-line>
                                 <template v-for="(item,i) in history">
                                     <v-divider v-if="i>0" :key="item.addr + '-divider'"/>
                                     <v-list-tile :key="item.addr" @click="selectAddress(item.addr)">

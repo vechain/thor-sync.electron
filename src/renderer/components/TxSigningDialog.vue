@@ -44,7 +44,11 @@
                         <v-layout align-center>
                             <span class="caption grey--text">Estimated fee</span>
                             <v-spacer/>
-                            <v-tooltip bottom :disabled="!(estimation.gas>0)">
+                            <v-tooltip
+                                bottom
+                                :disabled="!(estimation.gas>0)"
+                                transition="fade-transition"
+                            >
                                 <Amount
                                     prepend="-"
                                     sym=" VTHO "
