@@ -16,7 +16,7 @@ export class Node {
             throw new NetError(`${resp.statusCode} ${resp.statusMessage}`)
         }
 
-        const ver = resp.headers['x-thorest-ver'][0] || '0.0.0'
+        const ver = (resp.headers['x-thorest-ver'] || [])[0] || '0.0.0'
         if (compareVersions(ver, '1.1.0') < 0) {
             throw new Error('node version too low')
         }
