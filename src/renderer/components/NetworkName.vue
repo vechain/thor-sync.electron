@@ -1,5 +1,5 @@
 <template>
-    <span class="label caption secondary font-weight-bold">{{nodeType}}</span>
+    <span class="label caption font-weight-bold text-uppercase" :class="classes">{{nodeType}}</span>
 </template>
 <script lang="ts">
     import { Vue, Component, Prop } from 'vue-property-decorator'
@@ -11,7 +11,14 @@
         genesis!: string
 
         get nodeType() {
-            return nameOfNetwork(this.genesis).toLocaleUpperCase()
+            return nameOfNetwork(this.genesis)
+        }
+
+        get classes () {
+            if(nameOfNetwork(this.genesis) === 'main') {
+                return 'secondary'
+            }
+            return 'secondary lighten-3'
         }
     }
 </script>

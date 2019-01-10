@@ -24,7 +24,7 @@ class WindowManager {
         options?: BrowserWindowConstructorOptions
     ) {
         config = config || (() =>
-            presets.find(n => nameOfNetwork(n.genesis.id) === (env.devMode ? 'testnet' : 'mainnet'))!
+            presets.find(n => nameOfNetwork(n.genesis.id) === (env.devMode ? 'test' : 'main'))!
         )()
         options = { ...defaultWindowOptions, ...(options || {}) }
         options.webPreferences = options.webPreferences || { navigateOnDragDrop: false }
