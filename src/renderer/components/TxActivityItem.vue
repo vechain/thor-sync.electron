@@ -179,7 +179,7 @@ export default class TxActivityItem extends Vue {
     }
 
     insight() {
-        const href = `https://vechain.github.io/insight/txs/${this.txid}`
+        const href = `https://vechain.github.io/insight/#/txs/${this.txid}`
         BUS.$emit('open-tab', { href })
         this.emitAction()
     }

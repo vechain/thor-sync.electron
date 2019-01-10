@@ -56,7 +56,7 @@
 
         jumpToInsight(txID: string) {
             BUS.$emit('open-tab', {
-                href: `https://vechain.github.io/insight/txs/${txID}`,
+                href: `https://vechain.github.io/insight/#/txs/${txID}`,
                 mode: 'append-active'
             })
         }
