@@ -1,8 +1,11 @@
 <template>
-    <v-layout align-center class="caption" :style="styleObject">
-        <v-icon small style="font-size:120%;color:inherit" class="mr-1">mdi-hexagon-slice-6</v-icon>
-        <b>{{networkName}}</b>
-    </v-layout>
+    <v-tooltip open-delay="600">
+        <v-layout align-center class="caption" :style="styleObject" slot="activator">
+            <v-icon small style="font-size:120%;color:inherit" class="mr-1">mdi-hexagon-slice-6</v-icon>
+            <b>{{networkName}}</b>
+        </v-layout>
+        <span>{{networkDesc}}</span>
+    </v-tooltip>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
@@ -18,18 +21,29 @@ const nodeConfig = remote.getCurrentWebContents().getWebPreferences().nodeConfig
 export default class NodeStatus extends Vue {
     networkName = nameOfNetwork(nodeConfig.genesis.id)
 
-    get styleObject() {
-        const syncStatus = (this.$store as Store).state.syncStatus
-        let color
-        if (syncStatus.flag === 'synced') {
-            color = 'rgba(0,192,0,0.9)'
+    get syncStatus() {
+        return (this.$store as Store).state.syncStatus.flag
+    }
 
-        } else if (syncStatus.flag === 'syncing') {
+    get styleObject() {
+        let color
+        if (this.syncStatus === 'synced') {
+            color = 'rgba(0,192,0,0.9)'
+        } else if (this.syncStatus === 'syncing') {
             color = 'rgba(192,96,0,0.9)'
         } else {
             color = 'rgba(192,0,0,0.9)'
         }
         return { color }
+    }
+
+    get networkDesc() {
+        switch (this.networkName) {
+            case 'test': return `VeChain TestNet - ${this.syncStatus}`
+            case 'main': return `VeChain MainNet - ${this.syncStatus}`
+            case 'solo': return `VeChain Solo - ${this.syncStatus}`
+            default: return `Unknown Network - ${this.syncStatus}`
+        }
     }
 }
 </script>

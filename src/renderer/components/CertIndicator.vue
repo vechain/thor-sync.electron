@@ -1,9 +1,13 @@
 <template>
-    <v-icon
-        style="font-size:100%;"
-        @click="onClick"
-        :color="secure?'':'red'"
-    >{{secure? 'mdi-lock': 'mdi-lock-question'}}</v-icon>
+    <v-tooltip open-delay="600">
+        <v-icon
+            slot="activator"
+            style="font-size:100%;"
+            @click="onClick"
+            :color="secure?'':'red'"
+        >{{secure? 'mdi-lock': 'mdi-lock-question'}}</v-icon>
+        <span>{{secure? 'Secure':'Insecure!'}}</span>
+    </v-tooltip>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
@@ -21,7 +25,7 @@ export default class CertIndicator extends Vue {
         if (this.secure) {
             message = `Securely accessing '${this.cert.hostname}'`
         } else {
-            const err = errorMap.get(this.cert.errorCode) || {name: '', desc: ''}
+            const err = errorMap.get(this.cert.errorCode) || { name: '', desc: '' }
             message = `Connection is not secure!
 
 ${this.cert.verificationResult}

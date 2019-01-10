@@ -1,8 +1,12 @@
 <template>
-    <v-icon
-        :color="hasPending ? 'info':''"
-        style="font-size:150%;"
-    >{{hasPending ? 'mdi-progress-upload':'mdi-arrow-up-bold-circle-outline'}}</v-icon>
+    <v-tooltip open-delay="600">
+        <v-icon
+            slot="activator"
+            :color="pendings ? 'info':''"
+            style="font-size:150%;"
+        >{{pendings ? 'mdi-progress-upload':'mdi-arrow-up-bold-circle-outline'}}</v-icon>
+        <span>{{pendings? `${pendings} pending ${pendings===1?'activity': 'activities'}`: 'No activity'}}</span>
+    </v-tooltip>
 </template>
 <script lang="ts">
 import { Vue, Component, Mixins } from 'vue-property-decorator'
@@ -20,8 +24,8 @@ class ActivitiesLoader extends TableLoader<entities.Activity<'tx' | 'cert'>, num
 
 @Component
 export default class ActivtyStatus extends Mixins(ActivitiesLoader) {
-    get hasPending() {
-        return this.rows.length > 0
+    get pendings() {
+        return this.rows.length
     }
 }
 </script>
