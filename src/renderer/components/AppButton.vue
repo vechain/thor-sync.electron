@@ -21,7 +21,7 @@
                     />
                 </div>
             </v-layout>
-            <div class="caption text-truncate" style="width:100%;text-align:center;">{{title}}</div>
+            <div class="caption text-truncate font-weight-medium" style="width:100%;text-align:center;">{{title}}</div>
         </v-layout>
         <slot/>
     </div>

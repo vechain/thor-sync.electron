@@ -13,6 +13,7 @@
         <v-card v-if="items.length>0">
             <v-list dense :style="{width:width +'px'}">
                 <v-list-tile
+                    tag="div"
                     v-for="(item,i) in items"
                     :key="item.href"
                     @click.stop

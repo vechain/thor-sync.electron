@@ -94,17 +94,20 @@
                         :class="{'nav-box-focused': urlBoxFocused}"
                     >
                         <v-layout align-center style="position:relative;" fill-height>
-                            <NodeStatusPanel :nudge-top="2">
-                                <v-btn
-                                    :ripple="false"
-                                    flat
-                                    slot="activator"
-                                    class="ma-0 px-1"
-                                    style="min-width:auto;"
-                                >
-                                    <NodeStatus/>
-                                </v-btn>
-                            </NodeStatusPanel>
+                            <v-tooltip open-delay="1000">
+                                <NodeStatusPanel :nudge-top="2" slot="activator">
+                                    <v-btn
+                                        :ripple="false"
+                                        flat
+                                        slot="activator"
+                                        class="ma-0 px-1"
+                                        style="min-width:auto;"
+                                    >
+                                        <NodeStatus/>
+                                    </v-btn>
+                                </NodeStatusPanel>
+                                <span>VeChain Network</span>
+                            </v-tooltip>
                             <v-layout
                                 ref="urlBoxWithIcon"
                                 class="url-box-with-icon"
@@ -173,16 +176,22 @@
                             />
                         </v-layout>
                     </div>
-                    <ActivitiesPanel>
-                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
-                            <ActivitiesStatus/>
-                        </v-btn>
-                    </ActivitiesPanel>
-                    <WindowMenu :items="menuItems">
-                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
-                            <v-icon style="font-size:150%">menu</v-icon>
-                        </v-btn>
-                    </WindowMenu>
+                    <v-tooltip open-delay="1000">
+                        <ActivitiesPanel slot="activator">
+                            <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                                <ActivitiesStatus/>
+                            </v-btn>
+                        </ActivitiesPanel>
+                        <span>Activities</span>
+                    </v-tooltip>
+                    <v-tooltip open-delay="1000">
+                        <WindowMenu :items="menuItems" slot="activator">
+                            <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                                <v-icon style="font-size:150%">menu</v-icon>
+                            </v-btn>
+                        </WindowMenu>
+                        <span>Options</span>
+                    </v-tooltip>
                 </v-layout>
                 <div class="sharp-line"/>
             </div>
@@ -859,6 +868,13 @@ html {
 .theme--light.v-list .v-list__tile--highlighted,
 .theme--light.v-list .v-list__group__header:hover {
     background: rgba(0, 0, 0, 0.1);
+}
+.v-list__tile--link {
+    cursor: default;
+}
+
+a:hover {
+    color: #12579a;
 }
 
 .selectable {

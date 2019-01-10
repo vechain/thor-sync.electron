@@ -10,23 +10,27 @@
                     <span class="caption grey--text">{{time}}</span>
                 </v-layout>
             </v-layout>
-            <v-btn
-                icon
-                small
-                flat
-                @click.stop="resend"
-                class="my-0"
-                style="margin-right:-8px;"
-                :style="{'pointer-events': canResend? '':'none'}"
-            >
-                <v-icon small :color="iconColor">{{icon}}</v-icon>
-            </v-btn>
+            <v-tooltip top transition="fade-transition">
+                <v-btn
+                    slot="activator"
+                    icon
+                    small
+                    flat
+                    @click.stop="resend"
+                    class="my-0"
+                    style="margin-right:-8px;"
+                    :style="{'pointer-events': canResend? '':'none'}"
+                >
+                    <v-icon small :color="iconColor">{{icon}}</v-icon>
+                </v-btn>
+                <span>{{statusDesc}}</span>
+            </v-tooltip>
         </v-layout>
         <v-card class="text-truncate">
             <v-card-text class="pt-1">
                 <v-layout align-center mb-2>
                     <AddressLabel icon style="width:27px;height:18px;border-radius:3px">{{signer}}</AddressLabel>
-                    <span class="px-2 subheading">{{walletName}}</span>
+                    <span class="px-2 subheading text-truncate">{{walletName}}</span>
                 </v-layout>
                 <v-layout>
                     <span class="caption grey--text">Amount</span>
@@ -44,18 +48,18 @@
                     <v-spacer/>
                     <Priority :readonly="true" :priority="gasPriceCoef"/>
                 </v-layout>
-                <div>
+                <v-layout class="my-1">
                     <a class="caption" @click="insight">
                         <v-icon style="font-size:110%;color:currentColor">search</v-icon>
                         {{txid | shortTxId}}
                     </a>
-                </div>
-                <div v-show="!!hostname" class="py-1">
+                </v-layout>
+                <v-layout v-show="!!hostname" class="my-1">
                     <a class="caption text-truncate" @click="reveal">
                         <v-icon style="font-size:100%;color:currentColor">mdi-link-variant</v-icon>
                         {{hostname}}
                     </a>
-                </div>
+                </v-layout>
             </v-card-text>
         </v-card>
     </v-expansion-panel-content>
@@ -124,6 +128,16 @@ export default class TxActivityItem extends Vue {
 
         return 'sending'
     }
+    get statusDesc() {
+        switch (this.status) {
+            case 'confirmed': return 'Confirmed'
+            case 'confirming': return 'Confirming...'
+            case 'sending': return 'Sending...'
+            case 'dropped': return 'Dropped'
+            default: return 'Click to retry'
+        }
+    }
+
     get icon() {
         switch (this.status) {
             case 'confirmed': return 'mdi-check-circle-outline'

@@ -40,7 +40,7 @@
                     >
                         <v-list-tile-content>
                             <v-list-tile-title>
-                                <NetworkName :genesis="config.genesis.id"/>
+                                <NetworkName :genesis="config.genesis.id" class="mr-1"/>
                                 {{config.name}}
                             </v-list-tile-title>
                             <v-list-tile-sub-title class="caption">{{config.url}}</v-list-tile-sub-title>

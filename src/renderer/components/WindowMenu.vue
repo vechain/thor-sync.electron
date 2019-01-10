@@ -6,6 +6,7 @@
                 <template v-for="(item,i) in items">
                     <v-divider v-show="!item.invisible" v-if="item.divider" :key="i+'_d'"/>
                     <v-list-tile
+                        tag="div"
                         v-show="!item.invisible"
                         :key="i"
                         @click="opened=false;item.action()"

@@ -4,25 +4,36 @@
             :enter-active-class="`animated faster ${enterClass}`"
             :leave-active-class="`animated faster ${leaveClass}`"
         >
-            <router-view style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"/>
+            <router-view
+                :key="$route.fullPath"
+                style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"
+            />
         </transition>
         <v-layout style="position:absolute;right:0;top:0;">
-            <router-link tag="span" to="/">
-                <v-btn icon>
-                    <v-icon small>mdi-apps</v-icon>
-                </v-btn>
-            </router-link>
-            <router-link tag="span" to="/wallets">
-                <v-btn icon class="ml-0">
-                    <v-icon small>mdi-cards</v-icon>
-                </v-btn>
-            </router-link>
-
-            <router-link tag="span" to="/settings">
-                <v-btn icon class="ml-0">
-                    <v-icon small>mdi-settings</v-icon>
-                </v-btn>
-            </router-link>
+            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+                <router-link tag="span" to="/" slot="activator">
+                    <v-btn icon>
+                        <v-icon small>mdi-apps</v-icon>
+                    </v-btn>
+                </router-link>
+                <span>Home</span>
+            </v-tooltip>
+            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+                <router-link tag="span" to="/wallets" slot="activator">
+                    <v-btn icon class="ml-0">
+                        <v-icon small>mdi-cards</v-icon>
+                    </v-btn>
+                </router-link>
+                <span>Wallets</span>
+            </v-tooltip>
+            <v-tooltip open-delay="1000" bottom nudge-bottom="5" transition="fade-transition">
+                <router-link tag="span" to="/settings" slot="activator">
+                    <v-btn icon class="ml-0">
+                        <v-icon small>mdi-settings</v-icon>
+                    </v-btn>
+                </router-link>
+                <span>Settings</span>
+            </v-tooltip>
         </v-layout>
     </div>
 </template>
