@@ -711,7 +711,10 @@ html {
     box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
 }
 .v-overlay--active:before {
-    opacity: 0.1;
+    opacity: 0.05;
+}
+.v-overlay {
+    transition: 0.2 ease;
 }
 .v-expansion-panel__header {
     padding-right: 12px !important;
@@ -793,11 +796,27 @@ html {
     right: 0;
     bottom: 0;
     width: auto;
+    transition: 0.35s ease !important;
 }
 .sign-dialog-transition-enter,
 .sign-dialog-transition-leave-to {
-    transform: translateY(calc(100% + 40px));
+    transform: translateY(calc(100% + 20px));
+    opacity: 0.8;
 }
+.v-dialog {
+    transition: 0.15s ease;
+}
+.dialog-transition-enter {
+    -webkit-transform: scale(0.8);
+    transform: scale(0.8);
+    opacity: 0;
+}
+.dialog-transition-leave-to {
+    -webkit-transform: scale(0.85);
+    transform: scale(0.85);
+    opacity: 0;
+}
+
 .serif {
     font-family: "Roboto Slab";
 }
