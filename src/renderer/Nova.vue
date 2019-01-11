@@ -177,7 +177,12 @@
                             />
                         </v-layout>
                     </div>
-
+                    <v-tooltip open-delay="600">
+                        <v-btn class="my-1" icon small slot="activator" @click="onWallets">
+                            <v-icon style="font-size:135%;">mdi-cards</v-icon>
+                        </v-btn>
+                        <span>Wallets</span>
+                    </v-tooltip>
                     <ActivitiesPanel>
                         <v-btn class="my-1" icon small slot="activator" :ripple="false">
                             <ActivitiesStatus/>
@@ -186,7 +191,7 @@
                     <v-tooltip open-delay="600">
                         <WindowMenu :items="menuItems" slot="activator">
                             <v-btn class="my-1" icon small slot="activator" :ripple="false">
-                                <v-icon style="font-size:150%">menu</v-icon>
+                                <v-icon style="font-size:150%">mdi-dots-vertical</v-icon>
                             </v-btn>
                         </WindowMenu>
                         <span>Options</span>
@@ -551,6 +556,9 @@ export default class Nova extends Vue {
     }
     onWebviewWheel(delta: { x: number, y: number }) {
         (this.$refs.swiper as any).handleWheel(delta.x, delta.y)
+    }
+    onWallets() {
+        this.openTab('sync://wallets', 'inplace-builtin')
     }
 
     get menuItems(): WindowMenu.Item[] {

@@ -5,7 +5,7 @@
                 <v-layout justify-center py-3>
                     <a class="top-link" @click="onCreate">Create</a>
                     <a class="top-link" @click="onImport">Import</a>
-                    <a class="top-link" @click="onTransfer">Transfer</a>
+                    <a v-show="wallets.length>0" class="top-link" @click="onTransfer">Transfer</a>
                 </v-layout>
             </div>
             <div>
