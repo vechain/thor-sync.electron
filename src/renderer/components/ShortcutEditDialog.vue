@@ -2,21 +2,22 @@
     <DialogEx
         persistent
         v-model="open"
-        max-width="380px"
+        max-width="400px"
         @action:ok="save"
         @action:cancel="open=false"
     >
         <v-card>
-            <v-card-title>Shortcut</v-card-title>
+            <v-card-title class="subheading">Shortcut</v-card-title>
             <v-card-text>
                 <v-text-field v-focus label="Title" v-model="arg.title"/>
-                <div class="grey--text text-truncate caption" style="width:100%;">{{arg.href}}</div>
+                <div class="grey--text text-truncate" style="width:100%;">{{arg.href}}</div>
             </v-card-text>
+            <v-divider/>
             <v-card-actions>
                 <v-btn small flat color="red" @click="remove">Remove</v-btn>
                 <v-spacer/>
                 <v-btn small flat @click="open=false">Cancel</v-btn>
-                <v-btn small flat color="primary" @click="save">Save</v-btn>
+                <v-btn small flat class="primary" @click="save">Save</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -51,12 +52,13 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
         GDB.shortcuts.update(this.arg.id, {
             title: this.arg.title,
             href: this.arg.href,
-        })
+        }).catch(console.warn)
         this.open = false
     }
 
     remove() {
         GDB.shortcuts.delete(this.arg.id)
+            .catch(console.warn)
         this.open = false
     }
 }
