@@ -23,6 +23,7 @@ export function createClient(node: Node): Client {
                     ...options
                 },
                 { revision: rev })
+                .then(outputs => ({ outputs }))
         },
         getAccount(addr: string, rev: string) {
             return node.cache.getAccount(addr, rev, () => {
@@ -114,6 +115,7 @@ export function createClient(node: Node): Client {
                 key,
                 bloomKeys,
                 () => net.post<Connex.Thor.Filter.Result<T>>(`logs/${kind}`, body))
+                .then(items => ({ items }))
         },
         beat: b => {
             return node.beat(b)

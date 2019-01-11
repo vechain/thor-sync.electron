@@ -87,7 +87,7 @@ export function createFilter<T extends 'event' | 'transfer'>(
             filterBody.options.limit = limit
 
             return client.filter(kind, filterBody as any)
-                .then(cloneDeep)
+                .then(r => cloneDeep(r.items))
         }
     }
 }

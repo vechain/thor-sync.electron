@@ -117,7 +117,7 @@ interface Client {
         caller?: string
         gas?: number
         gasPrice?: string
-    }, rev: string): Promise<Connex.Thor.VMOutput[]>
+    }, rev: string): Promise<{ outputs: Connex.Thor.VMOutput[] }>
 
     getAccount(addr: string, rev: string): Promise<Connex.Thor.Account>
     getCode(addr: string, rev: string): Promise<Connex.Thor.Code>
@@ -133,12 +133,15 @@ interface Client {
     getBlock(rev: string | number): Promise<Connex.Thor.Block | null>
     getTx(id: string): Promise<Connex.Thor.Transaction | null>
     getReceipt(id: string): Promise<Connex.Thor.Receipt | null>
+
+    // to avoid "Error: Cannot get property 'xxx' on missing remote object ...",
+    // never return array from main to renderer process
     filter<T extends 'event' | 'transfer'>(kind: T, body: {
         range: Connex.Thor.Filter.Range
         order: 'asc' | 'desc'
         criteriaSet: Connex.Thor.Filter.Criteria<T>[]
         options: { offset: number, limit: number }
-    }): Promise<Connex.Thor.Filter.Result<T>>
+    }): Promise<{ items: Connex.Thor.Filter.Result<T> }>
 
     beat(b: Beat): void
     txer: {
