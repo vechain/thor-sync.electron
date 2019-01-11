@@ -71,6 +71,9 @@ export default class Launcher extends Vue {
             this.router.$router.push({ name: 'wallets' })
         })
     }
+    destroyed() {
+        this.router.$destroy()
+    }
 }
 
 function hrefToPath(href: string) {
