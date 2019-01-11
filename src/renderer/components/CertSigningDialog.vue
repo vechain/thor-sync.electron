@@ -47,9 +47,8 @@
                             label="Password"
                             type="password"
                             :error-messages="passwordError"
-                            validate-on-blur
-                            :rules="passwordRules"
                             ref="passwordElem"
+                            @focus="onPasswordFocused"
                         />
                     </v-card-text>
                     <div style="position:relative">
@@ -64,12 +63,14 @@
                         />
                     </div>
                     <v-card-actions style="flex: 0 0 auto;">
+                        <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
                         <v-spacer/>
-                        <v-btn :disabled="signing" flat @click="decline">Decline</v-btn>
                         <v-btn
-                            :disabled="!readyToSign"
-                            color="green darken-1"
+                            small
                             flat
+                            dark
+                            :disabled="signing"
+                            class="green darken-1"
                             @click="sign"
                         >Sign</v-btn>
                     </v-card-actions>
@@ -96,12 +97,6 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     password = ''
     passwordError = ''
     signing = false
-    readonly passwordRules = [(v: string) => !!v || 'Input password here']
-
-    get readyToSign() {
-        return !this.signing &&
-            this.passwordRules.every(r => r(this.password) === true)
-    }
     get wallet() { return this.arg.wallets[this.arg.selectedWallet] }
 
     mounted() {
@@ -111,7 +106,11 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         return (this.$refs.passwordElem as Vue).$el.querySelector('input')!
     }
     async sign() {
-        if (!this.readyToSign) {
+        if (this.signing) {
+            return
+        }
+        if (!this.password) {
+            this.passwordError = 'Input password here'
             return
         }
         try {
@@ -159,6 +158,11 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         }
         this.opened = false
         this.$reject(new Rejected('user cancelled'))
+    }
+    onPasswordFocused() {
+        if (!this.password) {
+            this.passwordError = ''
+        }
     }
 }
 

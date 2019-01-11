@@ -8,17 +8,17 @@
             </v-layout>
             <v-layout row align-baseline>
                 <span class="caption">To:
-                    <AddressLabel abbrev placeholder="New contract">{{clause.to}}</AddressLabel>
+                    <AddressLabel abbrev placeholder="New Contract">{{clause.to}}</AddressLabel>
                 </span>
                 <v-spacer/>
                 <Amount sym=" VET" class="body-1">{{clause.value}}</Amount>
             </v-layout>
         </v-layout>
-        <v-card style="word-break:break-all;">
-            <v-card-text class="pt-1">
+        <v-card>
+            <v-card-text v-show="clause.comment" class="pt-1 text-truncate">
                 <i>{{clause.comment}}</i>
             </v-card-text>
-            <v-card-text v-show="!!clause.data" class="pt-0">
+            <v-card-text v-show="clause.data!=='0x'" class="pt-0">
                 <v-textarea
                     tabindex="-1"
                     class="caption"
