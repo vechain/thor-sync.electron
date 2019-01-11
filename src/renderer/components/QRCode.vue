@@ -1,40 +1,44 @@
+
+<template>
+    <div :style="{width:size+'px',height:size+'px'}" v-html="html"></div>
+</template>
 <script lang="ts">
-import { Vue } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 const QRious = require('qrious')
 import { Address } from '@/common/formatter'
 
-export default Vue.extend({
-    props: {
-        pre: Boolean,
-        size: Number
-    },
-    render(h) {
-        let content = ''
-        if (this.$slots.default) {
-            content = this.$slots.default[0].text || ''
-        }
-        if (!this.pre) {
-            content = content.trim()
+@Component
+export default class QRCode extends Vue {
+
+    @Prop(Boolean) pre!: boolean
+    @Prop(Number) size!: number
+
+    slotContent = ''
+
+    get html() {
+        let content
+        if (this.pre) {
+            content = this.slotContent
+        } else {
+            content = this.slotContent.trim()
             if (Address.isValid(content)) {
                 content = Address.toChecksum(content)!
             }
         }
-        const size = this.size || 100
-
-        return h('div', {
-            attrs: this.$attrs,
-            on: this.$listeners,
-            style: {
-                display: 'inline-block',
-                width: size + 'px',
-                height: size + 'px',
-            },
-            domProps: {
-                innerHTML: generateQRHtml(content, size)
-            }
-        })
+        return generateQRHtml(content, this.size || 100)
     }
-})
+
+    created() {
+        this.extractSlot()
+    }
+    beforeUpdate() {
+        this.extractSlot()
+    }
+
+    extractSlot() {
+        this.slotContent = this.$slots.default[0] ? (this.$slots.default[0].text || '') : ''
+    }
+}
 
 const qr = new QRious()
 function generateQRHtml(content: string, size: number) {

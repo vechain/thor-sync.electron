@@ -1,72 +1,41 @@
+<template>
+    <div style="display:inline-block">
+        <span v-if="prepend">{{prepend}}</span>
+        <span>{{parts[0]}}</span>
+        <span style="font-size: 80%">{{parts[1]}}</span>
+        <span
+            v-if="sym"
+            style="font-size: 60%;opacity: 0.6;white-space: pre;font-family: 'Roboto Mono', monospace"
+        >{{sym}}</span>
+    </div>
+</template>
 <script lang="ts">
-
-import { Vue } from 'vue-property-decorator'
+import { Vue, Prop, Component } from 'vue-property-decorator'
 import { Num } from '@/common/formatter'
 
-export default Vue.extend({
-    props: {
-        dec: {
-            type: Number,
-            default: 2
-        },
-        sym: String,
-        prepend: String
-    },
-    render(h) {
-        if (!this.$slots.default) {
-            return h('span')
-        }
+@Component
+export default class Amount extends Vue {
+    @Prop({ type: Number, default: 2 }) dec!: number
+    @Prop(String) sym!: string
+    @Prop(String) prepend!: string
 
-        const numStr = (this.$slots.default[0].text || '').trim()
-        const parts = splitNum(numStr, this.dec)
+    slotContent = ''
+    get parts() {
+        return splitNum(this.slotContent, this.dec)
+    }
 
-        const children = [
-            h('span', {
-                domProps: {
-                    innerText: parts[0]
-                }
-            }),
-            h('span', {
-                style: {
-                    'font-size': '80%'
-                },
-                domProps: {
-                    innerText: parts[1]
-                }
-            }),
-        ]
-        if (this.prepend) {
-            children.unshift(h('span', {
-                domProps: {
-                    innerText: this.prepend
-                }
-            }))
-        }
-        if (this.sym) {
-            children.push(h('span', {
-                style: {
-                    'font-size': '60%',
-                    'opacity': 0.6,
-                    'white-space': 'pre',
-                    'font-family': '"Roboto Mono", monospace'
-                },
-                domProps: {
-                    innerText: this.sym
-                }
-            }))
-        }
+    created() {
+        this.extractSlot()
+    }
 
-        return h('div', {
-            attrs: this.$attrs,
-            on: this.$listeners,
-            style: {
-                'display': 'inline-block'
-                // 'font-family': '"Roboto Mono", monospace'
-            }
-        }, children)
-    },
-})
+    beforeUpdate() {
+        this.extractSlot()
+    }
 
+    extractSlot() {
+        this.slotContent = this.$slots.default[0] ? (this.$slots.default[0].text || '').trim() : ''
+    }
+}
 
 // split number string into integer part and decimal part
 function splitNum(numStr: string | null, decimal: number) {
