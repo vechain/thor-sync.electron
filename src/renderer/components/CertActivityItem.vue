@@ -19,7 +19,12 @@
             <v-card-text class="pt-1">
                 <v-layout align-center mb-2>
                     <AddressLabel icon style="width:27px;height:18px;border-radius:3px">{{signer}}</AddressLabel>
-                    <span class="px-2 subheading">{{walletName}}</span>
+                    <a
+                        v-if="wallet"
+                        class="px-2 subheading text-truncate"
+                        @click="openWallet"
+                    >{{wallet.name}}</a>
+                    <span v-else>Unknown</span>
                 </v-layout>
                 <div v-show="!!hostname">
                     <a class="caption text-truncate" @click="reveal">
@@ -51,15 +56,20 @@ export default class CertActivityItem extends Vue {
     }
     get hostname() { return UrlUtils.hostnameOf(this.item.referer.url) }
     get signer() { return this.item.data.signer }
-    get walletName() {
+    get wallet() {
         const wallets = this.$store.state.wallets as entities.Wallet[]
-        const wallet = wallets.find(w => w.address === this.signer)
-        return wallet ? wallet.name : 'Unknown'
+        return wallets.find(w => w.address === this.signer)
     }
 
     reveal() {
         BUS.$emit('open-tab', { href: this.item.referer.url })
         this.emitAction()
+    }
+
+    openWallet() {
+        if (this.wallet) {
+            BUS.$emit('open-tab', { href: `sync://wallets/${this.wallet.address}`, mode: 'inplace-builtin' })
+        }
     }
 }
 </script>
