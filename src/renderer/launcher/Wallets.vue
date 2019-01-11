@@ -22,7 +22,7 @@
                     </v-flex>
                 </v-layout>
                 <div v-else-if="storeReady" class="text-xs-center py-5">
-                    <div class="headline grey--text font-weight-light">You have no wallet yet</div>
+                    <div class="headline grey--text font-weight-light">Time To Create Your Wallet!</div>
                 </div>
             </div>
         </v-layout>

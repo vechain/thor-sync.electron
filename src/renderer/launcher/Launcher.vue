@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners" class="#eaeaea">
+    <div>
         <div id="content"/>
     </div>
 </template>
