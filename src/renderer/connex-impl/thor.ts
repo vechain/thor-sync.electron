@@ -94,7 +94,7 @@ export function create(
                         value: c.value.toString(),
                         data: c.data || ''
                     })), { ...opts }, client.head.id)
-                        .then(cloneDeep)
+                        .then(r => cloneDeep(r.outputs))
                 }
             }
         }
