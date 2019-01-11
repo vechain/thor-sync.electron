@@ -240,6 +240,8 @@
                     .where('id')
                     .equals(this.wallet!.id!)
                     .modify({ name: this.walletName })
+            } else {
+                this.walletName = this.wallet!.name
             }
 
             this.isEdit = false
