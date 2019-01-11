@@ -1,21 +1,12 @@
 <template>
-    <div class="pa-3">
+    <div class="px-3">
         <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
             <div v-if="wallet">
-                <v-layout justify-center>
-                    <v-btn right color="primary" @click="showReset" flat small>Reset Password</v-btn>
-                    <v-btn right color="error" flat @click="showDelete" small>Delete</v-btn>
-                    <v-btn
-                        flat
-                        small
-                        right
-                        class="caption"
-                        color="primary"
-                        @click="showExport"
-                    >Backup</v-btn>
-                    <router-link tag="span" :to="{name: 'transfer', query: {from: wallet.address}}">
-                        <v-btn flat small class="caption" color="primary">transfer</v-btn>
-                    </router-link>
+                <v-layout justify-center py-3>
+                    <a class="top-link" @click="showReset">Reset Password</a>
+                    <a class="top-link" @click="showExport">Backup</a>
+                    <a class="top-link" @click="showTransfer">Transfer</a>
+                    <a class="top-link error--text" @click="showDelete">Delete</a>
                 </v-layout>
             </div>
             <v-card class="elevation-0" v-if="wallet">
@@ -184,136 +175,139 @@
     </div>
 </template>
 <script lang="ts">
-    import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-    import TransferMixin from '../mixins/Transfer.vue'
-    import { State } from 'vuex-class'
-    import Store from '../store'
-    import { Num } from '@/common/formatter'
-    import { ResetPwdDialog } from '@/renderer/components'
-    import { ExportWalletDialog } from '@/renderer/components'
-    import { DeleteWalletDialog } from '@/renderer/components'
-    import TransferItem from './TransferItem.vue'
-    import AccountLoader from '../mixins/account-loader'
-    import { setTimeout } from 'timers'
-    import { Stats } from 'fs'
+import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
+import TransferMixin from '../mixins/Transfer.vue'
+import { State } from 'vuex-class'
+import Store from '../store'
+import { Num } from '@/common/formatter'
+import { ResetPwdDialog } from '@/renderer/components'
+import { ExportWalletDialog } from '@/renderer/components'
+import { DeleteWalletDialog } from '@/renderer/components'
+import TransferItem from './TransferItem.vue'
+import AccountLoader from '../mixins/account-loader'
+import { setTimeout } from 'timers'
+import { Stats } from 'fs'
 
-    @Component({
-        components: {
-            TransferItem
+@Component({
+    components: {
+        TransferItem
+    }
+})
+export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
+    walletName?: string
+    list: Connex.Thor.Transfer[] = []
+    stick = false
+    snackbar = false
+    errorMessage = ''
+    textTip = 'Copy'
+    isEdit = false
+    get address() {
+        return (this.wallet ? this.wallet.address : '') || ''
+    }
+    isloading = false
+
+    @State
+    wallets!: entities.Wallet[]
+
+    @State
+    chainHead!: Connex.Thor.Status['head']
+
+    @Watch('chainHead')
+    onChainHeadChange() {
+        if (!this.stick) {
+            return
         }
-    })
-    export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
-        walletName?: string
-        list: Connex.Thor.Transfer[] = []
-        stick = false
-        snackbar = false
-        errorMessage = ''
-        textTip = 'Copy'
-        isEdit = false
-        get address() {
-            return (this.wallet ? this.wallet.address : '') || ''
-        }
-        isloading = false
+        this.getList()
+    }
 
-        @State
-        wallets!: entities.Wallet[]
+    rollback() {
+        this.walletName = this.wallet!.name
+        this.isEdit = false
+    }
 
-        @State
-        chainHead!: Connex.Thor.Status['head']
-
-        @Watch('chainHead')
-        onChainHeadChange() {
-            if (!this.stick) {
-                return
-            }
-            this.getList()
-        }
-
-        rollback() {
+    editSave() {
+        if (this.walletName && this.walletName !== this.wallet!.name) {
+            BDB.wallets
+                .where('id')
+                .equals(this.wallet!.id!)
+                .modify({ name: this.walletName })
+        } else {
             this.walletName = this.wallet!.name
-            this.isEdit = false
         }
+        this.isEdit = false
+    }
 
-        editSave() {
-            if (this.walletName && this.walletName !== this.wallet!.name) {
-                BDB.wallets
-                    .where('id')
-                    .equals(this.wallet!.id!)
-                    .modify({ name: this.walletName })
-            } else {
-                this.walletName = this.wallet!.name
-            }
+    get wallet() {
+        return this.wallets.find(item => {
+            return item.address === this.$route.params.address
+        })
+    }
 
-            this.isEdit = false
-        }
-
-        get wallet() {
-            return this.wallets.find(item => {
-                return item.address === this.$route.params.address
-            })
-        }
-
-        @Watch('wallet')
-        walletChanged() {
-            if (!this.wallet) {
-                this.$router.back()
-            } else {
-                this.walletName = this.wallet.name
-            }
-        }
-
-        created() {
-            const address = this.$route.params.address
-            if (!this.wallet) {
-                this.$router.back()
-            }
-            this.walletName = this.wallet!.name
-            this.createFilter(address)
-        }
-
-        async onLoadClick() {
-            this.stick = true
-            await this.getList()
-        }
-
-        showReset() {
-            this.$dialog(ResetPwdDialog, this.wallet!)
-        }
-        showDelete() {
-            this.$dialog(DeleteWalletDialog, this.wallet!)
-        }
-        showExport() {
-            this.$dialog(ExportWalletDialog, this.wallet!)
-        }
-        async getList() {
-            let list: Connex.Thor.Transfer[] = []
-            this.resetPage()
-            try {
-                this.isloading = true
-                list = await this.getTransferDesc(10)
-                this.isloading = false
-            } catch (error) {
-                this.errorMessage = `${error.name}: ${error.message}`
-                this.list = []
-                this.snackbar = true
-                return
-            }
-
-            this.list = list
-        }
-
-        get balance() {
-            return this.account && this.account.balance
-        }
-
-        get energy() {
-            return this.account && this.account.energy
+    @Watch('wallet')
+    walletChanged() {
+        if (!this.wallet) {
+            this.$router.back()
+        } else {
+            this.walletName = this.wallet.name
         }
     }
+
+    created() {
+        const address = this.$route.params.address
+        if (!this.wallet) {
+            this.$router.back()
+        }
+        this.walletName = this.wallet!.name
+        this.createFilter(address)
+    }
+
+    async onLoadClick() {
+        this.stick = true
+        await this.getList()
+    }
+
+    showReset() {
+        this.$dialog(ResetPwdDialog, this.wallet!)
+    }
+    showDelete() {
+        this.$dialog(DeleteWalletDialog, this.wallet!)
+    }
+    showExport() {
+        this.$dialog(ExportWalletDialog, this.wallet!)
+    }
+    async getList() {
+        let list: Connex.Thor.Transfer[] = []
+        this.resetPage()
+        try {
+            this.isloading = true
+            list = await this.getTransferDesc(10)
+            this.isloading = false
+        } catch (error) {
+            this.errorMessage = `${error.name}: ${error.message}`
+            this.list = []
+            this.snackbar = true
+            return
+        }
+
+        this.list = list
+    }
+
+    get balance() {
+        return this.account && this.account.balance
+    }
+
+    get energy() {
+        return this.account && this.account.energy
+    }
+
+    showTransfer() {
+        this.$router.push({ name: 'transfer', query: { from: this.wallet!.address } })
+    }
+}
 </script>
 <style scoped>
-    input.editable-name {
-        outline: #1976d2 solid 1px;
-        padding-left: 5px;
-    }
+input.editable-name {
+    outline: #1976d2 solid 1px;
+    padding-left: 5px;
+}
 </style>

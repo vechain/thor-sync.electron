@@ -27,11 +27,11 @@ export function manageObject<T extends object>(obj: T, signal: { disconnected: b
 function managePromise<T>(p: Promise<T>, signal: { disconnected: boolean }) {
     return new Promise<T>((resolve, reject) => {
         p.then(r => {
-            if (!signal || !signal.disconnected) {
+            if (!signal.disconnected) {
                 resolve(r)
             }
         }).catch(err => {
-            if (!signal || !signal.disconnected) {
+            if (!signal.disconnected) {
                 reject(err)
             }
         })
