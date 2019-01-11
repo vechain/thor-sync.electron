@@ -30,7 +30,12 @@
             <v-card-text class="pt-1">
                 <v-layout align-center mb-2>
                     <AddressLabel icon style="width:27px;height:18px;border-radius:3px">{{signer}}</AddressLabel>
-                    <span class="px-2 subheading text-truncate">{{walletName}}</span>
+                    <a
+                        v-if="wallet"
+                        class="px-2 subheading text-truncate"
+                        @click="openWallet"
+                    >{{wallet.name}}</a>
+                    <span v-else>Unknown</span>
                 </v-layout>
                 <v-layout>
                     <span class="caption grey--text">Amount</span>
@@ -98,10 +103,10 @@ export default class TxActivityItem extends Vue {
             return sum.plus(c.value)
         }, new BigNumber(0)).toString(16)
     }
-    get walletName() {
+
+    get wallet() {
         const wallets = this.$store.state.wallets as entities.Wallet[]
-        const wallet = wallets.find(w => w.address === this.signer)
-        return wallet ? wallet.name : 'Unknown'
+        return wallets.find(w => w.address === this.signer)
     }
 
     get status() {
@@ -182,6 +187,12 @@ export default class TxActivityItem extends Vue {
         const href = `https://vechain.github.io/insight/#/txs/${this.txid}`
         BUS.$emit('open-tab', { href })
         this.emitAction()
+    }
+
+    openWallet() {
+        if (this.wallet) {
+            BUS.$emit('open-tab', { href: `sync://wallets/${this.wallet.address}`, mode: 'inplace-builtin' })
+        }
     }
 }
 </script>
