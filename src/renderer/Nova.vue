@@ -156,7 +156,7 @@
                                     @action="addOrRemoveShortcut"
                                 >
                                     <v-icon
-                                        style="font-size:150%"
+                                        style="font-size:160%"
                                     >{{shortcutAdded ? 'mdi-bookmark-plus' : 'mdi-bookmark-plus-outline'}}</v-icon>
                                     <template
                                         slot="expansion"
@@ -841,12 +841,13 @@ html {
 .app-fadein {
     animation: 0.6s app-fadein;
 }
-:not(input):not(textarea),
-:not(input):not(textarea)::after,
-:not(input):not(textarea)::before {
+:not(input):not(textarea):not(.v-icon--link),
+:not(input):not(textarea):not(.v-icon--link)::after,
+:not(input):not(textarea):not(.v-icon--link)::before {
     user-select: none;
     cursor: default;
 }
+
 .v-expansion-panel__header {
     cursor: default;
 }
@@ -872,11 +873,19 @@ html {
     cursor: default;
 }
 
-a:hover {
+a:not(.v-list__tile):hover {
     color: #12579a;
 }
 
 .selectable {
     user-select: auto !important;
+}
+
+.top-link {
+    margin-left: 8px;
+    margin-right: 8px;
+    min-width: 80px;
+    font-weight: 500;
+    text-align: center;
 }
 </style>

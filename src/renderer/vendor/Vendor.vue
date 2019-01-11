@@ -85,7 +85,7 @@ export default class Vendor extends Vue {
             new Notification('Tx Signed', {
                 body: result.txid
             }).onclick = () => {
-                BUS.$emit('open-tab', { href: `https://vechain.github.io/insight/txs/${result.txid}` })
+                BUS.$emit('open-tab', { href: `https://vechain.github.io/insight/#/txs/${result.txid}` })
             }
 
             return {

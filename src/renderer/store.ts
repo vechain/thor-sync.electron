@@ -11,6 +11,7 @@ namespace Store {
         shortcuts: entities.Shortcut[]
         nodes: entities.Node[]
         wallets: entities.Wallet[]
+        ready: boolean
     }
 }
 
@@ -20,6 +21,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_SHORTCUTS = 'updateShortcuts'
     public static readonly UPDATE_NODES = 'updateNodes'
     public static readonly UPDATE_WALLETS = 'updateWallets'
+    public static readonly UPDATE_SET_READY = 'updateSetReady'
     constructor() {
         super({
             state: {
@@ -30,7 +32,8 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 shortcuts: [],
                 nodes: [],
-                wallets: []
+                wallets: [],
+                ready: false
             },
             getters: {
             },
@@ -49,6 +52,9 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_WALLETS](state, payload) {
                     state.wallets = payload
+                },
+                [Store.UPDATE_SET_READY](state) {
+                    state.ready = true
                 }
             }
         })
@@ -102,9 +108,13 @@ class Store extends Vuex.Store<Store.Model> {
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
 
-        await queryAndUpdateShortcuts()
-        await queryAndUpdateNodes()
-        await queryAndUpdateWallets()
+        await Promise.all([
+            queryAndUpdateShortcuts(),
+            queryAndUpdateNodes(),
+            queryAndUpdateWallets()
+        ])
+
+        this.commit(Store.UPDATE_SET_READY)
 
         GDB.nodes.subscribe(() => {
             queryAndUpdateNodes()

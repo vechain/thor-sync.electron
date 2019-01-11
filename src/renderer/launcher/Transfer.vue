@@ -1,10 +1,10 @@
 <template>
     <v-layout column align-center>
         <v-layout column align-center style="max-width:1000px;width:100%;" pa-3>
-            <div class="subheading py-4">Transfer from</div>
+            <div class="subheading py-4">From</div>
             <WalletSeeker style="width:270px" full-size :wallets="wallets" v-model="from"/>
-            <v-card flat tile style="width:500px;" class="mt-4 py-2 px-2 outline">
-                <v-card-title class="subheading">To</v-card-title>
+            <v-icon medium class="my-2">mdi-arrow-down-bold-outline</v-icon>
+            <v-card flat style="width:480px;border: 0.5px solid rgba(0,0,0,0.08)">
                 <v-card-text>
                     <v-form ref="form">
                         <v-menu
@@ -59,7 +59,7 @@
                 <v-card-actions>
                     <div class="error--text">{{errMsg}}</div>
                     <v-spacer/>
-                    <v-btn flat class="primary" @click="send">Send</v-btn>
+                    <v-btn class="primary" @click="send">Send</v-btn>
                 </v-card-actions>
             </v-card>
         </v-layout>
@@ -90,7 +90,7 @@ export default class Transfer extends Vue {
             if (!cry.isAddress(v)) {
                 return 'Invalid address'
             }
-            if(v !== v.toLowerCase() && cry.toChecksumAddress(v) !== v) {
+            if (v !== v.toLowerCase() && cry.toChecksumAddress(v) !== v) {
                 return 'Checksum incorrect'
             }
             return true
@@ -135,7 +135,7 @@ export default class Transfer extends Vue {
             return
         }
         const txs = (await BDB.activities
-            .where({type: 'tx'})
+            .where({ type: 'tx' })
             .reverse()
             .limit(20)
             .toArray()) as entities.Activity<'tx'>[]
