@@ -7,7 +7,7 @@
                 <v-icon color="primary">add</v-icon>
             </v-btn>
         </v-subheader>
-        <v-card>
+        <v-card class="elevation-0">
             <v-list two-line subheader>
                 <div v-for="(item, index) in initNodes" :key="`${index}-origin`">
                     <v-list-tile avatar>

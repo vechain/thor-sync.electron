@@ -1,7 +1,7 @@
 <template>
     <v-layout column>
         <v-subheader>General</v-subheader>
-        <v-card>
+        <v-card class="elevation-0">
             <v-card-text>
                 <span>About VeChain Sync</span>
                 <br>
