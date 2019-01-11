@@ -3,7 +3,7 @@
         <v-layout column align-center style="max-width:1000px;width:100%;" pa-3>
             <div class="subheading py-4">From</div>
             <WalletSeeker style="width:270px" full-size :wallets="wallets" v-model="from"/>
-            <v-icon medium class="my-2">mdi-arrow-down-bold-outline</v-icon>
+            <v-icon large class="my-3" color="rgba(0,0,0,0.25)">mdi-arrow-down-bold</v-icon>
             <v-card flat style="width:480px;border: 0.5px solid rgba(0,0,0,0.08)">
                 <v-card-text>
                     <v-form ref="form">
@@ -24,6 +24,7 @@
                                 v-model="to"
                                 append-icon="mdi-history"
                                 @click:append="onClickHistoryIcon"
+                                @keydown.enter.stop="send"
                             />
                             <v-list dense two-line>
                                 <template v-for="(item,i) in history">
@@ -53,13 +54,14 @@
                             suffix="VET"
                             :rules="amountRules"
                             v-model="amount"
+                            @keypress.enter.stop="send"
                         />
                     </v-form>
                 </v-card-text>
                 <v-card-actions>
                     <div class="error--text">{{errMsg}}</div>
                     <v-spacer/>
-                    <v-btn class="primary" @click="send">Send</v-btn>
+                    <v-btn small class="primary" @click="send">Send</v-btn>
                 </v-card-actions>
             </v-card>
         </v-layout>

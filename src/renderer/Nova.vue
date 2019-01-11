@@ -39,7 +39,6 @@
                         @close="closeTab(i)"
                         @mouseup.native="activePageIndex = i"
                         @dblclick.native.stop
-                        @mousedown="i=== activePageIndex && $event.preventDefault()"
                     />
                     <v-btn
                         class="no-drag ma-1 pa-0 ml-2"
@@ -47,7 +46,7 @@
                         small
                         key="the-new-tab-button"
                         :ripple="false"
-                        @click="openTab('')"
+                        @mouseup.native="openTab('')"
                         @dblclick.native.stop
                         style="width:auto;height:auto;min-width:auto;"
                     >
@@ -881,8 +880,11 @@ html {
     cursor: default;
 }
 
+.application a {
+    color: #176abd;
+}
 a:not(.v-list__tile):hover {
-    color: #12579a;
+    color: #2a94ff;
 }
 
 .selectable {
