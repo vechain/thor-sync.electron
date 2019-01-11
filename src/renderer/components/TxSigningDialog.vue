@@ -36,12 +36,12 @@
                             v-model="arg.selectedWallet"
                             :disabled="signing"
                         />
-                        <v-layout align-center mt-2>
+                        <v-layout align-center mt-3 px-1>
                             <span class="caption grey--text">Total value</span>
                             <v-spacer/>
                             <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
                         </v-layout>
-                        <v-layout align-center>
+                        <v-layout align-center px-1>
                             <span class="caption grey--text">Estimated fee</span>
                             <v-spacer/>
                             <v-tooltip
@@ -57,7 +57,7 @@
                                 <span>Estimated gas {{estimation.gas}}</span>
                             </v-tooltip>
                         </v-layout>
-                        <v-layout align-center>
+                        <v-layout align-center px-1>
                             <span class="caption grey--text">Priority</span>
                             <v-spacer/>
                             <Priority v-model="gasPriceCoef" :readonly="signing"/>
@@ -111,12 +111,14 @@
                         />
                     </div>
                     <v-card-actions style="flex: 0 0 auto;">
+                        <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
                         <v-spacer/>
-                        <v-btn :disabled="signing" flat @click="decline">Decline</v-btn>
                         <v-btn
-                            :disabled="!readyToSign"
-                            color="green darken-1"
+                            dark
+                            small
                             flat
+                            :disabled="!readyToSign"
+                            class="green"
                             @click="sign"
                         >Sign</v-btn>
                     </v-card-actions>

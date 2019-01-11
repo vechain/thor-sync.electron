@@ -60,10 +60,10 @@ export function describeClauses(clauses: Connex.Thor.Clause[]) {
             return 'create a contract'
         }
         if (clauses[0].data === '0x') {
-            return 'transfer VET'
+            return 'Transfer VET'
         }
-        return 'make contract call'
+        return 'Make contract call'
     }
 
-    return 'perform a batch of actions'
+    return 'Perform a batch of clauses'
 }
