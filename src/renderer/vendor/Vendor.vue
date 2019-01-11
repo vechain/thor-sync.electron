@@ -1,5 +1,14 @@
 <template>
-    <div style="position: absolute;left:0;top:0;right:0"></div>
+    <div>
+        <v-snackbar v-model="snack.open" bottom :timeout="60000" color="info">
+            <v-spacer/>
+            {{snack.message}}
+            <v-btn flat small dark @click="snack.action">{{snack.actionName}}</v-btn>
+            <v-btn dark icon @click="snack.open=false">
+                <v-icon small>close</v-icon>
+            </v-btn>
+        </v-snackbar>
+    </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -12,6 +21,13 @@ import { ipcServe } from '../ipc'
 @Component
 export default class Vendor extends Vue {
     dialogOpened = false
+    snack = {
+        open: false,
+        message: '',
+        actionName: '',
+        action: () => { },
+    }
+
     @State wallets!: entities.Wallet[]
 
     mounted() {
@@ -34,7 +50,16 @@ export default class Vendor extends Vue {
 
     async precheck(contentsId: number) {
         if (this.dialogOpened) { throw new Rejected('request is in progress') }
-        if (this.wallets.length === 0) { throw new Rejected('no wallet available') }
+        if (!this.wallets.length) {
+            this.snack.open = true
+            this.snack.message = 'You have no wallet yet'
+            this.snack.actionName = 'Create Now'
+            this.snack.action = () => {
+                this.snack.open = false
+                BUS.$emit('open-tab', { href: 'sync://wallets', mode: 'inplace-builtin' })
+            }
+            throw new Rejected('no wallet available')
+        }
         const callingWebContents = remote.webContents.fromId(contentsId)
         // either focused or dev tools opened
         if (!remote.webContents.fromId(contentsId).isFocused() &&
