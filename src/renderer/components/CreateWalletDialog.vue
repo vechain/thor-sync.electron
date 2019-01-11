@@ -1,98 +1,99 @@
 <template>
     <DialogEx persistent v-model="opened" width="780" @action:ok="onOK" @action:cancel="onCancel">
         <v-card>
-            <v-card-text>
-                <v-layout column style="height:400px">
-                    <div class="subheading font-weight-light">Create Wallet</div>
-                    <v-stepper v-if="step<4" class="elevation-0" v-model="step">
-                        <v-stepper-header class="elevation-0">
-                            <v-stepper-step :complete="step > 1" step="1"/>
-                            <v-divider/>
-                            <v-stepper-step :complete="step > 2" step="2"/>
-                            <v-divider/>
-                            <v-stepper-step :complete="step > 3" step="3"/>
-                        </v-stepper-header>
-                        <div class="title font-weight-light pl-4">{{stepTitles[step-1]}}</div>
-                        <v-stepper-items>
-                            <v-stepper-content step="1">
-                                <v-form ref="form">
-                                    <v-text-field
-                                        v-focus
-                                        validate-on-blur
-                                        label="Wallet name"
-                                        v-model="name"
-                                        :counter="20"
-                                        :rules="nameRules"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        validate-on-blur
-                                        label="Password"
-                                        type="password"
-                                        v-model="password"
-                                        :rules="passwordRules"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        validate-on-blur
-                                        label="Repeat password"
-                                        type="password"
-                                        v-model="repeatedPassword"
-                                        :rules="repeatedPasswordRules"
-                                    ></v-text-field>
-                                </v-form>
-                            </v-stepper-content>
-                            <v-stepper-content step="2">
-                                <MnemonicWords :words="words"/>
-                            </v-stepper-content>
-                            <v-stepper-content step="3">
-                                <WordPuzzle :words="words" v-model="puzzleSovled"/>
-                            </v-stepper-content>
-                        </v-stepper-items>
-                    </v-stepper>
-                    <v-layout v-else column>
-                        <v-layout v-if="wallet" column align-center justify-center fill-height>
-                            <span class="headline font-weight-light">Congratulations</span>
-                            <div class="py-3">
-                                <v-icon small color="success">mdi-check-decagram</v-icon>
-                                <span>This is your new wallet!</span>
-                            </div>
-                            <WalletCard
-                                flat
-                                class="outline"
-                                style="border-radius:9px;width:170px;"
-                                :wallet="wallet"
-                            />
-                            <QRCode :size="80" class="mt-3">{{wallet.address | checksum}}</QRCode>
-                        </v-layout>
-                        <v-layout
-                            v-else-if="error"
-                            column
-                            align-center
-                            justify-center
-                            fill-height
-                        >{{result.err}}</v-layout>
-                        <v-layout v-else column align-center justify-center fill-height>
-                            <p>Processing... a monent</p>
-                            <v-progress-linear color="success" indeterminate></v-progress-linear>
-                        </v-layout>
+            <v-card-title class="subheading">Create Wallet</v-card-title>
+            <v-card-text style="height:380px" class="py-0">
+                <v-stepper v-if="step<4" class="elevation-0" v-model="step">
+                    <v-stepper-header class="elevation-0">
+                        <v-stepper-step :complete="step > 1" step="1"/>
+                        <v-divider/>
+                        <v-stepper-step :complete="step > 2" step="2"/>
+                        <v-divider/>
+                        <v-stepper-step :complete="step > 3" step="3"/>
+                    </v-stepper-header>
+                    <div class="title font-weight-light pl-4">{{stepTitles[step-1]}}</div>
+                    <v-stepper-items>
+                        <v-stepper-content step="1">
+                            <v-form ref="form">
+                                <v-text-field
+                                    v-focus
+                                    validate-on-blur
+                                    label="Wallet name"
+                                    v-model="name"
+                                    :counter="20"
+                                    :rules="nameRules"
+                                ></v-text-field>
+                                <v-text-field
+                                    validate-on-blur
+                                    label="Password"
+                                    type="password"
+                                    v-model="password"
+                                    :rules="passwordRules"
+                                ></v-text-field>
+                                <v-text-field
+                                    validate-on-blur
+                                    label="Repeat password"
+                                    type="password"
+                                    v-model="repeatedPassword"
+                                    :rules="repeatedPasswordRules"
+                                ></v-text-field>
+                            </v-form>
+                        </v-stepper-content>
+                        <v-stepper-content step="2">
+                            <MnemonicWords :words="words"/>
+                        </v-stepper-content>
+                        <v-stepper-content step="3">
+                            <WordPuzzle :words="words" v-model="puzzleSovled"/>
+                        </v-stepper-content>
+                    </v-stepper-items>
+                </v-stepper>
+                <v-layout v-else column fill-height>
+                    <v-layout v-if="wallet" column align-center justify-center fill-height>
+                        <span class="headline font-weight-light">Congratulations</span>
+                        <div class="py-3">
+                            <v-icon small color="success">mdi-check-decagram</v-icon>
+                            <span>This is your new wallet!</span>
+                        </div>
+                        <WalletCard
+                            flat
+                            class="outline"
+                            style="border-radius:9px;width:170px;"
+                            :wallet="wallet"
+                        />
+                        <QRCode :size="80" class="mt-3">{{wallet.address | checksum}}</QRCode>
+                    </v-layout>
+                    <v-layout
+                        v-else-if="error"
+                        column
+                        align-center
+                        justify-center
+                        fill-height
+                    >{{result.err}}</v-layout>
+                    <v-layout v-else column align-center justify-center fill-height>
+                        <p>Processing... a monent</p>
+                        <v-progress-linear color="success" indeterminate></v-progress-linear>
                     </v-layout>
                 </v-layout>
             </v-card-text>
+            <v-divider/>
             <v-card-actions>
+                <v-btn v-show="step<4" ref="abort" flat small @click="onAbort" tabindex="2">Abort</v-btn>
                 <v-spacer/>
                 <v-btn
-                    v-show="step<4"
-                    ref="abort"
-                    class="mr-5"
+                    small
+                    v-show="step<4 && step>1"
+                    class="secondary"
+                    dark
                     flat
-                    @click="onAbort"
-                    tabindex="2"
-                >Abort</v-btn>
-                <v-btn v-show="step<4" flat @click="onBack" tabindex="1">Back</v-btn>
+                    @click="onBack"
+                    tabindex="1"
+                >Back</v-btn>
                 <v-btn
                     ref="next"
                     :disabled="processing"
                     flat
-                    color="primary"
+                    small
+                    class="primary"
                     @click="onNext"
                 >{{(step > 3 && !processing) ? 'Done' : 'Next'}}</v-btn>
             </v-card-actions>
@@ -165,14 +166,14 @@ export default class CreateWalletDialog extends Mixins(class extends DialogHelpe
     }
 
     onAbort() {
-        if (this.step > 3) {
+        if (this.step > 3 || this.processing) {
             return
         }
         this.close(null)
     }
 
     onBack() {
-        if (this.step < 2) {
+        if (this.step < 2 || this.processing) {
             return
         }
         this.step--
