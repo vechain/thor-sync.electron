@@ -1,4 +1,4 @@
-import { app, CertificateVerifyProcRequest } from 'electron'
+import { app, CertificateVerifyProcRequest, crashReporter } from 'electron'
 import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
@@ -8,6 +8,13 @@ import * as log from 'electron-log'
 
 process.on('uncaughtException', err => {
     log.error('uncaught exception', err)
+})
+
+crashReporter.start({
+    productName: 'thor-sync-electron',
+    companyName: 'vechain',
+    submitURL: 'https://submit.backtrace.io/vechain/a14441c8b2c2405a70ee6c89822148856314a8fa920adf4d80876fa14864f9a7/minidump', // tslint:disable:max-line-length
+    uploadToServer: true,
 })
 
 declare module 'electron' {
