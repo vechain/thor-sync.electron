@@ -39,11 +39,12 @@ import TableLoader from '@/renderer/mixins/table-loader';
 class AcititiesLoader extends TableLoader<entities.Activity<'tx' | 'cert'>, number> {
     table = BDB.activities
     filter = () => {
+        const timeBefore = Date.now() - 24 * 3600 * 1000
+        let n = 20
         return BDB.activities
-            .where('createdTime')
-            .above(Date.now() - 24 * 3600 * 1000)
             .reverse()
-            .sortBy('createdTime')
+            .filter(a => n-- >= 0 || a.createdTime > timeBefore)
+            .toArray()
     }
 }
 
