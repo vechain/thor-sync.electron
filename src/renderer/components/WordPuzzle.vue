@@ -80,7 +80,7 @@ export default class WordPuzzle extends Vue {
     unpickWord(word: Word) {
         word.picked = false
         this.pickedWords = this.pickedWords.filter(w => w.picked)
-
+        
         this.enforceValue()
     }
 
