@@ -1,6 +1,7 @@
 import { net } from 'electron'
 import * as QS from 'qs'
 import * as NodeUrl from 'url'
+import * as log from 'electron-log'
 
 export class Net {
     public static request(options: {
@@ -12,14 +13,12 @@ export class Net {
         return new Promise<Response>((_resolve, _reject) => {
             const resolve = (r: Response) => {
                 clearInterval(timer)
-                // tslint:disable-next-line:no-console
-                console.log(`net(${Date.now() - start}ms)`, r.statusCode, options.method, options.url)
+                log.debug(`net(${Date.now() - start}ms)`, r.statusCode, options.method, options.url)
                 _resolve(r)
             }
             const reject = (err: any) => {
                 clearInterval(timer)
-                // tslint:disable-next-line:no-console
-                console.warn(`net(${Date.now() - start}ms)`, options.method, options.url,
+                log.warn(`net(${Date.now() - start}ms)`, options.method, options.url,
                     `[${err.name}: ${err.message}]`)
                 _reject(err)
             }

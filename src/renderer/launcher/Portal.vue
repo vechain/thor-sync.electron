@@ -81,7 +81,7 @@ export default class Portal extends Vue {
                     faviconsCache[href] = favicon
                 }
             })
-            .catch(console.warn)
+            .catch(err => LOG.warn('Portal:', 'query access records error', err))
         return ''
     }
 

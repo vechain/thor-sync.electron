@@ -52,13 +52,13 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
         GDB.shortcuts.update(this.arg.id, {
             title: this.arg.title,
             href: this.arg.href,
-        }).catch(console.warn)
+        }).catch(err => LOG.warn('ShortcutEditDialog', 'save error', err))
         this.open = false
     }
 
     remove() {
         GDB.shortcuts.delete(this.arg.id)
-            .catch(console.warn)
+            .catch(err => LOG.warn('ShortcutEditDialog', 'remove error', err))
         this.open = false
     }
 }

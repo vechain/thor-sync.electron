@@ -1,9 +1,14 @@
-import { app, CertificateVerifyProcRequest, BrowserWindow } from 'electron'
+import { app, CertificateVerifyProcRequest } from 'electron'
 import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import { MQ } from './mq'
 import env from '@/env'
+import * as log from 'electron-log'
+
+process.on('uncaughtException', err => {
+    log.error('uncaught exception', err)
+})
 
 declare module 'electron' {
     interface App {
@@ -28,13 +33,6 @@ declare module 'electron' {
     }
 }
 
-
-// tslint:disable-next-line:no-var-requires
-require('electron-unhandled')({
-    //    logger: console.error,
-    showDialog: false
-})
-
 app.setName('Sync')
 
 if (env.devMode || app.requestSingleInstanceLock()) {
@@ -58,6 +56,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     let initExternalUrl = (env.devMode ? '' : process.argv[1]) || ''
 
     const certVerifyProc = (req: CertificateVerifyProcRequest, callback: (verificationResult: number) => void) => {
+        log.debug('Certificate request:', req.hostname, req.verificationResult)
         certs.set(req.hostname, req)
         if (req.verificationResult === 'net::OK') {
             callback(0)
@@ -76,8 +75,10 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         dispatchDbEvent: event => winMgr.dispatchDbEvent(event)
     }
 
-    app.on('web-contents-created', (_, contents) => {
-        contents.on('did-attach-webview', (__, wc) => {
+    app.on('web-contents-created', (ev, contents) => {
+        log.debug('App:', 'web-contents-created', `#${contents.id}`)
+        contents.on('did-attach-webview', (_ev, wc) => {
+            log.debug('WebContents:', 'did-attach-webview', `#${wc.id}`)
             wc.session.setCertificateVerifyProc(certVerifyProc)
             // for all webview
             contextMenu({
@@ -86,6 +87,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             })
         })
     }).on('ready', () => {
+        log.debug('App:', 'ready')
         setupMenu()
         if (initExternalUrl) {
             if (!winMgr.openUrl(initExternalUrl)) {
@@ -95,6 +97,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             winMgr.create()
         }
     }).on('open-url', (ev, externalUrl) => {
+        log.debug('App:', 'open-url', externalUrl)
         // TODO windows/linux
         ev.preventDefault()
         if (app.isReady()) {
@@ -103,12 +106,14 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             initExternalUrl = externalUrl
         }
     }).on('activate', () => {
+        log.debug('App', 'activate')
         // On OS X it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
         if (winMgr.activeCount === 0) {
             winMgr.create()
         }
     }).on('second-instance', (ev, argv) => {
+        log.debug('App', 'second-instance', argv)
         const externalUrl = argv[1]
         if (externalUrl) {
             if (winMgr.openUrl(externalUrl)) {
@@ -117,6 +122,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         }
         winMgr.focus()
     }).on('window-all-closed', () => {
+        log.debug('App', 'window-all-closed')
         if (process.platform !== 'darwin') {
             app.quit()
         }

@@ -66,10 +66,6 @@ export default class Launcher extends Vue {
         this.router.$mount('#content')
         this.router.$router.push(hrefToPath(this.href || ''))
         this.routed()
-
-        BUS.$on('wallet-deleted', () => {
-            this.router.$router.push({ name: 'wallets' })
-        })
     }
     destroyed() {
         this.router.$destroy()

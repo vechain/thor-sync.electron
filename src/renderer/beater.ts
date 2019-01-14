@@ -29,27 +29,23 @@ export function listen(listener: (beat: Beat) => void) {
         }, 10 * 1000)
 
         ws.onopen = ev => {
-            // tslint:disable-next-line:no-console
-            console.log('websocket open:', ev)
+            LOG.debug('Beater:', 'websocket open', ev)
         }
         ws.onmessage = ev => {
             try {
                 listener(JSON.parse(ev.data))
                 idles = 0
             } catch (err) {
-                // tslint:disable-next-line:no-console
-                console.warn('websocket message:', ev, 'failed to parse msg data', err)
+                LOG.warn('Beater:', 'websocket message', ev, 'failed to parse msg data', err)
                 ws.close()
             }
         }
         ws.onerror = ev => {
-            // tslint:disable-next-line:no-console
-            console.warn('websocket error:', ev)
+            LOG.warn('Beater:', 'websocket error:', ev)
             ws.close()
         }
         ws.onclose = ev => {
-            // tslint:disable-next-line:no-console
-            console.log('websocket close:', ev)
+            LOG.debug('Beater:', 'websocket close:', ev)
             setTimeout(next, 20 * 1000)
             clearInterval(timer)
         }

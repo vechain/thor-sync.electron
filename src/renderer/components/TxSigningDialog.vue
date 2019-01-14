@@ -240,7 +240,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
                 this.estimation.error = ''
             }
         } catch (err) {
-            console.warn(err)
+            LOG.warn('TxSigningDialog:', 'estimateGas error', err)
             if (seq === this.estimateGasSeq) {
                 this.estimation.error = err.message
             }
@@ -289,7 +289,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
                 timestamp
             })
         } catch (err) {
-            console.warn(err)
+            LOG.warn('TxSigningDialog:', 'sign error', err)
             if (err.message === 'message authentication code mismatch') {
                 this.passwordError = 'Incorrect password'
                 setTimeout(() => {

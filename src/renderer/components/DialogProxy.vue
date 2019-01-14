@@ -19,7 +19,7 @@ export default class DialogProxy extends Vue {
 
     created() {
         if (Vue.prototype.$dialogProxy) {
-            console.warn("$dialogProxy already exist")
+            LOG.warn('DialogProxy:', '$dialogProxy already exist')
         } else {
             Vue.prototype.$dialogProxy = this
         }

@@ -72,8 +72,7 @@ class Database extends Dexie {
                     })
                 })
             })
-            // tslint:disable-next-line:no-console
-            .catch(err => console.error(err))
+            .catch(err => LOG.warn('Database:', 'open error', err))
 
     }
 }
