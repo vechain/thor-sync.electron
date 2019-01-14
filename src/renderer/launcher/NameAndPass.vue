@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <v-form>
         <v-text-field
             v-focus
             validate-on-blur
@@ -22,7 +22,7 @@
             v-model="repeatedPassword"
             :rules="[repeatedPasswordRule]"
         ></v-text-field>
-    </div>
+    </v-form>
 </template>
 <script lang="ts">
     import { Vue, Component, Prop, Model, Watch } from 'vue-property-decorator'

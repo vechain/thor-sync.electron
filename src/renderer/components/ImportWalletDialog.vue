@@ -1,9 +1,9 @@
 <template>
-    <DialogEx persistent v-model="show" max-width="500px">
+    <DialogEx persistent @action:ok="nextMove" v-model="show" max-width="500px">
         <slot slot="activator" name="activator"/>
         <v-card>
+            <v-card-title class="subheading">Import Wallet</v-card-title>
             <v-card-text>
-                <div class="subheading font-weight-light">Import Wallet</div>
                 <v-stepper class="elevation-0" v-model="step">
                     <v-stepper-header class="elevation-0">
                         <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
@@ -13,10 +13,10 @@
                     <div class="title font-weight-light pl-4">{{['Import', 'Set Password'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
-                            <ContentForm v-if="show" ref="pk" v-model="content"></ContentForm>
+                            <ContentForm ref="pk" v-model="content"></ContentForm>
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <NameAndPass v-if="show" v-model="nameAndPass"></NameAndPass>
+                            <NameAndPass ref="np" v-model="nameAndPass"></NameAndPass>
                             <v-checkbox
                                 v-if="addressExist"
                                 :ripple="false"
@@ -27,15 +27,12 @@
                     </v-stepper-items>
                 </v-stepper>
             </v-card-text>
+            <v-divider/>
             <v-card-actions>
-                <v-btn @click="preMove" flat>{{ BackBtnStatus.text }}</v-btn>
+                <v-btn small flat @click="preMove">{{ BackBtnStatus.text }}</v-btn>
                 <v-spacer/>
-                <v-btn
-                    @click="nextMove"
-                    :disabled="preBtnStatus.disable"
-                    flat
-                    color="primary"
-                >{{ preBtnStatus.text }}</v-btn>
+                <!-- :disabled="preBtnStatus.disable" -->
+                <v-btn @click="nextMove" small flat color="primary">{{ preBtnStatus.text }}</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -76,7 +73,7 @@
         }
         @Watch('show')
         onShowChange() {
-            if(!this.show) {
+            if (!this.show) {
                 this.$resolve(undefined)
             }
         }
@@ -121,6 +118,9 @@
         async nextMove() {
             if (this.step === 1) {
                 const form = this.$refs.pk as ContentForm
+                if (!form.valid) {
+                    return
+                }
                 this.pk = await form.getPrivateKey()
                 const address = cry.publicKeyToAddress(
                     cry.secp256k1.derivePublicKey(this.pk)
@@ -134,6 +134,10 @@
                 }
                 this.step++
             } else {
+                const form = this.$refs.np as NameAndPass
+                if (!form.valid) {
+                    return
+                }
                 try {
                     const privateKey = this.pk
 
