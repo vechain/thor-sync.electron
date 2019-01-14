@@ -21,6 +21,7 @@
                                     :error-messages="error.messages"
                                     type="password"
                                     label="Password"
+                                    @change="pwdChanged"
                                     v-model="password"
                                     :loading="checking"
                                 >
@@ -86,13 +87,13 @@
         repeatedPassword = ''
         step = 1
         privateKey: Buffer | null = null
-        error: {
-            isError: boolean
-            messages: string[]
-        } = {
-            isError: false,
-            messages: []
-        }
+        // error: {
+        //     isError: boolean
+        //     messages: string[]
+        // } = {
+        //     isError: false,
+        //     messages: []
+        // }
 
         @Watch('show')
         showChanged(val: boolean) {

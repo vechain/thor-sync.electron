@@ -9,7 +9,10 @@ export default class AccountMixin extends Vue {
     isError: false,
     messages: []
   }
-
+  pwdChanged () {
+    this.error.isError = false
+    this.error.messages = []
+  }
   public async checkPwd(password: string, ks?: cry.Keystore) {
     if (ks) {
       try {
