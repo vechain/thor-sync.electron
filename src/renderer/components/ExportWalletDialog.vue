@@ -19,6 +19,7 @@
                                 :error="error.isError"
                                 :error-messages="error.messages"
                                 type="password"
+                                @change="pwdChanged"
                                 label="Password"
                                 v-model="password"
                                 :loading="checking"
