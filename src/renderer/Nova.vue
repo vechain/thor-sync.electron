@@ -238,6 +238,7 @@ import Vendor from './vendor'
 import Launcher from './launcher'
 import * as UrlUtils from '@/common/url-utils'
 import { State } from 'vuex-class'
+import { nameOfNetwork } from '@/node-configs'
 
 class Page {
     static nextId = 0
@@ -429,6 +430,7 @@ export default class Nova extends Vue {
         (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
     }
     async created() {
+        this.$ga.page(`app.${process.platform}/${nameOfNetwork(connex.thor.genesis.id)}net`)
         const mq = remote.app.EXTENSION.mq
         const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
         const initTabAction = mq.peek(tabActionTopic) as (TabAction | null)
