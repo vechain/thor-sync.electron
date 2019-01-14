@@ -43,7 +43,11 @@
                             <MnemonicWords :words="words"/>
                         </v-stepper-content>
                         <v-stepper-content step="3">
-                            <WordPuzzle :words="words" v-model="puzzleSovled"/>
+                            <WordPuzzle :words="words" @click.native="puzzleChange" v-model="puzzleSovled"/>
+                            <div
+                                class="error--text pl-4"
+                                v-if="!puzzleSovled && showPuzzleError"
+                            >Please double check the mnemonic phrases on your paper</div>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
@@ -120,6 +124,7 @@
         password = ''
         repeatedPassword = ''
         words = generateWords()
+        showPuzzleError = false
         puzzleSovled = false
         wallet: entities.Wallet | null = null
         error: Error | null = null
@@ -128,7 +133,9 @@
             return this.step > 3 && !this.wallet && !this.error
         }
         readonly nameRules = [
-            (val: string) => (!!val && !!val.trim()) || 'Create a name that is simple enough to remember',
+            (val: string) =>
+                (!!val && !!val.trim()) ||
+                'Create a name that is simple enough to remember',
             (val: string) =>
                 (!!val && !!val.trim() && val.trim().length <= 20) ||
                 `Wallet's name is longer than 20 characters`
@@ -150,6 +157,10 @@
             this.opened = false
         }
 
+        puzzleChange() {
+            this.showPuzzleError = false
+        }
+
         onNext() {
             if (this.processing) {
                 return
@@ -162,6 +173,7 @@
             } else if (this.step === 2) {
             } else if (this.step === 3) {
                 if (!this.puzzleSovled && !ENV.devMode) {
+                    this.showPuzzleError = true
                     return
                 }
                 this.encryptAndSave()
