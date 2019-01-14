@@ -1,4 +1,5 @@
 import { Net } from './net'
+import * as log from 'electron-log'
 
 class Item {
     private static readonly MAX_RETRIES = 5
@@ -43,10 +44,10 @@ class Item {
         try {
             this.requesting = true
             const { id } = await this.net.post<{ id: string }>('transactions', { raw: this.rawTx })
-            // tslint:disable-next-line:no-console
-            console.log('tx sent: ' + id)
+            log.debug('TxQueue:', `tx sent ${id}`)
             this.sent = true
         } catch (err) {
+            log.warn('TxQueue:', `tx send error ${err}`)
             this.retries++
             if (this.retries < Item.MAX_RETRIES) {
                 this.timer = setTimeout(() => {

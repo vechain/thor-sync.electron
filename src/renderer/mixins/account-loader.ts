@@ -20,8 +20,7 @@ export default class AccountLoader extends Vue {
                     this.account = acc
                 }
             } catch (err) {
-                // tslint:disable-next-line:no-console
-                console.warn(err)
+                LOG.warn('AccountLoader:', `error ${err}`)
             }
         }
     }

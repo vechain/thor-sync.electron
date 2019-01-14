@@ -10,7 +10,11 @@ import VueRouter from 'vue-router'
 import Nova from './Nova.vue'
 import Store from './store'
 import DialogHelper from './mixins/dialog-helper'
+import VueAnalytics from 'vue-analytics'
 
+Vue.use(VueAnalytics, {
+    id: 'UA-132391998-1'
+})
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
 })

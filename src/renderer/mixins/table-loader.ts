@@ -32,8 +32,7 @@ export default class TableLoader<T, Key> extends Vue {
             this.loading = true
             this.rows = await this.filter()
         } catch (err) {
-            // tslint:disable-next-line:no-console
-            console.warn(err)
+            LOG.warn('TableLoader:', `error ${err}`)
         } finally {
             this.loading = false
         }

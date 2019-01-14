@@ -1,4 +1,3 @@
-
 async function handleTx(txRow: entities.Activity<'tx'>, dispose: () => void) {
     try {
         const ticker = connex.thor.ticker()
@@ -19,8 +18,7 @@ async function handleTx(txRow: entities.Activity<'tx'>, dispose: () => void) {
                         break
                     }
                 } catch (err) {
-                    // tslint:disable-next-line:no-console
-                    console.warn(err)
+                    LOG.warn('TxTracker:', `error ${err}`)
                 }
             }
             await ticker.next()

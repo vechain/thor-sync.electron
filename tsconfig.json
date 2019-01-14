@@ -17,8 +17,9 @@
     ],
     "paths": {
       "@/*": [
-        "src/*"
-      ]
+        "src/*",
+      ],
+      "vue-analytics": ["typings/vue-analytics"]
     },
     "lib": [
       "es2015",

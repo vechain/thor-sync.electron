@@ -1,6 +1,7 @@
 import { webContents } from 'electron'
 import { Node, createClient } from './node'
 import { manageObject } from './manage-object'
+import * as log from 'electron-log'
 
 export class Backend {
     private readonly activeNodes = new Map<string, { node: Node, refCount: number }>()
@@ -27,8 +28,7 @@ export class Backend {
             contents.removeListener('destroyed', disconnect)
             this.connections.delete(contentsId)
 
-            // tslint:disable-next-line:no-console
-            console.log('connex disconnected')
+            log.debug('Backend:', 'client disconnected')
             this.releaseNode(config)
         }
 
@@ -44,8 +44,8 @@ export class Backend {
         this.connections.set(contentsId, {
             disconnect
         })
-        // tslint:disable-next-line:no-console
-        console.log('connex connected')
+
+        log.debug('Backend:', 'client connected')
 
         return manageObject(createClient(node), signal)
     }
@@ -58,16 +58,14 @@ export class Backend {
         let value = this.activeNodes.get(key)
         if (value) {
             value.refCount++
-            // tslint:disable-next-line:no-console
-            console.log(`acquireNode: <${key}> #${value.refCount}`)
+            log.debug('Backend:', `acquireNode: <${key}> #${value.refCount}`)
         } else {
             value = {
                 node: new Node(config),
                 refCount: 1
             }
             this.activeNodes.set(key, value)
-            // tslint:disable-next-line:no-console
-            console.log(`acquireNode: <${key}> node created`)
+            log.debug('Backend:', `acquireNode: <${key}> node created`)
         }
         return value.node
     }
@@ -77,17 +75,16 @@ export class Backend {
         const value = this.activeNodes.get(key)
         if (value) {
             value.refCount--
-            // tslint:disable-next-line:no-console
-            console.log(`releaseNode: <${key}> #${value.refCount}`)
+            log.debug('Backend:', `releaseNode: <${key}> #${value.refCount}`)
             if (value.refCount === 0) {
                 value.node.close()
                 this.activeNodes.delete(key)
                 // tslint:disable-next-line:no-console
-                console.log(`releaseNode: <${key}> node destroyed`)
+                log.debug('Backend:', `releaseNode: <${key}> node destroyed`)
             }
         } else {
             // tslint:disable-next-line:no-console
-            console.warn(`releaseNode: <${key}> found`)
+            log.warn('Backend:', `releaseNode: <${key}> found`)
         }
     }
 }

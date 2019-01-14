@@ -5,11 +5,13 @@ import env from '@/env'
 import { trackTxLoop } from './tx-tracker'
 import { create as createConnex } from './connex-impl'
 import * as Beater from './beater'
+import Log from 'electron-log'
 
 // widgets to be bound onto window.
 // widgets names should be full caps.
 declare global {
     interface Window {
+        readonly LOG: typeof Log
         readonly ENV: typeof env
         readonly GDB: GlobalDatabase
         readonly BDB: BoundedDatabase
@@ -17,6 +19,7 @@ declare global {
         readonly BUS: Vue
         readonly CLIENT: Client
     }
+    const LOG: typeof Log
     const ENV: typeof env
     const GDB: GlobalDatabase
     const BDB: BoundedDatabase
@@ -29,6 +32,10 @@ const client = remote.app.EXTENSION.connect(
     remote.getCurrentWebContents().getWebPreferences().nodeConfig!
 )
 
+Object.defineProperty(window, 'LOG', {
+    value: Log,
+    enumerable: true
+})
 Object.defineProperty(window, 'connex', {
     value: createConnex(client, 100),
     enumerable: true
