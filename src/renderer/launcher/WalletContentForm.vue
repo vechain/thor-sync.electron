@@ -105,7 +105,7 @@
         validateContent() {
             const type = this.form.type
             let result: string | boolean = false
-            const content = this.form.content.trim()
+            const content = this.form.content
             switch (type) {
                 case 1:
                     result = this.validateKeyStore(content) || 'Keystore invalid'

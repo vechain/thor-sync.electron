@@ -11,7 +11,7 @@
                     </v-stepper-header>
                     <div
                         class="title font-weight-light pl-4"
-                    >{{['Verify Password', 'Keystore'][step-1]}}</div>
+                    >{{[`Please enter your wallet password`, `Copy your keystore or save it in custom path`][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
                             <v-text-field
@@ -33,7 +33,7 @@
                             </v-text-field>
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <v-textarea readonly box v-model="ks" />
+                            <v-textarea readonly box v-model="ks"/>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
