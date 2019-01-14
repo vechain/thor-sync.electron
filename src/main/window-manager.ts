@@ -9,7 +9,7 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
     width: 1000,
     minWidth: 800,
     minHeight: 600,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#fafafa',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     frame: process.platform === 'darwin'
 }
