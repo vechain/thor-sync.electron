@@ -1,5 +1,13 @@
 
 import { remakeError } from '@/common/custom-error'
+
+
+// In case of preload, client page may overwrite global classes, like Promise.
+// tslint:disable-next-line:variable-name
+const PromiseClass = Promise
+// tslint:disable-next-line:variable-name
+const ProxyClass = Proxy
+
 export function throttle<T extends object>(obj: T, concurrent: number) {
     return _throttle(obj, {
         concurrent,
@@ -9,7 +17,7 @@ export function throttle<T extends object>(obj: T, concurrent: number) {
 }
 
 function _throttle<T extends object>(obj: T, ctx: Context): T {
-    return new Proxy(obj, {
+    return new ProxyClass(obj, {
         get: (target, key, receiver) => {
             const prop = Reflect.get(target, key, receiver)
             if (target.hasOwnProperty(key)) {
@@ -21,10 +29,10 @@ function _throttle<T extends object>(obj: T, ctx: Context): T {
         },
         apply: (target, thisArg, argArray) => {
             const result = Reflect.apply(target as any, thisArg, argArray)
-            if (result instanceof Promise) {
+            if (result instanceof PromiseClass) {
                 return (async () => {
                     ctx.pending++
-                    await new Promise(resolve => {
+                    await new PromiseClass(resolve => {
                         if (ctx.pending > ctx.concurrent) {
                             // tslint:disable-next-line:no-console
                             console.warn(
