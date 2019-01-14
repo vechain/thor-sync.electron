@@ -1,39 +1,29 @@
 <template>
-    <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
-        <v-card  ref="card" flat>
-            <v-card-text class="pb-0 pr-0">
-                <div class="subheading font-weight-light">Verify Password</div>
-                <form @submit.prevent="onNext">
-                    <v-card flat>
-                        <v-card-text class="pr-3">
-                            <div class="pr-3">
-                            <v-text-field
-                                :error="error.isError"
-                                :error-messages="error.messages"
-                                type="password"
-                                v-focus
-                                label="Password"
-                                v-model="password"
-                                :loading="checking"
-                            >
-                                <v-progress-linear
-                                    v-if="checking"
-                                    slot="progress"
-                                    indeterminate
-                                    height="2"
-                                ></v-progress-linear>
-                            </v-text-field>
-                            </div>
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn flat @click.stop="close">Cancel</v-btn>
-                            <v-btn flat type="submit" color="error">Delete</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </form>
-            </v-card-text>
-        </v-card>
+    <DialogEx v-model="show" @action:cancel="show=false" max-width="400px">
+        <v-form @submit.prevent="onNext">
+            <v-card>
+                <v-card-title class="subheading">Verify Password</v-card-title>
+                <v-card-text>
+                    <v-text-field
+                        :error="error.isError"
+                        :error-messages="error.messages"
+                        type="password"
+                        v-focus
+                        label="Password"
+                        v-model="password"
+                        :loading="checking"
+                    >
+                        <v-progress-linear v-if="checking" slot="progress" indeterminate height="2"></v-progress-linear>
+                    </v-text-field>
+                </v-card-text>
+                <v-divider/>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn small flat @click.stop="close">Cancel</v-btn>
+                    <v-btn small flat type="submit" color="error">Delete</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-form>
     </DialogEx>
 </template>
 <script lang="ts">
