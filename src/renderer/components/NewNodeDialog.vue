@@ -2,11 +2,12 @@
     <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
         <slot slot="activator" name="activator"/>
         <v-card>
+            <v-card-title class="subheading">{{isEditing ? 'Edit Node' : 'New Node'}}</v-card-title>
             <v-form @submit.prevent="save" ref="form" v-model="valid">
                 <v-card-text>
-                    <div class="headline">{{isEditing ? 'Edit Node' : 'New Node'}}</div>
-                    <v-layout>
-                        <v-flex>
+                    
+                    <!-- <v-layout>
+                        <v-flex> -->
                             <v-text-field
                                 v-focus
                                 validate-on-blur
@@ -22,19 +23,21 @@
                                 label="URL"
                                 :loading="checking"
                             ></v-text-field>
-                        </v-flex>
-                    </v-layout>
+                        <!-- </v-flex>
+                    </v-layout> -->
                 </v-card-text>
+                <v-divider/>
                 <v-card-actions>
                     <v-btn
                         flat
+                        small
                         v-if="isEditing"
                         @click.native="onDelete"
                         color="error darken-1"
                     >Delete</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary darken-1" flat @click.native="clear">Cancel</v-btn>
-                    <v-btn :disabled="checking" type="submit" color="primary darken-1" flat>Save</v-btn>
+                    <v-btn small color="primary darken-1" flat @click.native="clear">Cancel</v-btn>
+                    <v-btn small :disabled="checking" type="submit" color="primary darken-1" flat>Save</v-btn>
                 </v-card-actions>
             </v-form>
         </v-card>
