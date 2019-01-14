@@ -45,7 +45,6 @@
                         flat
                         small
                         key="the-new-tab-button"
-                        :ripple="false"
                         @mouseup.native="openTab('')"
                         @dblclick.native.stop
                         style="width:auto;height:auto;min-width:auto;"
@@ -62,7 +61,6 @@
                         small
                         icon
                         :disabled="!activePage.canGoBack"
-                        :ripple="false"
                         @click="activePage.goBack()"
                     >
                         <v-icon style="font-size:150%">arrow_back</v-icon>
@@ -72,7 +70,6 @@
                         small
                         icon
                         :disabled="!activePage.canGoForward"
-                        :ripple="false"
                         @click="activePage.goForward()"
                     >
                         <v-icon style="font-size:150%">arrow_forward</v-icon>
@@ -80,7 +77,6 @@
                     <v-btn
                         class="my-1"
                         small
-                        :ripple="false"
                         icon
                         :disabled="activePage.isBuiltin"
                         @click="activePage.reloadOrStop($event.shiftKey)"
@@ -95,7 +91,6 @@
                         <v-layout align-center style="position:relative;" fill-height>
                             <NodeStatusPanel :nudge-top="2" slot="activator">
                                 <v-btn
-                                    :ripple="false"
                                     flat
                                     slot="activator"
                                     class="ma-0 px-1"
@@ -183,13 +178,13 @@
                         <span>Wallets</span>
                     </v-tooltip>
                     <ActivitiesPanel>
-                        <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                        <v-btn class="my-1" icon small slot="activator">
                             <ActivitiesStatus/>
                         </v-btn>
                     </ActivitiesPanel>
                     <v-tooltip open-delay="600">
                         <WindowMenu :items="menuItems" slot="activator">
-                            <v-btn class="my-1" icon small slot="activator" :ripple="false">
+                            <v-btn class="my-1" icon small slot="activator">
                                 <v-icon style="font-size:150%">mdi-dots-vertical</v-icon>
                             </v-btn>
                         </WindowMenu>
@@ -880,9 +875,6 @@ html {
     cursor: default;
 }
 
-.application a {
-    color: #176abd;
-}
 a:not(.v-list__tile):hover {
     color: #2a94ff;
 }
