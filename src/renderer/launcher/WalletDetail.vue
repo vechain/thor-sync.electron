@@ -115,7 +115,7 @@
                 </v-layout>
             </v-card>
             <v-layout justify-space-around>
-                <v-flex xs9 sm10 class="mt-1">
+                <v-flex class="mt-1">
                     <h3
                         flat
                         v-if="list.length"
