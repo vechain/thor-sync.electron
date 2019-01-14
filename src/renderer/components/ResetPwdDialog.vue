@@ -1,10 +1,10 @@
 <template>
-    <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
+    <DialogEx v-model="show" @action:ok="onNext" @action:cancel="show=false" max-width="500px">
         <v-card ref="card">
-            <v-card-text class="pb-0 pr-0">
-                <div class="subheading font-weight-light">Reset Password</div>
+            <v-card-title class="subheading">Reset Password</v-card-title>
+            <v-card-text>
                 <v-stepper class="elevation-0" v-model="step">
-                    <v-stepper-header class="elevation-0 pr-3">
+                    <v-stepper-header class="elevation-0">
                         <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
                         <v-divider></v-divider>
                         <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
@@ -13,69 +13,58 @@
                         class="title font-weight-light pl-4"
                     >{{['Verify Password', 'Reset Password'][step-1]}}</div>
                     <v-stepper-items>
-                        <v-stepper-content class="pr-0 pb-0 pl-0" step="1">
-                            <v-form @submit.prevent="onNext">
-                                <v-card>
-                                    <v-card-text class="pr-3">
-                                        <div class="pr-3">
-                                            <v-text-field
-                                                v-focus
-                                                :error="error.isError"
-                                                :error-messages="error.messages"
-                                                type="password"
-                                                label="Password"
-                                                v-model="password"
-                                                :loading="checking"
-                                            >
-                                                <v-progress-linear
-                                                    v-if="checking"
-                                                    slot="progress"
-                                                    indeterminate
-                                                    height="2"
-                                                ></v-progress-linear>
-                                            </v-text-field>
-                                        </div>
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat @click="close">Cancel</v-btn>
-                                        <v-btn flat type="submit" color="primary">Next</v-btn>
-                                    </v-card-actions>
-                                </v-card>
+                        <v-stepper-content step="1">
+                            <v-form>
+                                <v-text-field
+                                    v-focus
+                                    :error="error.isError"
+                                    :error-messages="error.messages"
+                                    type="password"
+                                    label="Password"
+                                    v-model="password"
+                                    :loading="checking"
+                                >
+                                    <v-progress-linear
+                                        v-if="checking"
+                                        slot="progress"
+                                        indeterminate
+                                        height="2"
+                                    ></v-progress-linear>
+                                </v-text-field>
                             </v-form>
                         </v-stepper-content>
-                        <v-stepper-content class="pr-0 pb-0 pl-0" step="2">
+                        <v-stepper-content step="2">
                             <v-form ref="form" @submit.prevent="resetPwd">
-                                <v-card>
-                                    <v-card-text class="pr-3">
-                                        <div class="pr-3">
-                                            <v-text-field
-                                                validate-on-blur
-                                                :rules="[passwordRule]"
-                                                type="password"
-                                                label="New Password"
-                                                v-model="newPassword"
-                                            ></v-text-field>
-                                            <v-text-field
-                                                validate-on-blur
-                                                :rules="[repeatedPasswordRule]"
-                                                label="Repeat Password"
-                                                type="password"
-                                                v-model="repeatedPassword"
-                                            ></v-text-field>
-                                        </div>
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat @click="close">Cancel</v-btn>
-                                        <v-btn flat type="submit" color="primary">Save</v-btn>
-                                    </v-card-actions>
-                                </v-card>
+                                <v-text-field
+                                    validate-on-blur
+                                    :rules="[passwordRule]"
+                                    type="password"
+                                    label="New Password"
+                                    v-model="newPassword"
+                                ></v-text-field>
+                                <v-text-field
+                                    validate-on-blur
+                                    :rules="[repeatedPasswordRule]"
+                                    label="Repeat Password"
+                                    type="password"
+                                    v-model="repeatedPassword"
+                                ></v-text-field>
                             </v-form>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
             </v-card-text>
+            <v-divider/>
+            <v-card-actions>
+                <v-btn small flat @click="close">Abort</v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                    small
+                    flat
+                    @click="onNext"
+                    color="primary"
+                >{{ this.step === 1 ? 'Next' : 'Save'}}</v-btn>
+            </v-card-actions>
         </v-card>
     </DialogEx>
 </template>
@@ -134,13 +123,17 @@
             return this.repeatedPassword === this.newPassword || 'Password mismatch'
         }
         async onNext() {
-            this.checking = true
-            this.privateKey =
-                (await this.checkPwd(this.password, this.arg.keystore)) || null
-            if (this.privateKey) {
-                this.step = 2
+            if (this.step === 1) {
+                this.checking = true
+                this.privateKey =
+                    (await this.checkPwd(this.password, this.arg.keystore)) || null
+                if (this.privateKey) {
+                    this.step = 2
+                }
+                this.checking = false
+            } else {
+                await this.resetPwd()
             }
-            this.checking = false
         }
 
         get valid() {
