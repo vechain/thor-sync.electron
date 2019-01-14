@@ -1,5 +1,5 @@
 <template>
-    <DialogEx persistent @action:ok="nextMove" v-model="show" max-width="500px">
+    <DialogEx persistent @action:ok="nextMove" v-model="show" max-width="550px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">Import Wallet</v-card-title>
@@ -10,7 +10,9 @@
                         <v-divider/>
                         <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
                     </v-stepper-header>
-                    <div class="title font-weight-light pl-4">{{['Import', 'Set Password'][step-1]}}</div>
+                    <div
+                        class="title font-weight-light pl-4"
+                    >{{['Please select a method to import your wallet', 'Please fill in the fields below to import the wallet'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
                             <ContentForm ref="pk" v-model="content"></ContentForm>
@@ -20,7 +22,7 @@
                             <v-checkbox
                                 v-if="addressExist"
                                 :ripple="false"
-                                label="The wallet already existed, Please check the box to agree overwriting an old wallet."
+                                label="The wallet already existed, Please check the box to agree reset the wallet."
                                 v-model="overWrite"
                             ></v-checkbox>
                         </v-stepper-content>
