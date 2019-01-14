@@ -32,6 +32,7 @@
                 </v-btn>
             </v-flex>
         </v-layout>
+        <p class="error">Please double check the mnemonic phrases on your paper</p>
     </div>
 </template>
 <script lang="ts">

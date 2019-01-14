@@ -2,7 +2,8 @@
     <DialogEx v-model="show" @action:cancel="show=false" max-width="400px">
         <v-form @submit.prevent="onNext">
             <v-card>
-                <v-card-title class="subheading">Verify Password</v-card-title>
+                <v-card-title class="subheading">Delete Wallet</v-card-title>
+                <div class="font-weight-bold pl-4 pr-4">Unless you have backed up your wallet beforehand, your wallet will be permanently deleted. we will not be able to help you restore it</div>
                 <v-card-text>
                     <v-text-field
                         :error="error.isError"
@@ -18,8 +19,8 @@
                 </v-card-text>
                 <v-divider/>
                 <v-card-actions>
+                    <v-btn small flat @click.stop="close">Abort</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn small flat @click.stop="close">Cancel</v-btn>
                     <v-btn small flat type="submit" color="error">Delete</v-btn>
                 </v-card-actions>
             </v-card>

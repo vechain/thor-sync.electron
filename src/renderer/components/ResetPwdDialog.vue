@@ -11,31 +11,29 @@
                     </v-stepper-header>
                     <div
                         class="title font-weight-light pl-4"
-                    >{{['Verify Password', 'Reset Password'][step-1]}}</div>
+                    >{{[`Please enter your wallet's password`, 'Please enter your new password'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1">
-                            <v-form>
-                                <v-text-field
-                                    v-focus
-                                    :error="error.isError"
-                                    :error-messages="error.messages"
-                                    type="password"
-                                    label="Password"
-                                    @change="pwdChanged"
-                                    v-model="password"
-                                    :loading="checking"
-                                >
-                                    <v-progress-linear
-                                        v-if="checking"
-                                        slot="progress"
-                                        indeterminate
-                                        height="2"
-                                    ></v-progress-linear>
-                                </v-text-field>
-                            </v-form>
+                            <v-text-field
+                                v-focus
+                                :error="error.isError"
+                                :error-messages="error.messages"
+                                type="password"
+                                label="Password"
+                                @change="pwdChanged"
+                                v-model="password"
+                                :loading="checking"
+                            >
+                                <v-progress-linear
+                                    v-if="checking"
+                                    slot="progress"
+                                    indeterminate
+                                    height="2"
+                                ></v-progress-linear>
+                            </v-text-field>
                         </v-stepper-content>
                         <v-stepper-content step="2">
-                            <v-form ref="form" @submit.prevent="resetPwd">
+                            <v-form ref="form">
                                 <v-text-field
                                     validate-on-blur
                                     :rules="[passwordRule]"
@@ -124,6 +122,7 @@
             return this.repeatedPassword === this.newPassword || 'Password mismatch'
         }
         async onNext() {
+            console.log(1)
             if (this.step === 1) {
                 this.checking = true
                 this.privateKey =
