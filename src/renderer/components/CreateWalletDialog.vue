@@ -101,129 +101,138 @@
     </DialogEx>
 </template>
 <script lang="ts">
-import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
-import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { cry } from 'thor-devkit'
+    import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
+    import DialogHelper from '@/renderer/mixins/dialog-helper'
+    import { cry } from 'thor-devkit'
 
-@Component
-export default class CreateWalletDialog extends Mixins(class extends DialogHelper<void, entities.Wallet | null>{ }) {
-    opened = false
-    step = 1
-    stepTitles = ['Personalize', 'Write down mnemonic words', 'Verify mnemonic words']
-    name = ''
-    password = ''
-    repeatedPassword = ''
-    words = generateWords()
-    puzzleSovled = false
-    wallet: entities.Wallet | null = null
-    error: Error | null = null
-
-    get processing() {
-        return this.step > 3 && !this.wallet && !this.error
-    }
-    readonly nameRules = [
-        (val: string) => (!!val && !!val.trim()) || 'Requires non-empty name',
-        (val: string) => (!!val && !!val.trim() && val.trim().length <= 20) || `Wallet's name is longer than 20 characters`
-    ]
-    readonly passwordRules = [
-        (val: string) => (!!val && val.length >= 6) || 'Requires at least 6 characters'
-    ]
-    get repeatedPasswordRules() {
-        return [
-            (val: string) => (val === this.password) || 'Password mismatch'
+    @Component
+    export default class CreateWalletDialog extends Mixins(
+        class extends DialogHelper<void, entities.Wallet | null> {}
+    ) {
+        opened = false
+        step = 1
+        stepTitles = [
+            'Please fill in the fields below to create a wallet',
+            'Mnemonic is used to recover your wallet, please write down the mnemonic words and stored in a secure place',
+            'To make sure the mnemonic that your backup is correct, Please select the mnemonic words below to verify'
         ]
-    }
+        name = ''
+        password = ''
+        repeatedPassword = ''
+        words = generateWords()
+        puzzleSovled = false
+        wallet: entities.Wallet | null = null
+        error: Error | null = null
 
-    mounted() {
-        this.opened = true
-    }
-
-    close(result: entities.Wallet | null) {
-        this.$resolve(result)
-        this.opened = false
-    }
-
-    onNext() {
-        if (this.processing) {
-            return
+        get processing() {
+            return this.step > 3 && !this.wallet && !this.error
+        }
+        readonly nameRules = [
+            (val: string) => (!!val && !!val.trim()) || 'Create a name that is simple enough to remember',
+            (val: string) =>
+                (!!val && !!val.trim() && val.trim().length <= 20) ||
+                `Wallet's name is longer than 20 characters`
+        ]
+        readonly passwordRules = [
+            (val: string) =>
+                (!!val && val.length >= 6) || 'Requires at least 6 characters'
+        ]
+        get repeatedPasswordRules() {
+            return [(val: string) => val === this.password || 'Password mismatch']
         }
 
-        if (this.step === 1) {
-            if (!(this.$refs.form as any).validate()) {
+        mounted() {
+            this.opened = true
+        }
+
+        close(result: entities.Wallet | null) {
+            this.$resolve(result)
+            this.opened = false
+        }
+
+        onNext() {
+            if (this.processing) {
                 return
             }
-        } else if (this.step === 2) {
-        } else if (this.step === 3) {
-            if (!this.puzzleSovled && !ENV.devMode) {
+
+            if (this.step === 1) {
+                if (!(this.$refs.form as any).validate()) {
+                    return
+                }
+            } else if (this.step === 2) {
+            } else if (this.step === 3) {
+                if (!this.puzzleSovled && !ENV.devMode) {
+                    return
+                }
+                this.encryptAndSave()
+            } else {
+                this.close(this.wallet)
                 return
             }
-            this.encryptAndSave()
-        } else {
-            this.close(this.wallet)
-            return
+            this.step++
         }
-        this.step++
-    }
 
-    onAbort() {
-        if (this.step > 3 || this.processing) {
-            return
-        }
-        this.close(null)
-    }
-
-    onBack() {
-        if (this.step < 2 || this.processing) {
-            return
-        }
-        this.step--
-    }
-
-    onOK() {
-        const el = (this.$refs.next as Vue).$el
-        el.focus()
-        el.click()
-    }
-
-    onCancel() {
-        const el = (this.$refs.abort as Vue).$el
-        el.focus()
-        el.click()
-    }
-
-    async encryptAndSave() {
-        try {
-            const privateKey = cry.mnemonic.derivePrivateKey(this.words)
-            const ks = await cry.Keystore.encrypt(privateKey, this.password)
-            const entity = {
-                name: this.name,
-                address: '0x' + ks.address,
-                keystore: ks,
-                createdTime: Date.now()
+        onAbort() {
+            if (this.step > 3 || this.processing) {
+                return
             }
-            await BDB.wallets.add(entity)
-            this.wallet = entity
-        } catch (err) {
-            this.error = err
+            this.close(null)
         }
-    }
-}
 
-function generateWords() {
-    for (; ;) {
-        // to avoid duplicated words
-        const words = cry.mnemonic.generate()
-        const map: { [i: string]: any } = []
-        if (words.every(w => {
-            if (map[w]) {
-                return false
+        onBack() {
+            if (this.step < 2 || this.processing) {
+                return
             }
-            map[w] = 1
-            return true
-        })) {
-            return words
+            this.step--
+        }
+
+        onOK() {
+            const el = (this.$refs.next as Vue).$el
+            el.focus()
+            el.click()
+        }
+
+        onCancel() {
+            const el = (this.$refs.abort as Vue).$el
+            el.focus()
+            el.click()
+        }
+
+        async encryptAndSave() {
+            try {
+                const privateKey = cry.mnemonic.derivePrivateKey(this.words)
+                const ks = await cry.Keystore.encrypt(privateKey, this.password)
+                const entity = {
+                    name: this.name,
+                    address: '0x' + ks.address,
+                    keystore: ks,
+                    createdTime: Date.now()
+                }
+                await BDB.wallets.add(entity)
+                this.wallet = entity
+            } catch (err) {
+                this.error = err
+            }
         }
     }
-}
+
+    function generateWords() {
+        for (;;) {
+            // to avoid duplicated words
+            const words = cry.mnemonic.generate()
+            const map: { [i: string]: any } = []
+            if (
+                words.every(w => {
+                    if (map[w]) {
+                        return false
+                    }
+                    map[w] = 1
+                    return true
+                })
+            ) {
+                return words
+            }
+        }
+    }
 </script>
 
