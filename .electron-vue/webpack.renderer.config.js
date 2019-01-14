@@ -10,6 +10,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 /**
  * List of node_modules to include in webpack bundle
@@ -187,6 +188,12 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
+    }),
+    new UglifyJsPlugin({
+        include: /\.js$/g,
+        uglifyOptions: {
+          keep_fnames: true
+        }
     })
   )
 }
