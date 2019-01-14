@@ -4,7 +4,7 @@
         <v-textarea
             validate-on-blur
             v-model.trim="form.content"
-            no-resize
+            noresize
             v-focus
             :rules="[validateContent]"
             outline
@@ -13,6 +13,7 @@
         <v-text-field
             label="Password"
             :error="pwdError.error"
+            @change="pwdChanged"
             :error-messages="pwdError.messages"
             v-if="form.type === 1"
             v-model="form.pwd"
@@ -90,6 +91,10 @@
 
         created() {
             this.valueChange()
+        }
+
+        pwdChanged() {
+            this.pwdIsError = false
         }
 
         get valid() {
