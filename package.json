@@ -22,6 +22,7 @@
   "build": {
     "productName": "Sync",
     "appId": "org.vechain.sync",
+    "artifactName": "${productName}-${os}-${arch}-${version}.${ext}",
     "directories": {
       "output": "build"
     },
