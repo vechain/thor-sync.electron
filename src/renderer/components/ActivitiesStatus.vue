@@ -3,7 +3,7 @@
         <v-icon
             slot="activator"
             :color="pendings ? 'info':''"
-            style="font-size:150%;"
+            style="font-size:150%;margin-top:2px"
         >{{pendings ? 'mdi-progress-upload':'mdi-arrow-up-bold-circle-outline'}}</v-icon>
         <span>{{pendings? `${pendings} pending ${pendings===1?'activity': 'activities'}`: 'No activity'}}</span>
     </v-tooltip>
