@@ -42,6 +42,7 @@ import NewNodeDialog from './NewNodeDialog.vue'
 import WindowControls from './WindowControls.vue'
 import WindowMenu from './WindowMenu.vue'
 import UpdateChecker from './UpdateChecker.vue'
+import UnlockWalletDialog from './UnlockWalletDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -87,5 +88,6 @@ export {
     NewNodeDialog,
     WindowControls,
     WindowMenu,
-    UpdateChecker
+    UpdateChecker,
+    UnlockWalletDialog
 }
