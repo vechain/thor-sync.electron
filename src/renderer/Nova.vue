@@ -196,6 +196,7 @@
         </div>
         <v-content>
             <Vendor/>
+            <UpdateChecker/>
             <Swiper
                 ref="swiper"
                 style="width:100%;height:100%;"
@@ -430,7 +431,7 @@ export default class Nova extends Vue {
         (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
     }
     async created() {
-        this.$ga.page(`app.${process.platform}/${nameOfNetwork(connex.thor.genesis.id)}net`)
+        this.$ga.page(`app/${nameOfNetwork(connex.thor.genesis.id)}net`)
         const mq = remote.app.EXTENSION.mq
         const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
         const initTabAction = mq.peek(tabActionTopic) as (TabAction | null)
@@ -720,7 +721,7 @@ html {
     top: 0;
     height: 100%;
     width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 0px 0.5px inset;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px inset;
 }
 .v-overlay--active:before {
     opacity: 0.05;
@@ -882,7 +883,7 @@ a:not(.v-list__tile):hover {
 }
 
 .selectable {
-    user-select: auto !important;
+    user-select: text !important;
 }
 
 .top-link {

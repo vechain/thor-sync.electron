@@ -41,6 +41,7 @@ import ActivitiesPanel from './ActivitiesPanel.vue'
 import NewNodeDialog from './NewNodeDialog.vue'
 import WindowControls from './WindowControls.vue'
 import WindowMenu from './WindowMenu.vue'
+import UpdateChecker from './UpdateChecker.vue'
 
 export {
     AccessHistoryPanel,
@@ -85,5 +86,6 @@ export {
     ActivitiesPanel,
     NewNodeDialog,
     WindowControls,
-    WindowMenu
+    WindowMenu,
+    UpdateChecker
 }
