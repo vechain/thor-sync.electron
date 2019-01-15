@@ -5,14 +5,15 @@ import WindowManager from './window-manager'
 import { MQ } from './mq'
 import env from '@/env'
 import * as log from 'electron-log'
+import { createUpdateChecker } from './update-checker'
 
 process.on('uncaughtException', err => {
     log.error('uncaught exception', err)
 })
 
 crashReporter.start({
-    productName: 'thor-sync-electron',
-    companyName: 'vechain',
+    productName: 'Sync',
+    companyName: 'vechain.org',
     submitURL: 'https://submit.backtrace.io/vechain/a14441c8b2c2405a70ee6c89822148856314a8fa920adf4d80876fa14864f9a7/minidump', // tslint:disable:max-line-length
     uploadToServer: true,
 })
@@ -21,6 +22,7 @@ declare module 'electron' {
     interface App {
         EXTENSION: {
             mq: MQ
+            updateChecker: ReturnType<typeof createUpdateChecker>
             connect(
                 contentsId: number,
                 config: NodeConfig
@@ -55,6 +57,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     // for all browserWindow
     contextMenu()
 
+    const updateChecker = createUpdateChecker()
     const mq = new MQ()
     const winMgr = new WindowManager()
     const backend = new Backend()
@@ -74,6 +77,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 
     app.EXTENSION = {
         mq,
+        updateChecker,
         connect: (contentsId, config) => backend.connect(contentsId, config),
         createWindow: (config, options) => winMgr.create(config, options),
         showAbout: () => winMgr.showAbout(),
@@ -102,6 +106,10 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             }
         } else {
             winMgr.create()
+        }
+
+        if (process.env.NODE_ENV === 'production') {
+            updateChecker.check()
         }
     }).on('open-url', (ev, externalUrl) => {
         log.debug('App:', 'open-url', externalUrl)
@@ -137,23 +145,3 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 } else {
     app.quit()
 }
-
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */
