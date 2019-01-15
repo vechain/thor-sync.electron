@@ -36,6 +36,7 @@ class WindowManager {
         }
 
         const win = new BrowserWindow(options)
+        win.setMenu(null) // to disable default accelerators
         win.loadURL(env.index)
 
         this.actives.push({ win, events: new Set() })
