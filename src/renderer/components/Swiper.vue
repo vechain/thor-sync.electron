@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" @wheel.capture.passive="onWheel" style="position:relative">
+    <div v-bind="$attrs" @wheel.passive="onWheel" style="position:relative">
         <slot/>
         <div class="arrow-container" z-index="2" :style="leftArrowStyleObject">
             <v-icon>arrow_back</v-icon>
