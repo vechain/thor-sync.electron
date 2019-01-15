@@ -18,7 +18,7 @@
                 <v-list
                     :key="i+'items'"
                     two-line
-                    style="border:1px solid rgba(0,0,0,0.1); border-radius:5px;"
+                    style="border:1px solid rgba(0,0,0,0.1); border-radius:2px;"
                 >
                     <template v-for="(item,j) in sec.items">
                         <v-divider v-if="j>0" :key="j+'d'"/>

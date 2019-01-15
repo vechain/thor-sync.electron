@@ -20,7 +20,7 @@
                                     validate-on-blur
                                     label="Wallet name"
                                     v-model="name"
-                                    :counter="20"
+                                    maxlength="20"
                                     :rules="nameRules"
                                 ></v-text-field>
                                 <v-text-field
@@ -28,6 +28,7 @@
                                     label="Password"
                                     type="password"
                                     v-model="password"
+                                    maxlength="20"
                                     :rules="passwordRules"
                                 ></v-text-field>
                                 <v-text-field
@@ -35,6 +36,7 @@
                                     label="Repeat password"
                                     type="password"
                                     v-model="repeatedPassword"
+                                    maxlength="20"
                                     :rules="repeatedPasswordRules"
                                 ></v-text-field>
                             </v-form>
@@ -43,16 +45,20 @@
                             <MnemonicWords :words="words"/>
                         </v-stepper-content>
                         <v-stepper-content step="3">
-                            <WordPuzzle :words="words" @click.native="puzzleChange" v-model="puzzleSovled"/>
+                            <WordPuzzle
+                                :words="words"
+                                @click.native="puzzleChange"
+                                v-model="puzzleSovled"
+                            />
                             <div
-                                class="error--text pl-4"
+                                class="error--text pt-2"
                                 v-if="!puzzleSovled && showPuzzleError"
-                            >Please double check the mnemonic phrases on your paper</div>
+                            >Please double check the mnemonic words on your paper</div>
                         </v-stepper-content>
                     </v-stepper-items>
                 </v-stepper>
                 <v-layout v-else column fill-height>
-                    <v-layout v-if="wallet" column align-center justify-center fill-height>
+                    <v-layout v-if="wallet" column align-center fill-height>
                         <span class="headline font-weight-light">Congratulations</span>
                         <div class="py-3">
                             <v-icon small color="success">mdi-check-decagram</v-icon>
@@ -95,7 +101,7 @@
                 <v-btn
                     ref="next"
                     :disabled="processing"
-                    flat
+                    :flat="!processing"
                     small
                     class="primary"
                     @click="onNext"
@@ -105,146 +111,143 @@
     </DialogEx>
 </template>
 <script lang="ts">
-    import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
-    import DialogHelper from '@/renderer/mixins/dialog-helper'
-    import { cry } from 'thor-devkit'
+import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
+import DialogHelper from '@/renderer/mixins/dialog-helper'
+import { cry } from 'thor-devkit'
 
-    @Component
-    export default class CreateWalletDialog extends Mixins(
-        class extends DialogHelper<void, entities.Wallet | null> {}
-    ) {
-        opened = false
-        step = 1
-        stepTitles = [
-            'Please fill in the fields below to create a wallet',
-            'Mnemonic is used to recover your wallet, please write down the mnemonic words and stored in a secure place',
-            'To make sure the mnemonic that your backup is correct, Please select the mnemonic words below to verify'
-        ]
-        name = ''
-        password = ''
-        repeatedPassword = ''
-        words = generateWords()
-        showPuzzleError = false
-        puzzleSovled = false
-        wallet: entities.Wallet | null = null
-        error: Error | null = null
+@Component
+export default class CreateWalletDialog extends Mixins(
+    class extends DialogHelper<void, entities.Wallet | null> { }
+) {
+    opened = false
+    step = 1
+    stepTitles = [
+        'Please fill the fields below to create your wallet.',
+        'Mnemonic words are used to recover your wallet. Please write down and keep them in a secure place.',
+        'To make sure the mnemonic words you backed up are correct, please select them in order to verify.'
+    ]
+    name = ''
+    password = ''
+    repeatedPassword = ''
+    words = generateWords()
+    showPuzzleError = false
+    puzzleSovled = false
+    wallet: entities.Wallet | null = null
+    error: Error | null = null
 
-        get processing() {
-            return this.step > 3 && !this.wallet && !this.error
-        }
-        readonly nameRules = [
-            (val: string) =>
-                (!!val && !!val.trim()) ||
-                'Create a name that is simple enough to remember',
-            (val: string) =>
-                (!!val && !!val.trim() && val.trim().length <= 20) ||
-                `Wallet's name is longer than 20 characters`
-        ]
-        readonly passwordRules = [
-            (val: string) =>
-                (!!val && val.length >= 6) || 'Requires at least 6 characters'
-        ]
-        get repeatedPasswordRules() {
-            return [(val: string) => val === this.password || 'Password mismatch']
-        }
-
-        mounted() {
-            this.opened = true
-        }
-
-        close(result: entities.Wallet | null) {
-            this.$resolve(result)
-            this.opened = false
-        }
-
-        puzzleChange() {
-            this.showPuzzleError = false
-        }
-
-        onNext() {
-            if (this.processing) {
-                return
-            }
-
-            if (this.step === 1) {
-                if (!(this.$refs.form as any).validate()) {
-                    return
-                }
-            } else if (this.step === 2) {
-            } else if (this.step === 3) {
-                if (!this.puzzleSovled && !ENV.devMode) {
-                    this.showPuzzleError = true
-                    return
-                }
-                this.encryptAndSave()
-            } else {
-                this.close(this.wallet)
-                return
-            }
-            this.step++
-        }
-
-        onAbort() {
-            if (this.step > 3 || this.processing) {
-                return
-            }
-            this.close(null)
-        }
-
-        onBack() {
-            if (this.step < 2 || this.processing) {
-                return
-            }
-            this.step--
-        }
-
-        onOK() {
-            const el = (this.$refs.next as Vue).$el
-            el.focus()
-            el.click()
-        }
-
-        onCancel() {
-            const el = (this.$refs.abort as Vue).$el
-            el.focus()
-            el.click()
-        }
-
-        async encryptAndSave() {
-            try {
-                const privateKey = cry.mnemonic.derivePrivateKey(this.words)
-                const ks = await cry.Keystore.encrypt(privateKey, this.password)
-                const entity = {
-                    name: this.name,
-                    address: '0x' + ks.address,
-                    keystore: ks,
-                    createdTime: Date.now()
-                }
-                await BDB.wallets.add(entity)
-                this.wallet = entity
-            } catch (err) {
-                this.error = err
-            }
-        }
+    get processing() {
+        return this.step > 3 && !this.wallet && !this.error
+    }
+    readonly nameRules = [
+        (val: string) =>
+            (!!val && !!val.trim()) ||
+            'Create a name that is simple enough to remember'
+    ]
+    readonly passwordRules = [
+        (val: string) =>
+            (!!val && val.length >= 6) || 'Requires at least 6 characters'
+    ]
+    get repeatedPasswordRules() {
+        return [(val: string) => val === this.password || 'Password mismatch']
     }
 
-    function generateWords() {
-        for (;;) {
-            // to avoid duplicated words
-            const words = cry.mnemonic.generate()
-            const map: { [i: string]: any } = []
-            if (
-                words.every(w => {
-                    if (map[w]) {
-                        return false
-                    }
-                    map[w] = 1
-                    return true
-                })
-            ) {
-                return words
+    mounted() {
+        this.opened = true
+    }
+
+    close(result: entities.Wallet | null) {
+        this.$resolve(result)
+        this.opened = false
+    }
+
+    puzzleChange() {
+        this.showPuzzleError = false
+    }
+
+    onNext() {
+        if (this.processing) {
+            return
+        }
+
+        if (this.step === 1) {
+            if (!(this.$refs.form as any).validate()) {
+                return
             }
+        } else if (this.step === 2) {
+        } else if (this.step === 3) {
+            if (!this.puzzleSovled && !ENV.devMode) {
+                this.showPuzzleError = true
+                return
+            }
+            this.encryptAndSave()
+        } else {
+            this.close(this.wallet)
+            return
+        }
+        this.step++
+    }
+
+    onAbort() {
+        if (this.step > 3 || this.processing) {
+            return
+        }
+        this.close(null)
+    }
+
+    onBack() {
+        if (this.step < 2 || this.processing) {
+            return
+        }
+        this.step--
+    }
+
+    onOK() {
+        const el = (this.$refs.next as Vue).$el
+        el.focus()
+        el.click()
+    }
+
+    onCancel() {
+        const el = (this.$refs.abort as Vue).$el
+        el.focus()
+        el.click()
+    }
+
+    async encryptAndSave() {
+        try {
+            const privateKey = cry.mnemonic.derivePrivateKey(this.words)
+            const ks = await cry.Keystore.encrypt(privateKey, this.password)
+            const entity = {
+                name: this.name,
+                address: '0x' + ks.address,
+                keystore: ks,
+                createdTime: Date.now()
+            }
+            await BDB.wallets.add(entity)
+            this.wallet = entity
+        } catch (err) {
+            this.error = err
         }
     }
+}
+
+function generateWords() {
+    for (; ;) {
+        // to avoid duplicated words
+        const words = cry.mnemonic.generate()
+        const map: { [i: string]: any } = []
+        if (
+            words.every(w => {
+                if (map[w]) {
+                    return false
+                }
+                map[w] = 1
+                return true
+            })
+        ) {
+            return words
+        }
+    }
+}
 </script>
 
