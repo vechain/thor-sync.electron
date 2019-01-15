@@ -72,7 +72,7 @@
                         align-center
                         justify-center
                         fill-height
-                    >{{result.err}}</v-layout>
+                    >{{`${error.name}: ${error.message}`}}</v-layout>
                     <v-layout v-else column align-center justify-center fill-height>
                         <p>Processing... a monent</p>
                         <v-progress-linear color="success" indeterminate></v-progress-linear>

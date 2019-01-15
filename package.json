@@ -51,8 +51,7 @@
       ]
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
       "createStartMenuShortcut": true,
       "createDesktopShortcut": true,
       "runAfterFinish": true
@@ -64,6 +63,7 @@
       ]
     },
     "mac": {
+      "category": "public.app-category.utilities",
       "icon": "build/icons/icon.icns"
     },
     "win": {

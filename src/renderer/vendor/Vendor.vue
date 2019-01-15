@@ -1,7 +1,6 @@
 <template>
     <div>
         <v-snackbar v-model="snack.open" bottom :timeout="60000" color="info">
-            <v-spacer/>
             {{snack.message}}
             <v-btn flat small dark @click="snack.action">{{snack.actionName}}</v-btn>
             <v-btn dark icon @click="snack.open=false">
