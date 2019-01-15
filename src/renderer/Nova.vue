@@ -52,6 +52,8 @@
                         <v-icon style="font-size:150%">add</v-icon>
                     </v-btn>
                 </transition-group>
+                <!-- an overlapped area to make it easy to drag -->
+                <div class="drag" style="position:absolute;left:0;top:0;right:0;height:16px;"></div>
                 <WindowControls v-if="!isDarwin" class="no-drag" style="flex:0 0 auto;"/>
             </v-layout>
             <div class="nav-bar">
