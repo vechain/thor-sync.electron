@@ -1,64 +1,70 @@
 <template>
-    <v-card class="elevation-0">
-        <v-list>
-            <v-list-tile avatar>
-                <v-list-tile-avatar :size="40">
-                    <v-icon
-                        style="font-size: 19px"
-                        color="green lighten-1"
-                        v-if="isIn"
-                    >mdi-arrow-right-thick</v-icon>
-                    <v-icon style="font-size: 19px" color="red darken-1" v-else>mdi-arrow-left-thick</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                    <v-list-tile-sub-title class="mt-2">
-                        <v-layout>
-                            <v-flex xs6>
-                                <span class="body-2 grey--text text--darken-4 font-weight-regular">
-                                    TX#:
-                                    <a
-                                        @click="jumpToInsight(item.meta.txID)"
-                                        href="javascript:;"
-                                    >{{item.meta.txID | shortTxId}}</a>
-                                </span>
-                                <br>
-                                <span class="body-2 grey--text text--darken-4 font-weight-light">
-                                    <span
-                                        class="font-weight-light font-italic"
-                                    >{{ isIn ? 'Recieved from: ' : 'Transferred to: '}}</span>
-                                    {{ (isIn ? item.sender : item.recipient) | shortAddr}}
-                                </span>
-                            </v-flex>
-                            <v-flex xs6 class="text-xs-right caption">
-                                <span>{{item.meta.blockTimestamp | dateTime}}</span>
-                                <br>
-                                <p class="mt-2 pr-1 body-2 grey--text text--darken-4">
-                                    {{isIn ? "+" : "-"}}
-                                    <Amount sym=" VET">{{item.amount}}</Amount>
-                                </p>
-                            </v-flex>
-                        </v-layout>
-                    </v-list-tile-sub-title>
-                </v-list-tile-content>
-            </v-list-tile>
-        </v-list>
-    </v-card>
+    <v-list-tile>
+        <v-list-tile-avatar :size="40">
+            <v-tooltip open-delay="600" left transition="fade-transition">
+                <template slot="activator">
+                    <v-icon color="red darken-1" v-if="isSender">mdi-arrow-right-thick</v-icon>
+                    <v-icon color="green lighten-1" v-else>mdi-arrow-left-thick</v-icon>
+                </template>
+                <span>{{isSender? 'Send to' : 'Receive from'}}</span>
+            </v-tooltip>
+        </v-list-tile-avatar>
+        <v-list-tile-content>
+            <v-list-tile-title>
+                <v-layout row>
+                    <v-flex xs4>
+                        <v-tooltip top open-delay="600" transition="fade-transition">
+                            <a
+                                @click="lookupAccount(targetAddress)"
+                                slot="activator"
+                            >{{ targetAddress | shortAddr}}</a>
+                            <span>Lookup Account</span>
+                        </v-tooltip>
+                    </v-flex>
+                    <v-flex xs4 text-xs-right pr-4>
+                        {{isSender ? "-" : "+"}}
+                        <Amount sym=" VET">{{item.amount}}</Amount>
+                    </v-flex>
+                    <v-flex
+                        xs4
+                        class="body-1 grey--text"
+                        text-xs-right
+                    >{{item.meta.blockTimestamp | dateTime}}</v-flex>
+                </v-layout>
+            </v-list-tile-title>
+        </v-list-tile-content>
+        <v-list-tile-action class="ml-3">
+            <v-tooltip open-delay="600" top transition="fade-transition">
+                <v-btn slot="activator" flat icon @click="lookupTx(item.meta.txID)">
+                    <v-icon color="primary" style="font-size:150%">search</v-icon>
+                </v-btn>
+                <span>Lookup Tx Detail</span>
+            </v-tooltip>
+        </v-list-tile-action>
+    </v-list-tile>
 </template>
 <script lang="ts">
-    import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-    @Component
-    export default class TransferItem extends Vue {
-        @Prop()
-        item?: Connex.Thor.Transfer | null
+import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
+@Component
+export default class TransferItem extends Vue {
+    @Prop(Object) item!: Connex.Thor.Transfer
+    @Prop(String) address!: string
 
-        @Prop(Boolean)
-        isIn!: boolean
+    get isSender() { return this.item.sender === this.address }
+    get targetAddress() { return this.isSender ? this.item.recipient : this.item.sender }
 
-        jumpToInsight(txID: string) {
-            BUS.$emit('open-tab', {
-                href: `https://vechain.github.io/insight/#/txs/${txID}`,
-                mode: 'append-active'
-            })
-        }
+    lookupTx(txid: string) {
+        BUS.$emit('open-tab', {
+            href: `https://vechain.github.io/insight/#/txs/${txid}`,
+            mode: 'append-active'
+        })
     }
+
+    lookupAccount(addr: string) {
+        BUS.$emit('open-tab', {
+            href: `https://vechain.github.io/insight/#/accounts/${addr}`,
+            mode: 'append-active'
+        })
+    }
+}
 </script>
