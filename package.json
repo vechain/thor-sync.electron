@@ -2,7 +2,7 @@
   "name": "org.vechain.sync",
   "version": "0.0.1",
   "author": "vechain.org",
-  "description": "An electron-vue project",
+  "description": "A browser that empowers DApps on VeChain",
   "license": "LGPL-3.0",
   "main": "./dist/electron/main.js",
   "scripts": {
