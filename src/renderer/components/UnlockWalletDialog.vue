@@ -60,13 +60,17 @@ type Arg = {
 }
 
 @Component
-export default class UnlockWalletDialog extends Mixins(class extends DialogHelper<Arg, Buffer | null>{ }) {
+export default class UnlockWalletDialog extends Mixins(
+    class extends DialogHelper<Arg, Buffer | null> {}
+) {
     opened = false
     password = ''
     errorMessage = ''
 
     processing = false
-    get wallet() { return this.arg.wallet }
+    get wallet() {
+        return this.arg.wallet
+    }
 
     @Watch('opened')
     openeChanged() {
@@ -80,14 +84,19 @@ export default class UnlockWalletDialog extends Mixins(class extends DialogHelpe
     }
 
     async unlock() {
+        if (this.processing) {
+            return
+        }
         if (!this.password) {
             this.errorMessage = 'Input password here'
             return
         }
         this.processing = true
         try {
-
-            const privateKey = await cry.Keystore.decrypt(this.wallet.keystore, this.password)
+            const privateKey = await cry.Keystore.decrypt(
+                this.wallet.keystore,
+                this.password
+            )
             this.opened = false
             this.$resolve(privateKey)
         } catch (err) {
