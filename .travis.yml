@@ -16,6 +16,8 @@ cache:
     - $HOME/.cache/electron
     - $HOME/.cache/electron-builder
 
+if: tag IS present
+
 script:
   - echo 'no action on regular hook'
 
