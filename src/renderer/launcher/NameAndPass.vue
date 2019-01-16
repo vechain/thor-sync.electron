@@ -4,6 +4,7 @@
             validate-on-blur
             label="Wallet name"
             :counter="20"
+            maxlength="20"
             v-model="name"
             :rules="[nameRule, nameLength]"
         ></v-text-field>

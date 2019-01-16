@@ -21,6 +21,7 @@
                                     label="Wallet name"
                                     v-model="name"
                                     maxlength="20"
+                                    :counter="20"
                                     :rules="nameRules"
                                 ></v-text-field>
                                 <v-text-field
