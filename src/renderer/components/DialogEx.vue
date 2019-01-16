@@ -1,6 +1,6 @@
 <template>
     <v-dialog v-bind="$attrs" v-on="$listeners" :value="value" @input="$emit('input', $event)">
-        <div v-nofocusout @keypress.enter="onEnter" @keydown.esc="onEsc">
+        <div v-nofocusout="value" @keypress.enter="onEnter" @keydown.esc="onEsc">
             <slot/>
         </div>
         <slot slot="activator" name="activator"/>

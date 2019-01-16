@@ -1,5 +1,6 @@
 import { Vue } from 'vue-property-decorator'
 import { clipboard } from 'electron'
+import { VNode } from '../../node_modules/vue'
 
 function write(str: string) {
   clipboard.writeText(str)
@@ -13,6 +14,7 @@ declare global {
     _focusout?: {
       callback: (event: any) => void;
     }
+    _needFocusout?: boolean
   }
 }
 
@@ -39,19 +41,27 @@ Vue.directive('nofocusout', {
   bind(el: HTMLElement, binding: any) {
     el.tabIndex = -1
     const callback = (event: any) => {
+      if (!el._needFocusout) {
+        return
+      }
       if (!el.contains(event.relatedTarget)) {
         el.focus()
       }
     }
     el.addEventListener('focusout', callback)
+    el._needFocusout = true
     el._focusout = {
       callback
     }
+  },
+  update(el: HTMLElement, binding: any) {
+    el._needFocusout = binding.value
   },
   unbind(el: HTMLElement) {
     if (el._focusout) {
       el.removeEventListener('focusout', el._focusout!.callback)
       delete el._focusout
+      delete el._needFocusout
     }
   }
 })
