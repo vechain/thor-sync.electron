@@ -55,14 +55,14 @@ export default class TransferItem extends Vue {
 
     lookupTx(txid: string) {
         BUS.$emit('open-tab', {
-            href: `https://vechain.github.io/insight/#/txs/${txid}`,
+            href: `https://insight.vecha.in/#/txs/${txid}`,
             mode: 'append-active'
         })
     }
 
     lookupAccount(addr: string) {
         BUS.$emit('open-tab', {
-            href: `https://vechain.github.io/insight/#/accounts/${addr}`,
+            href: `https://insight.vecha.in/#/accounts/${addr}`,
             mode: 'append-active'
         })
     }
