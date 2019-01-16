@@ -44,18 +44,14 @@
                         <v-layout align-center px-1>
                             <span class="caption grey--text">Estimated fee</span>
                             <v-spacer/>
-                            <v-tooltip
-                                bottom
-                                :disabled="!(estimation.gas>0)"
-                                transition="fade-transition"
-                            >
+                            <Tooltip bottom :disabled="!(estimation.gas>0)">
                                 <Amount
                                     prepend="-"
                                     sym=" VTHO "
                                     slot="activator"
                                 >{{fee.toString(10)}}</Amount>
                                 <span>Estimated gas {{estimation.gas}}</span>
-                            </v-tooltip>
+                            </Tooltip>
                         </v-layout>
                         <v-layout align-center px-1>
                             <span class="caption grey--text">Priority</span>

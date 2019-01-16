@@ -1,11 +1,11 @@
 <template>
-    <v-tooltip open-delay="600">
+    <Tooltip>
         <v-layout align-center class="caption" :style="styleObject" slot="activator">
             <v-icon small style="font-size:120%;color:inherit" class="mr-1">mdi-hexagon-slice-6</v-icon>
             <b>{{networkName}}</b>
         </v-layout>
         <span>{{networkDesc}}</span>
-    </v-tooltip>
+    </Tooltip>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'

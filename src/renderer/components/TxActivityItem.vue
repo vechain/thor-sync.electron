@@ -10,7 +10,7 @@
                     <span class="caption grey--text">{{time}}</span>
                 </v-layout>
             </v-layout>
-            <v-tooltip top transition="fade-transition">
+            <Tooltip top>
                 <v-btn
                     slot="activator"
                     icon
@@ -24,7 +24,7 @@
                     <v-icon small :color="iconColor">{{icon}}</v-icon>
                 </v-btn>
                 <span>{{statusDesc}}</span>
-            </v-tooltip>
+            </Tooltip>
         </v-layout>
         <v-card class="text-truncate">
             <v-card-text class="pt-1">

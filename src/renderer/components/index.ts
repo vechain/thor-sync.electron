@@ -43,6 +43,7 @@ import WindowControls from './WindowControls.vue'
 import WindowMenu from './WindowMenu.vue'
 import UpdateChecker from './UpdateChecker.vue'
 import UnlockWalletDialog from './UnlockWalletDialog.vue'
+import Tooltip from './Tooltip.vue'
 
 export {
     AccessHistoryPanel,
@@ -89,5 +90,6 @@ export {
     WindowControls,
     WindowMenu,
     UpdateChecker,
-    UnlockWalletDialog
+    UnlockWalletDialog,
+    Tooltip
 }
