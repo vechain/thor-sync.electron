@@ -71,7 +71,7 @@ export default class ImportWalletDialog extends Mixins(
         valid: false
     }
 
-    precessing = false
+    processing = false
     @Watch('show')
     onShowChange() {
         if (!this.show) {
@@ -106,9 +106,10 @@ export default class ImportWalletDialog extends Mixins(
             this.overWriteErrorMsg = !this.overWrite
                 ? ['Please check the box to proceed']
                 : []
+            return this.overWrite
+        } else {
+            return true
         }
-
-        return this.overWrite
     }
 
     checkStep2() {
@@ -119,15 +120,15 @@ export default class ImportWalletDialog extends Mixins(
     }
 
     async nextMove() {
-        if (this.precessing) {
+        if (this.processing) {
             return
         }
 
-        this.precessing = true
+        this.processing = true
         if (this.step === 1) {
             const form = this.$refs.pk as ContentForm
             if (!form.valid) {
-                this.precessing = false
+                this.processing = false
                 return
             }
             try {
@@ -143,12 +144,14 @@ export default class ImportWalletDialog extends Mixins(
                     this.addressExist = true
                 }
             } catch (error) {
+                this.processing = false
                 LOG.error(error)
+                return
             }
             this.step = 2
         } else {
             if (!this.checkStep2()) {
-                this.precessing = false
+                this.processing = false
                 return
             }
             try {
@@ -178,11 +181,12 @@ export default class ImportWalletDialog extends Mixins(
 
                 this.show = false
             } catch (err) {
+                this.processing = false
                 LOG.error(err)
+                return
             }
         }
-
-        this.precessing = false
+        this.processing = false
     }
 }
 </script>
