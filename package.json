@@ -77,7 +77,6 @@
     "thor-devkit": "~0.8.1"
   },
   "devDependencies": {
-    "@types/bignumber.js": "^5.0.0",
     "@types/chai": "^4.1.4",
     "@types/color": "^3.0.0",
     "@types/lodash.clonedeep": "^4.5.4",
