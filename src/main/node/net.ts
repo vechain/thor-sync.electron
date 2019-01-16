@@ -2,6 +2,7 @@ import { net } from 'electron'
 import * as QS from 'qs'
 import * as NodeUrl from 'url'
 import * as log from 'electron-log'
+import env from '@/env'
 
 export class Net {
     public static request(options: {
@@ -36,7 +37,8 @@ export class Net {
 
             const req = net.request({
                 method: options.method,
-                url: options.url
+                url: options.url,
+                partition: `persist:${env.devMode ? 'dev' : 'pro'}`
             })
             if (options.headers) {
                 for (const key in options.headers) {
