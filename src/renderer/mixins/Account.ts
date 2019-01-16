@@ -9,7 +9,7 @@ export default class AccountMixin extends Vue {
     isError: false,
     messages: []
   }
-  pwdChanged () {
+  public pwdChanged() {
     this.error.isError = false
     this.error.messages = []
   }
