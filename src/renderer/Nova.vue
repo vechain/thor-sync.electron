@@ -140,7 +140,7 @@
                                     />
                                 </AccessHistoryPanel>
                             </v-layout>
-                            <v-tooltip open-delay="600">
+                            <Tooltip>
                                 <ExpansionBtn
                                     slot="activator"
                                     v-show="showAddShortcutBtn"
@@ -159,7 +159,7 @@
                                     >{{shortcutAdded?'Remove shortcut': 'Add shortcut'}}</template>
                                 </ExpansionBtn>
                                 <span>{{shortcutAdded? 'Remove shortcut':'Add shortcut'}}</span>
-                            </v-tooltip>
+                            </Tooltip>
                             <v-progress-linear
                                 v-for="(page,i) in pages"
                                 :key="'progress'+page.id"
@@ -173,25 +173,25 @@
                             />
                         </v-layout>
                     </div>
-                    <v-tooltip open-delay="600">
+                    <Tooltip>
                         <v-btn class="my-1" icon small slot="activator" @click="onWallets">
                             <v-icon style="font-size:135%;">mdi-cards</v-icon>
                         </v-btn>
                         <span>Wallets</span>
-                    </v-tooltip>
+                    </Tooltip>
                     <ActivitiesPanel>
                         <v-btn class="my-1" icon small slot="activator">
                             <ActivitiesStatus/>
                         </v-btn>
                     </ActivitiesPanel>
-                    <v-tooltip open-delay="600">
+                    <Tooltip>
                         <WindowMenu :items="menuItems" slot="activator">
                             <v-btn class="my-1" icon small slot="activator">
                                 <v-icon style="font-size:150%">mdi-dots-vertical</v-icon>
                             </v-btn>
                         </WindowMenu>
                         <span>Options</span>
-                    </v-tooltip>
+                    </Tooltip>
                 </v-layout>
                 <div class="sharp-line"/>
             </div>

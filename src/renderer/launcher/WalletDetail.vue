@@ -43,7 +43,7 @@
                             </v-layout>
                             <v-layout align-center>
                                 <AddressLabel style="font-size:95%">{{wallet.address}}</AddressLabel>
-                                <v-tooltip top open-delay="600" transition="fade-transition">
+                                <Tooltip top>
                                     <v-btn
                                         class="my-0 ml-3 mr-0"
                                         v-clipboard="wallet.address"
@@ -56,19 +56,15 @@
                                         <v-icon style="font-size:110%">mdi-content-copy</v-icon>
                                     </v-btn>
                                     <span>{{textTip}}</span>
-                                </v-tooltip>
+                                </Tooltip>
                                 <QRCodeDialog width="300" :size="270" :content="wallet.address">
                                     <div slot="activator">
-                                        <v-tooltip
-                                            top
-                                            open-delay="600"
-                                            transition="fade-transition"
-                                        >
+                                        <Tooltip top>
                                             <v-btn class="my-0" slot="activator" small icon>
                                                 <v-icon small>mdi-qrcode</v-icon>
                                             </v-btn>
                                             <span>Show QR code</span>
-                                        </v-tooltip>
+                                        </Tooltip>
                                     </div>
                                 </QRCodeDialog>
                             </v-layout>

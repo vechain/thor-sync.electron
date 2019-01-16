@@ -23,12 +23,7 @@
                                     :favicon="favicon(shortcut.href)"
                                     @click="navTo(shortcut)"
                                 >
-                                    <v-tooltip
-                                        open-delay="600"
-                                        top
-                                        style="position:absolute;top:0;right:0"
-                                        transition="fade-transition"
-                                    >
+                                    <Tooltip top style="position:absolute;top:0;right:0">
                                         <v-btn
                                             slot="activator"
                                             v-show="hover"
@@ -40,7 +35,7 @@
                                             <v-icon small>mdi-square-edit-outline</v-icon>
                                         </v-btn>
                                         <span>Edit shortcut</span>
-                                    </v-tooltip>
+                                    </Tooltip>
                                 </AppButton>
                             </v-hover>
                         </div>

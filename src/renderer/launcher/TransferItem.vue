@@ -1,25 +1,25 @@
 <template>
     <v-list-tile>
         <v-list-tile-avatar :size="40">
-            <v-tooltip open-delay="600" left transition="fade-transition">
+            <Tooltip left>
                 <template slot="activator">
                     <v-icon color="red darken-1" v-if="isSender">mdi-arrow-right-thick</v-icon>
                     <v-icon color="green lighten-1" v-else>mdi-arrow-left-thick</v-icon>
                 </template>
                 <span>{{isSender? 'Send to' : 'Receive from'}}</span>
-            </v-tooltip>
+            </Tooltip>
         </v-list-tile-avatar>
         <v-list-tile-content>
             <v-list-tile-title>
                 <v-layout row>
                     <v-flex xs4>
-                        <v-tooltip top open-delay="600" transition="fade-transition">
+                        <Tooltip top>
                             <a
                                 @click="lookupAccount(targetAddress)"
                                 slot="activator"
                             >{{ targetAddress | shortAddr}}</a>
                             <span>Lookup Account</span>
-                        </v-tooltip>
+                        </Tooltip>
                     </v-flex>
                     <v-flex xs4 text-xs-right pr-4>
                         {{isSender ? "-" : "+"}}
@@ -34,12 +34,12 @@
             </v-list-tile-title>
         </v-list-tile-content>
         <v-list-tile-action class="ml-3">
-            <v-tooltip open-delay="600" top transition="fade-transition">
+            <Tooltip top>
                 <v-btn slot="activator" flat icon @click="lookupTx(item.meta.txID)">
                     <v-icon color="primary" style="font-size:150%">search</v-icon>
                 </v-btn>
                 <span>Lookup Tx Detail</span>
-            </v-tooltip>
+            </Tooltip>
         </v-list-tile-action>
     </v-list-tile>
 </template>
