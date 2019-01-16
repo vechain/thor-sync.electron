@@ -20,8 +20,7 @@ export default class AccountMixin extends Vue {
       } catch (error) {
         this.error.isError = true
         this.error.messages = ['Password is invalid']
-        // tslint:disable-next-line:no-console
-        console.error(error)
+        LOG.error(error)
         return null
       }
 

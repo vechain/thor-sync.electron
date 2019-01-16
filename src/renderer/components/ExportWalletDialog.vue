@@ -128,7 +128,7 @@
                 await this.writeFile(path, this.ks)
                 this.close()
             } catch (error) {
-                console.error(error)
+                LOG.error(error)
             }
             this.close()
         }
