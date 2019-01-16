@@ -51,7 +51,7 @@
     </DialogEx>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
 import { cry } from 'thor-devkit'
 
@@ -60,13 +60,20 @@ type Arg = {
 }
 
 @Component
-export default class UnlockWalletDialog extends Mixins(class extends DialogHelper<Arg, Buffer>{ }) {
+export default class UnlockWalletDialog extends Mixins(class extends DialogHelper<Arg, Buffer | null>{ }) {
     opened = false
     password = ''
     errorMessage = ''
 
     processing = false
     get wallet() { return this.arg.wallet }
+
+    @Watch('opened')
+    openeChanged() {
+        if (!this.opened) {
+            this.$resolve(null)
+        }
+    }
 
     mounted() {
         this.opened = true
