@@ -173,7 +173,7 @@
                             this.isEditing = false
                             this.clear()
                         } else {
-                            console.error('Edit node failed')
+                            LOG.error('Edit node failed')
                         }
                     })
             } else {

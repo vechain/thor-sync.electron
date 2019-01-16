@@ -122,7 +122,6 @@
             return this.repeatedPassword === this.newPassword || 'Password mismatch'
         }
         async onNext() {
-            console.log(1)
             if (this.step === 1) {
                 this.checking = true
                 this.privateKey =

@@ -115,7 +115,6 @@ export default class ImportWalletDialog extends Mixins(
         const form = this.$refs.np as NameAndPass
         const formV = form.valid
         const owV = this.overWriteCheck()
-        console.log(formV, owV)
         return formV && owV
     }
 
