@@ -1,7 +1,6 @@
 <template>
-    <v-form>
+    <v-form ref="form">
         <v-text-field
-            v-focus
             validate-on-blur
             label="Wallet name"
             :counter="20"
@@ -54,11 +53,13 @@
         }
 
         get valid() {
-            return (
-                this.nameRule() === true &&
-                this.passwordRule() === true &&
-                this.repeatedPasswordRule() === true
-            )
+            const form = this.$refs.form as any
+            return form.validate()
+        }
+
+        reset() {
+            const form = this.$refs.form as any
+            form.reset()
         }
 
         created() {

@@ -22,6 +22,8 @@
                             <v-checkbox
                                 v-if="addressExist"
                                 :ripple="false"
+                                @change="overWriteCheck"
+                                :error-messages="overWriteErrorMsg"
                                 label="The wallet already existed, Please check the box to agree reset the wallet."
                                 v-model="overWrite"
                             ></v-checkbox>
@@ -31,9 +33,9 @@
             </v-card-text>
             <v-divider/>
             <v-card-actions>
-                <v-btn small flat @click="preMove">{{ BackBtnStatus.text }}</v-btn>
+                <v-btn small flat @click="abort">Abort</v-btn>
                 <v-spacer/>
-                <!-- :disabled="preBtnStatus.disable" -->
+                <v-btn small flat v-if="step === 2" @click="back">Back</v-btn>
                 <v-btn @click="nextMove" small flat color="primary">{{ preBtnStatus.text }}</v-btn>
             </v-card-actions>
         </v-card>
@@ -58,6 +60,7 @@ export default class ImportWalletDialog extends Mixins(
     addressExist = false
     show = false
     overWrite = false
+    overWriteErrorMsg: string[] = []
     step = 1
     pk?: Buffer
     nameAndPass: NameAndPass.Value = { name: '', password: '', valid: false }
@@ -68,11 +71,7 @@ export default class ImportWalletDialog extends Mixins(
         valid: false
     }
 
-    get BackBtnStatus() {
-        return {
-            text: this.step === 1 ? 'Abort' : 'Back'
-        }
-    }
+    precessing = false
     @Watch('show')
     onShowChange() {
         if (!this.show) {
@@ -87,46 +86,70 @@ export default class ImportWalletDialog extends Mixins(
             text: this.step === 1 ? 'Next' : 'Import'
         }
     }
-    reset() {
-        const form = this.$refs.pk as ContentForm
+    back() {
+        const npForm = this.$refs.np as NameAndPass
+        this.overWriteErrorMsg = []
+        npForm.reset()
         this.addressExist = false
         this.nameAndPass.name = ''
         this.nameAndPass.password = ''
         this.nameAndPass.valid = false
         this.step = 1
-        form.reset()
     }
-    preMove() {
-        if (this.step === 2) {
-            this.step--
-            return
-        } else {
-            this.show = false
-            this.reset()
+
+    abort() {
+        this.show = false
+    }
+
+    overWriteCheck() {
+        if (this.addressExist) {
+            this.overWriteErrorMsg = !this.overWrite
+                ? ['Please check the box to proceed']
+                : []
         }
+
+        return this.overWrite
+    }
+
+    checkStep2() {
+        const form = this.$refs.np as NameAndPass
+        const formV = form.valid
+        const owV = this.overWriteCheck()
+        console.log(formV, owV)
+        return formV && owV
     }
 
     async nextMove() {
+        if (this.precessing) {
+            return
+        }
+
+        this.precessing = true
         if (this.step === 1) {
             const form = this.$refs.pk as ContentForm
             if (!form.valid) {
+                this.precessing = false
                 return
             }
-            this.pk = await form.getPrivateKey()
-            const address = cry.publicKeyToAddress(
-                cry.secp256k1.derivePublicKey(this.pk)
-            )
-            const count = await BDB.wallets
-                .where('address')
-                .equals('0x' + address.toString('hex'))
-                .count()
-            if (count) {
-                this.addressExist = true
+            try {
+                this.pk = await form.getPrivateKey()
+                const address = cry.publicKeyToAddress(
+                    cry.secp256k1.derivePublicKey(this.pk)
+                )
+                const count = await BDB.wallets
+                    .where('address')
+                    .equals('0x' + address.toString('hex'))
+                    .count()
+                if (count) {
+                    this.addressExist = true
+                }
+            } catch (error) {
+                LOG.error(error)
             }
-            this.step++
+            this.step = 2
         } else {
-            const form = this.$refs.np as NameAndPass
-            if (!form.valid) {
+            if (!this.checkStep2()) {
+                this.precessing = false
                 return
             }
             try {
@@ -155,11 +178,12 @@ export default class ImportWalletDialog extends Mixins(
                 }
 
                 this.show = false
-                this.reset()
             } catch (err) {
-                console.log(err)
+                LOG.error(err)
             }
         }
+
+        this.precessing = false
     }
 }
 </script>

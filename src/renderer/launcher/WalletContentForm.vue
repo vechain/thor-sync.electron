@@ -7,10 +7,10 @@
             item-value="value"
         ></v-select>
         <v-textarea
-            validate-on-blur
             v-model.trim="form.content"
-            noresize
+            no-resize
             v-focus
+            @blur="validateContent"
             :error="contentError"
             :error-messages="contentErrorMsg"
             outline
