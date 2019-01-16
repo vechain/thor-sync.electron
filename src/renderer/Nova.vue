@@ -895,4 +895,7 @@ a:not(.v-list__tile):hover {
     font-weight: 500;
     text-align: center;
 }
+.v-text-field__details {
+    overflow: visible;
+}
 </style>
