@@ -1,6 +1,6 @@
 {
   "name": "org.vechain.sync",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "vechain.org",
   "description": "A browser that empowers DApps on VeChain",
   "license": "LGPL-3.0",
@@ -73,7 +73,7 @@
     }
   },
   "dependencies": {
-    "@vechain/connex": "^0.6.0",
+    "@vechain/connex": "^1.0.0",
     "thor-devkit": "~0.8.1"
   },
   "devDependencies": {
