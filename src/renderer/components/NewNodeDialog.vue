@@ -1,5 +1,5 @@
 <template>
-    <DialogEx v-model="show" @action:ok="onOk" @action:cancel="onCancel" max-width="450px">
+    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="onCancel" max-width="450px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">{{isEditing ? 'Edit Node' : 'New Node'}}</v-card-title>
