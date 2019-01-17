@@ -2,6 +2,7 @@
     <v-form ref="form">
         <v-text-field
             validate-on-blur
+            :disabled="disabled"
             label="Wallet name"
             :counter="20"
             maxlength="20"
@@ -10,15 +11,19 @@
         ></v-text-field>
         <v-text-field
             validate-on-blur
+            :disabled="disabled"
             label="Password"
             type="password"
+            maxlength="20"
             v-model="password"
             :rules="[passwordRule]"
         ></v-text-field>
         <v-text-field
             validate-on-blur
+            :disabled="disabled"
             label="Repeat password"
             type="password"
+            maxlength="20"
             v-model="repeatedPassword"
             :rules="[repeatedPasswordRule]"
         ></v-text-field>
@@ -32,7 +37,8 @@ export default class NameAndPass extends Vue {
     name = ''
     password = ''
     repeatedPassword = ''
-
+    @Prop()
+    disabled!: boolean
     @Model('update', { default: {} })
     value!: NameAndPass.Value
 
