@@ -35,8 +35,7 @@
             <v-card-actions>
                 <v-btn small flat @click="abort">Abort</v-btn>
                 <v-spacer/>
-                <v-btn small flat v-if="step === 2" @click="back">Back</v-btn>
-                <v-btn @click="nextMove" small flat color="primary">{{ preBtnStatus.text }}</v-btn>
+                <v-btn @click="nextMove" small flat class="primary">{{ preBtnStatus.text }}</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -63,12 +62,11 @@ export default class ImportWalletDialog extends Mixins(
     overWriteErrorMsg: string[] = []
     step = 1
     pk?: Buffer
-    nameAndPass: NameAndPass.Value = { name: '', password: '', valid: false }
+    nameAndPass: NameAndPass.Value = { name: '', password: '' }
     content: WalletContentForm.Value = {
         type: 0,
         pwd: '',
-        content: '',
-        valid: false
+        content: ''
     }
 
     processing = false
@@ -85,16 +83,6 @@ export default class ImportWalletDialog extends Mixins(
         return {
             text: this.step === 1 ? 'Next' : 'Import'
         }
-    }
-    back() {
-        const npForm = this.$refs.np as NameAndPass
-        this.overWriteErrorMsg = []
-        npForm.reset()
-        this.addressExist = false
-        this.nameAndPass.name = ''
-        this.nameAndPass.password = ''
-        this.nameAndPass.valid = false
-        this.step = 1
     }
 
     abort() {
@@ -127,7 +115,7 @@ export default class ImportWalletDialog extends Mixins(
         this.processing = true
         if (this.step === 1) {
             const form = this.$refs.pk as ContentForm
-            if (!form.valid) {
+            if (!form.valid()) {
                 this.processing = false
                 return
             }
