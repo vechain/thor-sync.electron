@@ -118,7 +118,7 @@ import { cry } from 'thor-devkit'
 
 @Component
 export default class CreateWalletDialog extends Mixins(
-    class extends DialogHelper<void, entities.Wallet | null> {}
+    class extends DialogHelper<void, entities.Wallet | null> { }
 ) {
     opened = false
     step = 1
@@ -220,7 +220,7 @@ export default class CreateWalletDialog extends Mixins(
             const privateKey = cry.mnemonic.derivePrivateKey(this.words)
             const ks = await cry.Keystore.encrypt(privateKey, this.password)
             const entity = {
-                name: this.name,
+                name: this.name.trim(),
                 address: '0x' + ks.address,
                 keystore: ks,
                 createdTime: Date.now()
@@ -234,7 +234,7 @@ export default class CreateWalletDialog extends Mixins(
 }
 
 function generateWords() {
-    for (;;) {
+    for (; ;) {
         // to avoid duplicated words
         const words = cry.mnemonic.generate()
         const map: { [i: string]: any } = []
