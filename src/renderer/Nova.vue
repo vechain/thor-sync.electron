@@ -622,6 +622,10 @@ export default class Nova extends Vue {
             action: () => { remote.getCurrentWebContents().toggleDevTools() },
             divider: true
         }, {
+            label: 'Online Help',
+            keys: [],
+            action: () => { this.openTab('https://github.com/vechain/thor-sync.electron/wiki') },
+        }, {
             label: 'About',
             keys: [],
             action: () => {
