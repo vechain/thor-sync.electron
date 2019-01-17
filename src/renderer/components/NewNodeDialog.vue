@@ -1,30 +1,24 @@
 <template>
-    <DialogEx v-model="show" @action:cancel="show=false" max-width="500px">
+    <DialogEx v-model="show" @action:ok="onOk" @action:cancel="onCancel" max-width="450px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">{{isEditing ? 'Edit Node' : 'New Node'}}</v-card-title>
-            <v-form @submit.prevent="save" ref="form" v-model="valid">
+            <v-form ref="form" v-model="valid">
                 <v-card-text>
-                    
-                    <!-- <v-layout>
-                        <v-flex> -->
-                            <v-text-field
-                                v-focus
-                                validate-on-blur
-                                v-model="form.name"
-                                :rules="rules.name"
-                                label="Name"
-                            ></v-text-field>
-                            <v-text-field
-                                v-model="form.rpcUrl"
-                                :error="error.isError"
-                                :disabled="isEditing"
-                                :error-messages="error.message"
-                                label="URL"
-                                :loading="checking"
-                            ></v-text-field>
-                        <!-- </v-flex>
-                    </v-layout> -->
+                    <v-text-field
+                        v-focus
+                        validate-on-blur
+                        v-model="form.name"
+                        :rules="rules.name"
+                        label="Name"
+                    ></v-text-field>
+                    <v-text-field
+                        v-model="form.rpcUrl"
+                        :error="error.isError"
+                        :disabled="isEditing"
+                        :error-messages="error.message"
+                        label="URL"
+                    ></v-text-field>
                 </v-card-text>
                 <v-divider/>
                 <v-card-actions>
@@ -32,174 +26,168 @@
                         flat
                         small
                         v-if="isEditing"
+                        :disabled="checking"
                         @click.native="onDelete"
-                        color="error darken-1"
+                        class="error"
                     >Delete</v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn small color="primary darken-1" flat @click.native="clear">Cancel</v-btn>
-                    <v-btn small :disabled="checking" type="submit" color="primary darken-1" flat>Save</v-btn>
+                    <v-btn flat small :disabled="checking" @click.native="onCancel">Abort</v-btn>
+                    <v-btn
+                        small
+                        :flat="!checking"
+                        :loading="checking"
+                        @click="save"
+                        ref="submit"
+                        class="primary"
+                    >Save</v-btn>
                 </v-card-actions>
             </v-form>
         </v-card>
     </DialogEx>
 </template>
 <script lang="ts">
-    import {
-        Vue,
-        Component,
-        Model,
-        Watch,
-        Prop,
-        Emit,
-        Mixins
-    } from 'vue-property-decorator'
-    import { dialog, remote } from 'electron'
-    import { resolve } from 'path'
-    import { rejects } from 'assert'
-    import DialogHelper from '../mixins/dialog-helper'
+import {
+    Vue,
+    Component,
+    Model,
+    Watch,
+    Prop,
+    Emit,
+    Mixins
+} from 'vue-property-decorator'
+import { dialog, remote } from 'electron'
+import { resolve } from 'path'
+import { rejects } from 'assert'
+import DialogHelper from '../mixins/dialog-helper'
 
-    @Component
-    export default class NewNodeDialog extends Mixins(
-        class extends DialogHelper<entities.Node | null, void> {}
-    ) {
-        isEditing = false
-        show = false
-        error = {
-            isError: false,
-            message: ''
-        }
-        checkingReject?: () => void
-        checking = false
-        @Model('input')
-        value!: boolean
+@Component
+export default class NewNodeDialog extends Mixins(
+    class extends DialogHelper<entities.Node | null, void> { }
+) {
+    isEditing = false
+    show = false
+    error = {
+        isError: false,
+        message: ''
+    }
 
-        // editItem?: Entities.Preference<'node'>
-        valid = true
-        form = {
-            name: '',
-            rpcUrl: ''
-        }
+    checking = false
+    @Model('input')
+    value!: boolean
 
-        rules = {
-            name: [(v: string) => !!v || 'Name is required'],
-            rpcUrl: [(v: string) => !!v || 'URL is required']
-        }
+    valid = true
+    form = {
+        name: '',
+        rpcUrl: ''
+    }
 
-        // @Watch('value')
-        // valueChanged(val: boolean) {
-        //     this.show = val
-        //     if (this.editItem) {
-        //         this.form.name = this.editItem!.value.name
-        //         this.form.rpcUrl = this.editItem!.value.url
-        //     }
-        //     this.isEditing = !!this.editItem
-        // }
+    rules = {
+        name: [(v: string) => !!v || 'Name is required'],
+        rpcUrl: [(v: string) => !!v || 'URL is required']
+    }
 
-        @Watch('show')
-        valueUpdate(val: boolean) {
-            if (!this.show) {
-                this.$resolve(undefined)
-            }
-        }
-
-        // @Emit('input')
-        // dialogChanged(val: boolean) {}
-
-        @Emit('cancel')
-        onCancel() {}
-
-        created() {
-            if (this.arg!.id) {
-                this.form.name = this.arg!.name
-                this.form.rpcUrl = this.arg!.url
-                this.isEditing = true
-            }
-        }
-
-        mounted() {
-            this.show = true
-        }
-
-        async onDelete(item: entities.Node) {
-            if (this.arg) {
-                await GDB.nodes.delete(this.arg!.id!)
-            }
-            this.clear()
-        }
-
-        clear() {
-            this.show = false
-            let form = this.$refs.form as any
-            form.reset()
-            this.error = {
-                isError: false,
-                message: ''
-            }
-            if (this.checkingReject) {
-                this.checkingReject()
-            }
-            this.checking = false
-            this.onCancel()
-        }
-
-        getNodeInfo() {
-            return new Promise<Connex.Thor.Block>((resolve, reject) => {
-                this.checkingReject = reject
-                CLIENT.discoverNode(this.form.rpcUrl)
-                    .then(resp => {
-                        resolve(resp)
-                    })
-                    .catch(error => {
-                        reject(error)
-                    })
-            })
-        }
-
-        async save() {
-            let form = this.$refs.form as any
-            if (!form.validate()) {
-                return
-            }
-
-            if (this.isEditing) {
-                let result = Object.assign({}, this.arg)
-                result.name = this.form.name
-                result.url = this.form.rpcUrl
-                // result.value.genesis = genesis
-                GDB.nodes
-                    .update(this.arg!.id as any, { ...result })
-                    .then(updated => {
-                        if (updated) {
-                            this.isEditing = false
-                            this.clear()
-                        } else {
-                            LOG.error('Edit node failed')
-                        }
-                    })
-            } else {
-                let genesis: Connex.Thor.Block
-                this.checking = true
-                try {
-                    genesis = await this.getNodeInfo()
-                } catch (error) {
-                    if (error) {
-                        this.checking = false
-                        this.error.isError = true
-                        this.error.message = `${error.name}: ${error.message}`
-                    }
-                    return
-                }
-                this.checking = false
-                GDB.nodes
-                    .add({
-                        name: this.form.name,
-                        url: this.form.rpcUrl,
-                        genesis: genesis
-                    })
-                    .then(() => {
-                        this.clear()
-                    })
-            }
+    @Watch('show')
+    valueUpdate(val: boolean) {
+        if (!this.show) {
+            this.$resolve(undefined)
         }
     }
+
+    onCancel() {
+        if (this.checking) {
+            return
+        }
+        this.show = false
+    }
+
+    created() {
+        if (this.arg!.id) {
+            this.form.name = this.arg!.name
+            this.form.rpcUrl = this.arg!.url
+            this.isEditing = true
+        }
+    }
+
+    mounted() {
+        this.show = true
+    }
+
+    onOk() {
+        const el = (this.$refs.submit as Vue).$el
+        el.focus()
+        el.click()
+    }
+
+    async onDelete(item: entities.Node) {
+        if (this.arg) {
+            await GDB.nodes.delete(this.arg!.id!)
+        }
+        this.onCancel()
+    }
+
+    getNodeInfo() {
+        return new Promise<Connex.Thor.Block>((resolve, reject) => {
+            try {
+                new URL(this.form.rpcUrl)
+            } catch (error) {
+                reject(error)
+            }
+
+            CLIENT.discoverNode(this.form.rpcUrl)
+                .then(resp => {
+                    resolve(resp)
+                })
+                .catch(error => {
+                    reject(error)
+                })
+        })
+    }
+
+    async save() {
+        let form = this.$refs.form as any
+        if (!form.validate()) {
+            return
+        }
+
+        if (this.checking) {
+            return
+        }
+
+        if (this.isEditing) {
+            let result = Object.assign({}, this.arg)
+            result.name = this.form.name
+            result.url = this.form.rpcUrl
+            GDB.nodes
+                .update(this.arg!.id as any, { ...result })
+                .then(updated => {
+                    if (updated) {
+                        this.isEditing = false
+                    } else {
+                        LOG.error('Edit node failed')
+                    }
+                })
+        } else {
+            let genesis: Connex.Thor.Block
+            this.checking = true
+            try {
+                genesis = await this.getNodeInfo()
+            } catch (error) {
+                if (error) {
+                    this.checking = false
+                    this.error.isError = true
+                    this.error.message = `${error.name}: ${error.message}`
+                }
+                return
+            }
+            this.checking = false
+            GDB.nodes
+                .add({
+                    name: this.form.name,
+                    url: this.form.rpcUrl,
+                    genesis: genesis
+                })
+        }
+        this.onCancel()
+    }
+}
 </script>
