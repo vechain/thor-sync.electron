@@ -1,5 +1,5 @@
 <template>
-    <DialogEx persistent v-model="show" @action:ok="onNext" @action:cancel="show=false" max-width="400px">
+    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="show=false" max-width="400px">
         <v-card>
             <v-card-title class="subheading">Delete Wallet</v-card-title>
             <v-card-text>
@@ -24,7 +24,7 @@
             <v-card-actions>
                 <v-btn small flat @click.stop="close">Abort</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn small flat type="button" @click="onNext" class="error">Delete this wallet</v-btn>
+                <v-btn small ref="submit" flat type="button" @click="onNext" class="error">Delete this wallet</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -95,6 +95,12 @@ export default class DeleteWalletDialog extends Mixins(
             await BDB.wallets.delete(this.arg.id || 0)
             this.close()
         }
+    }
+
+    onOk() {
+        const btn = (this.$refs.submit as Vue).$el
+        btn.focus()
+        btn.click()
     }
 }
 </script>

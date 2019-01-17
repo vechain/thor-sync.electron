@@ -1,5 +1,5 @@
 <template>
-    <DialogEx persistent @action:ok="nextMove" v-model="show" max-width="550px">
+    <DialogEx persistent @action:ok="onOk" v-model="show" max-width="550px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">Import Wallet</v-card-title>
@@ -35,7 +35,7 @@
             <v-card-actions>
                 <v-btn small flat @click="abort">Abort</v-btn>
                 <v-spacer/>
-                <v-btn @click="nextMove" small flat class="primary">{{ preBtnStatus.text }}</v-btn>
+                <v-btn @click="nextMove" ref="submit" small flat class="primary">{{ preBtnStatus.text }}</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -54,7 +54,7 @@ import DialogHelper from '@/renderer/mixins/dialog-helper'
     }
 })
 export default class ImportWalletDialog extends Mixins(
-    class extends DialogHelper<any, void> {}
+    class extends DialogHelper<any, void> { }
 ) {
     addressExist = false
     show = false
@@ -105,6 +105,12 @@ export default class ImportWalletDialog extends Mixins(
         const formV = form.valid
         const owV = this.overWriteCheck()
         return formV && owV
+    }
+
+    onOk() {
+        const btn = (this.$refs.submit as Vue).$el
+        btn.focus()
+        btn.click()
     }
 
     async nextMove() {
