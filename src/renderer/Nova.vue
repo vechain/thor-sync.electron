@@ -429,7 +429,7 @@ export default class Nova extends Vue {
             this.activePage.href = newHref
         }
     }
-    beforeMount() {
+    mounted() {
         (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
     }
     async created() {
