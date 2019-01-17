@@ -9,7 +9,14 @@
         <v-card>
             <v-card-title class="subheading">Shortcut</v-card-title>
             <v-card-text>
-                <v-text-field v-focus label="Title" v-model="arg.title"/>
+                <v-text-field
+                    v-focus
+                    label="Title"
+                    :rules="titleRules"
+                    v-model="arg.title"
+                    maxlength="30"
+                    validate-on-blur
+                />
                 <div class="grey--text text-truncate" style="width:100%;">{{arg.href}}</div>
             </v-card-text>
             <v-divider/>
@@ -42,15 +49,20 @@ export default class ShortcutEditDialog extends Mixins(class extends DialogHelpe
         }
     }
 
+    titleRules = [
+        (val: string) => !!(val && val.trim()) || 'Please input title'
+    ]
+
     mounted() {
         this.open = true
     }
     save() {
-        if (!this.arg.title.trim()) {
+        const title = this.arg.title.trim()
+        if (!title) {
             return
         }
         GDB.shortcuts.update(this.arg.id, {
-            title: this.arg.title,
+            title,
             href: this.arg.href,
         }).catch(err => LOG.warn('ShortcutEditDialog', 'save error', err))
         this.open = false
