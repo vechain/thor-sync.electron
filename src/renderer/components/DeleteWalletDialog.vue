@@ -4,7 +4,7 @@
         v-model="show"
         @action:ok="onOk"
         @action:cancel="show=false"
-        max-width="400px"
+        max-width="450px"
     >
         <v-card>
             <v-card-title class="subheading">Delete Wallet</v-card-title>
@@ -19,7 +19,7 @@
                     type="text"
                     v-focus
                     validate-on-blur
-                    placeholder="Please type in the name of the wallet to confirm"
+                    placeholder="Please type the wallet name to confirm"
                     label="Wallet Name"
                     v-model="name"
                     :rules="[checkName]"
