@@ -41,6 +41,9 @@ if (isFirstTimeRun) {
             title: 'Code Repo',
             href: 'https://github.com/vechain/thor-sync.electron'
         }, {
+            title: 'Connex Docs',
+            href: 'https://connex.vecha.in/#/'
+        }, {
             title: 'Gitter',
             href: 'https://gitter.im/vechain/thor'
         }, {
