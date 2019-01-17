@@ -101,7 +101,7 @@ export default class NewNodeDialog extends Mixins(
     }
 
     created() {
-        if (this.arg!.id) {
+        if (this.arg && this.arg!.id) {
             this.form.name = this.arg!.name
             this.form.rpcUrl = this.arg!.url
             this.isEditing = true
