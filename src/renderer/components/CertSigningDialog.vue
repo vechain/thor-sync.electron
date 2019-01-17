@@ -46,6 +46,7 @@
                             v-model="password"
                             label="Password"
                             type="password"
+                            maxlength="20"
                             :error-messages="passwordError"
                             ref="passwordElem"
                             @focus="onPasswordFocused"
