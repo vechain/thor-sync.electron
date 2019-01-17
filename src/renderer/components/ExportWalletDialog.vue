@@ -3,13 +3,13 @@
         persistent
         v-model="show"
         @action:ok="onOk"
-        @action:cancel="show=false"
+        @action:cancel="close"
         max-width="500px"
     >
         <v-card ref="card">
             <v-card-title class="subheading">Backup</v-card-title>
             <v-card-text class="py-0">
-                <v-textarea label="Keystore" readonly rows="12" no-resize box v-model="ks"/>
+                <v-textarea v-focus label="Keystore" readonly rows="12" no-resize box v-model="ks"/>
             </v-card-text>
             <v-divider/>
             <v-card-actions>
