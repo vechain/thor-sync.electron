@@ -28,6 +28,7 @@
                 <v-layout column style="width:300px">
                     <v-card-text>
                         <WalletSeeker
+                            full-size
                             :wallets="arg.wallets"
                             v-model="arg.selectedWallet"
                             :disabled="signing"
