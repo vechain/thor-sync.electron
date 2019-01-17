@@ -2,6 +2,7 @@
     <div>
         <v-select
             v-focus
+            :disabled="disabled"
             v-model="form.type"
             @change="checkContent"
             :items="types"
@@ -11,14 +12,16 @@
         <v-textarea
             v-model.trim="form.content"
             ref="content"
+            :disabled="disabled"
+            box
             no-resize
             validate-on-blur
             @keypress.enter.stop
             :rules="[validateContent]"
-            outline
             :label="types[form.type - 1]['text']"
         ></v-textarea>
         <v-text-field
+            :disabled="disabled"
             label="Password"
             :error="pwdError.error"
             @change="pwdChanged"
@@ -48,6 +51,8 @@ interface IContentForm {
 
 @Component
 export default class ContentForm extends Vue implements IContentForm {
+    @Prop()
+    disabled!: boolean
     name = 'wallet_content_form'
     pwdIsError: boolean = false
     form = {
