@@ -127,6 +127,7 @@ import TransferMixin from '../mixins/Transfer.vue'
 import { State } from 'vuex-class'
 import Store from '../store'
 import { ResetPwdDialog } from '@/renderer/components'
+import { UnlockWalletDialog } from '@/renderer/components'
 import { ExportWalletDialog } from '@/renderer/components'
 import { DeleteWalletDialog } from '@/renderer/components'
 import TransferItem from './TransferItem.vue'
@@ -155,9 +156,15 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
         })
     }
 
-    get address() { return (this.wallet ? this.wallet.address : '') || '' }
-    get balance() { return this.account && this.account.balance }
-    get energy() { return this.account && this.account.energy }
+    get address() {
+        return (this.wallet ? this.wallet.address : '') || ''
+    }
+    get balance() {
+        return this.account && this.account.balance
+    }
+    get energy() {
+        return this.account && this.account.energy
+    }
 
     @Watch('wallet')
     walletChanged() {
@@ -189,14 +196,47 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
         this.reload()
     }
 
-    showReset() {
-        this.$dialog(ResetPwdDialog, this.wallet!)
+    async showReset() {
+        try {
+            const privateKey = await this.$dialog(UnlockWalletDialog, {
+                wallet: this.wallet!
+            })
+            if (privateKey) {
+                this.$dialog(ResetPwdDialog, {
+                    privateKey: privateKey,
+                    id: this.wallet!.id
+                })
+            }
+        } catch (error) {
+            LOG.error(error)
+        }
     }
-    showDelete() {
-        this.$dialog(DeleteWalletDialog, this.wallet!)
+    async showDelete() {
+        try {
+            const privateKey = await this.$dialog(UnlockWalletDialog, {
+                wallet: this.wallet!
+            })
+            if (privateKey) {
+                this.$dialog(DeleteWalletDialog, {
+                    id: this.wallet!.id,
+                    name: this.wallet!.name
+                })
+            }
+        } catch (error) {
+            LOG.error(error)
+        }
     }
-    showExport() {
-        this.$dialog(ExportWalletDialog, this.wallet!)
+    async showExport() {
+        try {
+            const pk = await this.$dialog(UnlockWalletDialog, {
+                wallet: this.wallet!
+            })
+            if (pk) {
+                this.$dialog(ExportWalletDialog, this.wallet!)
+            }
+        } catch (error) {
+            LOG.error(error)
+        }
     }
     async reload() {
         if (this.loading) {
@@ -216,7 +256,10 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
     }
 
     showTransfer() {
-        this.$router.push({ name: 'transfer', query: { from: this.wallet!.address } })
+        this.$router.push({
+            name: 'transfer',
+            query: { from: this.wallet!.address }
+        })
     }
 
     saveName() {
@@ -234,9 +277,9 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
 }
 </script>
 <style scoped>
-input.editable-name {
-    outline: none;
-    box-shadow: 0px 0px 0px 2px #1976d2;
-    border-radius: 2px;
-}
+    input.editable-name {
+        outline: none;
+        box-shadow: 0px 0px 0px 2px #1976d2;
+        border-radius: 2px;
+    }
 </style>
