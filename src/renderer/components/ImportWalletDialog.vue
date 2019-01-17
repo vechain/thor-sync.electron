@@ -1,5 +1,5 @@
 <template>
-    <DialogEx persistent @action:ok="onOk" v-model="show" max-width="550px">
+    <DialogEx persistent @action:ok="onOk" @action:cancel="abort" v-model="show" max-width="550px">
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">Import Wallet</v-card-title>
