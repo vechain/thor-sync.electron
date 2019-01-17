@@ -1,13 +1,9 @@
 <template>
-    <Tooltip>
-        <v-icon
-            slot="activator"
-            style="font-size:100%;"
-            @click="onClick"
-            :color="secure?'':'red'"
-        >{{secure? 'mdi-lock': 'mdi-lock-question'}}</v-icon>
-        <span>{{secure? 'Secure':'Insecure!'}}</span>
-    </Tooltip>
+    <v-icon
+        style="font-size:100%;"
+        @click="onClick"
+        :color="secure?'':'red'"
+    >{{secure? 'mdi-lock': 'mdi-lock-question'}}</v-icon>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
