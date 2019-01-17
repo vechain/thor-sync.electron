@@ -7,7 +7,7 @@
             :counter="20"
             maxlength="20"
             v-model="name"
-            :rules="[nameRule, nameLength]"
+            :rules="[nameRule]"
         ></v-text-field>
         <v-text-field
             validate-on-blur
@@ -46,7 +46,7 @@ export default class NameAndPass extends Vue {
     @Watch('password')
     emitUpdate() {
         this.$emit('update', {
-            name: this.name,
+            name: this.name.trim(),
             password: this.password
         })
     }
@@ -69,15 +69,6 @@ export default class NameAndPass extends Vue {
 
     nameRule() {
         return (!!this.name && !!this.name.trim()) || 'Requires non-empty name'
-    }
-
-    nameLength() {
-        return (
-            (!!this.name &&
-                !!this.name.trim() &&
-                this.name.trim().length <= 20) ||
-            `Wallet's name is longer than 20 characters`
-        )
     }
 
     passwordRule() {

@@ -266,20 +266,22 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
         if (!this.wallet) {
             return
         }
-
-        if (this.wallet.name !== this.editingName) {
-            BDB.wallets
-                .where('id')
-                .equals(this.wallet.id!)
-                .modify({ name: this.editingName })
+        const newName = this.editingName.trim()
+        if (!newName || newName === this.wallet.name) {
+            return
         }
+
+        BDB.wallets
+            .where('id')
+            .equals(this.wallet.id!)
+            .modify({ name: newName })
     }
 }
 </script>
 <style scoped>
-    input.editable-name {
-        outline: none;
-        box-shadow: 0px 0px 0px 2px #1976d2;
-        border-radius: 2px;
-    }
+input.editable-name {
+    outline: none;
+    box-shadow: 0px 0px 0px 2px #1976d2;
+    border-radius: 2px;
+}
 </style>
