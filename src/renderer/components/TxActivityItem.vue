@@ -192,6 +192,7 @@ export default class TxActivityItem extends Vue {
     openWallet() {
         if (this.wallet) {
             BUS.$emit('open-tab', { href: `sync://wallets/${this.wallet.address}`, mode: 'inplace-builtin' })
+            this.emitAction()
         }
     }
 }
