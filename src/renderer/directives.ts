@@ -78,8 +78,11 @@ Vue.directive('focus', {
     setTimeout(() => {
       // tslint:disable-next-line:no-unused-expression
       tempEl.focus && tempEl.focus()
-      // tslint:disable-next-line:no-unused-expression
-      tempEl.select && tempEl.select()
+
+      if (el.tagName.toLocaleUpperCase() === 'input') {
+        // tslint:disable-next-line:no-unused-expression
+        tempEl.select && tempEl.select()
+      }
     }, 0)
   }
 })
