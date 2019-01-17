@@ -1,11 +1,5 @@
 <template>
-    <DialogEx
-        persistent
-        v-model="show"
-        @action:ok="onOk"
-        @action:cancel="show=false"
-        max-width="500px"
-    >
+    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="close" max-width="420px">
         <v-card ref="card">
             <v-card-title class="subheading">Reset Password</v-card-title>
             <v-card-text>
@@ -15,23 +9,34 @@
                         validate-on-blur
                         :rules="[passwordRule]"
                         type="password"
+                        :disabled="checking"
                         label="New Password"
+                        maxlength="20"
                         v-model="newPassword"
                     ></v-text-field>
                     <v-text-field
                         validate-on-blur
+                        :disabled="checking"
                         :rules="[repeatedPasswordRule]"
                         label="Repeat Password"
                         type="password"
+                        maxlength="20"
                         v-model="repeatedPassword"
                     ></v-text-field>
                 </v-form>
             </v-card-text>
             <v-divider/>
             <v-card-actions>
-                <v-btn small flat @click="close">Abort</v-btn>
+                <v-btn small :disabled="checking" flat @click="close">Abort</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn small ref="submit" flat @click="resetPwd" class="primary">Save</v-btn>
+                <v-btn
+                    small
+                    ref="submit"
+                    :flat="!checking"
+                    :disabled="checking"
+                    @click="resetPwd"
+                    class="primary"
+                >Save</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -71,6 +76,9 @@ export default class ResetPwdDialog extends Mixins(
     }
 
     close() {
+        if (this.checking) {
+            return
+        }
         this.show = false
     }
 
@@ -101,21 +109,33 @@ export default class ResetPwdDialog extends Mixins(
     }
 
     async resetPwd() {
+        if (this.checking) {
+            return
+        }
         if (!(this.$refs.form as any).validate()) {
             return
         }
-        if (this.arg.privateKey) {
-            const ks = await cry.Keystore.encrypt(
-                this.arg.privateKey,
-                this.newPassword
-            )
-            BDB.wallets
-                .where('id')
-                .equals(this.arg.id!)
-                .modify({ keystore: ks })
+        this.checking = true
 
-            this.close()
+        try {
+            if (this.arg.privateKey) {
+                const ks = await cry.Keystore.encrypt(
+                    this.arg.privateKey,
+                    this.newPassword
+                )
+                BDB.wallets
+                    .where('id')
+                    .equals(this.arg.id!)
+                    .modify({ keystore: ks })
+
+                this.show = false
+            }
+        } catch (error) {
+            LOG.error(error)
+        } finally {
+            this.checking = false
         }
+
     }
 }
 </script>
