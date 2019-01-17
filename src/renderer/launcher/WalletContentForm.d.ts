@@ -3,6 +3,5 @@ declare namespace WalletContentForm {
         type: number
         content: string
         pwd: string
-        valid?: boolean
     }
 }

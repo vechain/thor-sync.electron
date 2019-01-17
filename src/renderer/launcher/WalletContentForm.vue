@@ -1,18 +1,20 @@
 <template>
     <div>
         <v-select
+            v-focus
             v-model="form.type"
+            @change="checkContent"
             :items="types"
             item-text="text"
             item-value="value"
         ></v-select>
         <v-textarea
             v-model.trim="form.content"
-            no-resize
-            v-focus
-            @blur="validateContent"
-            :error="contentError"
-            :error-messages="contentErrorMsg"
+            ref="content"
+            noresize
+            validate-on-blur
+            @keypress.enter.stop
+            :rules="[validateContent]"
             outline
             :label="types[form.type - 1]['text']"
         ></v-textarea>
@@ -75,9 +77,6 @@ export default class ContentForm extends Vue implements IContentForm {
     @Model('update', { default: {} })
     value!: WalletContentForm.Value
 
-    @Emit('update')
-    valueUpdate(v: WalletContentForm.Value) {}
-
     @Watch('form.type')
     @Watch('form.content')
     @Watch('form.pwd')
@@ -85,29 +84,28 @@ export default class ContentForm extends Vue implements IContentForm {
         const result: WalletContentForm.Value = {
             type: this.form.type,
             content: this.form.content,
-            pwd: this.form.pwd,
-            valid: this.valid
+            pwd: this.form.pwd
         }
-        this.valueUpdate(result)
+
+        this.$emit('update', result)
     }
 
-    @Watch('value')
+    @Watch('value.type')
+    @Watch('value.content')
+    @Watch('value.pwd')
     valueChange() {
         this.form.type = this.value.type || 1
         this.form.content = this.value.content || ''
         this.form.pwd = this.value.pwd || ''
     }
 
-    created() {
-        this.valueChange()
-    }
-
     pwdChanged() {
         this.pwdIsError = false
     }
 
-    get valid() {
-        return this.validateContent()
+    valid(): boolean {
+        const c = this.$refs.content as any
+        return c.validate(true)
     }
 
     validateContent() {
@@ -127,14 +125,7 @@ export default class ContentForm extends Vue implements IContentForm {
                 break
         }
 
-        if (result === true) {
-            this.contentError = false
-            this.contentErrorMsg = []
-        } else {
-            this.contentError = true
-            this.contentErrorMsg = [result as string]
-        }
-        return !this.contentError
+        return result
     }
     validateKeyStore(content: string) {
         if (content) {
@@ -167,6 +158,12 @@ export default class ContentForm extends Vue implements IContentForm {
             return cry.mnemonic.validate(this.form.content.split(' '))
         } else {
             return 'Mnemonic words are required'
+        }
+    }
+
+    checkContent() {
+        if (this.form.content) {
+            this.valid()
         }
     }
 
