@@ -8,7 +8,7 @@
         transition="sign-dialog-transition"
     >
         <v-card>
-            <v-layout row style="height:450px;">
+            <v-layout row style="height:460px;">
                 <v-layout
                     column
                     style="width:350px;flex:0 0 auto;background-color:rgba(0,0,0,0.12);overflow:auto;"
@@ -32,6 +32,7 @@
                 <v-layout column style="width:300px;">
                     <v-card-text>
                         <WalletSeeker
+                            full-size
                             :wallets="wallets"
                             v-model="arg.selectedWallet"
                             :disabled="signing"
