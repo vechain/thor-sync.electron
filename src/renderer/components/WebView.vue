@@ -32,10 +32,23 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Watch } from 'vue-property-decorator'
-import { WebviewTag, PageFaviconUpdatedEvent, NewWindowEvent, PageTitleUpdatedEvent, LoadCommitEvent, remote, DidFailLoadEvent, IpcMessageEvent } from 'electron'
+import {
+    WebviewTag,
+    PageFaviconUpdatedEvent,
+    NewWindowEvent,
+    MenuItemConstructorOptions,
+    PageTitleUpdatedEvent,
+    LoadCommitEvent,
+    remote,
+    DidFailLoadEvent,
+    IpcMessageEvent,
+    WebContents,
+    clipboard
+} from 'electron'
 import * as NodeUrl from 'url'
 import errorMap from '../net-error-list'
 import * as AccessRecords from '../access-records'
+const { download } = require('electron-dl')
 
 @Component
 export default class WebView extends Vue {
@@ -119,6 +132,7 @@ export default class WebView extends Vue {
 
     _unbind !: () => void
     mounted() {
+        installContextMenu(this.webview.getWebContents())
         this._unbind = this.bindEvents()
         // assign src manullay instead of v-bind:src to avoid some wired problems
         this.webview.src = this.currentHref = this.href
@@ -271,6 +285,71 @@ export default class WebView extends Vue {
     }
 
     get webview() { return this.$refs.webview as WebviewTag }
+}
+
+function installContextMenu(wc: WebContents) {
+    wc.on('context-menu', ({ sender }, props) => {
+        const hasText = !!props.selectionText
+        const menuTpl: MenuItemConstructorOptions[] = [{
+            id: 'cut',
+            label: 'Cut',
+            enabled: props.editFlags.canCut,
+            visible: props.isEditable,
+            click: () => sender.cut()
+        }, {
+            id: 'copy',
+            label: 'Copy',
+            enabled: props.editFlags.canCopy,
+            visible: props.isEditable || hasText,
+            click: () => sender.copy()
+        }, {
+            id: 'paste',
+            label: 'Paste',
+            enabled: props.editFlags.canPaste,
+            visible: props.isEditable,
+            click: () => sender.paste()
+        }, {
+            id: 'save',
+            label: 'Save Image',
+            click: (item, win) => {
+                download(win, props.srcURL, { saveAs: true })
+            },
+            visible: props.mediaType === 'image'
+        }, {
+            id: 'copyLink',
+            label: 'Copy Link',
+            click: () => {
+                clipboard.write({
+                    bookmark: props.linkText,
+                    text: props.linkURL,
+                })
+            },
+            visible: !!props.linkURL && props.mediaType === 'none'
+        }, {
+            id: 'copyImageLink',
+            label: 'Copy Image Link',
+            click: () => {
+                clipboard.write({
+                    bookmark: props.srcURL,
+                    text: props.srcURL
+                })
+            },
+            visible: props.mediaType === 'image'
+        }, {
+            id: 'inspect',
+            label: 'Inspect Element',
+            click: () => {
+                sender.inspectElement(props.x, props.y)
+                if (sender.isDevToolsOpened()) {
+                    sender.devToolsWebContents.focus()
+                }
+            }
+        }]
+
+        remote.Menu
+            .buildFromTemplate(menuTpl)
+            .popup({})
+    })
 }
 
 const allEvents = [

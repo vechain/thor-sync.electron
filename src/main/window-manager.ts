@@ -1,4 +1,11 @@
-import { app, BrowserWindowConstructorOptions, BrowserWindow, BrowserView } from 'electron'
+import {
+    app,
+    BrowserWindowConstructorOptions,
+    BrowserWindow,
+    BrowserView,
+    Menu,
+    MenuItemConstructorOptions
+} from 'electron'
 import env from '@/env'
 import { presets, nameOfNetwork } from '../node-configs'
 import { parseExternalUrl } from '@/common/url-utils'
@@ -53,6 +60,7 @@ class WindowManager {
                 }
             }
         })
+        this.installContextMenu(win)
         this.initXWorker()
         return win
     }
@@ -145,6 +153,46 @@ class WindowManager {
         }
         app.EXTENSION.mq.post(`TabAction-${target.id}`, action)
         return true
+    }
+
+    private installContextMenu(win: BrowserWindow) {
+        win.webContents.on('context-menu', ({ sender }, props) => {
+            const hasText = !!props.selectionText
+            const menuTpl: MenuItemConstructorOptions[] = [{
+                id: 'cut',
+                label: 'Cut',
+                enabled: props.editFlags.canCut,
+                visible: props.isEditable,
+                click: () => sender.cut()
+            }, {
+                id: 'copy',
+                label: 'Copy',
+                enabled: props.editFlags.canCopy,
+                visible: props.isEditable || hasText,
+                click: () => sender.copy()
+            }, {
+                id: 'paste',
+                label: 'Paste',
+                enabled: props.editFlags.canPaste,
+                visible: props.isEditable,
+                click: () => sender.paste()
+            }, {
+                id: 'inspect',
+                label: 'Inspect Element',
+                click: () => {
+                    sender.inspectElement(props.x, props.y)
+                    if (sender.isDevToolsOpened()) {
+                        sender.devToolsWebContents.focus()
+                    }
+                },
+                visible: env.devMode
+            }]
+
+            Menu
+                .buildFromTemplate(menuTpl)
+                .popup({})
+
+        })
     }
 
     private initXWorker() {

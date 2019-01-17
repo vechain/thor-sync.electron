@@ -52,11 +52,6 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         }
     }
 
-    // tslint:disable-next-line:no-var-requires
-    const contextMenu = require('electron-context-menu')
-    // for all browserWindow
-    contextMenu()
-
     const updateChecker = createUpdateChecker()
     const mq = new MQ()
     const winMgr = new WindowManager()
@@ -91,11 +86,6 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         contents.on('did-attach-webview', (_ev, wc) => {
             log.debug('WebContents:', 'did-attach-webview', `#${wc.id}`)
             wc.session.setCertificateVerifyProc(certVerifyProc)
-            // for all webview
-            contextMenu({
-                window: wc,
-                showInspectElement: true
-            })
         })
     }).on('ready', () => {
         log.debug('App:', 'ready')
