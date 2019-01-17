@@ -21,14 +21,19 @@
                     />
                 </div>
             </v-layout>
-            <div class="caption text-truncate font-weight-medium" style="width:100%;text-align:center;">{{title}}</div>
+            <div
+                class="caption text-truncate font-weight-medium"
+                style="width:100%;text-align:center;"
+            >{{title}}</div>
         </v-layout>
         <slot/>
     </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import * as UrlUtils from '@/common/url-utils'
+import * as NodeUrl from 'url'
+import Color from 'color'
+
 @Component
 export default class AppButton extends Vue {
     @Prop(String) title!: string
@@ -38,11 +43,21 @@ export default class AppButton extends Vue {
     loaded = false
 
     get firstChar() {
-        return this.title ? this.title[0] : '?'
+        const str = (this.title || '').trim()
+        return str ? str[0].toUpperCase() : '?'
     }
     get faceColor() {
-        const h = hash(UrlUtils.hostnameOf(this.href || ''))
-        return colors[h % colors.length]
+        const url = NodeUrl.parse(this.href || '')
+
+        const i1 = hash(url.host || '') % colors.length
+        let i2 = hash(url.pathname || '') % colors.length
+        if (i1 === i2) {
+            i2 = (i2 + 1) % colors.length
+        }
+        const c1 = colors[i1]
+        const c2 = colors[i2]
+
+        return Color(c1).mix(Color(c2), 0.4).saturate(0.1).hex()
     }
 }
 
@@ -58,7 +73,6 @@ const colors = [
     '#4caf50',
     '#8bc34a',
     '#cddc39',
-    '#ffc107',
     '#ff9800',
     '#ff5722'
 ]
