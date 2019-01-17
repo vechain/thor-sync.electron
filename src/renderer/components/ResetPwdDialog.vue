@@ -1,5 +1,11 @@
 <template>
-    <DialogEx persistent v-model="show" @action:ok="resetPwd" @action:cancel="show=false" max-width="500px">
+    <DialogEx
+        persistent
+        v-model="show"
+        @action:ok="onOk"
+        @action:cancel="show=false"
+        max-width="500px"
+    >
         <v-card ref="card">
             <v-card-title class="subheading">Reset Password</v-card-title>
             <v-card-text>
@@ -25,12 +31,7 @@
             <v-card-actions>
                 <v-btn small flat @click="close">Abort</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn
-                    small
-                    flat
-                    @click="resetPwd"
-                    class="primary"
-                >Save</v-btn>
+                <v-btn small ref="submit" flat @click="resetPwd" class="primary">Save</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -49,7 +50,7 @@ import Account from '@/renderer/mixins/Account'
 @Component
 export default class ResetPwdDialog extends Mixins(
     Account,
-    class extends DialogHelper<Arg, void> {}
+    class extends DialogHelper<Arg, void> { }
 ) {
     show = false
     checking = false
@@ -91,6 +92,12 @@ export default class ResetPwdDialog extends Mixins(
         return (
             this.passwordRule() === true && this.repeatedPasswordRule() === true
         )
+    }
+
+    onOk() {
+        const btn = (this.$refs.submit as Vue).$el
+        btn.focus()
+        btn.click()
     }
 
     async resetPwd() {

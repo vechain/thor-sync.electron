@@ -1,5 +1,11 @@
 <template>
-    <DialogEx persistent v-model="show" @action:ok="save" @action:cancel="show=false" max-width="500px">
+    <DialogEx
+        persistent
+        v-model="show"
+        @action:ok="onOk"
+        @action:cancel="show=false"
+        max-width="500px"
+    >
         <v-card ref="card">
             <v-card-title class="subheading">Backup</v-card-title>
             <v-card-text class="py-0">
@@ -9,7 +15,7 @@
             <v-card-actions>
                 <v-btn small flat @click="close">Abort</v-btn>
                 <v-spacer/>
-                <v-btn small flat @click="save" class="primary">Save</v-btn>
+                <v-btn small ref="submit" flat @click="save" class="primary">Save</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -27,7 +33,7 @@ const fs = require('fs')
 @Component
 export default class ExportWalletDialog extends Mixins(
     AccountMixin,
-    class extends DialogHelper<entities.Wallet, void> {}
+    class extends DialogHelper<entities.Wallet, void> { }
 ) {
     password: string = ''
     show = false
@@ -40,9 +46,9 @@ export default class ExportWalletDialog extends Mixins(
         isError: boolean
         messages: string[]
     } = {
-        isError: false,
-        messages: []
-    }
+            isError: false,
+            messages: []
+        }
 
     @Watch('show')
     showChanged(val: boolean) {
@@ -98,6 +104,12 @@ export default class ExportWalletDialog extends Mixins(
                 })
             }
         })
+    }
+
+    onOk() {
+        const btn = (this.$refs.submit as Vue).$el
+        btn.focus()
+        btn.click()
     }
 
     async saveFile() {

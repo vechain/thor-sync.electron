@@ -11,7 +11,7 @@
         <v-textarea
             v-model.trim="form.content"
             ref="content"
-            noresize
+            no-resize
             validate-on-blur
             @keypress.enter.stop
             :rules="[validateContent]"
