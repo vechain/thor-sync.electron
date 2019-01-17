@@ -68,15 +68,18 @@ Vue.directive('nofocusout', {
 
 Vue.directive('focus', {
   inserted(el: HTMLElement, binding: any) {
-    const tags: string[] = ['input', 'textarea']
+    const tags: string[] = ['input', 'textarea', 'select']
     const tempEl =
       tags.indexOf(el.tagName.toLocaleLowerCase()) >= 0
-        ? (el as HTMLInputElement | HTMLTextAreaElement)
+        ? (el as any)
         : el.getElementsByTagName('input')[0] ||
-          el.getElementsByTagName('textarea')[0]
+          el.getElementsByTagName('textarea')[0] ||
+          el.getElementsByTagName('select')[0]
     setTimeout(() => {
-      tempEl.focus()
-      tempEl.select()
+      // tslint:disable-next-line:no-unused-expression
+      tempEl.focus && tempEl.focus()
+      // tslint:disable-next-line:no-unused-expression
+      tempEl.select && tempEl.select()
     }, 0)
   }
 })
