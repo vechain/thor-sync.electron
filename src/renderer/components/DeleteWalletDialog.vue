@@ -1,22 +1,29 @@
 <template>
-    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="show=false" max-width="400px">
+    <DialogEx
+        persistent
+        v-model="show"
+        @action:ok="onOk"
+        @action:cancel="show=false"
+        max-width="400px"
+    >
         <v-card>
             <v-card-title class="subheading">Delete Wallet</v-card-title>
             <v-card-text>
                 <div>
                     This action
-                    <strong>CANNOT </strong>be undone. Unless you have backed up your wallet beforehand, your wallet will be
-                    <strong>PERMANENTLY </strong>deleted.
+                    <strong>CANNOT</strong>be undone. Unless you have backed up your wallet beforehand, your wallet will be
+                    <strong>PERMANENTLY</strong>deleted.
                 </div>
                 <br>
                 <v-text-field
-                    :error="error.isError"
-                    :error-messages="error.messages"
+                    ref="nameInput"
                     type="text"
                     v-focus
+                    validate-on-blur
                     placeholder="Please type in the name of the wallet to confirm"
                     label="Wallet Name"
                     v-model="name"
+                    :rules="[checkName]"
                     :loading="checking"
                 ></v-text-field>
             </v-card-text>
@@ -24,7 +31,15 @@
             <v-card-actions>
                 <v-btn small flat @click.stop="close">Abort</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn small ref="submit" flat type="button" @click="onNext" class="error">Delete this wallet</v-btn>
+                <v-btn
+                    small
+                    ref="submit"
+                    flat
+                    type="button"
+                    @click="onNext"
+                    class="error"
+                    :disabled="checking"
+                >Delete this wallet</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -42,18 +57,11 @@ type Arg = {
 }
 @Component
 export default class DeleteWalletDialog extends Mixins(
-    class extends DialogHelper<Arg, void> {}
+    class extends DialogHelper<Arg, void> { }
 ) {
     name = ''
     show = false
     checking = false
-    error: {
-        isError: boolean
-        messages: string[]
-    } = {
-        isError: false,
-        messages: []
-    }
 
     mounted() {
         this.show = true
@@ -68,20 +76,19 @@ export default class DeleteWalletDialog extends Mixins(
 
     checkName() {
         if (this.name === this.arg.name) {
-            this.error.isError = false
-            this.error.messages = []
             return true
         } else {
-            this.error.isError = true
-            this.error.messages = ['Invalid wallet name']
-            return false
+            return 'Invalid wallet name'
         }
     }
 
     async onNext() {
         this.checking = true
-        if (this.checkName()) {
+        const filed = this.$refs.nameInput as any
+
+        if (filed.validate()) {
             await this.deleteWallet()
+            this.close()
         }
         this.checking = false
     }
@@ -93,7 +100,6 @@ export default class DeleteWalletDialog extends Mixins(
     async deleteWallet() {
         if (this.arg) {
             await BDB.wallets.delete(this.arg.id || 0)
-            this.close()
         }
     }
 
