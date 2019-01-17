@@ -9,12 +9,11 @@
         <v-card>
             <v-card-title class="subheading">Delete Wallet</v-card-title>
             <v-card-text>
-                <div>
+                <p>
                     This action
-                    <strong>CANNOT</strong>be undone. Unless you have backed up your wallet beforehand, your wallet will be
-                    <strong>PERMANENTLY</strong>deleted.
-                </div>
-                <br>
+                    <strong>CANNOT</strong> be undone. Unless you have backed up your wallet beforehand, your wallet will be
+                    <strong>PERMANENTLY</strong> deleted.
+                </p>
                 <v-text-field
                     ref="nameInput"
                     type="text"
