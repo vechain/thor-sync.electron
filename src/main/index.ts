@@ -15,7 +15,7 @@ crashReporter.start({
     productName: 'Sync',
     companyName: 'vechain.org',
     submitURL: 'https://submit.backtrace.io/vechain/a14441c8b2c2405a70ee6c89822148856314a8fa920adf4d80876fa14864f9a7/minidump', // tslint:disable:max-line-length
-    uploadToServer: true,
+    uploadToServer: process.env.NODE_ENV === 'production' ? true : false,
 })
 
 declare module 'electron' {
