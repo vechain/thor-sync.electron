@@ -18,6 +18,12 @@
         </svg>
         <DialogProxy :v-show="false"/>
         <div class="toolbar">
+            <b
+                v-if="devMode"
+                class="px-2 white--text"
+                style="position:absolute;background:rgba(240,144,0,0.6);pointer-event:none"
+                :style="{right:isDarwin?'0px':'138px'}"
+            >Dev Mode</b>
             <v-layout class="drag">
                 <transition-group
                     tag="v-layout"
@@ -360,6 +366,7 @@ type OpenTab = {
     }
 })
 export default class Nova extends Vue {
+    devMode = ENV.devMode
     pages: Page[] = []
     activePageIndex = 0
     get activePage() { return this.pages[this.activePageIndex] }
