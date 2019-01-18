@@ -12,6 +12,7 @@
                             style="width:100%;"
                             class="unset-cursor"
                             :open-on-click="false"
+                            max-height="400"
                             offset-y
                             :nudge-top="18"
                         >
