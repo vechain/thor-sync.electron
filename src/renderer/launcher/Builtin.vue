@@ -1,13 +1,15 @@
 <template>
-    <transition
-        :enter-active-class="`animated faster ${enterClass}`"
-        :leave-active-class="`animated faster ${leaveClass}`"
-    >
-        <router-view
-            :key="$route.fullPath"
-            style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"
-        />
-    </transition>
+    <div style="position:relative;">
+        <transition
+            :enter-active-class="`animated faster ${enterClass}`"
+            :leave-active-class="`animated faster ${leaveClass}`"
+        >
+            <router-view
+                :key="$route.fullPath"
+                style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"
+            />
+        </transition>
+    </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Watch, Prop, Emit } from 'vue-property-decorator'
@@ -21,12 +23,24 @@ import Transfer from './Transfer.vue'
 @Component
 export default class BuiltinBase extends Vue {
     @Prop(String) href!: string
-    @Prop(Object) nav!: WebView.Nav
+    @Prop(Object) action!: WebAction
 
     @Emit('update:href')
     updateHref(val: string) { }
     @Emit('update:status')
-    updateStatus(status: WebView.Status) { }
+    updateStatus(status: WebStatus) { }
+
+    status: WebStatus = {
+        title: '',
+        favicon: '',
+        progress: 1,
+        cert: null,
+        committed: true,
+        domReady: true,
+        canGoForward: false,
+        canGoBack: false
+    }
+
 
     @Watch('href')
     hrefChanged(val: string) {
@@ -35,11 +49,24 @@ export default class BuiltinBase extends Vue {
             this.$router.push(path)
         }
     }
+    @Watch('status', { deep: true })
+    statusChanged() {
+        this.updateStatus({ ...this.status })
+    }
 
-    @Watch('nav.goBack')
+    @Watch('action.goBack')
     goBack() { this.$router.back() }
-    @Watch('nav.goForward')
+    @Watch('action.goForward')
     goForward() { this.$router.forward() }
+    @Watch('action.suspend')
+    suspend(val: WebAction['suspend']) {
+        if (val === 'strip') {
+            const history = this.$router.history
+            history.stack = history.stack.slice(0, this.$router.history.index + 1)
+            this.status.canGoForward = history.index < history.stack.length - 1
+            this.status.canGoBack = history.index > 0
+        }
+    }
 
     historyIndex = 0
     enterClass = ''
@@ -70,19 +97,14 @@ export default class BuiltinBase extends Vue {
             this.updateHref('sync:/' + path)
         }
 
-        this.updateStatus({
-            title: (this.$route.meta || {}).title || '',
-            favicon: guessFavicon(path),
-            progress: 1,
-            canGoBack: history.index !== 0,
-            canGoForward: history.index < history.stack.length - 1,
-            cert: null
-        })
+        this.status.canGoForward = history.index < history.stack.length - 1
+        this.status.canGoBack = history.index > 0
+        this.status.title = (this.$route.meta || {}).title || ''
+        this.status.favicon = guessFavicon(path)
     }
 
-    mounted() {
+    created() {
         this.$router.push(hrefToPath(this.href || ''))
-        this.routed()
     }
 }
 
@@ -158,6 +180,10 @@ const routes: RouteConfig[] = [
         meta: {
             title: 'Transfer'
         }
+    },
+    {
+        path: '*',
+        redirect: '/'
     }
 ]
 </script>
