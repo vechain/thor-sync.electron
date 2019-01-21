@@ -19,7 +19,7 @@ export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | '
 
     let url = NodeUrl.parse(input)
     if (url.protocol && knownProtocols.indexOf(url.protocol) >= 0) {
-        if (url.path || url.host) {
+        if (url.protocol === 'sync:' || url.path || url.host) {
             return NodeUrl.format(url)
         }
         return search(input, fallbackSearchEngine)

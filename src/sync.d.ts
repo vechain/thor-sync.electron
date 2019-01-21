@@ -186,3 +186,29 @@ type TabAction = {
     action: 'close' | 'new'
     url?: string
 }
+
+type WebStatus = {
+    title: string
+    favicon: string
+    progress: number
+    cert: Electron.CertificateVerifyProcRequest | null
+    committed: boolean
+    domReady: boolean
+    canGoForward: boolean
+    canGoBack: boolean
+}
+
+type WebAction = {
+    goBack: number
+    goForward: number
+    reload: number
+    reloadIgnoringCache: number
+    stop: number
+    reGo: number
+
+    zoomIn: number
+    zoomOut: number
+    zoomReset: number
+
+    suspend: 'normal' | 'strip' | null
+}

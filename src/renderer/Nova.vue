@@ -212,30 +212,17 @@
                 :canSwipeLeft="activePage.canGoForward"
                 @swipe="onSwipe"
             >
-                <template v-for="(page,i) in pages">
-                    <Launcher
-                        v-if="page.isBuiltin"
-                        v-show="i===activePageIndex"
-                        :key="'launcher'+page.id"
-                        :href.sync="page.href"
-                        :nav="page.nav"
-                        @update:status="page.updateStatus($event)"
-                        style="position:absolute;left:0;top:0;right:0;bottom:0;"
-                        @update:href="page.userInput=''"
-                    />
-                    <WebView
-                        v-else
-                        :visible="i===activePageIndex"
-                        :key="'webview'+page.id"
-                        style="position:absolute;left:0;top:0;right:0;bottom:0;"
-                        :href.sync="page.href"
-                        :nav="page.nav"
-                        :zoomfactor.sync="page.zoomFactor"
-                        @update:status="page.updateStatus($event)"
-                        @update:href="page.userInput=''"
-                        @update:wheel="onWebviewWheel"
-                    />
-                </template>
+                <Launcher
+                    v-for="(page,i) in pages"
+                    v-show="i===activePageIndex"
+                    :key="page.id"
+                    :href.sync="page.href"
+                    :action="page.action"
+                    @update:status="page.updateStatus($event)"
+                    style="position:absolute;left:0;top:0;right:0;bottom:0;"
+                    @update:href="page.userInput=''"
+                    @update:wheel="onWebviewWheel"
+                />
             </Swiper>
         </v-content>
     </v-app>
@@ -254,102 +241,76 @@ class Page {
 
     id = Page.nextId++
     userInput = ''
-    zoomFactor = 0
+    href = ''
 
-    _href = ''
-    _savedWebviewHref = ''
-    private readonly status: WebView.Status = {
+    private readonly status: WebStatus = {
         title: '',
         favicon: '',
         progress: 0,
+        committed: false,
+        domReady: false,
         canGoBack: false,
         canGoForward: false,
         cert: null
     }
 
-    readonly nav: WebView.Nav = {
+    readonly action: WebAction = {
         goBack: 0,
         goForward: 0,
         reload: 0,
         reloadIgnoringCache: 0,
         stop: 0,
-        reGo: 0
+        reGo: 0,
+        zoomIn: 0,
+        zoomOut: 0,
+        zoomReset: 0,
+        suspend: null
     }
 
     constructor(href: string) {
         this.href = href
     }
-    get href() {
-        return this._href
-    }
-    set href(val: string) {
-        if (val !== this._href) {
-            this._savedWebviewHref = ''
-            this._href = val
-        }
-    }
 
-    updateStatus(status: WebView.Status) { Object.assign(this.status, status) }
+    updateStatus(status: WebStatus) { Object.assign(this.status, status) }
     get title() { return this.status.title || this.href }
     get favicon() { return this.status.favicon }
     get progress() { return this.isBuiltin ? 100 : this.status.progress * 100 }
     get loading() { return this.status.progress !== 1 }
     get isBuiltin() { return !this.href || this.href.toLowerCase().startsWith('sync:') }
-    get canGoBack() {
-        if (!this.isBuiltin && !this.status.canGoBack) {
-            return true
-        }
-        return this.status.canGoBack
-    }
-    get canGoForward() {
-        if (this.isBuiltin && !this.status.canGoForward && this._savedWebviewHref) {
-            return true
-        }
-        return this.status.canGoForward
-    }
+    get canGoBack() { return this.status.canGoBack }
+    get canGoForward() { return this.status.canGoForward }
     get cert() { return this.status.cert }
 
-    goBack() {
-        if (!this.isBuiltin && !this.status.canGoBack) {
-            const href = this.href
-            this.href = ''
-            this._savedWebviewHref = href
-        } else {
-            this.nav.goBack++
-        }
-    }
-    goForward() {
-        if (this.isBuiltin && !this.status.canGoForward && this._savedWebviewHref) {
-            this.href = this._savedWebviewHref
-        } else {
-            this.nav.goForward++
-        }
-    }
+    goBack() { this.action.goBack++ }
+    goForward() { this.action.goForward++ }
     reloadOrStop(shiftKey: boolean) {
         if (this.progress === 100) {
             if (shiftKey) {
-                this.nav.reloadIgnoringCache++
+                this.action.reloadIgnoringCache++
             } else {
-                this.nav.reload++
+                this.action.reload++
             }
         } else {
-            this.nav.stop++
+            this.action.stop++
         }
         this.userInput = ''
     }
     reload() {
-        this.nav.reload++
+        this.action.reload++
         this.userInput = ''
     }
     forceReload() {
-        this.nav.reloadIgnoringCache++
+        this.action.reloadIgnoringCache++
         this.userInput = ''
     }
     zoomIn() {
-        this.zoomFactor = Math.min(3, this.zoomFactor + 0.2)
+        this.action.zoomIn++
     }
     zoomOut() {
-        this.zoomFactor = Math.max(0.5, this.zoomFactor - 0.1)
+        this.action.zoomOut++
+    }
+    zoomReset() {
+        this.action.zoomReset++
     }
 }
 
@@ -431,7 +392,7 @@ export default class Nova extends Vue {
     navigateTo(href: string) {
         const newHref = UrlUtils.formalize(href)
         if (newHref === this.activePage.href) {
-            this.activePage.nav.reGo++
+            this.activePage.action.reGo++
         } else {
             this.activePage.href = newHref
         }
@@ -613,7 +574,7 @@ export default class Nova extends Vue {
             label: 'Reset Zoom',
             keys: isDarwin ? ['command+0'] : ['ctrl+0'],
             disabled: this.activePage.isBuiltin,
-            action: () => { this.activePage.zoomFactor = 1 }
+            action: () => { this.activePage.zoomReset() }
         }, {
             label: 'Wallets',
             keys: [],
