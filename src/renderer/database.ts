@@ -72,7 +72,21 @@ class Database extends Dexie {
                     })
                 })
             })
-            .catch(err => LOG.warn('Database:', 'open error', err))
+            .catch(err => {
+                LOG.warn('Database:', 'open error', err)
+                const btnIndex = remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(), {
+                        type: 'error',
+                        buttons: ['Exit', 'Continue'],
+                        defaultId: 0,
+                        title: 'Critical Error',
+                        message: `Failed to open IndexedDB\n
+${err.toString()}`
+                    })
+                if (btnIndex === 0) {
+                    remote.app.quit()
+                }
+            })
 
     }
 }
