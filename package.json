@@ -1,6 +1,6 @@
 {
   "name": "org.vechain.sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "vechain.org",
   "description": "A browser that empowers DApps on VeChain",
   "license": "LGPL-3.0",
