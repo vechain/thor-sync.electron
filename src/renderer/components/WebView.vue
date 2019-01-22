@@ -151,7 +151,7 @@ export default class WebView extends Vue {
                 bak.stack = bak.stack.slice(0, bak.index + 1)
             }
         } else {
-            Vue.nextTick(() => {
+            this.$nextTick(() => {
                 if (!this.action.suspend) {
                     this.setup()
                 }
@@ -334,7 +334,10 @@ export default class WebView extends Vue {
     }
 
     mounted() {
-        this.setup()
+        // to ensure WebViewTag.getWebContents is ready
+        setTimeout(() => {
+            this.setup()
+        }, 0)
     }
 
     beforeDestroy() {
