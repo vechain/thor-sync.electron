@@ -14,7 +14,7 @@ let nextId = 1
 export default class DialogProxy extends Vue {
     dialogs: {
         key: string
-        name: string
+        name: string | Vue
     }[] = []
 
     created() {
@@ -30,11 +30,11 @@ export default class DialogProxy extends Vue {
         }
     }
 
-    add(componentName: string) {
+    add(component: string | Vue) {
         const key = `dialog-${nextId++}`
         this.dialogs.push({
             key,
-            name: componentName
+            name: component
         })
         return key
     }

@@ -18,7 +18,7 @@ export default class DialogHelper<T, U> extends Vue {
                 throw new Error('$dialogProxy not found')
             }
             return new Promise((resolve, reject) => {
-                const key = proxy.add(dlg.name)
+                const key = proxy.add(dlg)
                 running[key] = { arg: cloneDeep(arg), resolve, reject }
             })
         }
