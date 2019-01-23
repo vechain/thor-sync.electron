@@ -3,7 +3,7 @@
         <slot slot="activator" name="activator"/>
         <v-card>
             <v-card-title class="subheading">Import Wallet</v-card-title>
-            <v-card-text>
+            <v-card-text class="pt-0">
                 <v-stepper class="elevation-0" v-model="step">
                     <v-stepper-header class="elevation-0" v-show="false">
                         <v-stepper-step :complete="step > 1" step="1"></v-stepper-step>
@@ -11,10 +11,10 @@
                         <v-stepper-step :complete="step > 2" step="2"></v-stepper-step>
                     </v-stepper-header>
                     <div
-                        class="title font-weight-light pl-4"
+                        class="title font-weight-light pl-4 pt-4"
                     >{{['Please select a method to import your wallet', 'Please fill in the fields below to import the wallet'][step-1]}}</div>
                     <v-stepper-items>
-                        <v-stepper-content step="1">
+                        <v-stepper-content step="1" class="pt-0">
                             <ContentForm ref="pk" :disabled="processing" v-model="content"></ContentForm>
                         </v-stepper-content>
                         <v-stepper-content step="2">

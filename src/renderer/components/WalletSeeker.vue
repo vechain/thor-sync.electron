@@ -5,7 +5,7 @@
                 <WalletCard
                     flat
                     :compact="!fullSize"
-                    class="outline"
+                    class="card-border-thin"
                     :wallet="wallet"
                     style="border-radius:9px;"
                     :style="{width: fullSize? '170px': '150px'}"

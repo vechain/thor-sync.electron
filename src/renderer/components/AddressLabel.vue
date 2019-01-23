@@ -1,7 +1,11 @@
 <template>
     <span v-if="!slotContent">{{placeholder}}</span>
     <span v-else-if="!address">invalid address</span>
-    <div v-else-if="icon" class="white outline" style="overflow:hidden;display:inline-block">
+    <div
+        v-else-if="icon"
+        class="wallet-icon card-border-thin"
+        style="overflow:hidden;display:inline-block"
+    >
         <IdentBox :text="slotContent.toLowerCase()" style="height:55%;"/>
     </div>
     <span v-else style="font-family: 'Roboto Mono', monospace">{{address}}</span>
@@ -44,3 +48,11 @@ export default class AddressLabel extends Vue {
     }
 }
 </script>
+<style scoped>
+.theme--light .wallet-icon {
+    background-color: #fff;
+}
+.theme--dark .wallet-icon {
+    background-color: #505050;
+}
+</style>

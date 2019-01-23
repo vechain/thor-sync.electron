@@ -16,9 +16,9 @@
 
         get classes () {
             if(nameOfNetwork(this.genesis) === 'main') {
-                return 'secondary'
+                return 'secondary lighten-2'
             }
-            return 'secondary lighten-3'
+            return 'secondary lighten-4'
         }
     }
 </script>

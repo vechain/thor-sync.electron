@@ -2,8 +2,8 @@
     <DialogEx persistent v-model="opened" width="780" @action:ok="onOK" @action:cancel="onCancel">
         <v-card>
             <v-card-title class="subheading">Create Wallet</v-card-title>
-            <v-card-text style="height:380px" class="py-0">
-                <v-stepper v-if="step<4" class="elevation-0" v-model="step">
+            <v-card-text style="height:390px" class="pt-0">
+                <v-stepper v-if="step<4" class="elevation-0" v-model="step" style="height:100%;">
                     <v-stepper-header class="elevation-0">
                         <v-stepper-step :complete="step > 1" step="1"/>
                         <v-divider/>
@@ -67,7 +67,7 @@
                         </div>
                         <WalletCard
                             flat
-                            class="outline"
+                            class="card-border-thin wallet-card"
                             style="border-radius:9px;width:170px;"
                             :wallet="wallet"
                         />
@@ -252,4 +252,8 @@ function generateWords() {
     }
 }
 </script>
-
+<style scoped> 
+.theme--dark .wallet-card {
+    background-color: #383838;
+}
+</style>

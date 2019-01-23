@@ -7,7 +7,7 @@
         @action:cancel="decline"
         transition="sign-dialog-transition"
     >
-        <v-card>
+        <v-card class="bg">
             <v-layout row style="height:460px;">
                 <v-layout
                     column
@@ -320,3 +320,8 @@ class Rejected extends Error {
     }
 }
 </script>
+<style scoped>
+.theme--dark .bg {
+    background-color: #303030;
+}
+</style>

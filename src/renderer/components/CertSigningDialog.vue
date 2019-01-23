@@ -7,7 +7,7 @@
         @action:cancel="decline"
         transition="sign-dialog-transition"
     >
-        <v-card>
+        <v-card class="bg">
             <v-layout row style="height:500px;">
                 <v-layout
                     column
@@ -22,7 +22,7 @@
                     <textarea
                         :value="arg.message.payload.content"
                         readonly
-                        class="payload pa-2 white serif"
+                        class="payload pa-2 serif"
                     />
                 </v-layout>
                 <v-layout column style="width:300px">
@@ -181,11 +181,14 @@ class Rejected extends Error {
     height: 100%;
     border-radius: 2px;
     outline: none;
+    background-color: #fff;
     box-shadow: 0px 0px 6px 0.5px rgba(0, 0, 0, 0.05) inset,
         0px 0px 0px 0.5px rgba(0, 0, 0, 0.05);
 }
+.theme--dark .payload {
+    background-color: #383838;
+}
+.theme--dark .bg {
+    background-color: #303030;
+}
 </style>
-
-
-
-

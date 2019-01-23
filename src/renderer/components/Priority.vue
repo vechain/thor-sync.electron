@@ -6,12 +6,14 @@
         :length="max"
         dense
         :readonly="readonly"
+        :class="{readonly}"
     >
         <v-icon
             small
             slot="item"
             slot-scope="props"
-            :color="props.isFilled ? (readonly?'grey darken-2' : 'primary') : 'grey lighten-2'"
+            class="icon"
+            :class="{filled: props.isFilled}"
             @click="props.click"
         >mdi-rocket</v-icon>
     </v-rating>
@@ -46,3 +48,23 @@ export default class Priority extends Vue {
     }
 }
 </script>
+<style scoped>
+.icon {
+    color: #c0c0c0;
+}
+
+.theme--dark .icon {
+    color: #606060;
+}
+
+.filled {
+    color: #3676cc !important;
+}
+
+.readonly .filled {
+    color: #606060 !important;
+}
+.theme--dark .readonly .filled {
+    color: #c0c0c0 !important;
+}
+</style>
