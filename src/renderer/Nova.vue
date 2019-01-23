@@ -341,6 +341,7 @@ export default class Nova extends Vue {
     @State shortcuts !: entities.Shortcut[]
 
 
+    @Watch('activePage.href')
     @Watch('activePage')
     activePageChanged() {
         (this.$refs.urlBoxWithIcon as Element).querySelector('input')!.blur()
