@@ -3,8 +3,8 @@
         <v-layout column align-center style="max-width:1000px;width:100%;" pa-3>
             <div class="subheading py-4">From</div>
             <WalletSeeker style="width:270px" full-size :wallets="wallets" v-model="from"/>
-            <v-icon large class="my-3" color="rgba(0,0,0,0.25)">mdi-arrow-down-bold</v-icon>
-            <v-card flat style="width:480px;border: 0.5px solid rgba(0,0,0,0.08)">
+            <v-icon large class="my-3 arrow-icon">mdi-arrow-down-bold</v-icon>
+            <v-card flat class="card-border" style="width:480px;">
                 <v-card-text>
                     <v-form ref="form">
                         <v-menu
@@ -184,6 +184,14 @@ export default class Transfer extends Vue {
 <style scoped>
 .unset-cursor >>> * {
     cursor: unset;
+}
+
+.arrow-icon {
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.theme--dark .arrow-icon {
+    color: rgba(255, 255, 255, 0.25);
 }
 </style>
 

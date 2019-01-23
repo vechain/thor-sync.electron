@@ -77,8 +77,16 @@ export default class TabButton extends Vue {
     transition: background 0.15s;
 }
 
+.theme--dark .bg {
+    background-color: #303030;
+}
+
 .bg--hilight {
     background-color: #dddddd !important;
+}
+
+.theme--dark .bg--hilight {
+    background-color: #282828 !important;
 }
 
 .active-bg {
@@ -92,6 +100,11 @@ export default class TabButton extends Vue {
     filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.15));
     transition: opacity 0.15s;
 }
+
+.theme--dark .active-bg {
+    background-color: #212121;
+}
+
 .active-bg::before {
     position: absolute;
     content: "";
@@ -116,8 +129,16 @@ export default class TabButton extends Vue {
 .blur .tab-button {
     color: rgba(0, 0, 0, 0.6);
 }
+.blur .theme--dark .tab-button {
+    color: rgba(255, 255, 255, 0.6);
+}
+
 .blur .bg {
     background-color: #e0e0e0;
+}
+
+.blur .theme--dark .bg {
+    background-color: #303030;
 }
 </style>
 

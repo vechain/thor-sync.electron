@@ -13,7 +13,7 @@
                     <v-flex v-for="wallet in wallets" :key="wallet.address" xs3 class="py-3">
                         <WalletCard
                             flat
-                            class="outline"
+                            class="card-border-thin"
                             style="border-radius:9px;width:170px;margin:auto;"
                             @click.native="onClick(wallet.address)"
                             :wallet="wallet"

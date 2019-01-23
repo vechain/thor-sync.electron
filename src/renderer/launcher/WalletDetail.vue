@@ -7,7 +7,7 @@
                 <a class="top-link" @click="showTransfer">Transfer</a>
                 <a class="top-link error--text" @click="showDelete">Delete</a>
             </v-layout>
-            <v-card flat style="border: 1px solid rgba(0,0,0,0.1)">
+            <v-card flat class="card-border">
                 <v-card-text>
                     <v-layout align-center>
                         <AddressLabel
@@ -81,7 +81,7 @@
             <div class="py-3">
                 <template v-if="list && list.length >0">
                     <div class="my-2 subheading">Recent Trasfers</div>
-                    <v-card flat style="border: 1px solid rgba(0,0,0,0.1)">
+                    <v-card flat class="card-border">
                         <v-list>
                             <template v-for="(item, i) in list ">
                                 <TransferItem :address="address" :item="item" :key="i"/>
