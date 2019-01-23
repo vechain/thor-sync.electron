@@ -89,7 +89,10 @@ if (process.env.NODE_ENV !== 'production') {
 if (process.env.NODE_ENV === 'production') {
     preloadConfig.plugins.push(
      new UglifyJsPlugin({
-       include: /\.js$/g
+       include: /\.js$/g,
+       uglifyOptions: {
+        keep_fnames: true
+       }
      }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"production"'
