@@ -6,6 +6,9 @@ import { MQ } from './mq'
 import env from '@/env'
 import * as log from 'electron-log'
 import { createUpdateChecker } from './update-checker'
+import UUID from 'uuid'
+import { resolve } from 'path'
+import { readFileSync, writeFileSync } from 'fs'
 
 process.on('uncaughtException', err => {
     log.error('uncaught exception', err)
@@ -51,6 +54,11 @@ if (env.devMode || app.requestSingleInstanceLock()) {
             app.setAsDefaultProtocolClient('vechain-app')
         }
     }
+
+    // tslint:disable-next-line:variable-name no-var-requires
+    const Analytics = require('electron-google-analytics')
+    const analytics = new Analytics.default('UA-132391998-1', { debug: env.devMode })
+    analytics.event(`app-${app.getVersion()}`, 'startup', { clientID: getClientId() })
 
     const updateChecker = createUpdateChecker()
     const mq = new MQ()
@@ -134,4 +142,19 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     })
 } else {
     app.quit()
+}
+
+function getClientId() {
+    const path = resolve(app.getPath('userData'), 'client-id')
+    try {
+        return readFileSync(path, 'utf8')
+    } catch {
+        const clientId = UUID.v4()
+        try {
+            writeFileSync(path, clientId, 'utf8')
+        } catch (err) {
+            log.warn(err)
+        }
+        return clientId
+    }
 }
