@@ -401,7 +401,6 @@ export default class Nova extends Vue {
         (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
     }
     async created() {
-        this.$ga.page(`app/${remote.app.getVersion()}/${nameOfNetwork(connex.thor.genesis.id)}net`)
         const mq = remote.app.EXTENSION.mq
         const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
         const initTabAction = mq.peek(tabActionTopic) as (TabAction | null)
