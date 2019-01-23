@@ -8,6 +8,7 @@ export function remakeError(err: Error) {
         cls = eval(`()=> class ${err.name} extends global.Error {
             constructor(message) {
                 super(message)
+                this.name= '${err.name}'
                 this.stack = undefined
             }
         }`)()
