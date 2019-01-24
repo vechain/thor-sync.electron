@@ -174,7 +174,11 @@ export default class Settings extends Vue {
             .concat(this.$store.state.nodes.map((n: NodeConfig) => ({ ...n, isPreset: false })))
     }
 
-    darkTheme = false
+    darkTheme = (() => {
+            const result = (this.$store.state.preferences as entities.Preference[])
+                .find(v => v.key === 'dark-theme')
+            return result ? result.value as boolean : false
+        })()
     darkThemeSwitchDisabled = false
     @Watch('darkTheme')
     darkThemeChanged() {
@@ -211,12 +215,6 @@ export default class Settings extends Vue {
     timer: any
 
     created() {
-        this.darkTheme = (() => {
-            const result = (this.$store.state.preferences as entities.Preference[])
-                .find(v => v.key === 'dark-theme')
-            return result ? result.value as boolean : false
-        })()
-
         this.timer = setInterval(() => {
             this.updater = {
                 status: updateChecker.status,

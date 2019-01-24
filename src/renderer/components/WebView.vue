@@ -12,7 +12,6 @@
         <v-layout
             v-if="error"
             style="position:absolute;left:0;top:0;right:0;bottom:0;"
-            class="grey lighten-4"
             align-center
             justify-center
         >
