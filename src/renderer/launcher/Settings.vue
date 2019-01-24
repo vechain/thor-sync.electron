@@ -1,57 +1,77 @@
 <template>
     <div class="pa-3">
         <div style="max-width: 800px; width: 100%; margin: 0 auto;">
-            <template v-for="(sec,i) in sections">
-                <v-layout :key="i" align-end>
-                    <v-subheader>{{sec.title}}</v-subheader>
-                    <v-spacer/>
-                    <v-btn
-                        v-if="sec.action&&sec.actionName"
-                        class="caption"
-                        small
-                        flat
-                        color="primary"
-                        style="text-transform:none"
-                        @click="sec.action()"
-                    >{{sec.actionName}}</v-btn>
-                </v-layout>
-                <v-list
-                    :key="i+'items'"
-                    two-line
-                    class="card-border"
-                    style="border-radius:2px;"
-                >
-                    <template v-for="(item,j) in sec.items">
-                        <v-divider v-if="j>0" :key="j+'d'"/>
-                        <v-list-tile :key="j">
-                            <v-list-tile-content>
-                                <v-list-tile-title>
-                                    <component
-                                        v-if="item.prepend"
-                                        :is="item.prepend.component"
-                                        v-bind="item.prepend.props"
-                                        class="mr-2"
-                                    ></component>
-                                    {{item.title}}
-                                </v-list-tile-title>
-                                <v-list-tile-sub-title>{{item.subTitle}}</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                            <v-list-tile-action>
-                                <v-btn
-                                    v-if="item.actionName"
-                                    class="ml-3"
-                                    style="text-transform:none"
-                                    :disabled="!item.action"
-                                    flat
-                                    small
-                                    color="primary"
-                                    @click="item.action()"
-                                >{{item.actionName}}</v-btn>
-                            </v-list-tile-action>
-                        </v-list-tile>
-                    </template>
-                </v-list>
-            </template>
+            <v-subheader>General</v-subheader>
+            <v-list two-line class="card-border" style="border-radius:2px;">
+                <v-list-tile>
+                    <v-list-tile-content>
+                        <v-list-tile-title>Auto Update</v-list-tile-title>
+                        <v-list-tile-sub-title>{{autoUpdateSubTitle}}</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                        <v-btn
+                            style="text-transform:none"
+                            flat
+                            small
+                            color="primary"
+                            :disabled="!autoUpdateAction"
+                            @click="autoUpdateAction"
+                        >{{autoUpdateActionName}}</v-btn>
+                    </v-list-tile-action>
+                </v-list-tile>
+                <v-divider/>
+                <v-list-tile>
+                    <v-list-tile-content>
+                        <v-list-tile-title>Report an Issue</v-list-tile-title>
+                        <v-list-tile-sub-title>To Github Issues Page</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                        <v-btn
+                            style="text-transform:none"
+                            flat
+                            small
+                            color="primary"
+                            @click="openIssue"
+                        >Open</v-btn>
+                    </v-list-tile-action>
+                </v-list-tile>
+            </v-list>
+            <v-layout align-end>
+                <v-subheader>Nodes</v-subheader>
+                <v-spacer/>
+                <v-btn
+                    class="caption"
+                    small
+                    flat
+                    color="primary"
+                    style="text-transform:none"
+                    @click="addNode"
+                >Add Node</v-btn>
+            </v-layout>
+            <v-list two-line class="card-border" style="border-radius:2px;">
+                <template v-for="(node,i) in nodes">
+                    <v-divider :key="i+'d'" v-if="i>0"/>
+                    <v-list-tile :key="i">
+                        <v-list-tile-content>
+                            <v-list-tile-title>
+                                <NetworkName class="mr-2" :genesis="node.genesis.id"/>
+                                {{node.name}}
+                            </v-list-tile-title>
+                            <v-list-tile-sub-title>{{node.url}}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-btn
+                                v-if="!node.isPreset"
+                                style="text-transform:none"
+                                flat
+                                small
+                                color="primary"
+                                @click="editNode(node)"
+                            >Edit</v-btn>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                </template>
+            </v-list>
         </div>
     </div>
 </template>
@@ -141,41 +161,17 @@ export default class Settings extends Vue {
             .concat(this.$store.state.nodes.map((n: NodeConfig) => ({ ...n, isPreset: false })))
     }
 
-    get sections(): Section[] {
-        return [{
-            title: 'General',
-            items: [{
-                title: 'Auto Update',
-                subTitle: this.autoUpdateSubTitle,
-                actionName: this.autoUpdateActionName,
-                action: this.autoUpdateAction
-            }, {
-                title: 'Report an Issue',
-                subTitle: 'To Github Issues Page',
-                actionName: 'Open',
-                action: () => {
-                    BUS.$emit('open-tab', {
-                        href: issueUrl
-                    })
-                }
-            }]
-        }, {
-            title: 'Nodes',
-            actionName: 'Add Node',
-            action: () => this.$dialog(NewNodeDialog, null),
-            items: this.nodes.map(n => {
-                return {
-                    title: n.name,
-                    prepend: {
-                        component: 'NetworkName',
-                        props: { genesis: n.genesis.id }
-                    },
-                    subTitle: n.url,
-                    actionName: n.isPreset ? '' : 'Edit',
-                    action: n.isPreset ? undefined : () => { this.$dialog(NewNodeDialog, n) }
-                }
-            })
-        }]
+    openIssue() {
+        BUS.$emit('open-tab', {
+            href: issueUrl
+        })
+    }
+    addNode() {
+        this.$dialog(NewNodeDialog, null)
+    }
+
+    editNode(node: NodeConfig) {
+        this.$dialog(NewNodeDialog, node)
     }
 
     timer: any
@@ -191,7 +187,7 @@ export default class Settings extends Vue {
     }
     destroyed() {
         clearInterval(this.timer)
-    }
+    }    
 }
 </script>
 
