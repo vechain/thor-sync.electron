@@ -67,10 +67,17 @@ export default class WindowControls extends Vue {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
+.theme--dark .btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 .icon {
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.7);
+}
+.theme--dark .icon {
+    background-color: rgba(255, 255, 255, 0.7);
 }
 .btn >>> .icon {
     -webkit-mask-size: 23.1%;
@@ -82,6 +89,9 @@ export default class WindowControls extends Vue {
 }
 .blur .icon {
     background-color: rgba(0, 0, 0, 0.3);
+}
+.blur .theme--dark .icon {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .close {
