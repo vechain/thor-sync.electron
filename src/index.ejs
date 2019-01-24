@@ -32,6 +32,11 @@
             font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             animation: 0.3s splash-fadein;
             padding-bottom: 7rem;
+            color: rgba(0, 0, 0, 0.6)
+        }
+
+        .dark-splash {
+            color: white;
         }
     </style>
     <meta charset="utf-8">
@@ -45,9 +50,14 @@
 
 <body>
     <div class="splash">
-        <span style="font-size:3rem;font-weight:200;color:#303030">VeChain</span>
+        <span style="font-size:3.5rem;font-weight:200;">VeChain</span>
         <span style="font-size:4rem;color:rgb(42, 64, 163)">Sync</span>
     </div>
+    <script>
+        if (require('electron').remote.app.EXTENSION.mainSettings.get('dark-theme')) {
+            document.querySelector('.splash').classList.add('dark-splash')
+        }
+    </script>
     <div id="nova"></div>
     <!-- webpack builds are automatically injected -->
 </body>

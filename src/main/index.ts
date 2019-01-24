@@ -10,6 +10,22 @@ import UUID from 'uuid'
 import { resolve } from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 
+// tslint:disable-next-line:no-var-requires
+const settings = require('electron-settings')
+
+class MainSettings {
+    public has(key: string) {
+        return settings.has(key) as boolean
+    }
+    public get(key: string) {
+        return settings.get(key)
+    }
+
+    public set(key: string, value: any) {
+        return settings.set(key, value)
+    }
+}
+
 process.on('uncaughtException', err => {
     log.error('uncaught exception', err)
 })
@@ -25,6 +41,7 @@ declare module 'electron' {
     interface App {
         EXTENSION: {
             mq: MQ
+            mainSettings: MainSettings
             updateChecker: ReturnType<typeof createUpdateChecker>
             connect(
                 contentsId: number,
@@ -80,6 +97,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 
     app.EXTENSION = {
         mq,
+        mainSettings: new MainSettings(),
         updateChecker,
         connect: (contentsId, config) => backend.connect(contentsId, config),
         createWindow: (config, options) => winMgr.create(config, options),

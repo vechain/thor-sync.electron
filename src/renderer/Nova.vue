@@ -1,5 +1,5 @@
 <template>
-    <v-app v-resize="onResize" class="app-fadein">
+    <v-app :dark="darkTheme" v-resize="onResize" class="app-fadein" v-show="storeReady">
         <!-- required by tab button -->
         <svg height="0" width="0">
             <defs>
@@ -355,6 +355,15 @@ export default class Nova extends Vue {
         return (this.shortcuts || []).findIndex(s => s.href === this.activePage.href) >= 0
     }
 
+    get storeReady() {
+        return this.$store.state.ready
+    }
+
+    get darkTheme() {
+        const result = (this.$store.state.preferences as entities.Preference[]).find(v => v.key === 'dark-theme')
+        return result ? result.value as boolean : false
+    }
+
     closeTab(index: number) {
         if (this.pages.length < 2) {
             remote.getCurrentWindow().close()
@@ -471,11 +480,13 @@ export default class Nova extends Vue {
 
     updateAccessHistoryLayout() {
         const rect = (this.$refs.urlBoxWithIcon as Element).getClientRects().item(0)!
-        this.accessHistoryPosition.x = Math.round(rect.left)
-        this.accessHistoryPosition.y = Math.round(rect.bottom) + 5
+        if (rect) {
+            this.accessHistoryPosition.x = Math.round(rect.left)
+            this.accessHistoryPosition.y = Math.round(rect.bottom) + 5
 
-        const navBoxRect = (this.$refs.navBox as Element).getClientRects().item(0)!
-        this.accessHistoryPosition.width = Math.round(navBoxRect.right - rect.left)
+            const navBoxRect = (this.$refs.navBox as Element).getClientRects().item(0)!
+            this.accessHistoryPosition.width = Math.round(navBoxRect.right - rect.left)
+        }
     }
 
     onResize() {
@@ -860,7 +871,7 @@ html {
 }
 
 .app-fadein {
-    animation: 0.6s app-fadein;
+    animation: 0.5s app-fadein;
 }
 :not(input):not(textarea):not(.v-icon--link),
 :not(input):not(textarea):not(.v-icon--link)::after,
