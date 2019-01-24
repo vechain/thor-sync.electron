@@ -31,7 +31,7 @@ export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | '
     url = NodeUrl.parse('http://' + input)
     if (url.hostname === 'localhost'
         || validIpAddressRegex.test(url.hostname || '')
-        || /^[a-z0-9]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
+        || /^[a-z0-9\-]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
         return NodeUrl.format(url)
     }
     return search(input, fallbackSearchEngine)
