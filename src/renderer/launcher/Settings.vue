@@ -27,7 +27,8 @@
                     <v-list-tile-action>
                         <v-switch
                             :disabled="darkThemeSwitchDisabled"
-                            v-model="darkTheme"
+                            :inputValue="darkTheme"
+                            @change="updateTheme($event)"
                             :ripple="false"
                         />
                     </v-list-tile-action>
@@ -174,27 +175,27 @@ export default class Settings extends Vue {
             .concat(this.$store.state.nodes.map((n: NodeConfig) => ({ ...n, isPreset: false })))
     }
 
-    darkTheme = (() => {
-            const result = (this.$store.state.preferences as entities.Preference[])
-                .find(v => v.key === 'dark-theme')
-            return result ? result.value as boolean : false
-        })()
+    get darkTheme() {
+        const result = (this.$store.state.preferences as entities.Preference[])
+            .find(v => v.key === 'dark-theme')
+        return result ? result.value as boolean : false
+    }
+
     darkThemeSwitchDisabled = false
-    @Watch('darkTheme')
-    darkThemeChanged() {
+
+    updateTheme(dark: boolean) {
         this.darkThemeSwitchDisabled = true
         setTimeout(() => {
             this.darkThemeSwitchDisabled = false
         }, 1000)
 
-        const newValue = this.darkTheme
-        remote.app.EXTENSION.mainSettings.set('dark-theme', newValue)
+        remote.app.EXTENSION.mainSettings.set('dark-theme', dark)
         GDB.transaction('rw', GDB.preferences, async () => {
             const result = await GDB.preferences.where({ key: 'dark-theme' }).limit(1).toArray()
             if (result.length > 0) {
-                await GDB.preferences.where('key').equals('dark-theme').modify({ value: newValue })
+                await GDB.preferences.where('key').equals('dark-theme').modify({ value: dark })
             } else {
-                await GDB.preferences.put({ key: 'dark-theme', value: newValue })
+                await GDB.preferences.put({ key: 'dark-theme', value: dark })
             }
         })
     }
