@@ -37,6 +37,9 @@ class WindowManager {
         options.webPreferences = options.webPreferences || { navigateOnDragDrop: false }
         options.webPreferences.partition = `persist:${env.devMode ? 'dev' : 'pro'}`
 
+        if (app.EXTENSION.mainSettings.get('dark-theme')) {
+            options.backgroundColor = '#303030'
+        }
         options.webPreferences.nodeConfig = config
         if (!options.title) {
             options.title = `${nameOfNetwork(config.genesis.id).toUpperCase()}:${config.name}`

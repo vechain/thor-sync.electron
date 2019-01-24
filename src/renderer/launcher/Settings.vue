@@ -22,6 +22,19 @@
                 <v-divider/>
                 <v-list-tile>
                     <v-list-tile-content>
+                        <v-list-tile-title>Dark Theme</v-list-tile-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action>
+                        <v-switch
+                            :disabled="darkThemeSwitchDisabled"
+                            v-model="darkTheme"
+                            :ripple="false"
+                        />
+                    </v-list-tile-action>
+                </v-list-tile>
+                <v-divider/>
+                <v-list-tile>
+                    <v-list-tile-content>
                         <v-list-tile-title>Report an Issue</v-list-tile-title>
                         <v-list-tile-sub-title>To Github Issues Page</v-list-tile-sub-title>
                     </v-list-tile-content>
@@ -76,7 +89,7 @@
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { remote } from 'electron'
 import NewNodeDialog from '../components/NewNodeDialog.vue'
 import { presets } from '@/node-configs'
@@ -161,6 +174,27 @@ export default class Settings extends Vue {
             .concat(this.$store.state.nodes.map((n: NodeConfig) => ({ ...n, isPreset: false })))
     }
 
+    darkTheme = false
+    darkThemeSwitchDisabled = false
+    @Watch('darkTheme')
+    darkThemeChanged() {
+        this.darkThemeSwitchDisabled = true
+        setTimeout(() => {
+            this.darkThemeSwitchDisabled = false
+        }, 1000)
+
+        const newValue = this.darkTheme
+        remote.app.EXTENSION.mainSettings.set('dark-theme', newValue)
+        GDB.transaction('rw', GDB.preferences, async () => {
+            const result = await GDB.preferences.where({ key: 'dark-theme' }).limit(1).toArray()
+            if (result.length > 0) {
+                await GDB.preferences.where('key').equals('dark-theme').modify({ value: newValue })
+            } else {
+                await GDB.preferences.put({ key: 'dark-theme', value: newValue })
+            }
+        })
+    }
+
     openIssue() {
         BUS.$emit('open-tab', {
             href: issueUrl
@@ -177,6 +211,12 @@ export default class Settings extends Vue {
     timer: any
 
     created() {
+        this.darkTheme = (() => {
+            const result = (this.$store.state.preferences as entities.Preference[])
+                .find(v => v.key === 'dark-theme')
+            return result ? result.value as boolean : false
+        })()
+
         this.timer = setInterval(() => {
             this.updater = {
                 status: updateChecker.status,
@@ -187,7 +227,7 @@ export default class Settings extends Vue {
     }
     destroyed() {
         clearInterval(this.timer)
-    }    
+    }
 }
 </script>
 
