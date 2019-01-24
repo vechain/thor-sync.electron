@@ -7,6 +7,9 @@ const knownProtocols = [
     'sync:'
 ]
 
+const validIpAddressRegex =
+    /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
+
 export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing') {
     input = (input || '').trim()
     if (!input) {
@@ -26,7 +29,9 @@ export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | '
     }
 
     url = NodeUrl.parse('http://' + input)
-    if (/^[a-z0-9]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
+    if (url.hostname === 'localhost'
+        || validIpAddressRegex.test(url.hostname || '')
+        || /^[a-z0-9]{1,61}(?:\.[a-z]{2,})+$/i.test(url.hostname || '')) {
         return NodeUrl.format(url)
     }
     return search(input, fallbackSearchEngine)
