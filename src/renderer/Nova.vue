@@ -135,6 +135,7 @@
                                     <UrlBox
                                         @click.stop
                                         slot="activator"
+                                        ref="urlBox"
                                         v-model="activePage.userInput"
                                         :href="activePage.href"
                                         @update:href="navigateTo"
@@ -570,6 +571,11 @@ export default class Nova extends Vue {
             keys: isDarwin ? ['command+]'] : ['ctrl+]'],
             disabled: !this.activePage.canGoForward,
             action: () => { this.activePage.goForward() }
+        }, {
+            label: 'Open Location',
+            keys: isDarwin ? ['command+l'] : ['ctrl+l'],
+            invisible: true,
+            action: () => { (this.$refs.urlBox as any).$el.focus() }
         }, {
             label: 'Zoom In',
             keys: isDarwin ? ['command+='] : ['ctrl+='],
