@@ -63,6 +63,9 @@ declare module 'electron' {
 }
 
 app.setName('Sync')
+if (env.devMode) {
+    app.setPath('userData', app.getPath('userData') + '-dev')
+}
 
 if (env.devMode || app.requestSingleInstanceLock()) {
 
