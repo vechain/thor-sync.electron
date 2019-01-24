@@ -1,5 +1,6 @@
 import { WebContents, ContextMenuParams, MenuItemConstructorOptions, clipboard } from 'electron'
 import env from '@/env'
+import * as V from './validator'
 
 export function buildContextMenu(wc: WebContents, props: ContextMenuParams) {
     const hasSelection = !!props.selectionText
@@ -67,6 +68,15 @@ export function buildContextMenu(wc: WebContents, props: ContextMenuParams) {
         if (items.length > 0) {
             items.push({ type: 'separator' })
         }
+
+        if (isWebview && (V.isAddress(props.selectionText) || V.isBytes32(props.selectionText))) {
+            items.push({
+                id: 'insight',
+                label: 'Open in Insight',
+                click: () => BUS.$emit('open-tab', { href: props.selectionText })
+            })
+        }
+
         items.push({
             id: 'inspect',
             label: 'Inspect Element',
