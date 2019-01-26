@@ -125,6 +125,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 
         if (process.env.NODE_ENV === 'production') {
             updateChecker.check()
+            setInterval(() => updateChecker.check(), 12 * 3600 * 1000)
         }
     }).on('open-url', (ev, externalUrl) => {
         log.debug('App:', 'open-url', externalUrl)
