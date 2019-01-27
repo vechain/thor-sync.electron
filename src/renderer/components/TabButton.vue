@@ -97,7 +97,7 @@ export default class TabButton extends Vue {
     right: -3px;
     bottom: 0px;
     border-radius: 5px 5px 0px 0px;
-    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
     transition: opacity 0.15s;
 }
 
