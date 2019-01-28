@@ -83,7 +83,7 @@ const timeAgo = TimeAgo()
 export default class TxActivityItem extends Vue {
     @Prop(Object) item !: entities.Activity<'tx'>
 
-    resendCount = 0
+    resendTime: { [id: string]: number } = {}
 
     get txObject() { return Transaction.decode(Buffer.from(this.item.data.raw.slice(2), 'hex')) }
     get comment() { return this.item.data.comment || describeClauses(this.item.data.message) }
@@ -110,7 +110,6 @@ export default class TxActivityItem extends Vue {
     }
 
     get status() {
-        this.resendCount
         this.$store.state.syncStatus // pulse
         const headTs = this.$store.state.chainHead.timestamp as number
         if (this.item.data.receipt) {
@@ -127,7 +126,8 @@ export default class TxActivityItem extends Vue {
             return 'error'
         }
 
-        if (qStatus === 'sent' && headTs > this.item.data.timestamp + 10 * 60) {
+        const sendTime = this.resendTime[this.item.data.id] || this.item.data.timestamp
+        if (qStatus === 'sent' && headTs > sendTime + 10 * 6) {
             return 'timeout'
         }
 
@@ -169,7 +169,7 @@ export default class TxActivityItem extends Vue {
 
     resend() {
         CLIENT.txer.send(this.item.data.id, this.item.data.raw)
-        this.resendCount++
+        this.$set(this.resendTime, this.item.data.id, Date.now() / 1000)
     }
 
     reveal() {
