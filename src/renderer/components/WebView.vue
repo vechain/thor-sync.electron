@@ -1,5 +1,5 @@
 <template>
-    <div style="position:relative">
+    <div style="position:relative" class="white">
         <webview
             v-if="!action.suspend"
             ref="webview"
