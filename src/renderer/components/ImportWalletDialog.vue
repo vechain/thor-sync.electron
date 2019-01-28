@@ -15,7 +15,7 @@
                     >{{['Please select a method to import your wallet', 'Please fill in the fields below to import the wallet'][step-1]}}</div>
                     <v-stepper-items>
                         <v-stepper-content step="1" class="pt-0">
-                            <ContentForm ref="pk" :disabled="processing" v-model="content"></ContentForm>
+                            <ContentForm v-if="step === 1" ref="pk" :disabled="processing" v-model="content"></ContentForm>
                         </v-stepper-content>
                         <v-stepper-content step="2">
                             <NameAndPass ref="np" :disabled="processing" v-model="nameAndPass"></NameAndPass>
