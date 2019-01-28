@@ -79,7 +79,7 @@ export function buildTx(
     const tx = new Transaction({
         chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
         blockRef: bestId.slice(0, 18),
-        expiration: 720,
+        expiration: 18, // about 3 mins
         clauses,
         gasPriceCoef,
         gas,

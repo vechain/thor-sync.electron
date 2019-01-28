@@ -7,7 +7,7 @@ async function handleTx(txRow: entities.Activity<'tx'>, dispose: () => void) {
                 try {
                     const receipt = await connex.thor.transaction(txRow.data.id).getReceipt()
                     const confirmed = receipt ? head.number - receipt.meta.blockNumber >= 12 : false
-                    const expired = !receipt && (head.timestamp - txRow.data.timestamp > 3600 * 2)
+                    const expired = !receipt && (head.timestamp - txRow.data.timestamp > 18 * 10 + 10)
                     await BDB.activities
                         .where({ id: txRow.id! })
                         .modify(row => {
