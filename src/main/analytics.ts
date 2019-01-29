@@ -27,7 +27,9 @@ export class Analytics {
                 if (err) {
                     this.clientId = UUID.v4()
                     writeFile(path, this.clientId, 'utf8', _err => {
-                        log.error('failed to write client id', _err)
+                        if (_err) {
+                            log.error('failed to write client id', _err)
+                        }
                     })
                     return resolve(this.clientId)
                 }
@@ -39,7 +41,7 @@ export class Analytics {
 
     public startup() {
         this.initClientId().then(id => {
-            this.ga.event(`app-${app.getVersion()}`, 'startup', { clientID: id })
+            this.ga.event(`app-${app.getVersion()}`, 'startup', { evLabel: process.platform, clientID: id })
         })
     }
 }
