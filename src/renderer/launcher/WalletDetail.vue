@@ -80,7 +80,7 @@
             </v-card>
             <div class="py-3">
                 <template v-if="list && list.length >0">
-                    <div class="my-2 subheading">Recent Trasfers</div>
+                    <div class="my-2 subheading">Recent Transfers</div>
                     <v-card flat class="card-border">
                         <v-list>
                             <template v-for="(item, i) in list ">
@@ -103,7 +103,7 @@
                                 class="error--text"
                             >{{`${error.name}: ${error.message}`}}</div>
                             <template v-else>
-                                <div class="subheading" v-if="!list">Recent Trasfers</div>
+                                <div class="subheading" v-if="!list">Recent Transfers</div>
                                 <div v-else class="subheading">No transfer log at this time!</div>
                             </template>
                         </div>
