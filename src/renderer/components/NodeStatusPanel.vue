@@ -33,11 +33,7 @@
             <v-list two-line dense>
                 <template v-for="(config, i) in otherConfigs">
                     <v-divider :key="`${i}-divider`"></v-divider>
-                    <v-list-tile
-                        two-line
-                        :key="i"
-                        @click="activateOrOpenWindow(config)"
-                    >
+                    <v-list-tile two-line :key="i" @click="switchNode(config)">
                         <v-list-tile-content>
                             <v-list-tile-title>
                                 <NetworkName :genesis="config.genesis.id" class="mr-1"/>
@@ -52,7 +48,7 @@
     </OverlayedMenu>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Emit } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { State } from 'vuex-class'
 import { presets } from '@/node-configs'
@@ -63,6 +59,10 @@ type Status = Connex.Thor.Status
 @Component
 export default class NodeStatusPanel extends Vue {
     config = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
+    @Emit('switchNode')
+    switchNode(config: NodeConfig) {
+        this.opened = false
+    }
 
     get configs() {
         const nodes = this.$store.state.nodes as entities.Node[]
@@ -93,23 +93,6 @@ export default class NodeStatusPanel extends Vue {
         return (this.$store as Store).state.chainHead.number.toLocaleString()
     }
 
-    activateOrOpenWindow(config: NodeConfig) {
-        this.opened = false
-        const wins = remote.BrowserWindow.getAllWindows()
-        const found = wins.find(w => {
-            try {
-                const c = w.webContents.getWebPreferences().nodeConfig!
-                return c.url === config.url && c.genesis.id === config.genesis.id
-            } catch{
-                return false
-            }
-        })
-        if (found) {
-            found.show()
-        } else {
-            remote.app.EXTENSION.createWindow(config)
-        }
-    }
     onSettings() {
         BUS.$emit('open-tab', { href: 'sync://settings', mode: 'inplace-builtin' })
         this.opened = false
