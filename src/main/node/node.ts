@@ -2,9 +2,19 @@ import * as NodeUrl from 'url'
 import { EventEmitter } from 'events'
 import { Cache } from './cache'
 import { Bloom } from 'thor-devkit'
-import { Net, NetError } from './net'
+import { Net } from './net'
 import * as compareVersions from 'compare-versions'
 import { TxQueue } from './tx-queue'
+
+class NotValidNode extends Error {
+    constructor(cause: string) {
+        if (cause) {
+            super(`not a valid VeChain node [${cause}]`)
+        } else {
+            super(`not a valid VeChain node`)
+        }
+    }
+}
 
 export class Node {
     public static async discoverNode(url: string) {
@@ -13,24 +23,27 @@ export class Node {
             url: NodeUrl.resolve(url, '/blocks/0')
         })
         if (resp.statusCode < 200 || resp.statusCode >= 300) {
-            throw new NetError(`${resp.statusCode} ${resp.statusMessage}`)
+            throw new NotValidNode(`${resp.statusCode} ${resp.statusMessage}`)
+        }
+
+        let genesis: any
+
+        try {
+            genesis = JSON.parse(resp.body.toString('utf8')) || {}
+        } catch {
+            genesis = {}
+        }
+
+        // TODO full validation
+        if (genesis && !/^0x[0-9a-f]{64}$/i.test(genesis.id)) {
+            throw new NotValidNode('malformed response')
         }
 
         const ver = (resp.headers['x-thorest-ver'] || [])[0] || '0.0.0'
         if (compareVersions(ver, '1.1.0') < 0) {
-            throw new Error('node version too low')
+            throw new NotValidNode(`version too low(excepted >=1.1.0, got ${ver})`)
         }
-
-        try {
-            const genesis = JSON.parse(resp.body.toString('utf8'))
-            // TODO full validation
-            if (genesis && !/^0x[0-9a-f]{64}$/i.test(genesis.id)) {
-                throw new Error('invalid response: id expected bytes32')
-            }
-            return genesis
-        } catch {
-            throw new NetError('unable to parse response data')
-        }
+        return genesis
     }
 
 
