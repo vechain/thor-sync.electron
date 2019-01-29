@@ -131,6 +131,7 @@ export default class NewNodeDialog extends Mixins(
                 new URL(this.form.rpcUrl)
             } catch (error) {
                 reject(error)
+                return
             }
 
             CLIENT.discoverNode(this.form.rpcUrl)
@@ -170,6 +171,8 @@ export default class NewNodeDialog extends Mixins(
             let genesis: Connex.Thor.Block
             this.checking = true
             try {
+                this.error.isError = false
+                this.error.message = ''
                 genesis = await this.getNodeInfo()
             } catch (error) {
                 if (error) {
