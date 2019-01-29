@@ -1,5 +1,5 @@
 <template>
-    <div style="position:relative" class="white">
+    <div style="position:relative" :style="{'background-color': error ? '': 'white'}">
         <webview
             v-if="!action.suspend"
             ref="webview"
