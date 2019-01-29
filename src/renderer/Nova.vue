@@ -97,7 +97,11 @@
                         :class="{'nav-box-focused': urlBoxFocused}"
                     >
                         <v-layout align-center style="position:relative;" fill-height>
-                            <NodeStatusPanel :nudge-top="2" slot="activator">
+                            <NodeStatusPanel
+                                :nudge-top="2"
+                                slot="activator"
+                                @switchNode="activateOrOpenWindow"
+                            >
                                 <v-btn
                                     flat
                                     slot="activator"
@@ -618,6 +622,30 @@ export default class Nova extends Vue {
             }
         }]
 
+    }
+
+    activateOrOpenWindow(config: NodeConfig) {
+        const wins = remote.BrowserWindow.getAllWindows()
+        let win = wins.find(w => {
+            try {
+                const c = w.webContents.getWebPreferences().nodeConfig!
+                return c.url === config.url && c.genesis.id === config.genesis.id
+            } catch{
+                return false
+            }
+        })
+
+        if (win) {
+            win.show()
+        } else {
+            win = remote.app.EXTENSION.createWindow(config)
+        }
+        if (!this.activePage.isBuiltin) {
+            remote.app.EXTENSION.mq.post(`TabAction-${win.id}`, {
+                action: 'new',
+                url: this.activePage.href
+            })
+        }
     }
 }
 </script>
