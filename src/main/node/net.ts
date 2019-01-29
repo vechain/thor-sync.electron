@@ -86,13 +86,18 @@ export class Net {
 
     private async request<T>(method: 'GET' | 'POST', path: string, body?: object, query?: object) {
         const url = this.resolveUrl(path, query)
+        const headers: { [key: string]: string } = {
+            'x-genesis-id': this.config.genesis.id,
+            // 'Accept': 'application/json'
+        }
+        if (body) {
+            headers['Content-Type'] = 'application/json'
+        }
+
         const resp = await Net.request({
             method,
             url,
-            headers: {
-                'x-genesis-id': this.config.genesis.id,
-                'Content-Type': 'application/json; charset=utf-8'
-            },
+            headers,
             body: body ? Buffer.from(JSON.stringify(body), 'utf8') : undefined
         })
         if (resp.statusCode < 200 || resp.statusCode >= 300) {
