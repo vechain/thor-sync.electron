@@ -11,7 +11,7 @@
 <a href="https://github.com/vechain/thor-sync.electron/wiki">User Guide</a>
 </p>
 
-![homepage](https://github.com/vechain/thor-sync.electron/wiki/Images/homepage.png)
+![homepage](https://raw.githubusercontent.com/wiki/vechain/thor-sync.electron/Images/homepage.png)
 
 
 ## Build From Source
