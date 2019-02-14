@@ -1,6 +1,6 @@
 import { remote } from 'electron'
 import * as V from '@/common/validator'
-import { ensure } from './ensure'
+import { ensure, BadParameter } from './ensure'
 import { RLP } from 'thor-devkit'
 import { ipcCall } from '../ipc'
 import { remakeError } from '@/common/custom-error'
@@ -22,9 +22,13 @@ function normalizeTxMessage(msg: Connex.Vendor.SigningService.TxMessage): Connex
         c.data = c.data || '0x'
         c.comment = c.comment || ''
 
-        toKind.data(c.to, `#${i}.to`)
-        valueKind.data(c.value, `#${i}.value`)
-        dataKind.data(c.data, `#${i}.data`)
+        try {
+            toKind.data(c.to, `#${i}.to`)
+            valueKind.data(c.value, `#${i}.value`)
+            dataKind.data(c.data, `#${i}.data`)
+        } catch (err) {
+            throw new BadParameter(err.message)
+        }
 
         ensure(typeof c.comment === 'string', `'#${i}.comment' expected string`)
         return c
