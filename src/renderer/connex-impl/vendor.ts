@@ -104,7 +104,7 @@ export function create(): Connex.Vendor {
                 }
                 return ss as any
             }
-            throw new Error('unsupported message kind')
+            throw new BadParameter('unsupported message kind')
         }
     }
 }
