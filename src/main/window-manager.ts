@@ -50,6 +50,7 @@ class WindowManager {
         win.loadURL(env.index)
 
         this.actives.push({ win, events: new Set() })
+        const windowId = win.id
 
         win.once('closed', () => {
             const i = this.actives.findIndex(e => e.win === win)
@@ -57,6 +58,7 @@ class WindowManager {
                 this.actives.splice(i, 1)
             }
             win.removeAllListeners()
+            app.EXTENSION.setOwnedWallets(windowId, [])
             if (this.activeCount === 0) {
                 if (this.about) {
                     this.about.close()

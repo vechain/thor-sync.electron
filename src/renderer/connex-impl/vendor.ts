@@ -105,6 +105,10 @@ export function create(): Connex.Vendor {
                 return ss as any
             }
             throw new BadParameter('unsupported message kind')
+        },
+        owned: addr => {
+            ensure(V.isAddress(addr), `'addr' expected address type`)
+            return remote.app.EXTENSION.isWalletOwned(remote.getCurrentWindow().id, addr.toLowerCase())
         }
     }
 }
