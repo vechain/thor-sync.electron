@@ -56,6 +56,9 @@ declare module 'electron' {
             registerBrowserWindowEvent(windowId: number, event: string[]): void
 
             dispatchDbEvent(event: DbEvent): void
+
+            setOwnedWallets(windowId: number, addrs: string[]): void
+            isWalletOwned(windowId: number, addr: string): boolean
         }
     }
 }
@@ -81,6 +84,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     const winMgr = new WindowManager()
     const backend = new Backend()
     const certs = new Map<string, CertificateVerifyProcRequest>()
+    const ownedWallets = new Map<number, string[]>()
 
     let initExternalUrl = (env.devMode ? '' : process.argv[1]) || ''
 
@@ -103,7 +107,19 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         showAbout: () => winMgr.showAbout(),
         getCertificate: (hostname) => certs.get(hostname),
         registerBrowserWindowEvent: (windowId, events) => { winMgr.registerWindowEvent(windowId, events) },
-        dispatchDbEvent: event => winMgr.dispatchDbEvent(event)
+        dispatchDbEvent: event => winMgr.dispatchDbEvent(event),
+
+        setOwnedWallets: (windowId: number, addrs: string[]) => {
+            if (addrs.length > 0) {
+                ownedWallets.set(windowId, addrs)
+            } else {
+                ownedWallets.delete(windowId)
+            }
+        },
+        isWalletOwned: (windowId: number, addr: string) => {
+            const addrs = ownedWallets.get(windowId)
+            return addrs ? addrs.indexOf(addr) >= 0 : false
+        }
     }
 
     app.on('web-contents-created', (ev, contents) => {
