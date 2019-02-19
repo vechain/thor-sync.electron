@@ -17,7 +17,7 @@ type Slot = {
     accounts: Map<string, AccountSnapshot>
     txs: Map<string, Connex.Thor.Transaction>
     receipts: Map<string, Connex.Thor.Receipt>
-    filters: Map<string, { result: any, bloomKeys: string[] }>
+    filters: Map<string, { result: any, testKeys: string[][] }>
 }
 const WINDOW_LEN = 12
 
@@ -195,7 +195,7 @@ export class Cache {
 
     public async filter<T extends 'event' | 'transfer'>(
         key: string,
-        bloomKeys: () => string[],
+        testKeys: () => string[][],
         fetch: () => Promise<Connex.Thor.Filter.Result<T>>
     ): Promise<Connex.Thor.Filter.Result<T>> {
 
@@ -206,7 +206,9 @@ export class Cache {
                 for (let j = i + 1; j < this.window.length; j++) {
                     const bloom = this.window[j].bloom
                     if (bloom) {
-                        if (filter.bloomKeys.length === 0 || filter.bloomKeys.some(k => testBytesHex(bloom, k))) {
+                        if (filter.testKeys.length === 0 || filter.testKeys.some(set => {
+                            return !set.some(k => !testBytesHex(bloom, k))
+                        })) {
                             break FETCH
                         }
                     } else {
@@ -223,7 +225,7 @@ export class Cache {
         if (headSlot) {
             headSlot.filters.set(key, {
                 result,
-                bloomKeys: bloomKeys()
+                testKeys: testKeys()
             })
         }
         return result
