@@ -51,16 +51,26 @@ export function createClient(node: Node): Client {
                 gas?: number
                 gasPrice?: string
             },
-            rev: string) {
-            return net.post<Connex.Thor.VMOutput>(
-                clause.to ? `accounts/${encodeURIComponent(clause.to)}` :
-                    'accounts',
-                {
-                    value: clause.value,
-                    data: clause.data,
-                    ...options
-                },
-                { revision: rev })
+            rev: string,
+            cacheTies?: string[]
+        ) {
+            const fetch = () => {
+                return net.post<Connex.Thor.VMOutput>(
+                    clause.to ? `accounts/${encodeURIComponent(clause.to)}` :
+                        'accounts',
+                    {
+                        value: clause.value,
+                        data: clause.data,
+                        ...options
+                    },
+                    { revision: rev })
+            }
+            if (!cacheTies) {
+                return fetch()
+            }
+
+            const key = cry.blake2b256(JSON.stringify(clause), JSON.stringify(options)).toString('hex')
+            return node.cache.call(key, rev, cacheTies, fetch)
         },
 
         getBlock(rev: string | number) {

@@ -128,7 +128,10 @@ interface Client {
             caller?: string
             gas?: number
             gasPrice?: string
-        }, rev: string): Promise<Connex.Thor.VMOutput>
+        },
+        rev: string,
+        cacheTies?: string[]
+    ): Promise<Connex.Thor.VMOutput>
 
     getBlock(rev: string | number): Promise<Connex.Thor.Block | null>
     getTx(id: string): Promise<Connex.Thor.Transaction | null>

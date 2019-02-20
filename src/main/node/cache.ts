@@ -18,6 +18,7 @@ type Slot = {
     txs: Map<string, Connex.Thor.Transaction>
     receipts: Map<string, Connex.Thor.Receipt>
     filters: Map<string, { result: any, testKeys: string[][] }>
+    methods: Map<string, Connex.Thor.VMOutput>
 }
 const WINDOW_LEN = 12
 
@@ -47,7 +48,8 @@ export class Cache {
             txs: new Map(),
             receipts: new Map(),
             filters: new Map(),
-            block
+            block,
+            methods: new Map()
         }
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)
@@ -229,6 +231,41 @@ export class Cache {
             })
         }
         return result
+    }
+
+    public async call(
+        key: string,
+        rev: string,
+        ties: string[],
+        fetch: () => Promise<Connex.Thor.VMOutput>
+    ): Promise<Connex.Thor.VMOutput> {
+
+        rev = rev.toLowerCase()
+        const slot = this.slots.get(rev)
+        if (slot) {
+            let pSlot: Slot | undefined = slot
+            while (pSlot) {
+                const entry = pSlot.methods.get(key)
+                if (entry) {
+                    return entry
+                }
+                if (!pSlot.bloom) {
+                    break
+                }
+
+                // if ties.length === 0, never invalidate cache
+                if (ties.some(t => testBytesHex(pSlot!.bloom!, t))) {
+                    // might be dirty
+                    break
+                }
+                pSlot = this.slots.get(pSlot.parentID)
+            }
+        }
+        const output = await fetch()
+        if (slot) {
+            slot.methods.set(key, output)
+        }
+        return output
     }
 }
 
