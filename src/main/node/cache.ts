@@ -18,7 +18,7 @@ type Slot = {
     txs: Map<string, Connex.Thor.Transaction>
     receipts: Map<string, Connex.Thor.Receipt>
     filters: Map<string, { result: any, testKeys: string[][] }>
-    methods: Map<string, Connex.Thor.VMOutput>
+    generic: Map<string, any>
 }
 const WINDOW_LEN = 12
 
@@ -49,7 +49,7 @@ export class Cache {
             receipts: new Map(),
             filters: new Map(),
             block,
-            methods: new Map()
+            generic: new Map()
         }
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)
@@ -233,23 +233,22 @@ export class Cache {
         return result
     }
 
-    public async call(
+    public async generic(
         key: string,
         rev: string,
-        ties: string[],
-        fetch: () => Promise<Connex.Thor.VMOutput>
-    ): Promise<Connex.Thor.VMOutput> {
-
+        fetch: () => Promise<any>,
+        ties?: string[]
+    ): Promise<any> {
         rev = rev.toLowerCase()
         const slot = this.slots.get(rev)
         if (slot) {
             let pSlot: Slot | undefined = slot
             while (pSlot) {
-                const entry = pSlot.methods.get(key)
+                const entry = pSlot.generic.get(key)
                 if (entry) {
                     return entry
                 }
-                if (!pSlot.bloom) {
+                if (!pSlot.bloom || !ties) {
                     break
                 }
 
@@ -261,11 +260,11 @@ export class Cache {
                 pSlot = this.slots.get(pSlot.parentID)
             }
         }
-        const output = await fetch()
+        const result = await fetch()
         if (slot) {
-            slot.methods.set(key, output)
+            slot.generic.set(key, result)
         }
-        return output
+        return result
     }
 }
 

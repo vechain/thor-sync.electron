@@ -17,13 +17,21 @@ export function createClient(node: Node): Client {
                 gasPrice?: string
             },
             rev: string) {
-            return net.post<Connex.Thor.VMOutput[]>(
+            const fetch = () => net.post<Connex.Thor.VMOutput[]>(
                 `accounts/*`, {
                     clauses,
                     ...options
                 },
                 { revision: rev })
                 .then(outputs => ({ outputs }))
+
+            const cacheKey = cry.blake2b256(
+                'explain',
+                JSON.stringify(clauses),
+                JSON.stringify(options)
+            ).toString('hex')
+
+            return node.cache.generic(cacheKey, rev, fetch)
         },
         getAccount(addr: string, rev: string) {
             return node.cache.getAccount(addr, rev, () => {
@@ -34,14 +42,27 @@ export function createClient(node: Node): Client {
             })
         },
         getCode(addr: string, rev: string) {
-            return net.get<Connex.Thor.Code>(
+            const fetch = () => net.get<Connex.Thor.Code>(
                 `accounts/${encodeURIComponent(addr)}/code`,
                 { revision: rev })
+
+            const cacheKey = cry.blake2b256(
+                'getCode',
+                addr).toString('hex')
+
+            return node.cache.generic(cacheKey, rev, fetch, [])
         },
         getStorage(addr: string, key: string, rev: string) {
-            return net.get<Connex.Thor.Storage>(
+            const fetch = () => net.get<Connex.Thor.Storage>(
                 `accounts/${encodeURIComponent(addr)}/storage/${encodeURIComponent(key)}`,
                 { revision: rev })
+
+            const cacheKey = cry.blake2b256(
+                'getStorage',
+                addr,
+                key).toString('hex')
+
+            return node.cache.generic(cacheKey, rev, fetch)
         },
 
         call(
@@ -65,12 +86,14 @@ export function createClient(node: Node): Client {
                     },
                     { revision: rev })
             }
-            if (!cacheTies) {
-                return fetch()
-            }
 
-            const key = cry.blake2b256(JSON.stringify(clause), JSON.stringify(options)).toString('hex')
-            return node.cache.call(key, rev, cacheTies, fetch)
+            const key = cry.blake2b256(
+                'call',
+                JSON.stringify(clause),
+                JSON.stringify(options),
+                cacheTies ? JSON.stringify(cacheTies) : ''
+            ).toString('hex')
+            return node.cache.generic(key, rev, fetch, cacheTies)
         },
 
         getBlock(rev: string | number) {

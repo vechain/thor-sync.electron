@@ -215,3 +215,16 @@ type WebAction = {
 
     suspend: 'normal' | 'strip' | null
 }
+
+declare namespace Connex {
+    namespace Thor {
+        interface Method {
+            /**
+             * Turn on caching for result of method call
+             * TODO: More detailed description
+             * @param ties a set of addresses, as the condition of cache invalidation
+             */
+            cache(ties: string[]): this
+        }
+    }
+}

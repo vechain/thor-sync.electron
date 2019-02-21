@@ -23,6 +23,8 @@ export function createMethod(
         gasPrice?: string
     } = {}
 
+    let cacheTies: string[] | undefined
+
     return {
         value(val) {
             if (typeof val === 'number') {
@@ -50,6 +52,14 @@ export function createMethod(
             opts.gasPrice = gp
             return this
         },
+        cache(ties: string[]) {
+            ensure(Array.isArray(ties), `'ties' expected array`)
+            ties.forEach((t, i) => {
+                ensure(V.isAddress(t), `'ties.#${i}' expected address type`)
+            })
+            cacheTies = ties
+            return this
+        },
         asClause: (...args) => {
             try {
                 const data = coder.encode(...args)
@@ -66,7 +76,8 @@ export function createMethod(
             return client.call(
                 this.asClause(...args),
                 { ...opts },
-                client.head.id)
+                client.head.id,
+                cacheTies)
                 .then(output => {
                     output = cloneDeep(output)
                     if (output.reverted) {
