@@ -17,7 +17,8 @@ type Slot = {
     accounts: Map<string, AccountSnapshot>
     txs: Map<string, Connex.Thor.Transaction>
     receipts: Map<string, Connex.Thor.Receipt>
-    filters: Map<string, { result: any, bloomKeys: string[] }>
+    filters: Map<string, { result: any, testKeys: string[][] }>
+    generic: Map<string, any>
 }
 const WINDOW_LEN = 12
 
@@ -47,7 +48,8 @@ export class Cache {
             txs: new Map(),
             receipts: new Map(),
             filters: new Map(),
-            block
+            block,
+            generic: new Map()
         }
         this.window.push(newSlot)
         this.slots.set(newSlot.id, newSlot)
@@ -195,7 +197,7 @@ export class Cache {
 
     public async filter<T extends 'event' | 'transfer'>(
         key: string,
-        bloomKeys: () => string[],
+        testKeys: () => string[][],
         fetch: () => Promise<Connex.Thor.Filter.Result<T>>
     ): Promise<Connex.Thor.Filter.Result<T>> {
 
@@ -206,7 +208,9 @@ export class Cache {
                 for (let j = i + 1; j < this.window.length; j++) {
                     const bloom = this.window[j].bloom
                     if (bloom) {
-                        if (filter.bloomKeys.length === 0 || filter.bloomKeys.some(k => testBytesHex(bloom, k))) {
+                        if (filter.testKeys.length === 0 || filter.testKeys.some(set => {
+                            return !set.some(k => !testBytesHex(bloom, k))
+                        })) {
                             break FETCH
                         }
                     } else {
@@ -223,8 +227,42 @@ export class Cache {
         if (headSlot) {
             headSlot.filters.set(key, {
                 result,
-                bloomKeys: bloomKeys()
+                testKeys: testKeys()
             })
+        }
+        return result
+    }
+
+    public async generic(
+        key: string,
+        rev: string,
+        fetch: () => Promise<any>,
+        ties?: string[]
+    ): Promise<any> {
+        rev = rev.toLowerCase()
+        const slot = this.slots.get(rev)
+        if (slot) {
+            let pSlot: Slot | undefined = slot
+            while (pSlot) {
+                const entry = pSlot.generic.get(key)
+                if (entry) {
+                    return entry
+                }
+                if (!pSlot.bloom || !ties) {
+                    break
+                }
+
+                // if ties.length === 0, never invalidate cache
+                if (ties.some(t => testBytesHex(pSlot!.bloom!, t))) {
+                    // might be dirty
+                    break
+                }
+                pSlot = this.slots.get(pSlot.parentID)
+            }
+        }
+        const result = await fetch()
+        if (slot) {
+            slot.generic.set(key, result)
         }
         return result
     }

@@ -128,7 +128,10 @@ interface Client {
             caller?: string
             gas?: number
             gasPrice?: string
-        }, rev: string): Promise<Connex.Thor.VMOutput>
+        },
+        rev: string,
+        cacheTies?: string[]
+    ): Promise<Connex.Thor.VMOutput>
 
     getBlock(rev: string | number): Promise<Connex.Thor.Block | null>
     getTx(id: string): Promise<Connex.Thor.Transaction | null>
@@ -211,4 +214,17 @@ type WebAction = {
     zoomReset: number
 
     suspend: 'normal' | 'strip' | null
+}
+
+declare namespace Connex {
+    namespace Thor {
+        interface Method {
+            /**
+             * Turn on caching for result of method call
+             * TODO: More detailed description
+             * @param ties a set of addresses, as the condition of cache invalidation
+             */
+            cache(ties: string[]): this
+        }
+    }
 }
