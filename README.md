@@ -9,7 +9,7 @@
 <p align=center>
 <a href="https://github.com/vechain/thor-sync.electron/releases">Download</a> ·
 <a href="https://github.com/vechain/thor-sync.electron/wiki">User Guide</a> ·
-<a href="http://faucet.vecha.in">Test Token</a>
+<a href="http://faucet.vecha.in">TestNet Faucet</a>
 </p>
 
 ![homepage](https://raw.githubusercontent.com/wiki/vechain/thor-sync.electron/Images/homepage.png)
