@@ -4,11 +4,12 @@
 
 <h1 align="center">VeChain Sync</h1>
 
- <p align="center">Sync provides a seamless experience for users and developers. which is designed to provide the superior user experiences on the dApps on the VeChainThor blockchain. It serves as the dApp environment to provide unlimited potential for developers and users.</p>
+ <p align="center">Sync provides a seamless experience for users and developers. which is designed to provide the superior user experiences for dApps on the VeChainThor blockchain. It serves as the dApp environment to provide unlimited potential for developers and users.</p>
 
 <p align=center>
 <a href="https://github.com/vechain/thor-sync.electron/releases">Download</a> ·
-<a href="https://github.com/vechain/thor-sync.electron/wiki">User Guide</a>
+<a href="https://github.com/vechain/thor-sync.electron/wiki">User Guide</a> ·
+<a href="http://faucet.vecha.in">TestNet Faucet</a>
 </p>
 
 ![homepage](https://raw.githubusercontent.com/wiki/vechain/thor-sync.electron/Images/homepage.png)
