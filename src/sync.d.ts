@@ -43,11 +43,13 @@ declare namespace entities {
         }
 
         type Cert = {
+            id: string
             message: Connex.Vendor.SigningService.CertMessage
             signer: string
             timestamp: number
             domain: string
             signature: string
+            link: string
         }
     }
 
@@ -164,6 +166,7 @@ type SignTxOptions = {
 
 type SignCertOptions = {
     signer?: string
+    link?: string
 }
 
 type SignTxArg = {
@@ -214,17 +217,4 @@ type WebAction = {
     zoomReset: number
 
     suspend: 'normal' | 'strip' | null
-}
-
-declare namespace Connex {
-    namespace Thor {
-        interface Method {
-            /**
-             * Turn on caching for result of method call
-             * TODO: More detailed description
-             * @param ties a set of addresses, as the condition of cache invalidation
-             */
-            cache(ties: string[]): this
-        }
-    }
 }

@@ -16,6 +16,7 @@ import { TxSigningDialog, CertSigningDialog } from '@/renderer/components'
 import { State } from 'vuex-class'
 import * as UrlUtils from '@/common/url-utils'
 import { ipcServe } from '../ipc'
+import { Certificate, cry } from 'thor-devkit'
 
 @Component
 export default class Vendor extends Vue {
@@ -141,17 +142,25 @@ export default class Vendor extends Vue {
                 domain: UrlUtils.hostnameOf(arg.referer.url)
             })
 
+            const id = '0x' + cry.blake2b256(Certificate.encode({
+                ...arg.message,
+                ...result.annex,
+                signature: result.signature
+            })).toString('hex')
+
             await BDB.activities.add({
                 type: 'cert',
                 createdTime: Date.now(),
                 referer: arg.referer,
                 closed: 1,
                 data: {
+                    id,
                     message: arg.message,
                     timestamp: result.annex.timestamp,
                     signer: result.annex.signer,
                     domain: result.annex.domain,
-                    signature: result.signature
+                    signature: result.signature,
+                    link: arg.options.link || ''
                 }
             })
 

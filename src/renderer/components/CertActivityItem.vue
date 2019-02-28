@@ -62,7 +62,13 @@ export default class CertActivityItem extends Vue {
     }
 
     reveal() {
-        BUS.$emit('open-tab', { href: this.item.referer.url })
+        let href: string
+        if (this.item.data.link) {
+            href = this.item.data.link.replace('{certid}', this.item.data.id)
+        } else {
+            href = this.item.referer.url
+        }
+        BUS.$emit('open-tab', { href })
         this.emitAction()
     }
 
