@@ -92,6 +92,10 @@ export function create(): Connex.Vendor {
                         opts.signer = addr
                         return this
                     },
+                    link(url) {
+                        opts.link = url
+                        return this
+                    },
                     request(msg) {
                         const arg: SignCertArg = {
                             message: normalizeCertMessage(msg),
