@@ -20,6 +20,7 @@ namespace contracts {
             const result = await connex.thor
                 .account(address)
                 .method(abiGet)
+                .cache([address])
                 .call(key)
             return result.data
         }
