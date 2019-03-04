@@ -388,7 +388,9 @@ export default class Nova extends Vue {
         if (mode === 'append-active') {
             const page = new Page(formalized)
             this.pages.splice(this.activePageIndex + 1, 0, page)
-            this.activePageIndex++
+            if (!this.isModaling()) {
+                this.activePageIndex++
+            }
         } else if (mode === 'inplace') {
             this.activePage.href = formalized
         } else if (mode === 'inplace-builtin') {
@@ -400,7 +402,9 @@ export default class Nova extends Vue {
         } else {
             const page = new Page(formalized)
             this.pages.push(page)
-            this.activePageIndex = this.pages.length - 1
+            if (!this.isModaling()) {
+                this.activePageIndex = this.pages.length - 1
+            }
         }
     }
 
