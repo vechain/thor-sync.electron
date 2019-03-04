@@ -484,7 +484,7 @@ export default class Nova extends Vue {
     }
 
     isModaling() {
-        return !!this.$el.querySelector('.v-overlay--active')
+        return !!document.querySelector('.v-overlay--active')
     }
 
     updateAccessHistoryLayout() {
