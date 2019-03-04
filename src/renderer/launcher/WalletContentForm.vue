@@ -23,9 +23,9 @@
         <v-text-field
             :disabled="disabled"
             label="Password"
-            :error="pwdError.error"
+            :error="error.isError"
             @change="pwdChanged"
-            :error-messages="pwdError.messages"
+            :error-messages="error.messages"
             v-if="form.type === 1"
             v-model="form.pwd"
             type="password"
@@ -54,7 +54,11 @@ export default class ContentForm extends Vue implements IContentForm {
     @Prop()
     disabled!: boolean
     name = 'wallet_content_form'
-    pwdIsError: boolean = false
+
+    error: { isError: boolean, messages: string } = {
+        isError: false,
+        messages: ''
+    }
     form = {
         type: 1,
         content: '',
@@ -105,7 +109,8 @@ export default class ContentForm extends Vue implements IContentForm {
     }
 
     pwdChanged() {
-        this.pwdIsError = false
+        this.error.isError = false
+        this.error.messages = ''
     }
 
     valid(): boolean {
@@ -172,13 +177,6 @@ export default class ContentForm extends Vue implements IContentForm {
         }
     }
 
-    get pwdError() {
-        return {
-            error: this.pwdIsError,
-            messages: this.pwdIsError ? 'Password is invalid' : ''
-        }
-    }
-
     reset() {
         this.form = {
             type: 1,
@@ -198,9 +196,11 @@ export default class ContentForm extends Vue implements IContentForm {
                 const ks = JSON.parse(this.form.content)
                 try {
                     result = await cry.Keystore.decrypt(ks, this.form.pwd)
-                    this.pwdIsError = false
+                    this.error.isError = false
+                    this.error.messages = ''
                 } catch (error) {
-                    this.pwdIsError = true
+                    this.error.isError  = true
+                    this.error.messages = 'Password is invalid'
                     return Promise.reject('')
                 }
                 break
@@ -216,7 +216,17 @@ export default class ContentForm extends Vue implements IContentForm {
                 result = Buffer.from(pk, 'hex')
                 break
         }
-        return Promise.resolve(result)
+
+        if (result.length !== 32) {
+            this.error.isError = true
+            this.error.messages = 'Unexpected error'
+
+            return Promise.reject('')
+        } else {
+            this.error.isError = false
+            this.error.messages = ''
+        }
+        return result
     }
 }
 </script>
