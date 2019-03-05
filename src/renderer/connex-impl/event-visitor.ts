@@ -1,6 +1,7 @@
 import { abi } from 'thor-devkit'
 import { createFilter } from './filter'
 import { BadParameter } from './ensure'
+import cloneDeep from 'lodash.clonedeep'
 
 export function createEventVisitor(
     client: Client,
@@ -10,7 +11,7 @@ export function createEventVisitor(
 
     const coder = (() => {
         try {
-            return new abi.Event(jsonABI as any)
+            return new abi.Event(cloneDeep(jsonABI) as any)
         } catch {
             throw new BadParameter(`'abi' is invalid`)
         }

@@ -10,7 +10,7 @@ export function createMethod(
 ): Connex.Thor.Method {
     const coder = (() => {
         try {
-            return new abi.Function(jsonABI as any)
+            return new abi.Function(cloneDeep(jsonABI) as any)
         } catch  {
             throw new BadParameter(`'abi' is invalid`)
         }
@@ -61,6 +61,8 @@ export function createMethod(
             return this
         },
         asClause: (...args) => {
+            const inputsLen = (coder.definition.inputs || []).length
+            ensure(inputsLen === args.length, `'args' count expected ${inputsLen}`)
             try {
                 const data = coder.encode(...args)
                 return {
