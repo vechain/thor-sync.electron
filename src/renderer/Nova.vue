@@ -612,7 +612,14 @@ export default class Nova extends Vue {
         }, {
             label: 'Toggle Developer Tools',
             keys: [],
-            action: () => { remote.getCurrentWebContents().toggleDevTools() },
+            action: () => {
+                const wc = remote.getCurrentWebContents()
+                if (wc.isDevToolsOpened()) {
+                    wc.closeDevTools()
+                } else {
+                    wc.openDevTools({ mode: 'detach' })
+                }
+            },
             divider: true
         }, {
             label: 'Online Help',
