@@ -1,5 +1,5 @@
 import { Node } from './node'
-import { cry } from 'thor-devkit'
+import { cry, abi } from 'thor-devkit'
 
 export function createClient(node: Node): Client {
     const net = node.net
@@ -23,7 +23,17 @@ export function createClient(node: Node): Client {
                     ...options
                 },
                 { revision: rev })
-                .then(outputs => ({ outputs }))
+                .then(outputs => {
+                    outputs = outputs.map(o => {
+                        if (o.reverted) {
+                            o.decoded = {
+                                revertReason: decodeRevertReason(o.data)
+                            }
+                        }
+                        return o
+                    })
+                    return { outputs }
+                })
 
             const cacheKey = cry.blake2b256(
                 'explain',
@@ -85,6 +95,14 @@ export function createClient(node: Node): Client {
                         ...options
                     },
                     { revision: rev })
+                    .then(output => {
+                        if (output.reverted) {
+                            output.decoded = {
+                                revertReason: decodeRevertReason(output.data)
+                            }
+                        }
+                        return output
+                    })
             }
 
             const key = cry.blake2b256(
@@ -165,5 +183,31 @@ export function createClient(node: Node): Client {
             }
         },
         discoverNode: url => Node.discoverNode(url)
+    }
+}
+
+// https://solidity.readthedocs.io/en/v0.5.5/control-structures.html#error-handling-assert-require-revert-and-exceptions
+// 0x08c379a0
+// Function selector for Error(string)
+
+const decoder = new abi.Function({
+    name: 'foo',
+    inputs: [],
+    outputs: [{ name: '', type: 'string' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+})
+
+const errorSig = '0x08c379a0'
+
+function decodeRevertReason(data: string) {
+    try {
+        if (data.startsWith(errorSig)) {
+            return (decoder.decode(data.slice(errorSig.length)) as any)['0']
+        }
+        return ''
+    } catch {
+        return ''
     }
 }
