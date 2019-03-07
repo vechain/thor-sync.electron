@@ -3,7 +3,7 @@
         <div class="tip-background" :class="type"/>
         <v-layout align-start row style="position:relative">
             <v-icon small class="mr-1" style="color:currentColor">{{iconString}}</v-icon>
-            <div >
+            <div style="width:100%">
                 <slot/>
             </div>
         </v-layout>

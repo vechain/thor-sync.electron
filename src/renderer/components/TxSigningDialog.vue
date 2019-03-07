@@ -61,12 +61,13 @@
                         </v-layout>
                     </v-card-text>
                     <v-layout column style="overflow-y:auto;flex:0 1 auto">
-                        <Tip
-                            v-if="estimation.error"
-                            class="ma-1"
-                            type="error"
-                        >Error got while estimating fee
-                            <br>
+                        <Tip v-if="estimation.error" class="ma-1" type="error">
+                            <v-layout>Error got while estimating fee
+                                <v-spacer/>
+                                <v-btn icon small class="my-0" @click="reestimateGas">
+                                    <v-icon small>refresh</v-icon>
+                                </v-btn>
+                            </v-layout>
                             <i>{{estimation.error}}</i>
                         </Tip>
                         <Tip
@@ -100,7 +101,7 @@
                     <div style="position:relative">
                         <v-divider/>
                         <v-progress-linear
-                            v-show="signing"
+                            v-show="signing || estimating"
                             class="ma-0"
                             style="position:absolute;left:0;bottom:0;"
                             height="2"
@@ -202,6 +203,10 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     @Watch('password')
     passwordChanged() {
         this.passwordError = ''
+    }
+    @Watch('$store.state.chainHead')
+    headChanged() {
+        this.debouncedEstimateGas()
     }
 
     @Watch('arg.selectedWallet')
