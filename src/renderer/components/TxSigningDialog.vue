@@ -81,7 +81,9 @@
                             type="warning"
                         >Transaction may fail/revert
                             <br>
-                            <i>VM error {{estimation.vmError}}</i>
+                            <i>VM error: {{estimation.vmError}}</i>
+                            <br>
+                            <i v-if="estimation.revertReason">"{{estimation.revertReason}}"</i>
                         </Tip>
                     </v-layout>
                     <v-spacer/>
@@ -159,6 +161,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     estimation = {
         gas: 0,
         reverted: false,
+        revertReason: '',
         vmError: '',
         baseGasPrice: new BigNumber(0),
         error: ''
@@ -214,7 +217,9 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         this.estimation.gas = 0
         this.estimation.error = ''
         this.estimation.vmError = ''
+        this.estimation.baseGasPrice = new BigNumber(0)
         this.estimation.reverted = false
+        this.estimation.revertReason = ''
 
         if (this.estimateGasCache.get(this.address!)) {
             this.estimateGas()
@@ -239,6 +244,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
                 this.estimation.gas = result.gas
                 this.estimation.baseGasPrice = result.baseGasPrice
                 this.estimation.reverted = result.reverted
+                this.estimation.revertReason = result.revertReason
                 this.estimation.vmError = result.vmError
                 this.estimation.error = ''
             }

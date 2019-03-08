@@ -57,7 +57,7 @@ export function createEventVisitor(
                 apply(offset: number, limit: number) {
                     return filter.apply(offset, limit)
                         .then(events => events.map(event => {
-                            const decoded = coder.decode(event.data, event.topics)
+                            const decoded = coder.decode(event.data, event.topics) as any
                             return { ...event, decoded }
                         }))
                 }
