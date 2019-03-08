@@ -85,7 +85,7 @@ export function createMethod(
                     if (output.reverted) {
                         return output
                     } else {
-                        const decoded = coder.decode(output.data)
+                        const decoded = coder.decode(output.data) as any
                         return { ...output, decoded }
                     }
                 })

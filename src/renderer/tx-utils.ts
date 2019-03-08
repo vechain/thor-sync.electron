@@ -42,6 +42,7 @@ async function getBaseGasPrice() {
 export type EstimateGasResult = {
     gas: number,
     reverted: boolean
+    revertReason: string
     vmError: string
     baseGasPrice: BigNumber
 }
@@ -65,6 +66,7 @@ export async function estimateGas(
     return {
         gas: suggestedGas,
         reverted: lastOutput ? lastOutput.reverted : false,
+        revertReason: (lastOutput && lastOutput.decoded) ? (lastOutput.decoded.revertReason || '') : '',
         vmError: lastOutput ? lastOutput.vmError : '',
         baseGasPrice: bgp,
     }
