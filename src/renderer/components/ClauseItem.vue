@@ -15,8 +15,8 @@
             </v-layout>
         </v-layout>
         <v-card>
-            <v-card-text v-show="clause.comment" class="pt-1 text-truncate">
-                <i>{{clause.comment}}</i>
+            <v-card-text class="pt-1 text-truncate">
+                <i :title="clause.comment">{{clause.comment || 'No comment'}}</i>
             </v-card-text>
             <v-card-text v-show="clause.data!=='0x'" class="pt-0">
                 <v-textarea
