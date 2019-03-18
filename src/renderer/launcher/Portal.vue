@@ -44,6 +44,7 @@
             </template>
             <div v-else class="headline grey--text font-weight-light py-5">No shortcut</div>
         </v-layout>
+        <AppHub />
     </v-layout>
 </template>
 <script lang="ts">

@@ -6,19 +6,16 @@
                 class="ma-2"
                 align-center
                 justify-center
-                :style="{'background-color':faceColor}"
+                :style="{'background-color': (getFaceColor(href) && !loaded) }"
             >
-                <span class="white--text headline font-weight-light">{{firstChar}}</span>
-                <div v-show="loaded" class="badge">
-                    <Favicon
-                        :src="favicon"
-                        style="position:absolute;top:1px;right:1px;"
-                        @update:loaded="loaded=$event"
-                    />
-                    <div
-                        style="position:absolute;top:0px;right:0px;left:-2px;bottom:-2px;border-radius:0px 7px 0px 0px;"
-                        :style="{'box-shadow': `${faceColor} 0px 0px 0px 0.5px inset`}"
-                    />
+                <span v-if="!loaded" class="white--text headline font-weight-light">{{firstChar}}</span>
+                <div v-show="loaded">
+                    <img
+                        width="100%"
+                        :src="src"
+                        @load="onUpdateLoaded(true)"
+                        @error="onUpdateLoaded(false)"
+                    >
                 </div>
             </v-layout>
             <div
@@ -30,15 +27,15 @@
     </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Emit } from 'vue-property-decorator'
 import * as NodeUrl from 'url'
 import Color from 'color'
 
 @Component
-export default class AppButton extends Vue {
+export default class AppHubItem extends Vue {
     @Prop(String) title!: string
-    @Prop(String) href !: string
-    @Prop(String) favicon!: string
+    @Prop(String) href!: string
+    @Prop(String) src!: string
 
     loaded = false
 
@@ -46,8 +43,15 @@ export default class AppButton extends Vue {
         const str = (this.title || '').trim()
         return str ? str[0].toUpperCase() : '?'
     }
-    get faceColor() {
-        return Vue.filter('faceColor')(this.href)
+
+    @Emit('update:loaded')
+    onUpdateLoaded(val: boolean) {
+        this.loaded = val
+    }
+
+
+    getFaceColor (val: string) {
+        return Vue.filter('faceColor')(val)
     }
 }
 </script>
@@ -72,17 +76,6 @@ export default class AppButton extends Vue {
 
 .app-button:hover::before {
     opacity: 0.15;
-}
-
-.badge {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 21px;
-    height: 21px;
-    clip-path: url(#app-button-badge);
-    background-color: white;
-    overflow: hidden;
 }
 </style>
 
