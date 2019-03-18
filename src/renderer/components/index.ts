@@ -44,6 +44,8 @@ import WindowMenu from './WindowMenu.vue'
 import UpdateChecker from './UpdateChecker.vue'
 import UnlockWalletDialog from './UnlockWalletDialog.vue'
 import Tooltip from './Tooltip.vue'
+import AppHub from './AppHub.vue'
+import AppHubItem from './AppHubItem.vue'
 
 export {
     AccessHistoryPanel,
@@ -91,5 +93,7 @@ export {
     WindowMenu,
     UpdateChecker,
     UnlockWalletDialog,
-    Tooltip
+    Tooltip,
+    AppHub,
+    AppHubItem
 }
