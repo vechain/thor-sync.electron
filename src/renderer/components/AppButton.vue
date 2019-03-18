@@ -47,46 +47,8 @@ export default class AppButton extends Vue {
         return str ? str[0].toUpperCase() : '?'
     }
     get faceColor() {
-        const url = NodeUrl.parse(this.href || '')
-
-        const i1 = hash(url.host || '') % colors.length
-        let i2 = hash(url.pathname || '') % colors.length
-        if (i1 === i2) {
-            i2 = (i2 + 1) % colors.length
-        }
-        const c1 = colors[i1]
-        const c2 = colors[i2]
-
-        return Color(c1).mix(Color(c2), 0.4).saturate(0.1).hex()
+        return Vue.filter('faceColor')(this.href)
     }
-}
-
-const colors = [
-    '#e91e63',
-    '#9c27b0',
-    '#673ab7',
-    '#3f51b5',
-    '#2196f3',
-    '#03a9f4',
-    '#00bcd4',
-    '#009688',
-    '#4caf50',
-    '#8bc34a',
-    '#cddc39',
-    '#ff9800',
-    '#ff5722'
-]
-
-function hash(str: string) {
-    if (str.length === 0) {
-        return 0
-    }
-    let h = 0
-    for (let i = 0; i < str.length; i++) {
-        h = h * 31 + str.charCodeAt(i)
-        h = h % (2 ** 32)
-    }
-    return h
 }
 </script>
 <style scoped>
