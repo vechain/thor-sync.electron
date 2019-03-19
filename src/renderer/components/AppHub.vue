@@ -13,7 +13,7 @@
                         :title="app.name"
                         :href="app.href"
                         :src="app.img"
-                        @click="navTo(shortcut)"
+                        @click="navTo(app)"
                     ></AppHubItem>
                 </div>
             </v-layout>
@@ -39,9 +39,9 @@ declare interface AppHubItem {
 export default class AppHub extends Vue {
     private appList: AppHubItem[] = []
 
-    navTo(shortcut: entities.Shortcut) {
+    navTo(app: AppHubItem) {
         BUS.$emit('open-tab', {
-            href: shortcut.href,
+            href: app.href,
             mode: 'inplace'
         })
     }
