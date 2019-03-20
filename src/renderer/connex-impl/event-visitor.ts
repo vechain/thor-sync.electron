@@ -29,8 +29,8 @@ export function createEventVisitor(
                     topic3: topics[3] || undefined,
                     topic4: topics[4] || undefined
                 }
-            } catch {
-                throw new BadParameter(`'indexed' can not be encoded`)
+            } catch (err) {
+                throw new BadParameter(`'indexed' can not be encoded: ${err.message}`)
             }
         },
         filter(indexed) {

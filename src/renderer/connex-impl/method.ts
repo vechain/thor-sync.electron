@@ -70,8 +70,8 @@ export function createMethod(
                     value: value.toString(),
                     data
                 }
-            } catch {
-                throw new BadParameter(`'args' can not be encoded`)
+            } catch (err) {
+                throw new BadParameter(`'args' can not be encoded: ${err.message}`)
             }
         },
         call(...args) {
