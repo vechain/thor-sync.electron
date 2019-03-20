@@ -12,8 +12,8 @@ export function createEventVisitor(
     const coder = (() => {
         try {
             return new abi.Event(cloneDeep(jsonABI) as any)
-        } catch {
-            throw new BadParameter(`'abi' is invalid`)
+        } catch (err) {
+            throw new BadParameter(`'abi' is invalid: ${err.message}`)
         }
     })()
 

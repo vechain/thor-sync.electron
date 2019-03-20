@@ -11,8 +11,8 @@ export function createMethod(
     const coder = (() => {
         try {
             return new abi.Function(cloneDeep(jsonABI) as any)
-        } catch  {
-            throw new BadParameter(`'abi' is invalid`)
+        } catch (err) {
+            throw new BadParameter(`'abi' is invalid: ${err.message}`)
         }
     })()
 
