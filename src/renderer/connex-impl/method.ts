@@ -11,8 +11,8 @@ export function createMethod(
     const coder = (() => {
         try {
             return new abi.Function(cloneDeep(jsonABI) as any)
-        } catch  {
-            throw new BadParameter(`'abi' is invalid`)
+        } catch (err) {
+            throw new BadParameter(`'abi' is invalid: ${err.message}`)
         }
     })()
 
@@ -70,8 +70,8 @@ export function createMethod(
                     value: value.toString(),
                     data
                 }
-            } catch {
-                throw new BadParameter(`'args' can not be encoded`)
+            } catch (err) {
+                throw new BadParameter(`'args' can not be encoded: ${err.message}`)
             }
         },
         call(...args) {
