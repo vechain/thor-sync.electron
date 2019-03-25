@@ -14,6 +14,10 @@ namespace Store {
         wallets: entities.Wallet[]
         preferences: entities.Preference[]
         ready: boolean
+        appHub: {
+            list: entities.AppHubItem[]
+            createTime: number
+        }
     }
 }
 
@@ -25,6 +29,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_WALLETS = 'updateWallets'
     public static readonly UPDATE_PREFERENCES = 'updatePreferences'
     public static readonly UPDATE_SET_READY = 'updateSetReady'
+    public static readonly UPDATE_APP_HUB = 'updateAppHub'
     constructor() {
         super({
             state: {
@@ -37,9 +42,33 @@ class Store extends Vuex.Store<Store.Model> {
                 nodes: [],
                 wallets: [],
                 preferences: [],
-                ready: false
+                ready: false,
+                appHub: {
+                    list: [],
+                    createTime: 0
+                }
+            },
+            actions: {
+                async getAppHub({ commit }) {
+
+                }
             },
             getters: {
+                AppHunItems(state) {
+                    return state.appHub.list.map(
+                        (item: entities.AppHubItem) => {
+                            return {
+                                ...item,
+                                img: `https://vechain.github.io/app-hub/imgs/${
+                                    item.id
+                                    }.png`
+                            }
+                        }
+                    )
+                },
+                AppHubUpdateTime(state) {
+                    return state.appHub.createTime
+                }
             },
             mutations: {
                 [Store.UPDATE_CHAIN_HEAD](state) {
@@ -62,12 +91,45 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_SET_READY](state) {
                     state.ready = true
+                },
+                [Store.UPDATE_APP_HUB](state, payload) {
+                    state.appHub.list = payload
+                    state.appHub.createTime = Date.now()
                 }
             }
         })
         this.monitorChain()
         this.monitorDB()
+        this.monitorAppHub()
+    }
 
+    private async monitorAppHub() {
+        async function getList() {
+            let appList: entities.AppHubItem[] = []
+            try {
+                const resp = await fetch(
+                    'https://vechain.github.io/app-hub/index.json',
+                    {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        referrer: 'no-referrer'
+                    }
+                )
+                appList = await resp.json()
+            } catch (error) {
+                LOG.error(error)
+            }
+            return appList
+        }
+
+        this.commit(Store.UPDATE_APP_HUB, await getList())
+
+        // 6 Hours
+        setInterval(async () => {
+            const list = await getList()
+            this.commit(Store.UPDATE_APP_HUB, list)
+        }, 216e5)
     }
 
     private async monitorChain() {
@@ -92,27 +154,30 @@ class Store extends Vuex.Store<Store.Model> {
             } else {
                 flag = 'syncing'
             }
-            this.commit(Store.UPDATE_SYNC_STATUS, { progress: status.progress, flag })
+            this.commit(Store.UPDATE_SYNC_STATUS, {
+                progress: status.progress,
+                flag
+            })
             await Promise.race([ticker.next(), sleep(5000)])
         }
     }
 
     private async monitorDB() {
         const queryAndUpdateShortcuts = async () => {
-            const shortcuts = await GDB.shortcuts
-                .toArray()
+            const shortcuts = await GDB.shortcuts.toArray()
             this.commit(Store.UPDATE_SHORTCUTS, shortcuts)
         }
         const queryAndUpdateNodes = async () => {
-            const nodes = await GDB.nodes
-                .toArray()
+            const nodes = await GDB.nodes.toArray()
             this.commit(Store.UPDATE_NODES, nodes)
         }
 
         const queryAndUpdateWallets = async () => {
-            const wallets = await BDB.wallets
-                .toArray()
-            remote.app.EXTENSION.setOwnedWallets(remote.getCurrentWindow().id, wallets.map(w => w.address))
+            const wallets = await BDB.wallets.toArray()
+            remote.app.EXTENSION.setOwnedWallets(
+                remote.getCurrentWindow().id,
+                wallets.map(w => w.address)
+            )
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
         const queryAndUpdatePreferences = async () => {
