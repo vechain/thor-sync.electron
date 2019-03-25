@@ -44,7 +44,7 @@
             </template>
             <div v-else class="headline grey--text font-weight-light py-5">No shortcut</div>
         </v-layout>
-        <AppHub />
+        <AppHub :appList="AppHubItems"/>
     </v-layout>
 </template>
 <script lang="ts">
@@ -86,6 +86,10 @@ export default class Portal extends Vue {
             href: shortcut.href,
             mode: 'inplace'
         })
+    }
+
+    get AppHubItems() {
+        return this.$store.getters.AppHunItems
     }
 
     onEditShortcut(shortcut: entities.Shortcut) {
