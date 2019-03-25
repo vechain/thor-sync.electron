@@ -53,6 +53,15 @@ declare namespace entities {
         }
     }
 
+    type AppHubItem = {
+        name: string
+        href: string
+        desc: string
+        tags: string[]
+        id: string
+        createAt: number
+    }
+
     type Preference = {
         id?: number
         key: string
