@@ -190,21 +190,12 @@ export function createClient(node: Node): Client {
 // 0x08c379a0
 // Function selector for Error(string)
 
-const decoder = new abi.Function({
-    name: 'foo',
-    inputs: [],
-    outputs: [{ name: '', type: 'string' }],
-    payable: false,
-    stateMutability: 'view',
-    type: 'function'
-})
-
 const errorSig = '0x08c379a0'
 
 function decodeRevertReason(data: string) {
     try {
         if (data.startsWith(errorSig)) {
-            return (decoder.decode(data.slice(errorSig.length)) as any)['0']
+            return abi.decodeParameter('string', '0x' + data.slice(errorSig.length)) as string
         }
         return ''
     } catch {
