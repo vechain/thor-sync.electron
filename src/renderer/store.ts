@@ -48,11 +48,6 @@ class Store extends Vuex.Store<Store.Model> {
                     createTime: 0
                 }
             },
-            actions: {
-                async getAppHub({ commit }) {
-
-                }
-            },
             getters: {
                 AppHunItems(state) {
                     return state.appHub.list.map(
