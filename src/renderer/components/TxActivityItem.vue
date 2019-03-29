@@ -2,7 +2,7 @@
     <v-expansion-panel-content v-bind="$attrs" v-on="$listeners" expand-icon>
         <v-layout row slot="header" align-center>
             <v-layout column>
-                <div class="text-truncate">{{comment}}</div>
+                <div class="text-truncate" :title="comment">{{comment}}</div>
                 <v-layout row align-center>
                     <b class="label primary mr-1">TX</b>
                     <b v-show="reverted" class="label warning">Reverted</b>
