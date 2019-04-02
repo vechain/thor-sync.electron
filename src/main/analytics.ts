@@ -8,10 +8,10 @@ import * as log from 'electron-log'
 export class Analytics {
     private readonly ga: any
     private clientId?: string
-    constructor() {
+    constructor(userAgent: string) {
         // tslint:disable-next-line:variable-name
         const GA = require('electron-google-analytics')
-        this.ga = new GA.default('UA-132391998-1', { debug: env.devMode })
+        this.ga = new GA.default('UA-132391998-1', { debug: env.devMode, userAgent })
     }
 
     public initClientId() {
@@ -41,7 +41,16 @@ export class Analytics {
 
     public startup() {
         this.initClientId().then(id => {
-            this.ga.event(`app-${app.getVersion()}`, 'startup', { evLabel: process.platform, clientID: id })
+            const report = (action: string) => this.ga.event(
+                `app-${app.getVersion()}`,
+                action,
+                { clientID: id })
+
+            report('startup')
+            setInterval(
+                () => report('remain'),
+                12 * 3600 * 1000
+            )
         })
     }
 }

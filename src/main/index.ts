@@ -76,8 +76,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         }
     }
 
-    const analytics = new Analytics()
-    analytics.startup()
+    let analytics: Analytics | undefined
 
     const updateChecker = createUpdateChecker()
     const mq = new MQ()
@@ -124,6 +123,10 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 
     app.on('web-contents-created', (ev, contents) => {
         log.debug('App:', 'web-contents-created', `#${contents.id}`)
+        if (!analytics) {
+            analytics = new Analytics(contents.getUserAgent())
+            analytics.startup()
+        }
         contents.on('did-attach-webview', (_ev, wc) => {
             log.debug('WebContents:', 'did-attach-webview', `#${wc.id}`)
             wc.session.setCertificateVerifyProc(certVerifyProc)
