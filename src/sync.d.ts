@@ -169,6 +169,7 @@ interface Client {
 type SignTxOptions = {
     signer?: string
     gas?: number
+    dependsOn?: string
     link?: string
     comment?: string
 }

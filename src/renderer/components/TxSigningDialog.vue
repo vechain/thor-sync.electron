@@ -62,7 +62,8 @@
                     </v-card-text>
                     <v-layout column style="overflow-y:auto;flex:0 1 auto">
                         <Tip v-if="estimation.error" class="ma-1" type="error">
-                            <v-layout>Error got while estimating fee
+                            <v-layout>
+                                Error got while estimating fee
                                 <v-spacer/>
                                 <v-btn icon small class="my-0" @click="reestimateGas">
                                     <v-icon small>refresh</v-icon>
@@ -75,11 +76,8 @@
                             class="ma-1"
                             type="warning"
                         >Insufficient energy</Tip>
-                        <Tip
-                            v-if="estimation.reverted"
-                            class="ma-1"
-                            type="warning"
-                        >Transaction may fail/revert
+                        <Tip v-if="estimation.reverted" class="ma-1" type="warning">
+                            Transaction may fail/revert
                             <br>
                             <i>VM error: {{estimation.vmError}}</i>
                             <br>
@@ -143,6 +141,7 @@ type Arg = {
     selectedWallet: number
     suggestedGas: number
     txComment: string
+    dependsOn: string | null
 }
 
 type Result = {
@@ -287,7 +286,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.passwordError = ''
 
             const timestamp = connex.thor.status.head.timestamp
-            const result = await buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas)
+            const result = await buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas, this.arg.dependsOn)
                 .sign(this.wallet.keystore!, this.password)
 
             this.opened = false

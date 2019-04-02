@@ -62,6 +62,11 @@ export function create(): Connex.Vendor {
                         opts.gas = gas
                         return this
                     },
+                    dependsOn(txid) {
+                        ensure(V.isBytes32(txid), `'txid' expected bytes32 in hex string`)
+                        opts.dependsOn = txid
+                        return this
+                    },
                     link(url) {
                         // TODO validate url
                         opts.link = url
