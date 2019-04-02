@@ -86,7 +86,8 @@ export default class Vendor extends Vue {
                 wallets: arg.options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
                 selectedWallet: arg.options.signer ? 0 : walletIndex,
                 suggestedGas: arg.options.gas || 0,
-                txComment: arg.options.comment || ''
+                txComment: arg.options.comment || '',
+                dependsOn: arg.options.dependsOn || null
             })
 
             await BDB.activities.add({

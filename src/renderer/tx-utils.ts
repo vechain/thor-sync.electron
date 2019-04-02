@@ -75,7 +75,8 @@ export async function estimateGas(
 export function buildTx(
     clauses: Connex.Thor.Clause[],
     gasPriceCoef: number,
-    gas: number) {
+    gas: number,
+    dependsOn: string | null) {
 
     const genesis = connex.thor.genesis
     const bestId = connex.thor.status.head.id
@@ -86,7 +87,7 @@ export function buildTx(
         clauses,
         gasPriceCoef,
         gas,
-        dependsOn: null,
+        dependsOn,
         nonce: '0x' + randomBytes(8).toString('hex')
     })
     return {

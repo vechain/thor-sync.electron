@@ -74,7 +74,7 @@
     }
   },
   "dependencies": {
-    "@vechain/connex": "^1.2.2",
+    "@vechain/connex": "^1.2.3",
     "thor-devkit": "~0.10.1"
   },
   "devDependencies": {
