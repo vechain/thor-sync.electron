@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" v-on="$listeners" class="app-button pa-3">
+    <div v-bind="$attrs" v-on="$listeners" class="app-button pa-3" :title="title">
         <v-layout column align-center>
             <v-layout
                 style="width:50px;height:50px;position:relative;border-radius:7px;"
@@ -50,7 +50,7 @@ export default class AppHubItem extends Vue {
     }
 
 
-    getFaceColor (val: string) {
+    getFaceColor(val: string) {
         return Vue.filter('faceColor')(val)
     }
 }
