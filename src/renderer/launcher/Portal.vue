@@ -1,6 +1,6 @@
 <template>
     <v-layout column align-center>
-        <v-layout column align-center style="max-width:700px;width:100%" pa-3>
+        <v-layout column align-center style="max-width:700px;width:100%;flex:1 0 auto;" pa-3>
             <div v-if="storeReady && !hasWallet" class="text-xs-center py-5">
                 <div class="headline grey--text font-weight-light mb-3">You have no wallet yet</div>
                 <v-btn class="primary" @click="createWallet">Create now</v-btn>
@@ -43,8 +43,8 @@
                 </div>
             </template>
             <div v-else class="headline grey--text font-weight-light py-5">No shortcut</div>
+            <AppHub :appList="AppHubItems"/>
         </v-layout>
-        <AppHub :appList="AppHubItems"/>
     </v-layout>
 </template>
 <script lang="ts">
