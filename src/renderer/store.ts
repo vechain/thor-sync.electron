@@ -99,31 +99,21 @@ class Store extends Vuex.Store<Store.Model> {
     }
 
     private async monitorAppHub() {
-        async function getList() {
-            let appList: entities.AppHubItem[] = []
+        const updateAppList = async () => {
             try {
-                const resp = await fetch(
-                    'https://vechain.github.io/app-hub/index.json',
-                    {
-                        method: 'GET',
-                        mode: 'cors',
-                        cache: 'no-cache',
-                        referrer: 'no-referrer'
-                    }
-                )
-                appList = await resp.json()
+                const resp = await fetch('https://vechain.github.io/app-hub/sync.json')
+                const list = await resp.json()
+                this.commit(Store.UPDATE_APP_HUB, list)
             } catch (error) {
                 LOG.error(error)
             }
-            return appList
         }
 
-        this.commit(Store.UPDATE_APP_HUB, await getList())
+        updateAppList()
 
         // 6 Hours
-        setInterval(async () => {
-            const list = await getList()
-            this.commit(Store.UPDATE_APP_HUB, list)
+        setInterval(() => {
+            updateAppList()
         }, 216e5)
     }
 

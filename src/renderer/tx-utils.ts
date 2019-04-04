@@ -59,7 +59,8 @@ export async function estimateGas(
 
     if (!suggestedGas) {
         const execGas = outputs.reduce((sum, out) => sum + out.gasUsed, 0)
-        suggestedGas = Math.round(execGas * 1.2 + Transaction.intrinsicGas(clauses))
+        const intrinsicGas = Transaction.intrinsicGas(clauses)
+        suggestedGas = intrinsicGas + (execGas ? (execGas + 15000) : 0)
     }
     const bgp = await getBaseGasPrice()
     const lastOutput = outputs.slice().pop()
