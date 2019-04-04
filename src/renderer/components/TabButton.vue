@@ -11,6 +11,7 @@
                 class="pl-2 pr-1 bg"
                 :class="{'bg--hilight': hover}"
                 style="position:relative;width:100%;height:100%"
+                :title="title"
             >
                 <div class="active-bg" :style="{opacity: active ? 1: 0}"/>
                 <v-layout
@@ -27,6 +28,7 @@
                     <span class="mx-1 caption text-truncate">{{title}}</span>
                     <v-spacer/>
                     <v-btn
+                        v-show="canClose"
                         flat
                         small
                         class="ma-0"
@@ -51,6 +53,7 @@ export default class TabButton extends Vue {
     @Prop(String) title !: string
     @Prop(String) favicon !: string
     @Prop(String) placeholder !: string
+    @Prop(Boolean) canClose !: boolean
 
     iconLoaded = false
 

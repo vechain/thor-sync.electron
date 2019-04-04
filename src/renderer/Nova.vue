@@ -42,6 +42,7 @@
                         :favicon="page.isBuiltin? '': page.favicon"
                         :placeholder="page.isBuiltin? page.favicon : ''"
                         :active="i===activePageIndex"
+                        :canClose="pages.length > 1"
                         @close="closeTab(i)"
                         @mouseup.native="activePageIndex = i"
                         @dblclick.native.stop
@@ -376,11 +377,11 @@ export default class Nova extends Vue {
         }
 
         this.pages.splice(index, 1)
-        if (index < this.activePageIndex) {
-            this.activePageIndex--
-        } else {
-            this.activePageIndex = Math.min(this.pages.length - 1, this.activePageIndex)
+        if (index > this.activePageIndex) {
+            return
         }
+
+        this.activePageIndex = Math.max(this.activePageIndex - 1, 0)
     }
 
     openTab(href: string, mode?: 'append' | 'append-active' | 'inplace' | 'inplace-builtin') {
