@@ -102,10 +102,13 @@ class Store extends Vuex.Store<Store.Model> {
         const updateAppList = async () => {
             try {
                 const resp = await fetch('https://vechain.github.io/app-hub/sync.json')
+                if (resp.status !== 200) {
+                    return
+                }
                 const list = await resp.json()
                 this.commit(Store.UPDATE_APP_HUB, list)
             } catch (error) {
-                LOG.error(error)
+                LOG.warn(error)
             }
         }
 
