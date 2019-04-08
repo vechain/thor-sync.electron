@@ -8,10 +8,10 @@
         transition="sign-dialog-transition"
     >
         <v-card class="bg">
-            <v-layout row style="height:460px;">
+            <v-layout row style="height:490px;">
                 <v-layout
                     column
-                    style="width:350px;flex:0 0 auto;background-color:rgba(0,0,0,0.12);overflow:auto;"
+                    style="width:380px;flex:0 0 auto;background-color:rgba(0,0,0,0.12);overflow:auto;"
                 >
                     <div class="py-2 px-3">
                         <div class="subheading text-truncate">Transaction</div>
@@ -29,7 +29,7 @@
                         />
                     </v-expansion-panel>
                 </v-layout>
-                <v-layout column style="width:300px;">
+                <v-layout column style="width:320px;">
                     <v-card-text>
                         <WalletSeeker
                             full-size
@@ -85,7 +85,7 @@
                         </Tip>
                     </v-layout>
                     <v-spacer/>
-                    <v-card-text>
+                    <v-card-text class="pt-0" v-show="!privateKey">
                         <v-text-field
                             v-focus
                             :disabled="signing"
@@ -96,7 +96,17 @@
                             :error-messages="passwordError"
                             ref="passwordElem"
                             @focus="onPasswordFocused"
+                            hide-details
                         />
+                        <v-checkbox
+                            color="primary"
+                            hide-details
+                            label="Keep unlocked in 5 minutes"
+                            v-model="keepUnlocked"
+                        />
+                    </v-card-text>
+                    <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
+                        <v-icon  class="mr-2">mdi-lock-open</v-icon>Unlocked
                     </v-card-text>
                     <div style="position:relative">
                         <v-divider/>
@@ -134,6 +144,8 @@ import debounce from 'lodash.debounce'
 import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 import AccountLoader from '@/renderer/mixins/account-loader'
 import { describeClauses } from '@/common/formatter'
+import { setUnlocked, getUnlocked } from '../unlocked'
+import { cry } from 'thor-devkit'
 
 type Arg = {
     message: Connex.Vendor.SigningService.TxMessage
@@ -171,6 +183,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     estimateGasSeq = 0
     estimateGasCache = new Map<string, EstimateGasResult>()
     debouncedEstimateGas!: () => void
+    keepUnlocked = false
 
     get suggestedGas() { return this.arg.suggestedGas }
     get txComment() { return this.arg.txComment || describeClauses(this.arg.message) }
@@ -201,6 +214,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         return !this.signing &&
             this.estimation.gas
     }
+
+    get privateKey() { return getUnlocked(this.wallet.id!) }
 
     @Watch('password')
     passwordChanged() {
@@ -276,7 +291,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         if (!this.readyToSign) {
             return
         }
-        if (!this.password) {
+        if (!this.privateKey && !this.password) {
             this.passwordError = 'Input password here'
             return
         }
@@ -285,9 +300,20 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.signing = true
             this.passwordError = ''
 
+            let privateKey
+            if (this.privateKey) {
+                privateKey = this.privateKey
+                setUnlocked(this.wallet.id!, privateKey)
+            } else {
+                privateKey = await cry.Keystore.decrypt(this.wallet.keystore, this.password)
+                if (this.keepUnlocked) {
+                    setUnlocked(this.wallet.id!, privateKey)
+                }
+            }
+
             const timestamp = connex.thor.status.head.timestamp
-            const result = await buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas, this.arg.dependsOn)
-                .sign(this.wallet.keystore!, this.password)
+            const result = buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas, this.arg.dependsOn)
+                .sign(privateKey)
 
             this.opened = false
             this.$resolve({

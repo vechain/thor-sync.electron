@@ -40,7 +40,7 @@
                         >Your signature is being requested. Please review the content before you signed. Always make sure you trust the sites you interact with.</Tip>
                     </v-card-text>
                     <v-spacer/>
-                    <v-card-text>
+                    <v-card-text v-show="!privateKey">
                         <v-text-field
                             v-focus
                             :disabled="signing"
@@ -52,6 +52,15 @@
                             ref="passwordElem"
                             @focus="onPasswordFocused"
                         />
+                        <v-checkbox
+                            color="primary"
+                            hide-details
+                            label="Keep unlocked in 5 minutes"
+                            v-model="keepUnlocked"
+                        />
+                    </v-card-text>
+                    <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
+                        <v-icon class="mr-2">mdi-lock-open</v-icon>Unlocked
                     </v-card-text>
                     <div style="position:relative">
                         <v-divider/>
@@ -85,6 +94,7 @@
 import { Vue, Component, Mixins } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
 import { Certificate, cry } from 'thor-devkit'
+import { setUnlocked, getUnlocked } from '../unlocked'
 
 type Arg = {
     message: Connex.Vendor.SigningService.CertMessage
@@ -100,6 +110,8 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     passwordError = ''
     signing = false
     get wallet() { return this.arg.wallets[this.arg.selectedWallet] }
+    keepUnlocked = false
+    get privateKey() { return getUnlocked(this.wallet.id!) }
 
     mounted() {
         this.opened = true
@@ -111,7 +123,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         if (this.signing) {
             return
         }
-        if (!this.password) {
+        if (!this.privateKey && !this.password) {
             this.passwordError = 'Input password here'
             return
         }
@@ -121,14 +133,22 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
 
             const wallet = this.wallet
             const annex = {
-
                 domain: this.arg.domain,
                 timestamp: connex.thor.status.head.timestamp,
                 signer: wallet.address!
-
             }
 
-            const privateKey = await cry.Keystore.decrypt(wallet.keystore!, this.password)
+            let privateKey
+            if (this.privateKey) {
+                privateKey = this.privateKey
+                setUnlocked(this.wallet.id!, privateKey)
+            } else {
+                privateKey = await cry.Keystore.decrypt(this.wallet.keystore, this.password)
+                if (this.keepUnlocked) {
+                    setUnlocked(this.wallet.id!, privateKey)
+                }
+            }
+
             const unsigned = Certificate.encode({
                 ...this.arg.message,
                 ...annex
