@@ -28,6 +28,13 @@ export default class Vendor extends Vue {
         action: () => { },
     }
 
+    lastSigner = ''
+
+    get lastWalletIndex() {
+        const i = this.wallets.findIndex(w => w.address!.toLowerCase() === this.lastSigner)
+        return i < 0 ? 0 : i
+    }
+
     @State wallets!: entities.Wallet[]
 
     mounted() {
@@ -35,9 +42,13 @@ export default class Vendor extends Vue {
             try {
                 await this.precheck(fromWebContentsId)
                 if (methodName === 'sign-tx') {
-                    return await this.signTx(arg)
+                    const result = await this.signTx(arg)
+                    this.lastSigner = result.signer.toLowerCase()
+                    return result
                 } else if (methodName === 'sign-cert') {
-                    return await this.signCert(arg)
+                    const result = await this.signCert(arg)
+                    this.lastSigner = result.annex.signer.toLowerCase()
+                    return result
                 }
                 throw new Error(`unexpected method '${methodName}'`)
             } catch (err) {
@@ -70,10 +81,10 @@ export default class Vendor extends Vue {
 
     async signTx(arg: SignTxArg): Promise<Connex.Vendor.SigningService.TxResponse> {
 
-        let walletIndex = 0
+        let enforcedWallet
         if (arg.options.signer) {
-            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
-            if (walletIndex < 0) {
+            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
+            if (!enforcedWallet) {
                 throw new Rejected('required signer unavailable')
             }
         }
@@ -83,8 +94,8 @@ export default class Vendor extends Vue {
             const result = await this.$dialog(TxSigningDialog, {
                 message: arg.message,
                 // enforce using wallet
-                wallets: arg.options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
-                selectedWallet: arg.options.signer ? 0 : walletIndex,
+                wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
+                selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
                 suggestedGas: arg.options.gas || 0,
                 txComment: arg.options.comment || '',
                 dependsOn: arg.options.dependsOn || null
@@ -125,10 +136,10 @@ export default class Vendor extends Vue {
 
     async signCert(arg: SignCertArg) {
 
-        let walletIndex = 0
+        let enforcedWallet
         if (arg.options.signer) {
-            walletIndex = this.wallets.findIndex(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
-            if (walletIndex < 0) {
+            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
+            if (!enforcedWallet) {
                 throw new Rejected('required signer unavailable')
             }
         }
@@ -138,8 +149,8 @@ export default class Vendor extends Vue {
             const result = await this.$dialog(CertSigningDialog, {
                 message: arg.message,
                 // enforce using wallet
-                wallets: arg.options.signer ? [this.wallets[walletIndex]] : this.wallets.slice(),
-                selectedWallet: arg.options.signer ? 0 : walletIndex,
+                wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
+                selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
                 domain: UrlUtils.hostnameOf(arg.referer.url)
             })
 

@@ -92,9 +92,8 @@ export function buildTx(
         nonce: '0x' + randomBytes(8).toString('hex')
     })
     return {
-        sign: async (keystore: cry.Keystore, password: string) => {
+        sign: (privateKey: Buffer) => {
             tx.signature = undefined
-            const privateKey = await cry.Keystore.decrypt(keystore, password)
             tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
             return {
                 txid: tx.id!,
