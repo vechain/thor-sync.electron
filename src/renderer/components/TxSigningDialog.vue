@@ -96,9 +96,9 @@
                             :error-messages="passwordError"
                             ref="passwordElem"
                             @focus="onPasswordFocused"
-                            hide-details
                         />
                         <v-checkbox
+                            class="mt-1"
                             color="primary"
                             hide-details
                             label="Keep unlocked in 5 minutes"
@@ -106,7 +106,7 @@
                         />
                     </v-card-text>
                     <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
-                        <v-icon  class="mr-2">mdi-lock-open</v-icon>Unlocked
+                        <v-icon class="mr-2">mdi-lock-open</v-icon>Unlocked
                     </v-card-text>
                     <div style="position:relative">
                         <v-divider/>
