@@ -53,6 +53,7 @@
                             @focus="onPasswordFocused"
                         />
                         <v-checkbox
+                            class="mt-1"
                             color="primary"
                             hide-details
                             label="Keep unlocked in 5 minutes"
