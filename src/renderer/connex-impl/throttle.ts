@@ -12,7 +12,8 @@ export function throttle<T extends object>(obj: T, concurrent: number) {
     return _throttle(obj, {
         concurrent,
         pending: 0,
-        waitingList: []
+        waitingList: [],
+        checkFlag: false
     })
 }
 
@@ -34,9 +35,7 @@ function _throttle<T extends object>(obj: T, ctx: Context): T {
                     ctx.pending++
                     await new PromiseClass(resolve => {
                         if (ctx.pending > ctx.concurrent) {
-                            // tslint:disable-next-line:no-console
-                            console.warn(
-                                `connex: exceeds max concurrent(${ctx.pending}/${ctx.concurrent}). request queued.`)
+                            _checkQueue(ctx)
                             ctx.waitingList.push(resolve)
                         } else {
                             resolve()
@@ -64,8 +63,24 @@ function _throttle<T extends object>(obj: T, ctx: Context): T {
     })
 }
 
+function _checkQueue(ctx: Context) {
+    if (ctx.checkFlag) {
+        return
+    }
+    ctx.checkFlag = true
+    setTimeout(() => {
+        ctx.checkFlag = false
+        if (ctx.pending > ctx.concurrent) {
+            // tslint:disable-next-line:no-console
+            console.warn(
+                `connex: exceeds max concurrent(${ctx.pending}/${ctx.concurrent}). request queued.`)
+        }
+    }, 0)
+}
+
 type Context = {
     readonly concurrent: number
     pending: number
     waitingList: Array<() => void>
+    checkFlag: boolean
 }
