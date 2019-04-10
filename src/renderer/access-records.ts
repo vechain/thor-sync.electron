@@ -8,7 +8,7 @@ export async function record(href: string, title?: string, favicon?: string) {
     await GDB.transaction('rw', GDB.accessRecords, async () => {
         const affect = await GDB.accessRecords.where({ baseUrl })
             .modify(obj => {
-                const newAccess = obj.lastAccessTime - now > 5 * 60 * 1000
+                const newAccess = now - obj.lastAccessTime > 5 * 60 * 1000
 
                 obj.lastAccessTime = now
                 if (newAccess) {
