@@ -35,17 +35,11 @@ new Nova({ store: new Store() }).$mount('#nova')
 if (isFirstTimeRun) {
     GDB.on('ready', () => {
         GDB.shortcuts.bulkAdd([{
-            title: 'Code Repo',
-            href: 'https://github.com/vechain/thor-sync.electron'
-        }, {
-            title: 'Connex Docs',
-            href: 'https://connex.vecha.in/#/'
+            title: 'Online Help',
+            href: 'https://github.com/vechain/thor-sync.electron/wiki'
         }, {
             title: 'Gitter',
-            href: 'https://gitter.im/vechain/thor'
-        }, {
-            title: 'Insight',
-            href: 'https://insight.vecha.in/#/'
+            href: 'https://gitter.im/vechain/sync'
         }])
     }, true)
 
