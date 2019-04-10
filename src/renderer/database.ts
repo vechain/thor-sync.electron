@@ -92,15 +92,15 @@ ${err.toString()}`
 }
 
 export class GlobalDatabase extends Database {
-    public readonly preferences!: Table<entities.Preference, number>
     public readonly accessRecords!: Table<entities.AccessRecord, number>
     public readonly nodes !: Table<entities.Node, number>
     public readonly shortcuts!: Table<entities.Shortcut, number>
+    private readonly preferences!: Table<entities.Preference, number> // deprecated
 
     constructor() {
         super('global', (dexie: Dexie) => {
             dexie.version(1).stores({
-                preferences: '++id, key',
+                preferences: '++id, key', // deprecated
                 accessRecords: '++id, &baseUrl, lastAccessTime, *tokens',
                 nodes: '++id',
                 shortcuts: '++id',
@@ -118,6 +118,19 @@ export class BoundedDatabase extends Database {
             dexie.version(1).stores({
                 wallets: '++id, &address, name',
                 activities: '++id, type, createdTime, closed',
+            })
+        })
+    }
+}
+
+// from now on, we use one table per db strategy to resolve migration problem
+export class Preferences extends Database {
+    public readonly store !: Table<entities.Preference, string>
+
+    constructor() {
+        super('preferences', (dexie: Dexie) => {
+            dexie.version(1).stores({
+                store: '&key'
             })
         })
     }

@@ -169,7 +169,7 @@ class Store extends Vuex.Store<Store.Model> {
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
         const queryAndUpdatePreferences = async () => {
-            const prefs = await GDB.preferences.toArray()
+            const prefs = await PREFS.store.toArray()
             this.commit(Store.UPDATE_PREFERENCES, prefs)
         }
 
@@ -191,7 +191,7 @@ class Store extends Vuex.Store<Store.Model> {
         BDB.wallets.subscribe(() => {
             queryAndUpdateWallets()
         })
-        GDB.preferences.subscribe(() => {
+        PREFS.store.subscribe(() => {
             queryAndUpdatePreferences()
         })
     }

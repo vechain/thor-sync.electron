@@ -1,6 +1,6 @@
 import { Vue } from 'vue-property-decorator'
 import { remote, ipcRenderer } from 'electron'
-import { GlobalDatabase, BoundedDatabase } from './database'
+import { GlobalDatabase, BoundedDatabase, Preferences } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-tracker'
 import { create as createConnex } from './connex-impl'
@@ -22,6 +22,7 @@ declare global {
     const LOG: typeof Log
     const ENV: typeof env
     const GDB: GlobalDatabase
+    const PREFS: Preferences
     const BDB: BoundedDatabase
     const BUS: Vue
     const CLIENT: Client
@@ -55,6 +56,10 @@ Object.defineProperty(window, 'GDB', {
 })
 Object.defineProperty(window, 'BDB', {
     value: new BoundedDatabase(remote.getCurrentWebContents().getWebPreferences().nodeConfig!.genesis.id),
+    enumerable: true
+})
+Object.defineProperty(window, 'PREFS', {
+    value: new Preferences(),
     enumerable: true
 })
 Object.defineProperty(window, 'BUS', {

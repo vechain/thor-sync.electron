@@ -178,7 +178,7 @@ export default class Settings extends Vue {
     get darkTheme() {
         const result = (this.$store.state.preferences as entities.Preference[])
             .find(v => v.key === 'dark-theme')
-        return result ? result.value as boolean : false
+        return result ? result.value as boolean : (remote.app.EXTENSION.mainSettings.get('dark-theme') || false)
     }
 
     darkThemeSwitchDisabled = false
@@ -190,14 +190,7 @@ export default class Settings extends Vue {
         }, 1000)
 
         remote.app.EXTENSION.mainSettings.set('dark-theme', dark)
-        GDB.transaction('rw', GDB.preferences, async () => {
-            const result = await GDB.preferences.where({ key: 'dark-theme' }).limit(1).toArray()
-            if (result.length > 0) {
-                await GDB.preferences.where('key').equals('dark-theme').modify({ value: dark })
-            } else {
-                await GDB.preferences.put({ key: 'dark-theme', value: dark })
-            }
-        })
+        PREFS.store.put({ key: 'dark-theme', value: dark })
     }
 
     openIssue() {
