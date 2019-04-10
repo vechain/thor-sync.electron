@@ -63,7 +63,6 @@ declare namespace entities {
     }
 
     type Preference = {
-        id?: number
         key: string
         value: any
     }

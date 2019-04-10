@@ -1,6 +1,7 @@
 import Vuex from 'vuex'
 import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
+import cloneDeep from 'lodash.clonedeep'
 
 namespace Store {
     export type Model = {
@@ -107,12 +108,21 @@ class Store extends Vuex.Store<Store.Model> {
                 }
                 const list = await resp.json()
                 this.commit(Store.UPDATE_APP_HUB, list)
+                PREFS.store.put({ key: 'app-list', value: cloneDeep(list) })
             } catch (error) {
-                LOG.warn(error)
+                LOG.warn('failed to fetch app list', error)
             }
         }
 
-        updateAppList()
+        await updateAppList()
+
+        // use saved list if app list empty after fetch
+        if (this.state.appHub.list.length === 0) {
+            const row = await PREFS.store.get({ key: 'app-list' })
+            if (row && row.value) {
+                this.commit(Store.UPDATE_APP_HUB, row.value)
+            }
+        }
 
         // 6 Hours
         setInterval(() => {
@@ -169,7 +179,7 @@ class Store extends Vuex.Store<Store.Model> {
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
         const queryAndUpdatePreferences = async () => {
-            const prefs = await GDB.preferences.toArray()
+            const prefs = await PREFS.store.toArray()
             this.commit(Store.UPDATE_PREFERENCES, prefs)
         }
 
@@ -191,7 +201,7 @@ class Store extends Vuex.Store<Store.Model> {
         BDB.wallets.subscribe(() => {
             queryAndUpdateWallets()
         })
-        GDB.preferences.subscribe(() => {
+        PREFS.store.subscribe(() => {
             queryAndUpdatePreferences()
         })
     }
