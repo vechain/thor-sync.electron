@@ -190,6 +190,7 @@ export default class WebView extends Vue {
             this.status.domReady = false
             this.error = null
             this.status.progress = 0.05
+            this.startFakeProgress()
         })
         this.webview.addEventListener('did-navigate', ev => {
             LOG.debug('webview:', ev.type, ev.url)
@@ -215,9 +216,9 @@ export default class WebView extends Vue {
             this.status.canGoForward = this.webview.canGoForward()
             this.status.canGoBack = this.webview.canGoBack()
             this.status.committed = true
-            this.startFakeProgress()
+            this.status.title = this.webview.getTitle()
+
             if (!this.error) {
-                // only non-inpage navigation will reach here
                 AccessRecords.record(
                     this.currentHref,
                     this.status.title,
