@@ -5,8 +5,18 @@
             <v-list two-line class="card-border" style="border-radius:2px;">
                 <v-list-tile>
                     <v-list-tile-content>
-                        <v-list-tile-title>Auto Update</v-list-tile-title>
-                        <v-list-tile-sub-title>{{autoUpdateSubTitle}}</v-list-tile-sub-title>
+                        <v-list-tile-title>
+                            Auto Update
+                            <sup class="grey--text ml-2">{{autoUpdateStatusText}}</sup>
+                        </v-list-tile-title>
+                        <v-list-tile-sub-title>
+                            Sync v{{syncVersion}}
+                            / Connex v{{connexVersion}}
+                            <a
+                                class="ml-3"
+                                @click="openReleaseNotes"
+                            >Release Notes</a>
+                        </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-action>
                         <v-btn
@@ -114,7 +124,6 @@ type Section = {
 }
 
 const issueUrl = 'https://github.com/vechain/thor-sync.electron/issues'
-const version = `${remote.app.getName()} v${remote.app.getVersion()} / Connex v${connex.version}`
 const updateChecker = remote.app.EXTENSION.updateChecker
 
 @Component
@@ -162,13 +171,8 @@ export default class Settings extends Vue {
         }
     }
 
-    get autoUpdateSubTitle() {
-        const statusText = this.autoUpdateStatusText
-        if (statusText) {
-            return `${version} (${statusText})`
-        }
-        return version
-    }
+    get connexVersion() { return connex.version }
+    get syncVersion() { return remote.app.getVersion() }
 
     get nodes(): Array<NodeConfig & { isPreset: boolean }> {
         return presets.map(n => ({ ...n, isPreset: true }))
@@ -204,6 +208,11 @@ export default class Settings extends Vue {
 
     editNode(node: NodeConfig) {
         this.$dialog(NewNodeDialog, node)
+    }
+
+    openReleaseNotes() {
+        const href = `https://github.com/vechain/thor-sync.electron/releases/tag/v${remote.app.getVersion()}`
+        BUS.$emit('open-tab', { href })
     }
 
     timer: any
