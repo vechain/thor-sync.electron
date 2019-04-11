@@ -46,7 +46,7 @@
                                 <Tooltip top>
                                     <v-btn
                                         class="my-0 ml-3 mr-0"
-                                        v-clipboard="wallet.address"
+                                        v-clipboard="checksum"
                                         @click="textTip = 'Copied'"
                                         @mouseover="textTip = 'Copy'"
                                         slot="activator"
@@ -154,6 +154,10 @@ export default class WalletDetail extends Mixins(TransferMixin, AccountLoader) {
         return this.wallets.find(item => {
             return item.address === this.$route.params.address
         })
+    }
+
+    get checksum() {
+        return Vue.filter('checksum')(this.address)
     }
 
     get address() {
