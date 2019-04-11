@@ -101,7 +101,7 @@
                             class="mt-1"
                             color="primary"
                             hide-details
-                            label="Keep unlocked in 5 minutes"
+                            label="Keep unlocked for 5 minutes"
                             v-model="keepUnlocked"
                         />
                     </v-card-text>
