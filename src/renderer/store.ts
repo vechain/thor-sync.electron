@@ -1,7 +1,6 @@
 import Vuex from 'vuex'
 import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
-import cloneDeep from 'lodash.clonedeep'
 
 namespace Store {
     export type Model = {
@@ -13,12 +12,8 @@ namespace Store {
         shortcuts: entities.Shortcut[]
         nodes: entities.Node[]
         wallets: entities.Wallet[]
-        preferences: entities.Preference[]
+        preferences: { [key: string]: any }
         ready: boolean
-        appHub: {
-            list: entities.AppHubItem[]
-            createTime: number
-        }
     }
 }
 
@@ -30,7 +25,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_WALLETS = 'updateWallets'
     public static readonly UPDATE_PREFERENCES = 'updatePreferences'
     public static readonly UPDATE_SET_READY = 'updateSetReady'
-    public static readonly UPDATE_APP_HUB = 'updateAppHub'
+
     constructor() {
         super({
             state: {
@@ -42,17 +37,14 @@ class Store extends Vuex.Store<Store.Model> {
                 shortcuts: [],
                 nodes: [],
                 wallets: [],
-                preferences: [],
+                preferences: {},
                 ready: false,
-                appHub: {
-                    list: [],
-                    createTime: 0
-                }
             },
             getters: {
                 AppHunItems(state) {
-                    return state.appHub.list.map(
-                        (item: entities.AppHubItem) => {
+                    const list = (state.preferences['app-list'] || []) as entities.AppHubItem[]
+                    return list.map(
+                        item => {
                             return {
                                 ...item,
                                 img: `https://vechain.github.io/app-hub/imgs/${
@@ -62,8 +54,10 @@ class Store extends Vuex.Store<Store.Model> {
                         }
                     )
                 },
-                AppHubUpdateTime(state) {
-                    return state.appHub.createTime
+                darkTheme(state) {
+                    const value = state.preferences['dark-theme']
+                    return value === undefined ?
+                        (remote.app.EXTENSION.mainSettings.get('dark-theme') || false) : value as boolean
                 }
             },
             mutations: {
@@ -82,15 +76,13 @@ class Store extends Vuex.Store<Store.Model> {
                 [Store.UPDATE_WALLETS](state, payload) {
                     state.wallets = payload
                 },
-                [Store.UPDATE_PREFERENCES](state, payload) {
-                    state.preferences = payload
+                [Store.UPDATE_PREFERENCES](state, payload: entities.Preference[]) {
+                    const prefs = {} as typeof state.preferences
+                    payload.forEach(i => prefs[i.key] = i.value)
+                    state.preferences = prefs
                 },
                 [Store.UPDATE_SET_READY](state) {
                     state.ready = true
-                },
-                [Store.UPDATE_APP_HUB](state, payload) {
-                    state.appHub.list = payload
-                    state.appHub.createTime = Date.now()
                 }
             }
         })
@@ -107,22 +99,13 @@ class Store extends Vuex.Store<Store.Model> {
                     return
                 }
                 const list = await resp.json()
-                this.commit(Store.UPDATE_APP_HUB, list)
-                PREFS.store.put({ key: 'app-list', value: cloneDeep(list) })
+                PREFS.store.put({ key: 'app-list', value: list })
             } catch (error) {
                 LOG.warn('failed to fetch app list', error)
             }
         }
 
         await updateAppList()
-
-        // use saved list if app list empty after fetch
-        if (this.state.appHub.list.length === 0) {
-            const row = await PREFS.store.get({ key: 'app-list' })
-            if (row && row.value) {
-                this.commit(Store.UPDATE_APP_HUB, row.value)
-            }
-        }
 
         // 6 Hours
         setInterval(() => {
