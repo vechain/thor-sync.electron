@@ -27,8 +27,9 @@ export default class Vendor extends Vue {
         actionName: '',
         action: () => { },
     }
-
-    lastSigner = ''
+    get lastSigner() {
+        return this.$store.getters.lastSigner
+    }
 
     get lastWalletIndex() {
         const i = this.wallets.findIndex(w => w.address!.toLowerCase() === this.lastSigner)
@@ -43,11 +44,14 @@ export default class Vendor extends Vue {
                 await this.precheck(fromWebContentsId)
                 if (methodName === 'sign-tx') {
                     const result = await this.signTx(arg)
-                    this.lastSigner = result.signer.toLowerCase()
+                    PREFS.store.put({ key: connex.thor.genesis.id + '-lastSigner', value: result.signer.toLowerCase() })
                     return result
                 } else if (methodName === 'sign-cert') {
                     const result = await this.signCert(arg)
-                    this.lastSigner = result.annex.signer.toLowerCase()
+                    PREFS.store.put({
+                        key: connex.thor.genesis.id + '-lastSigner',
+                        value: result.annex.signer.toLowerCase()
+                    })
                     return result
                 }
                 throw new Error(`unexpected method '${methodName}'`)
