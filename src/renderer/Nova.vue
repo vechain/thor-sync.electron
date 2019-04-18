@@ -366,8 +366,7 @@ export default class Nova extends Vue {
     }
 
     get darkTheme() {
-        const result = (this.$store.state.preferences as entities.Preference[]).find(v => v.key === 'dark-theme')
-        return result ? result.value as boolean : (remote.app.EXTENSION.mainSettings.get('dark-theme') || false)
+        return this.$store.getters.darkTheme
     }
 
     closeTab(index: number) {
