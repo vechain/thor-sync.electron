@@ -68,12 +68,11 @@ export function prettyForDisplay(url: string) {
 }
 
 export function filePathToUrl(path: string) {
-    // WHATWG URL
-    try {
-        return new NodeUrl.URL(`file:///${path}`).href
-    } catch (err) {
-        return ''
-    }
+    return NodeUrl.format({
+        protocol: 'file',
+        slashes: true,
+        pathname: path
+    })
 }
 
 export function baseUrlOf(href: string) {
