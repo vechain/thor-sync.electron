@@ -142,6 +142,8 @@
     "sass-loader": "7.0.3",
     "spectron": "^3.7.1",
     "style-loader": "^0.18.2",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "timeago.js": "^4.0.0-beta.1",
     "ts-loader": "3.5.0",
     "ts-node": "^7.0.1",
