@@ -25,7 +25,7 @@
                         style="flex:0 0 auto;"
                         @update:loaded="iconLoaded=$event"
                     />
-                    <span class="mx-1 caption text-truncate">{{title}}</span>
+                    <span class="mx-1 caption text-truncate" style="font-family: Roboto, 'Microsoft YaHei', sans-serif;">{{title}}</span>
                     <v-spacer/>
                     <v-btn
                         v-show="canClose"
