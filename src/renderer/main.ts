@@ -1,5 +1,4 @@
 import './window.init'
-import 'vuetify/dist/vuetify.css'
 import './typeface.css'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
