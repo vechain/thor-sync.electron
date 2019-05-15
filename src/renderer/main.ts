@@ -1,5 +1,4 @@
 import './window.init'
-import 'vuetify/dist/vuetify.css'
 import './typeface.css'
 import Vuetify from 'vuetify'
 import { Vue } from 'vue-property-decorator'
@@ -11,6 +10,7 @@ import Nova from './Nova.vue'
 import Store from './store'
 import DialogHelper from './mixins/dialog-helper'
 import DevWallets from '../dev-wallets'
+import './style.styl'
 
 Vue.use(Vuetify, {
     iconfont: 'mdi' // 'md' || 'mdi' || 'fa' || 'fa4'
