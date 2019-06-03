@@ -90,7 +90,9 @@ export class Cache {
             if (this.window.length > 0 &&
                 block.number < this.window[0].number + this.window.length - WINDOW_LEN) {
                 this.blockCache.set(block.id, block)
-                this.blockCache.set(block.number, block)
+                if (block.isTrunk) {
+                    this.blockCache.set(block.number, block)
+                }
             }
         }
         return block
