@@ -71,6 +71,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
+import { State } from 'vuex-class'
 import { describeClauses } from '@/common/formatter'
 import * as UrlUtils from '@/common/url-utils'
 import TimeAgo from 'timeago.js'
@@ -83,7 +84,8 @@ const timeAgo = TimeAgo()
 export default class TxActivityItem extends Vue {
     @Prop(Object) item !: entities.Activity<'tx'>
 
-    resendTime: { [id: string]: number } = {}
+    @State
+    txResendTime!: { [id: string]: number }
 
     get txObject() { return Transaction.decode(Buffer.from(this.item.data.raw.slice(2), 'hex')) }
     get comment() { return this.item.data.comment || describeClauses(this.item.data.message) }
@@ -126,7 +128,7 @@ export default class TxActivityItem extends Vue {
             return 'error'
         }
 
-        const sendTime = this.resendTime[this.item.data.id] || this.item.data.timestamp
+        const sendTime = this.txResendTime[this.item.data.id] || this.item.data.timestamp
         if (qStatus === 'sent' && headTs > sendTime + 10 * 6) {
             return 'timeout'
         }
@@ -169,7 +171,8 @@ export default class TxActivityItem extends Vue {
 
     resend() {
         CLIENT.txer.send(this.item.data.id, this.item.data.raw)
-        this.$set(this.resendTime, this.item.data.id, Date.now() / 1000)
+        this.$store.commit('updateTxResendTime', { id: this.item.data.id, value: Date.now() / 1000 })
+        // this.$set(this.$store.state.txResendTime, this.item.data.id, Date.now() / 1000)
     }
 
     reveal() {

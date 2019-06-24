@@ -1,6 +1,7 @@
 import Vuex from 'vuex'
 import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
+import Vue from 'vue';
 
 namespace Store {
     export type Model = {
@@ -9,6 +10,7 @@ namespace Store {
             progress: number
             flag: 'synced' | 'syncing' | 'outOfSync'
         }
+        txResendTime: { [id: string]: number }
         shortcuts: entities.Shortcut[]
         nodes: entities.Node[]
         wallets: entities.Wallet[]
@@ -25,6 +27,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_WALLETS = 'updateWallets'
     public static readonly UPDATE_PREFERENCES = 'updatePreferences'
     public static readonly UPDATE_SET_READY = 'updateSetReady'
+    public static readonly UPDATE_TX_RESEND_TIME = 'updateTxResendTime'
 
     constructor() {
         super({
@@ -34,6 +37,7 @@ class Store extends Vuex.Store<Store.Model> {
                     progress: connex.thor.status.progress,
                     flag: 'syncing'
                 },
+                txResendTime: {},
                 shortcuts: [],
                 nodes: [],
                 wallets: [],
@@ -86,6 +90,9 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_SET_READY](state) {
                     state.ready = true
+                },
+                [Store.UPDATE_TX_RESEND_TIME](state, payload) {
+                    Vue.set(state.txResendTime, payload.id, payload.value)
                 }
             }
         })

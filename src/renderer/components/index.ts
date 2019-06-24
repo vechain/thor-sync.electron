@@ -5,7 +5,6 @@ import Amount from './Amount.vue'
 import AppButton from './AppButton.vue'
 import CertIndicator from './CertIndicator.vue'
 import ClauseItem from './ClauseItem.vue'
-import ConfirmDialog from './ConfirmDialog.vue'
 import DialogEx from './DialogEx.vue'
 import DialogProxy from './DialogProxy.vue'
 import ExpansionBtn from './ExpansionBtn.vue'
@@ -46,6 +45,7 @@ import UnlockWalletDialog from './UnlockWalletDialog.vue'
 import Tooltip from './Tooltip.vue'
 import AppHub from './AppHub.vue'
 import AppHubItem from './AppHubItem.vue'
+import ContentDialog from './ContentDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -55,7 +55,6 @@ export {
     AppButton,
     CertIndicator,
     ClauseItem,
-    ConfirmDialog,
     DialogEx,
     DialogProxy,
     ExpansionBtn,
@@ -95,5 +94,6 @@ export {
     UnlockWalletDialog,
     Tooltip,
     AppHub,
-    AppHubItem
+    AppHubItem,
+    ContentDialog
 }

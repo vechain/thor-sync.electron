@@ -3,6 +3,7 @@ import { Address, Num } from '@/common/formatter'
 import { cry } from 'thor-devkit'
 import * as NodeUrl from 'url'
 import Color from 'color'
+import { hostnameOf } from '@/common/url-utils'
 
 function isRegExpArray(v: any): v is RegExpMatchArray {
     return v !== null && v instanceof Array
@@ -33,6 +34,10 @@ function removeZero(str: string) {
     }
 }
 
+Vue.filter('hostnameOf', (value: string) => {
+    return hostnameOf(value)
+})
+
 Vue.filter('balance', (value: string, decimal: number) => {
     return Num.formatBalance(value, decimal)
 })
@@ -55,7 +60,7 @@ Vue.filter('shortTxId', (txId: string) => {
 // })
 
 Vue.filter('dateTime', (val: number) => {
-    const date = new Date(val * 10e2)
+    const date = new Date(val)
     return date.toLocaleString()
 })
 
