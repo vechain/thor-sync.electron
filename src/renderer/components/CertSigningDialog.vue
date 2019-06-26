@@ -5,89 +5,133 @@
         v-model="opened"
         @action:ok="sign"
         @action:cancel="decline"
+        width="700px"
+        height="490px"
         transition="sign-dialog-transition"
     >
         <v-card class="bg">
-            <v-layout row style="height:500px;">
+            <v-layout column style="height:445px;">
+                <div style="height: 130px">
+                    <v-layout row>
+                        <v-layout column align-content-center>
+                            <v-card-text style="width: 270px; padding: 10px; margin: auto">
+                                <WalletSeeker
+                                    full-size
+                                    :wallets="arg.wallets"
+                                    v-model="arg.selectedWallet"
+                                    :disabled="signing"
+                                />
+                            </v-card-text>
+                        </v-layout>
+                        <v-layout align-content-center column>
+                            <v-divider
+                                style="margin: 20px auto; max-height: calc(100% - 40px);"
+                                inset
+                                :vertical="true"
+                            ></v-divider>
+                        </v-layout>
+                        <v-layout column>
+                            <v-card-text style="width: 280px">
+                                <div
+                                    class="lighten-5"
+                                >Your signature is being requested. Please review the content before you signed. Always make sure you trust the sites you interact with.</div>
+                            </v-card-text>
+                        </v-layout>
+                    </v-layout>
+                </div>
                 <v-layout
                     column
-                    style="width:400px;flex:0 0 auto;background-color:rgba(0,0,0,0.1);"
-                    pa-1
+                    justify-center
+                    style="background-color:rgba(0,0,0,0.1); position: relative"
                 >
-                    <v-layout class="py-2 px-3" align-center style="flex:0 0 auto;">
-                        <div class="subheading text-truncate">Certificate</div>
-                        <v-spacer/>
-                        <b class="label primary text-uppercase">{{arg.message.purpose}}</b>
-                    </v-layout>
-                    <textarea
-                        :value="arg.message.payload.content"
-                        readonly
-                        class="payload pa-2 serif"
-                    />
+                    <template v-if="step ===1">
+                        <div>
+                            <v-layout column>
+                                <v-layout class="py-2 px-3" align-center style="flex:0 0 auto;">
+                                    <div class="subheading text-truncate mr-3">Certificate</div>
+                                    <b class="label primary text-uppercase">{{arg.message.purpose}}</b>
+                                </v-layout>
+                            </v-layout>
+                        </div>
+                        <v-layout column style="background: #E0E0E0">
+                            <textarea
+                                style="220px"
+                                :value="arg.message.payload.content"
+                                readonly
+                                class="payload pa-2 serif"
+                            />
+                        </v-layout>
+                    </template>
+                    <template v-else-if="step === 2">
+                        <v-card-text style="width: 500px; margin: auto" v-show="!privateKey">
+                            <p
+                                style="text-align: center; font-size: 16px;margin-bottom: 50px"
+                            >Please input your wallet's password to sign the Certificate</p>
+                            <div style="width: 350px; margin: auto">
+                                <v-text-field
+                                    v-focus
+                                    :disabled="signing"
+                                    v-model="password"
+                                    label="Password"
+                                    type="password"
+                                    maxlength="20"
+                                    :error-messages="passwordError"
+                                    ref="passwordElem"
+                                    @focus="onPasswordFocused"
+                                />
+                                <v-checkbox
+                                    class="mt-1"
+                                    color="primary"
+                                    hide-details
+                                    label="Keep unlocked for 5 minutes"
+                                    v-model="keepUnlocked"
+                                />
+                            </div>
+                        </v-card-text>
+                        <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
+                            <p class="headline">Please sign the transition</p>
+                            <v-icon class="mr-2 display-4">mdi-lock-open</v-icon>
+                            <p class="grey--text text--darken-1">The wallet is unlocked</p>
+                        </v-card-text>
+                        <div style="position:absolute;left:0;bottom:0; width: 100%">
+                            <v-divider/>
+                            <v-progress-linear
+                                v-show="signing"
+                                class="ma-0"
+                                height="2"
+                                color="success"
+                                indeterminate
+                            />
+                        </div>
+                    </template>
                 </v-layout>
-                <v-layout column style="width:300px">
-                    <v-card-text>
-                        <WalletSeeker
-                            full-size
-                            :wallets="arg.wallets"
-                            v-model="arg.selectedWallet"
-                            :disabled="signing"
-                        />
-                    </v-card-text>
-                    <v-card-text>
-                        <Tip
-                            type="warning lighten-5"
-                        >Your signature is being requested. Please review the content before you signed. Always make sure you trust the sites you interact with.</Tip>
-                    </v-card-text>
-                    <v-spacer/>
-                    <v-card-text v-show="!privateKey">
-                        <v-text-field
-                            v-focus
-                            :disabled="signing"
-                            v-model="password"
-                            label="Password"
-                            type="password"
-                            maxlength="20"
-                            :error-messages="passwordError"
-                            ref="passwordElem"
-                            @focus="onPasswordFocused"
-                        />
-                        <v-checkbox
-                            class="mt-1"
-                            color="primary"
-                            hide-details
-                            label="Keep unlocked for 5 minutes"
-                            v-model="keepUnlocked"
-                        />
-                    </v-card-text>
-                    <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
-                        <v-icon class="mr-2">mdi-lock-open</v-icon>Unlocked
-                    </v-card-text>
-                    <div style="position:relative">
-                        <v-divider/>
-                        <v-progress-linear
-                            v-show="signing"
-                            class="ma-0"
-                            style="position:absolute;left:0;bottom:0;"
-                            height="2"
-                            color="success"
-                            indeterminate
-                        />
-                    </div>
-                    <v-card-actions style="flex: 0 0 auto;">
-                        <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
-                        <v-spacer/>
-                        <v-btn
-                            small
-                            flat
-                            dark
-                            :disabled="signing"
-                            class="green darken-1"
-                            @click="sign"
-                        >Sign</v-btn>
-                    </v-card-actions>
-                </v-layout>
+                <v-divider/>
             </v-layout>
+
+            <v-card-actions style="flex: 0 0 auto;">
+                <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
+                <v-spacer/>
+                <template v-if="step === 2">
+                    <v-btn small flat dark :disabled="signing" class="secondary" @click="back">Back</v-btn>
+                    <v-btn
+                        small
+                        flat
+                        dark
+                        :disabled="signing"
+                        class="green darken-1"
+                        @click="sign"
+                    >Sign</v-btn>
+                </template>
+                <v-btn
+                    small
+                    v-if="step === 1"
+                    flat
+                    dark
+                    :disabled="signing"
+                    class="green darken-1"
+                    @click="step++"
+                >Next</v-btn>
+            </v-card-actions>
         </v-card>
     </DialogEx>
 </template>
@@ -110,6 +154,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     password = ''
     passwordError = ''
     signing = false
+    step = 1
     get wallet() { return this.arg.wallets[this.arg.selectedWallet] }
     keepUnlocked = false
     get privateKey() { return getUnlocked(this.wallet.id!) }
@@ -175,6 +220,12 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         }
     }
 
+    back() {
+        this.step--
+        this.keepUnlocked = false
+        this.password = ''
+    }
+
     decline() {
         if (this.signing) {
             return
@@ -199,12 +250,10 @@ class Rejected extends Error {
 <style scoped>
 .payload {
     resize: none;
-    height: 100%;
+    height: 220px;
     border-radius: 2px;
     outline: none;
     background-color: #fff;
-    box-shadow: 0px 0px 6px 0.5px rgba(0, 0, 0, 0.05) inset,
-        0px 0px 0px 0.5px rgba(0, 0, 0, 0.05);
 }
 .theme--dark .payload {
     background-color: #383838;
