@@ -1,5 +1,5 @@
 <template>
-    <v-layout v-if="appList.length" column align-center style="max-width:700px;width:100%" pa-3>
+    <v-layout v-if="appList.length" column align-center style="max-width:700px;width:100%">
         <div class="grey--text title font-weight-light my-1">New Apps</div>
         <div style="width:100%;">
             <v-layout row wrap :justify-center="appList.length < 5">
