@@ -6,60 +6,63 @@
         @action:ok="sign"
         @action:cancel="decline"
         transition="sign-dialog-transition"
+        width="700px"
+        height="490px"
     >
         <v-card class="bg">
-            <v-layout row style="height:490px;">
+            <v-layout column style="height:445px;">
+                <div style="height: 130px">
+                    <v-layout row>
+                        <v-layout column align-content-center>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <WalletSeeker
+                                    full-size
+                                    :wallets="wallets"
+                                    v-model="arg.selectedWallet"
+                                    :disabled="signing"
+                                />
+                            </v-card-text>
+                        </v-layout>
+                        <v-layout align-content-center column>
+                            <v-divider
+                                style="margin: 20px auto; max-height: calc(100% - 40px);"
+                                inset
+                                :vertical="true"
+                            ></v-divider>
+                        </v-layout>
+                        <v-layout column>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <v-layout>
+                                    <span class="caption grey--text">Total value</span>
+                                    <v-spacer/>
+                                    <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Estimated fee</span>
+                                    <v-spacer/>
+                                    <Tooltip bottom :disabled="!(estimation.gas>0)">
+                                        <Amount
+                                            prepend="-"
+                                            sym=" VTHO "
+                                            slot="activator"
+                                        >{{fee.toString(10)}}</Amount>
+                                        <span>Estimated gas {{estimation.gas}}</span>
+                                    </Tooltip>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Priority</span>
+                                    <v-spacer/>
+                                    <Priority v-model="gasPriceCoef" :readonly="signing"/>
+                                </v-layout>
+                            </v-card-text>
+                        </v-layout>
+                    </v-layout>
+                </div>
                 <v-layout
                     column
-                    style="width:380px;flex:0 0 auto;background-color:rgba(0,0,0,0.12);overflow:auto;"
+                    justify-start
+                    style="overflow:auto;background-color:rgba(0,0,0,0.1); position: relative"
                 >
-                    <div class="py-2 px-3">
-                        <div class="subheading text-truncate">Transaction</div>
-                        <div class="text-truncate">
-                            <i :title="txComment">{{txComment}}</i>
-                        </div>
-                    </div>
-                    <v-expansion-panel expand popout class="pa-1" style="overflow:auto;">
-                        <ClauseItem
-                            tabindex="-1"
-                            v-for="(clause,i) in clauses"
-                            :key="i"
-                            :index="i"
-                            :clause="clause"
-                        />
-                    </v-expansion-panel>
-                </v-layout>
-                <v-layout column style="width:320px;">
-                    <v-card-text>
-                        <WalletSeeker
-                            full-size
-                            :wallets="wallets"
-                            v-model="arg.selectedWallet"
-                            :disabled="signing"
-                        />
-                        <v-layout align-center mt-3 px-1>
-                            <span class="caption grey--text">Total value</span>
-                            <v-spacer/>
-                            <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
-                        </v-layout>
-                        <v-layout align-center px-1>
-                            <span class="caption grey--text">Estimated fee</span>
-                            <v-spacer/>
-                            <Tooltip bottom :disabled="!(estimation.gas>0)">
-                                <Amount
-                                    prepend="-"
-                                    sym=" VTHO "
-                                    slot="activator"
-                                >{{fee.toString(10)}}</Amount>
-                                <span>Estimated gas {{estimation.gas}}</span>
-                            </Tooltip>
-                        </v-layout>
-                        <v-layout align-center px-1>
-                            <span class="caption grey--text">Priority</span>
-                            <v-spacer/>
-                            <Priority v-model="gasPriceCoef" :readonly="signing"/>
-                        </v-layout>
-                    </v-card-text>
                     <v-layout column style="overflow-y:auto;flex:0 1 auto">
                         <Tip v-if="estimation.error" class="ma-1" type="error">
                             <v-layout>
@@ -84,8 +87,24 @@
                             <i v-if="estimation.revertReason">"{{estimation.revertReason}}"</i>
                         </Tip>
                     </v-layout>
-                    <v-spacer/>
-                    <v-card-text class="pt-0" v-show="!privateKey">
+                    <v-layout column style="flex:0 0 auto;">
+                        <div class="py-2 px-3">
+                            <div class="subheading text-truncate">Transaction</div>
+                            <div class="text-truncate">
+                                <i :title="txComment">{{txComment}}</i>
+                            </div>
+                        </div>
+                        <v-expansion-panel expand popout class="pa-1" style="overflow:auto;">
+                            <ClauseItem
+                                tabindex="-1"
+                                v-for="(clause,i) in clauses"
+                                :key="i"
+                                :index="i"
+                                :clause="clause"
+                            />
+                        </v-expansion-panel>
+                    </v-layout>
+                    <!-- <v-card-text class="pt-0" v-show="!privateKey">
                         <v-text-field
                             v-focus
                             :disabled="signing"
@@ -104,8 +123,8 @@
                             label="Keep unlocked for 5 minutes"
                             v-model="keepUnlocked"
                         />
-                    </v-card-text>
-                    <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
+                    </v-card-text>-->
+                    <!-- <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
                         <v-icon class="mr-2">mdi-lock-open</v-icon>Unlocked
                     </v-card-text>
                     <div style="position:relative">
@@ -118,21 +137,14 @@
                             color="success"
                             indeterminate
                         />
-                    </div>
-                    <v-card-actions style="flex: 0 0 auto;">
-                        <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
-                        <v-spacer/>
-                        <v-btn
-                            dark
-                            small
-                            flat
-                            :disabled="!readyToSign"
-                            class="green"
-                            @click="sign"
-                        >Sign</v-btn>
-                    </v-card-actions>
+                    </div>-->
                 </v-layout>
             </v-layout>
+            <v-card-actions style="flex: 0 0 auto;">
+                <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
+                <v-spacer/>
+                <v-btn dark small flat :disabled="!readyToSign" class="green" @click="sign">Sign</v-btn>
+            </v-card-actions>
         </v-card>
     </DialogEx>
 </template>
