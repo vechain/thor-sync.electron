@@ -3,7 +3,7 @@
         persistent
         content-class="sign-dialog"
         v-model="opened"
-        @action:ok="sign"
+        @action:ok="goNext"
         @action:cancel="decline"
         width="700px"
         height="490px"
@@ -19,7 +19,7 @@
                                     full-size
                                     :wallets="arg.wallets"
                                     v-model="arg.selectedWallet"
-                                    :disabled="signing"
+                                    :disabled="signing || step === 2"
                                 />
                             </v-card-text>
                         </v-layout>
@@ -164,6 +164,14 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     }
     get passwordInputElem() {
         return (this.$refs.passwordElem as Vue).$el.querySelector('input')!
+    }
+
+    async goNext() {
+        if (this.step === 1) {
+            this.step++
+        } else {
+            await this.sign()
+        }
     }
     async sign() {
         if (this.signing) {
