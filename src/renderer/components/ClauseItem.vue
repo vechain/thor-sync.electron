@@ -27,7 +27,7 @@
             <v-card>
                 <v-card-text class="pt-0">
                     <v-tabs height="35" v-model="active">
-                        <v-tab>Row</v-tab>
+                        <v-tab>Raw</v-tab>
                         <v-tab v-if="type==='Call'">Decoded</v-tab>
                         <v-tab-item>
                             <v-textarea

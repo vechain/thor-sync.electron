@@ -63,10 +63,10 @@
                         </v-layout>
                     </template>
                     <template v-else-if="step === 2">
-                        <v-card-text style="width: 500px; margin: auto" v-show="!privateKey">
+                        <v-card-text style="width: 500px; margin: auto" class="mt-4" v-show="!privateKey">
                             <p
                                 style="text-align: center; font-size: 16px;margin-bottom: 50px"
-                            >Please input your wallet's password to sign the Certificate</p>
+                            >Please input your wallet's password to sign the certificate</p>
                             <div style="width: 350px; margin: auto">
                                 <v-text-field
                                     v-focus
@@ -88,13 +88,13 @@
                                 />
                             </div>
                         </v-card-text>
-                        <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
-                            <p class="headline">Please sign the transition</p>
+                        <v-card-text v-show="!!privateKey" class="text-xs-center mt-4 subheading">
+                            <p class="headline">Please sign the certificate</p>
                             <v-icon class="mr-2 display-4">mdi-lock-open</v-icon>
                             <p class="grey--text text--darken-1">The wallet is unlocked</p>
                         </v-card-text>
                         <div style="position:absolute;left:0;bottom:0; width: 100%">
-                            <v-divider/>
+                            <v-divider />
                             <v-progress-linear
                                 v-show="signing"
                                 class="ma-0"
@@ -105,12 +105,12 @@
                         </div>
                     </template>
                 </v-layout>
-                <v-divider/>
+                <v-divider />
             </v-layout>
 
             <v-card-actions style="flex: 0 0 auto;">
                 <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
-                <v-spacer/>
+                <v-spacer />
                 <template v-if="step === 2">
                     <v-btn small flat dark :disabled="signing" class="secondary" @click="back">Back</v-btn>
                     <v-btn

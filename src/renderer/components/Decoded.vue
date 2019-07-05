@@ -1,8 +1,9 @@
 <template>
     <v-card style="border: 1px solid #eee; border-radius: 3px;">
-        <v-card-title v-if="decoded" class="py-1 px-2 grey lighten-3">
+        <v-card-title v-if="decoded" class="py-1 px-2">
             <strong>{{abi.json.type}} {{decoded.canonicalName}}</strong>
         </v-card-title>
+        <v-divider />
         <v-card-text class="px-3 py-1">
             <template v-if="decoded && decoded.params.length">
                 <v-data-table :headers="headers" :items="decoded.params" hide-actions>
@@ -29,8 +30,7 @@
                     <v-btn small color="primary" @click="load">Retry</v-btn>
                 </template>
                 <template v-else>
-                    <Tip type="warning">JSON ABI Missing</Tip>
-                    <v-btn small color="primary" @click="submitAbi">Submit JSON ABI</v-btn>
+                    <Tip type="warning">Unable to decode the data</Tip>
                 </template>
             </div>
         </v-card-text>
@@ -108,12 +108,7 @@ export default class Decoded extends Vue {
             }
         }
     }
-    submitAbi() {
-        BUS.$emit('open-tab', {
-            href: `https://github.com/vechain/b32/new/master/ABIs`,
-            mode: 'append-active'
-        })
-    }
+
     private async load() {
         if (this.value.topics) {
             this.abi.json = JSON.parse(localStorage.getItem(this.value.topics[0]) || 'null')
