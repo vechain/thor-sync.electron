@@ -1,5 +1,5 @@
 <template>
-    <v-card style="border: 1px solid #eee; border-radius: 3px;">
+    <v-card style="border-radius: 3px;">
         <v-card-title v-if="decoded" class="py-1 px-2">
             <strong>{{abi.json.type}} {{decoded.canonicalName}}</strong>
         </v-card-title>
