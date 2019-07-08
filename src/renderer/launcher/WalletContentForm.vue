@@ -128,7 +128,7 @@ export default class ContentForm extends Vue implements IContentForm {
                 break
             case 2:
                 result =
-                    this.validateWords(content) || 'Mnemonic words are invalid'
+                    this.validateWords(content.toLowerCase()) || 'Mnemonic words are invalid'
                 break
             case 3:
                 result = this.validatePrivate(content) || 'Private key invalid'
@@ -165,7 +165,7 @@ export default class ContentForm extends Vue implements IContentForm {
     }
     validateWords(content: string) {
         if (content) {
-            return cry.mnemonic.validate(this.form.content.split(' '))
+            return cry.mnemonic.validate(content.split(' '))
         } else {
             return 'Mnemonic words are required'
         }
@@ -206,7 +206,7 @@ export default class ContentForm extends Vue implements IContentForm {
                 break
             case 2:
                 result = cry.mnemonic.derivePrivateKey(
-                    this.form.content.split(' ')
+                    this.form.content.toLowerCase().split(' ')
                 )
                 break
             case 3:

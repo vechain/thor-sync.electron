@@ -3,7 +3,7 @@
         <v-layout row wrap text-xs-center>
             <v-flex xs2 v-for="word in shuffledWords" :key="word.value">
                 <v-btn
-                    class="info ma-1"
+                    class="info ma-1 text-lowercase"
                     depressed
                     round
                     :disabled="word.picked"
@@ -15,7 +15,7 @@
         <v-layout row wrap text-xs-center>
             <v-flex xs2 v-for="word in pickedWords" :key="word.value">
                 <v-btn
-                    class="ma-1"
+                    class="ma-1 text-lowercase"
                     depressed
                     round
                     @click="unpickWord(word)"
