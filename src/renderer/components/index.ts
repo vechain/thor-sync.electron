@@ -46,6 +46,7 @@ import Tooltip from './Tooltip.vue'
 import AppHub from './AppHub.vue'
 import AppHubItem from './AppHubItem.vue'
 import ContentDialog from './ContentDialog.vue'
+import Decoded from './Decoded.vue'
 
 export {
     AccessHistoryPanel,
@@ -95,5 +96,6 @@ export {
     Tooltip,
     AppHub,
     AppHubItem,
-    ContentDialog
+    ContentDialog,
+    Decoded
 }
