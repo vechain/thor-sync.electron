@@ -49,7 +49,7 @@ export default class Priority extends Vue {
 }
 </script>
 <style scoped>
-.icon {
+.theme--light .icon {
     color: #c0c0c0;
 }
 
