@@ -21,6 +21,7 @@
             <v-btn
                 :ripple="false"
                 icon
+                small
                 flat
                 @click.stop="$emit('input', value - 1)"
                 :disabled="disabled || value<1"
@@ -31,6 +32,7 @@
             <v-btn
                 :ripple="false"
                 icon
+                small
                 flat
                 @click.stop="$emit('input', value + 1)"
                 :disabled="disabled || value>=wallets.length-1"
