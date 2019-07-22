@@ -3,136 +3,175 @@
         persistent
         content-class="sign-dialog"
         v-model="opened"
-        @action:ok="sign"
+        @action:ok="goNext"
         @action:cancel="decline"
         transition="sign-dialog-transition"
+        width="700px"
+        height="490px"
     >
         <v-card class="bg">
-            <v-layout row style="height:490px;">
+            <v-layout column style="height:445px;">
+                <div style="height: 130px">
+                    <v-layout row>
+                        <v-layout column align-content-center>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <WalletSeeker
+                                    full-size
+                                    :wallets="wallets"
+                                    v-model="arg.selectedWallet"
+                                    :disabled="signing || step === 2"
+                                />
+                            </v-card-text>
+                        </v-layout>
+                        <v-layout align-content-center column>
+                            <v-divider
+                                style="margin: 20px auto; max-height: calc(100% - 40px);"
+                                inset
+                                :vertical="true"
+                            ></v-divider>
+                        </v-layout>
+                        <v-layout column>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <v-layout>
+                                    <span class="caption grey--text">Total value</span>
+                                    <v-spacer />
+                                    <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Estimated fee</span>
+                                    <v-spacer />
+                                    <Tooltip bottom :disabled="!(estimation.gas>0)">
+                                        <Amount
+                                            prepend="-"
+                                            sym=" VTHO "
+                                            slot="activator"
+                                        >{{fee.toString(10)}}</Amount>
+                                        <span>Estimated gas {{estimation.gas}}</span>
+                                    </Tooltip>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Priority</span>
+                                    <v-spacer />
+                                    <Priority
+                                        v-model="gasPriceCoef"
+                                        :readonly="signing || step === 2"
+                                    />
+                                </v-layout>
+                            </v-card-text>
+                        </v-layout>
+                    </v-layout>
+                </div>
                 <v-layout
                     column
-                    style="width:380px;flex:0 0 auto;background-color:rgba(0,0,0,0.12);overflow:auto;"
+                    justify-start
+                    style="overflow:auto;background-color:rgba(0,0,0,0.1); position: relative"
                 >
-                    <div class="py-2 px-3">
-                        <div class="subheading text-truncate">Transaction</div>
-                        <div class="text-truncate">
-                            <i :title="txComment">{{txComment}}</i>
-                        </div>
-                    </div>
-                    <v-expansion-panel expand popout class="pa-1" style="overflow:auto;">
-                        <ClauseItem
-                            tabindex="-1"
-                            v-for="(clause,i) in clauses"
-                            :key="i"
-                            :index="i"
-                            :clause="clause"
-                        />
-                    </v-expansion-panel>
-                </v-layout>
-                <v-layout column style="width:320px;">
-                    <v-card-text>
-                        <WalletSeeker
-                            full-size
-                            :wallets="wallets"
-                            v-model="arg.selectedWallet"
-                            :disabled="signing"
-                        />
-                        <v-layout align-center mt-3 px-1>
-                            <span class="caption grey--text">Total value</span>
-                            <v-spacer/>
-                            <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
-                        </v-layout>
-                        <v-layout align-center px-1>
-                            <span class="caption grey--text">Estimated fee</span>
-                            <v-spacer/>
-                            <Tooltip bottom :disabled="!(estimation.gas>0)">
-                                <Amount
-                                    prepend="-"
-                                    sym=" VTHO "
-                                    slot="activator"
-                                >{{fee.toString(10)}}</Amount>
-                                <span>Estimated gas {{estimation.gas}}</span>
-                            </Tooltip>
-                        </v-layout>
-                        <v-layout align-center px-1>
-                            <span class="caption grey--text">Priority</span>
-                            <v-spacer/>
-                            <Priority v-model="gasPriceCoef" :readonly="signing"/>
-                        </v-layout>
-                    </v-card-text>
-                    <v-layout column style="overflow-y:auto;flex:0 1 auto">
+                    <v-layout column style="overflow-y:auto;flex:0 1 auto" class="py-1">
                         <Tip v-if="estimation.error" class="ma-1" type="error">
                             <v-layout>
                                 Error got while estimating fee
-                                <v-spacer/>
+                                <v-spacer />
                                 <v-btn icon small class="my-0" @click="reestimateGas">
                                     <v-icon small>refresh</v-icon>
                                 </v-btn>
                             </v-layout>
                             <i>{{estimation.error}}</i>
                         </Tip>
-                        <Tip
-                            v-if="insufficientEnergy"
-                            class="ma-1"
-                            type="warning"
-                        >Insufficient energy</Tip>
+                        <Tip v-if="insufficientEnergy" class="ma-1" type="warning">
+                            <strong>Insufficient energy</strong>
+                        </Tip>
                         <Tip v-if="estimation.reverted" class="ma-1" type="warning">
-                            Transaction may fail/revert
-                            <br>
+                            <strong>Transaction may fail/revert</strong>
+                            <br />
                             <i>VM error: {{estimation.vmError}}</i>
-                            <br>
+                            <br />
                             <i v-if="estimation.revertReason">"{{estimation.revertReason}}"</i>
                         </Tip>
+                        <template v-if="step === 1">
+                            <div class="pb-2">
+                                <div class="py-2 px-3">
+                                    <div class="subheading text-truncate">Transaction</div>
+                                    <div class="text-truncate">
+                                        <i :title="txComment">{{txComment}}</i>
+                                    </div>
+                                </div>
+                                <v-expansion-panel
+                                    expand
+                                    popout
+                                    class="pa-1"
+                                    style="overflow:auto;"
+                                >
+                                    <ClauseItem
+                                        tabindex="-1"
+                                        v-for="(clause,i) in clauses"
+                                        :key="i"
+                                        :index="i"
+                                        :clause="clause"
+                                    />
+                                </v-expansion-panel>
+                            </div>
+                        </template>
+                        <template v-if="step === 2">
+                            <v-card-text
+                                style="width: 500px; margin: auto"
+                                class="pt-4"
+                                v-show="!privateKey"
+                            >
+                                <p
+                                    style="text-align: center; font-size: 16px;margin-bottom: 50px"
+                                >Please input your wallet's password to sign the transaction</p>
+                                <div style="width: 350px; margin: auto">
+                                    <v-text-field
+                                        v-focus
+                                        :disabled="signing"
+                                        v-model="password"
+                                        label="Password"
+                                        type="password"
+                                        maxlength="20"
+                                        :error-messages="passwordError"
+                                        ref="passwordElem"
+                                        @focus="onPasswordFocused"
+                                    />
+                                    <v-checkbox
+                                        class="mt-1"
+                                        color="primary"
+                                        hide-details
+                                        label="Keep unlocked for 5 minutes"
+                                        v-model="keepUnlocked"
+                                    />
+                                </div>
+                            </v-card-text>
+                            <v-card-text
+                                v-show="!!privateKey"
+                                class="text-xs-center mt-4 subheading"
+                            >
+                                <p class="title">Please sign the transaction</p>
+                                <v-icon class="mr-2 display-2">mdi-lock-open</v-icon>
+                                <p class="grey--text text--darken-1">The wallet is unlocked</p>
+                            </v-card-text>
+                            <div style="position:absolute;left:0;bottom:0; width: 100%">
+                                <v-divider />
+                                <v-progress-linear
+                                    v-show="signing"
+                                    class="ma-0"
+                                    height="2"
+                                    color="success"
+                                    indeterminate
+                                />
+                            </div>
+                        </template>
                     </v-layout>
-                    <v-spacer/>
-                    <v-card-text class="pt-0" v-show="!privateKey">
-                        <v-text-field
-                            v-focus
-                            :disabled="signing"
-                            v-model="password"
-                            label="Password"
-                            type="password"
-                            maxlength="20"
-                            :error-messages="passwordError"
-                            ref="passwordElem"
-                            @focus="onPasswordFocused"
-                        />
-                        <v-checkbox
-                            class="mt-1"
-                            color="primary"
-                            hide-details
-                            label="Keep unlocked for 5 minutes"
-                            v-model="keepUnlocked"
-                        />
-                    </v-card-text>
-                    <v-card-text v-show="!!privateKey" class="text-xs-center subheading">
-                        <v-icon class="mr-2">mdi-lock-open</v-icon>Unlocked
-                    </v-card-text>
-                    <div style="position:relative">
-                        <v-divider/>
-                        <v-progress-linear
-                            v-show="signing || estimating"
-                            class="ma-0"
-                            style="position:absolute;left:0;bottom:0;"
-                            height="2"
-                            color="success"
-                            indeterminate
-                        />
-                    </div>
-                    <v-card-actions style="flex: 0 0 auto;">
-                        <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
-                        <v-spacer/>
-                        <v-btn
-                            dark
-                            small
-                            flat
-                            :disabled="!readyToSign"
-                            class="green"
-                            @click="sign"
-                        >Sign</v-btn>
-                    </v-card-actions>
                 </v-layout>
             </v-layout>
+            <v-card-actions style="flex: 0 0 auto;">
+                <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
+                <v-spacer />
+                <v-btn dark small flat class="green" v-if="step === 1" @click="step++">Next</v-btn>
+                <template v-if="step === 2">
+                    <v-btn small flat dark :disabled="signing" class="secondary" @click="back">Back</v-btn>
+                    <v-btn dark small flat :disabled="!readyToSign" class="green" @click="sign">Sign</v-btn>
+                </template>
+            </v-card-actions>
         </v-card>
     </DialogEx>
 </template>
@@ -184,6 +223,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     estimateGasCache = new Map<string, EstimateGasResult>()
     debouncedEstimateGas!: () => void
     keepUnlocked = false
+    step = 1
 
     get suggestedGas() { return this.arg.suggestedGas }
     get txComment() { return this.arg.txComment || describeClauses(this.arg.message) }
@@ -286,7 +326,18 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     get passwordInputElem() {
         return (this.$refs.passwordElem as Vue).$el.querySelector('input')!
     }
-
+    async goNext() {
+        if (this.step === 1) {
+            this.step++
+        } else {
+            await this.sign()
+        }
+    }
+    back() {
+        this.step--
+        this.keepUnlocked = false
+        this.password = ''
+    }
     async sign() {
         if (!this.readyToSign) {
             return
