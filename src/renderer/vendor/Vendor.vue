@@ -39,32 +39,23 @@ export default class Vendor extends Vue {
     @State wallets!: entities.Wallet[]
 
     mounted() {
-        ipcServe('vendor', async (fromWebContentsId, methodName, arg) => {
-            try {
-                await this.precheck(fromWebContentsId)
-                if (methodName === 'sign-tx') {
-                    const result = await this.signTx(arg)
-                    PREFS.store.put({ key: connex.thor.genesis.id + '-lastSigner', value: result.signer.toLowerCase() })
-                    return result
-                } else if (methodName === 'sign-cert') {
-                    const result = await this.signCert(arg)
-                    PREFS.store.put({
-                        key: connex.thor.genesis.id + '-lastSigner',
-                        value: result.annex.signer.toLowerCase()
-                    })
-                    return result
-                }
-                throw new Error(`unexpected method '${methodName}'`)
-            } catch (err) {
-                // it's important to transform error into plain object,
-                // since electron's ipc will json/unjson arguments
-                throw { name: err.name, message: err.message }
+        window.VENDOR = {
+            signTx: async (msg, options, caller) => {
+                await this.precheck(caller.webContentsId)
+                return this.signTx(msg, options, caller.referer)
+            },
+            signCert: async (msg, options, caller) => {
+                await this.precheck(caller.webContentsId)
+                return this.signCert(msg, options, caller.referer)
+            },
+            isAddressOwned: addr => {
+                return !!this.wallets.find(w => w.address === addr)
             }
-        })
+        }
     }
 
     async precheck(contentsId: number) {
-        if (this.dialogOpened) { throw new Rejected('request is in progress') }
+        if (this.dialogOpened) { throw new Error('request is in progress') }
         if (!this.wallets.length) {
             this.snack.open = true
             this.snack.message = 'You have no wallet yet'
@@ -73,56 +64,56 @@ export default class Vendor extends Vue {
                 this.snack.open = false
                 BUS.$emit('open-tab', { href: 'sync://wallets', mode: 'inplace-builtin' })
             }
-            throw new Rejected('no wallet available')
+            throw new Error('no wallet available')
         }
         const callingWebContents = remote.webContents.fromId(contentsId)
         // either focused or dev tools opened
         if (!remote.webContents.fromId(contentsId).isFocused() &&
             !callingWebContents.isDevToolsOpened()) {
-            throw new Rejected('not in focus')
+            throw new Error('not in focus')
         }
     }
 
-    async signTx(arg: SignTxArg): Promise<Connex.Vendor.SigningService.TxResponse> {
+    async signTx(arg: Connex.Driver.SignTxArg, option: Connex.Driver.SignTxOption, referer: Referer): Promise<Connex.Vendor.TxResponse> {
 
         let enforcedWallet
-        if (arg.options.signer) {
-            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
+        if (option.signer) {
+            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === option.signer!.toLowerCase())
             if (!enforcedWallet) {
-                throw new Rejected('required signer unavailable')
+                throw new Error('required signer unavailable')
             }
         }
 
         try {
             this.dialogOpened = true
             const result = await this.$dialog(TxSigningDialog, {
-                message: arg.message,
+                message: arg,
                 // enforce using wallet
                 wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
                 selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
-                suggestedGas: arg.options.gas || 0,
-                txComment: arg.options.comment || '',
-                dependsOn: arg.options.dependsOn || null
+                suggestedGas: option.gas || 0,
+                txComment: option.comment || '',
+                dependsOn: option.dependsOn || null
             })
 
             await BDB.activities.add({
                 type: 'tx',
                 createdTime: Date.now(),
-                referer: arg.referer,
+                referer: referer,
                 closed: 0,
                 data: {
                     id: result.txid,
-                    message: arg.message,
+                    message: arg,
                     timestamp: result.timestamp,
-                    comment: arg.options.comment || '',
+                    comment: option.comment || '',
                     signer: result.signer,
                     estimatedFee: result.estimatedFee,
-                    link: arg.options.link || '',
+                    link: option.link || '',
                     raw: result.rawTx,
                     receipt: null
                 }
             })
-            CLIENT.txer.send(result.txid, result.rawTx)
+            remote.app.EXTENSION.txer.enqueue(result.txid, result.rawTx, NODE_CONFIG.url)
             new Notification('Tx Signed', {
                 body: result.txid
             }).onclick = () => {
@@ -138,28 +129,28 @@ export default class Vendor extends Vue {
         }
     }
 
-    async signCert(arg: SignCertArg) {
+    async signCert(arg: Connex.Driver.SignCertArg, option: Connex.Driver.SignCertOption, referer: Referer) {
 
         let enforcedWallet
-        if (arg.options.signer) {
-            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === arg.options.signer!.toLowerCase())
+        if (option.signer) {
+            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === option.signer!.toLowerCase())
             if (!enforcedWallet) {
-                throw new Rejected('required signer unavailable')
+                throw new Error('required signer unavailable')
             }
         }
 
         try {
             this.dialogOpened = true
             const result = await this.$dialog(CertSigningDialog, {
-                message: arg.message,
+                message: arg,
                 // enforce using wallet
                 wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
                 selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
-                domain: UrlUtils.hostnameOf(arg.referer.url)
+                domain: UrlUtils.hostnameOf(referer.url)
             })
 
             const id = '0x' + cry.blake2b256(Certificate.encode({
-                ...arg.message,
+                ...arg,
                 ...result.annex,
                 signature: result.signature
             })).toString('hex')
@@ -167,22 +158,22 @@ export default class Vendor extends Vue {
             await BDB.activities.add({
                 type: 'cert',
                 createdTime: Date.now(),
-                referer: arg.referer,
+                referer: referer,
                 closed: 1,
                 data: {
                     id,
-                    message: arg.message,
+                    message: arg,
                     timestamp: result.annex.timestamp,
                     signer: result.annex.signer,
                     domain: result.annex.domain,
                     signature: result.signature,
-                    link: arg.options.link || ''
+                    link: option.link || ''
                 }
             })
 
 
             new Notification('Cert Signed', {
-                body: `${result.annex.domain}: ${arg.message.purpose}`
+                body: `${result.annex.domain}: ${arg.purpose}`
             })
             return result
         } finally {
@@ -191,11 +182,4 @@ export default class Vendor extends Vue {
     }
 }
 
-
-class Rejected extends Error {
-    constructor(msg: string) {
-        super(msg)
-        this.name = Rejected.name
-    }
-}
 </script>

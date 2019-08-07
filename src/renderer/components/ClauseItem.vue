@@ -52,7 +52,7 @@
 <script lang="ts">
 
 import { Vue, Component, Model, Prop } from 'vue-property-decorator'
-type ClauseType = Connex.Vendor.SigningService.TxMessage[number]
+type ClauseType = Connex.Vendor.TxMessage[number]
 
 @Component
 export default class ClauseItem extends Vue {

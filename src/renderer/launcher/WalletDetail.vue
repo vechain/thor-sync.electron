@@ -29,7 +29,7 @@
                                     @keyup.esc="editing=false"
                                     @blur="editing=false"
                                     v-model="editingName"
-                                >
+                                />
                                 <span v-else class="headline">{{wallet.name}}</span>
                                 <v-btn
                                     icon
@@ -69,8 +69,8 @@
                                 </QRCodeDialog>
                             </v-layout>
                         </div>
-                        <v-spacer/>
-                        <v-divider vertical/>
+                        <v-spacer />
+                        <v-divider vertical />
                         <v-layout column align-end class="subheading">
                             <Amount sym=" VET ">{{balance}}</Amount>
                             <Amount sym=" VTHO">{{energy}}</Amount>
@@ -195,6 +195,7 @@ import {
 } from '@/renderer/components'
 import AccountLoader from '../mixins/account-loader'
 import TableLoader from '../mixins/table-loader'
+import { remote } from 'electron'
 
 type ActivityItem = {
     id: number,
@@ -329,7 +330,7 @@ export default class WalletDetail extends Mixins(ActivitiesLoader, AccountLoader
             return 'dropped'
         }
 
-        const qStatus = CLIENT.txer.status(item.data.id)
+        const qStatus = remote.app.EXTENSION.txer.status(item.data.id)
         if (!qStatus) {
             return 'hanging'
         }
@@ -397,7 +398,7 @@ export default class WalletDetail extends Mixins(ActivitiesLoader, AccountLoader
             return row.id === id
         }) as entities.Activity<'tx'>
 
-        CLIENT.txer.send(temp.data.id, temp.data.raw)
+        remote.app.EXTENSION.txer.enqueue(temp.data.id, temp.data.raw, NODE_CONFIG.url)
         this.$store.commit('updateTxResendTime', { id: temp.data.id, value: Date.now() / 1000 })
         // this.$set(this.$store.state.txResendTime, temp.data.id, Date.now() / 1000)
     }

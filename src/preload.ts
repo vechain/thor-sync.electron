@@ -1,21 +1,13 @@
-import { remote, ipcRenderer } from 'electron'
-import { create as createConnex } from '@/renderer/connex-impl'
+import { ipcRenderer } from 'electron'
+import { AppDriver } from '@/renderer/connex-driver/app-driver'
+import { Framework } from '@vechain/connex-framework'
 
 // create connex on demand
 const getConnex = (() => {
     let connex: Connex
     return () => {
         if (!connex) {
-            const nodeConfig = remote.getCurrentWindow()
-                .webContents
-                .getWebPreferences()
-                .nodeConfig
-
-            const client = remote.app.EXTENSION.connect(
-                remote.getCurrentWebContents().id,
-                nodeConfig!
-            )
-            connex = createConnex(client, 10)
+            connex = new Framework(new AppDriver())
         }
         return connex
     }

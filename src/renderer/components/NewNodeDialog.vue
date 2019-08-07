@@ -1,6 +1,12 @@
 <template>
-    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="onCancel" max-width="450px">
-        <slot slot="activator" name="activator"/>
+    <DialogEx
+        persistent
+        v-model="show"
+        @action:ok="onOk"
+        @action:cancel="onCancel"
+        max-width="450px"
+    >
+        <slot slot="activator" name="activator" />
         <v-card>
             <v-card-title class="subheading">{{isEditing ? 'Edit Node' : 'New Node'}}</v-card-title>
             <v-form ref="form" v-model="valid">
@@ -20,7 +26,7 @@
                         label="URL"
                     ></v-text-field>
                 </v-card-text>
-                <v-divider/>
+                <v-divider />
                 <v-card-actions>
                     <v-btn
                         flat
@@ -125,23 +131,11 @@ export default class NewNodeDialog extends Mixins(
         this.onCancel()
     }
 
-    getNodeInfo() {
-        return new Promise<Connex.Thor.Block>((resolve, reject) => {
-            try {
-                new URL(this.form.rpcUrl)
-            } catch (error) {
-                reject(error)
-                return
-            }
+    async getNodeInfo(): Promise<Connex.Thor.Block> {
+        // tslint:disable-next-line:no-unused-expression
+        new URL(this.form.rpcUrl)
 
-            CLIENT.discoverNode(this.form.rpcUrl)
-                .then(resp => {
-                    resolve(resp)
-                })
-                .catch(error => {
-                    reject(error)
-                })
-        })
+        return discoverNode(this.form.rpcUrl)
     }
 
     async save() {
@@ -193,4 +187,29 @@ export default class NewNodeDialog extends Mixins(
         this.onCancel()
     }
 }
+
+import { SimpleNet } from '@vechain/connex.driver-nodejs/dist/simple-net'
+
+
+async function discoverNode(url: string) {
+    const net = new SimpleNet(url)
+    const genesis = (await net.http('GET', 'blocks/0')) || {}
+
+    // TODO full validation
+    if (genesis && !/^0x[0-9a-f]{64}$/i.test(genesis.id)) {
+        throw new NotValidNode('malformed response')
+    }
+    return genesis
+}
+
+class NotValidNode extends Error {
+    constructor(cause: string) {
+        if (cause) {
+            super(`not a valid VeChain node [${cause}]`)
+        } else {
+            super(`not a valid VeChain node`)
+        }
+    }
+}
+
 </script>

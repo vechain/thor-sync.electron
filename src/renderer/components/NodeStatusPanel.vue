@@ -58,10 +58,12 @@ type Status = Connex.Thor.Status
 
 @Component
 export default class NodeStatusPanel extends Vue {
-    config = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
     @Emit('switchNode')
     switchNode(config: NodeConfig) {
         this.opened = false
+    }
+    get config() {
+        return NODE_CONFIG
     }
 
     get configs() {
@@ -70,7 +72,7 @@ export default class NodeStatusPanel extends Vue {
     }
 
     get otherConfigs() {
-        return this.configs.filter(c => c.url !== this.config.url || c.genesis.id !== this.config.genesis.id)
+        return this.configs.filter(c => c.url !== NODE_CONFIG.url || c.genesis.id !== NODE_CONFIG.genesis.id)
     }
 
     opened = false

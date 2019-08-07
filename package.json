@@ -74,8 +74,7 @@
     }
   },
   "dependencies": {
-    "@vechain/connex": "^1.2.3",
-    "thor-devkit": "~0.10.1"
+    "thor-devkit": "~1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
@@ -89,6 +88,8 @@
     "@types/qs": "^6.5.1",
     "@types/semver": "^5.5.0",
     "@types/uuid": "^3.4.4",
+    "@vechain/connex-framework": "^1.0.0",
+    "@vechain/connex.driver-nodejs": "^1.0.0",
     "@vechain/picasso": "^1.0.4",
     "bignumber.js": "7.2.1",
     "cfonts": "^1.1.3",

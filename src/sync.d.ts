@@ -32,7 +32,7 @@ declare namespace entities {
     namespace Activity {
         type Tx = {
             id: string
-            message: Connex.Vendor.SigningService.TxMessage
+            message: Connex.Vendor.TxMessage
             comment: string
             timestamp: number
             signer: string
@@ -44,7 +44,7 @@ declare namespace entities {
 
         type Cert = {
             id: string
-            message: Connex.Vendor.SigningService.CertMessage
+            message: Connex.Vendor.CertMessage
             signer: string
             timestamp: number
             domain: string
@@ -105,91 +105,6 @@ type DbEvent = {
     table: string
     changes: Array<'creating' | 'updating' | 'deleting'>
 }
-type Beat = {
-    number: number
-    id: string
-    parentID: string
-    timestamp: number
-
-    bloom: string
-    k: number
-    obsolete: boolean
-}
-
-interface Client {
-    readonly genesis: Connex.Thor.Block
-    readonly head: Connex.Thor.Status['head']
-    readonly progress: number
-
-    nextTick(): Promise<void>
-
-    explain(clauses: Connex.Thor.Clause[], options: {
-        caller?: string
-        gas?: number
-        gasPrice?: string
-    }, rev: string): Promise<{ outputs: Connex.Thor.VMOutput[] }>
-
-    getAccount(addr: string, rev: string): Promise<Connex.Thor.Account>
-    getCode(addr: string, rev: string): Promise<Connex.Thor.Code>
-    getStorage(addr: string, key: string, rev: string): Promise<Connex.Thor.Storage>
-    call(
-        clause: Connex.Thor.Clause,
-        options: {
-            caller?: string
-            gas?: number
-            gasPrice?: string
-        },
-        rev: string,
-        cacheTies?: string[]
-    ): Promise<Connex.Thor.VMOutput>
-
-    getBlock(rev: string | number): Promise<Connex.Thor.Block | null>
-    getTx(id: string): Promise<Connex.Thor.Transaction | null>
-    getReceipt(id: string): Promise<Connex.Thor.Receipt | null>
-
-    // to avoid "Error: Cannot get property 'xxx' on missing remote object ...",
-    // never return array from main to renderer process
-    filter<T extends 'event' | 'transfer'>(kind: T, body: {
-        range: Connex.Thor.Filter.Range
-        order: 'asc' | 'desc'
-        criteriaSet: Connex.Thor.Filter.Criteria<T>[]
-        options: { offset: number, limit: number }
-    }): Promise<{ items: Connex.Thor.Filter.Result<T> }>
-
-    beat(b: Beat): void
-    txer: {
-        send(id: string, raw: string): void
-        status(id: string): 'sending' | 'sent' | 'error' | undefined
-    }
-    discoverNode(url: string): Promise<Connex.Thor.Block>
-}
-
-
-type SignTxOptions = {
-    signer?: string
-    gas?: number
-    dependsOn?: string
-    link?: string
-    comment?: string
-}
-
-type SignCertOptions = {
-    signer?: string
-    link?: string
-}
-
-type SignTxArg = {
-    message: Connex.Vendor.SigningService.TxMessage,
-    options: SignTxOptions,
-    referer: Referer
-}
-
-type SignCertArg = {
-    message: Connex.Vendor.SigningService.CertMessage,
-    options: SignCertOptions,
-    referer: Referer
-}
-
 
 // MQ payloads
 type WindowAction = {

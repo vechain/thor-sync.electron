@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import { createAccountVisitor } from '@/renderer/connex-impl/account-visitor';
 
 @Component
 export default class AppHub extends Vue {

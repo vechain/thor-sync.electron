@@ -11,9 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "resolveJsonModule": true,
     "types": [
-      "node",
-      "@vechain/connex"
+      "node"
     ],
     "paths": {
       "@/*": [

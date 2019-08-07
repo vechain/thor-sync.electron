@@ -1,5 +1,7 @@
-import { Net } from './net'
+
+import { request, NetError } from './net'
 import * as log from 'electron-log'
+import * as NodeURL from 'url'
 
 class Item {
     private static readonly MAX_RETRIES = 5
@@ -12,7 +14,7 @@ class Item {
 
     constructor(
         readonly rawTx: string,
-        readonly net: Net) {
+        readonly url: string) {
     }
 
     public send() {
@@ -43,8 +45,17 @@ class Item {
     private async _send() {
         try {
             this.requesting = true
-            const { id } = await this.net.post<{ id: string }>('transactions', { raw: this.rawTx })
-            log.debug('TxQueue:', `tx sent ${id}`)
+            const resp = await request({
+                method: 'POST',
+                url: this.url,
+                headers: { 'Content-Type': 'application/json' },
+                body: Buffer.from(JSON.stringify({ raw: this.rawTx }))
+            })
+            if (resp.statusCode < 200 || resp.statusCode >= 300) {
+                throw new NetError(`${resp.statusCode} ${resp.statusMessage}`)
+            }
+            const obj = JSON.parse(resp.body.toString('utf8'))
+            log.debug('TxQueue:', `tx sent ${obj.id}`)
             this.sent = true
         } catch (err) {
             log.warn('TxQueue:', `tx send error ${err}`)
@@ -61,15 +72,13 @@ class Item {
     }
 }
 
-export class TxQueue {
+export class Txer {
     private readonly map = new Map<string, Item>()
 
-    constructor(private readonly net: Net) { }
-
-    public enqueue(id: string, raw: string) {
+    public enqueue(id: string, raw: string, baseUrl: string) {
         let item = this.map.get(id)
         if (!item) {
-            item = new Item(raw, this.net)
+            item = new Item(raw, NodeURL.resolve(baseUrl, 'transactions'))
             this.map.set(id, item)
         }
         item.send()

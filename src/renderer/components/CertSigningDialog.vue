@@ -142,14 +142,14 @@ import { Certificate, cry } from 'thor-devkit'
 import { setUnlocked, getUnlocked } from '../unlocked'
 
 type Arg = {
-    message: Connex.Vendor.SigningService.CertMessage
+    message: Connex.Vendor.CertMessage
     wallets: entities.Wallet[]
     selectedWallet: number
     domain: string
 }
 
 @Component
-export default class CertSigningDialog extends Mixins(class extends DialogHelper<Arg, Connex.Vendor.SigningService.CertResponse>{ }) {
+export default class CertSigningDialog extends Mixins(class extends DialogHelper<Arg, Connex.Vendor.CertResponse>{ }) {
     opened = false
     password = ''
     passwordError = ''
@@ -239,7 +239,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             return
         }
         this.opened = false
-        this.$reject(new Rejected('user cancelled'))
+        this.$reject(new Error('user cancelled'))
     }
     onPasswordFocused() {
         if (!this.password) {
@@ -248,12 +248,6 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     }
 }
 
-class Rejected extends Error {
-    constructor(msg: string) {
-        super(msg)
-        this.name = Rejected.name
-    }
-}
 </script>
 <style scoped>
 .payload {

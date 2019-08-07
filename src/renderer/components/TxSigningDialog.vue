@@ -187,7 +187,7 @@ import { setUnlocked, getUnlocked } from '../unlocked'
 import { cry } from 'thor-devkit'
 
 type Arg = {
-    message: Connex.Vendor.SigningService.TxMessage
+    message: Connex.Driver.SignTxArg
     wallets: entities.Wallet[]
     selectedWallet: number
     suggestedGas: number
@@ -391,7 +391,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             return
         }
         this.opened = false
-        this.$reject(new Rejected('user cancelled'))
+        this.$reject(new Error('user cancelled'))
     }
     onPasswordFocused() {
         if (!this.password) {
@@ -400,12 +400,6 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
 }
 
-class Rejected extends Error {
-    constructor(msg: string) {
-        super(msg)
-        this.name = Rejected.name
-    }
-}
 </script>
 <style scoped>
 .theme--dark .bg {

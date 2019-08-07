@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { Vue, Component, Model, Prop } from 'vue-property-decorator'
-import { abi } from 'thor-devkit/es6/abi'
+import { abi } from 'thor-devkit/dist/abi'
 import getAbi from '../abis'
 
 @Component

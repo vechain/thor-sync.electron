@@ -15,11 +15,9 @@ import { nameOfNetwork } from '@/node-configs';
 import Store from '@/renderer/store';
 type Head = Connex.Thor.Status['head']
 
-const nodeConfig = remote.getCurrentWebContents().getWebPreferences().nodeConfig!
-
 @Component
 export default class NodeStatus extends Vue {
-    networkName = nameOfNetwork(nodeConfig.genesis.id)
+    networkName = nameOfNetwork(NODE_CONFIG.genesis.id)
 
     get syncStatus() {
         return (this.$store as Store).state.syncStatus.flag

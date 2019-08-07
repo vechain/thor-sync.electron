@@ -1,7 +1,7 @@
 import Vuex from 'vuex'
 import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
-import Vue from 'vue';
+import Vue from 'vue'
 
 namespace Store {
     export type Model = {

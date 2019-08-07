@@ -1,5 +1,4 @@
 import { app, CertificateVerifyProcRequest, crashReporter } from 'electron'
-import { Backend } from './backend'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import { MQ } from './mq'
@@ -7,6 +6,7 @@ import env from '@/env'
 import * as log from 'electron-log'
 import { createUpdateChecker } from './update-checker'
 import { Analytics } from './analytics'
+import { Txer } from './txer'
 
 // tslint:disable-next-line:no-var-requires
 const settings = require('electron-settings')
@@ -39,12 +39,12 @@ declare module 'electron' {
     interface App {
         EXTENSION: {
             mq: MQ
+            // map window id to known head
+            knownHeads: Map<string, Connex.Thor.Status['head']>
+            txer: Txer
+
             mainSettings: MainSettings
             updateChecker: ReturnType<typeof createUpdateChecker>
-            connect(
-                contentsId: number,
-                config: NodeConfig
-            ): Client
 
             createWindow(
                 config?: NodeConfig,
@@ -81,7 +81,6 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     const updateChecker = createUpdateChecker()
     const mq = new MQ()
     const winMgr = new WindowManager()
-    const backend = new Backend()
     const certs = new Map<string, CertificateVerifyProcRequest>()
     const ownedWallets = new Map<number, string[]>()
 
@@ -99,9 +98,10 @@ if (env.devMode || app.requestSingleInstanceLock()) {
 
     app.EXTENSION = {
         mq,
+        knownHeads: new Map(),
+        txer: new Txer(),
         mainSettings: new MainSettings(),
         updateChecker,
-        connect: (contentsId, config) => backend.connect(contentsId, config),
         createWindow: (config, options) => winMgr.create(config, options),
         showAbout: () => winMgr.showAbout(),
         getCertificate: (hostname) => certs.get(hostname),

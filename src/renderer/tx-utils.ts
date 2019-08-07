@@ -48,7 +48,7 @@ export type EstimateGasResult = {
 }
 
 export async function estimateGas(
-    clauses: Connex.Thor.Clause[],
+    clauses: Connex.Thor.Transaction['clauses'],
     suggestedGas: number,
     caller: string): Promise<EstimateGasResult> {
 
@@ -74,7 +74,7 @@ export async function estimateGas(
 }
 
 export function buildTx(
-    clauses: Connex.Thor.Clause[],
+    clauses: Connex.Thor.Transaction['clauses'],
     gasPriceCoef: number,
     gas: number,
     dependsOn: string | null) {

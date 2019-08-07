@@ -6,7 +6,7 @@
                 <v-layout row align-center>
                     <b class="label primary mr-1">TX</b>
                     <b v-show="reverted" class="label warning">Reverted</b>
-                    <v-spacer/>
+                    <v-spacer />
                     <span class="caption grey--text">{{time}}</span>
                 </v-layout>
             </v-layout>
@@ -39,19 +39,19 @@
                 </v-layout>
                 <v-layout>
                     <span class="caption grey--text">Amount</span>
-                    <v-spacer/>
+                    <v-spacer />
                     <Amount sym=" VET " prepend="-">{{amount}}</Amount>
                 </v-layout>
                 <v-layout>
                     <span class="caption grey--text">{{fee ? 'Fee':'Est. fee'}}</span>
-                    <v-spacer/>
+                    <v-spacer />
                     <Amount sym=" VTHO" prepend="-">{{fee || estimatedFee}}</Amount>
                 </v-layout>
 
                 <v-layout>
                     <span class="caption grey--text">Priority</span>
-                    <v-spacer/>
-                    <Priority :readonly="true" :priority="gasPriceCoef"/>
+                    <v-spacer />
+                    <Priority :readonly="true" :priority="gasPriceCoef" />
                 </v-layout>
                 <v-layout class="my-1">
                     <a class="caption" @click="insight">
@@ -77,6 +77,7 @@ import * as UrlUtils from '@/common/url-utils'
 import TimeAgo from 'timeago.js'
 import { Transaction } from 'thor-devkit'
 import BigNumber from 'bignumber.js'
+import { remote } from 'electron'
 
 const timeAgo = TimeAgo()
 
@@ -120,7 +121,7 @@ export default class TxActivityItem extends Vue {
             return 'dropped'
         }
 
-        const qStatus = CLIENT.txer.status(this.item.data.id)
+        const qStatus = remote.app.EXTENSION.txer.status(this.item.data.id)
         if (!qStatus) {
             return 'hanging'
         }
@@ -170,7 +171,7 @@ export default class TxActivityItem extends Vue {
     emitAction() { }
 
     resend() {
-        CLIENT.txer.send(this.item.data.id, this.item.data.raw)
+        remote.app.EXTENSION.txer.enqueue(this.item.data.id, this.item.data.raw, NODE_CONFIG.url)
         this.$store.commit('updateTxResendTime', { id: this.item.data.id, value: Date.now() / 1000 })
         // this.$set(this.$store.state.txResendTime, this.item.data.id, Date.now() / 1000)
     }

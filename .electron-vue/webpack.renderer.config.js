@@ -153,8 +153,10 @@ let rendererConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
-      'vue$': 'vue/dist/vue.runtime.esm.js'
+      'vue$': 'vue/dist/vue.runtime.esm.js',
+      'isomorphic-ws': 'isomorphic-ws/browser.js'
     },
+    aliasFields: ['browser'],
     extensions: ['.js', '.vue', '.json', '.ts', '.tsx', '.css', '.node'],
     plugins: [
       new TsconfigPathsPlugin({
