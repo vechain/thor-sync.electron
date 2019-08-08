@@ -1,7 +1,7 @@
 <template>
     <v-card style="border-radius: 3px;">
         <v-card-title v-if="decoded" class="py-1 px-2">
-            <strong>{{abi.json.type}} {{decoded.canonicalName}}</strong>
+            <strong>{{decoded.type}} {{decoded.canonicalName}}</strong>
         </v-card-title>
         <v-divider />
         <v-card-text class="px-3 py-1">
@@ -47,6 +47,7 @@ export default class Decoded extends Vue {
     @Prop(Object) private value !: {
         data: string,
         topics?: string[]
+        abiHint?: abi.Function.Definition | abi.Event.Definition
     }
     headers = [{
         text: '#',
@@ -73,43 +74,51 @@ export default class Decoded extends Vue {
     }
 
     get decoded() {
-        const json = this.abi.json
+        const json = this.value.abiHint || this.abi.json
         if (!json) {
             return null
         }
 
-        if (json.type === 'event') {
-            const ev = new abi.Event(json)
-            const dec = ev.decode(this.value.data, this.value.topics!)
-            return {
-                params: json.inputs.map((p, i) => {
-                    return {
-                        name: p.name,
-                        type: p.type,
-                        value: dec[i],
-                        indexed: p.indexed
-                    }
-                }),
-                canonicalName: ev.canonicalName
-            }
+        try {
+            if (json.type === 'event') {
+                const ev = new abi.Event(json)
+                const dec = ev.decode(this.value.data, this.value.topics!)
+                return {
+                    params: json.inputs.map((p, i) => {
+                        return {
+                            name: p.name,
+                            type: p.type,
+                            value: dec[i],
+                            indexed: p.indexed
+                        }
+                    }),
+                    canonicalName: ev.canonicalName
+                }
 
-        } else {
-            const fn = new abi.Function(json)
-            const dec = abi.decodeParameters(json.inputs, '0x' + this.value.data.slice(10))
-            return {
-                params: json.inputs.map((p, i) => {
-                    return {
-                        name: p.name,
-                        type: p.type,
-                        value: dec[i]
-                    }
-                }),
-                canonicalName: fn.canonicalName
+            } else {
+                const fn = new abi.Function(json)
+                const dec = abi.decodeParameters(json.inputs, '0x' + this.value.data.slice(10))
+                return {
+                    params: json.inputs.map((p, i) => {
+                        return {
+                            name: p.name,
+                            type: p.type,
+                            value: dec[i]
+                        }
+                    }),
+                    canonicalName: fn.canonicalName
+                }
             }
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.warn('abi decode', err)
         }
     }
 
     private async load() {
+        if (this.value.abiHint || this.abi.json) {
+            return
+        }
         try {
             this.abi.loading = true
             const sig = this.value.topics ? this.value.topics[0] : this.value.data.slice(0, 10)

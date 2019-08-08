@@ -41,7 +41,7 @@
                             ></v-textarea>
                         </v-tab-item>
                         <v-tab-item v-if="type==='Call'">
-                            <Decoded :value="{data: clause.data}"/>
+                            <Decoded :value="{data: clause.data, abiHint: clause.abi}"/>
                         </v-tab-item>
                     </v-tabs>
                 </v-card-text>
