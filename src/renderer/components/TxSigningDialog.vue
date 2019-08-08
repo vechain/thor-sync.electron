@@ -11,62 +11,19 @@
     >
         <v-card class="bg">
             <v-layout column style="height:445px;">
-                <div style="height: 130px">
-                    <v-layout row>
-                        <v-layout column align-content-center>
-                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
-                                <WalletSeeker
-                                    full-size
-                                    :wallets="wallets"
-                                    v-model="arg.selectedWallet"
-                                    :disabled="signing || step === 2"
-                                />
-                            </v-card-text>
-                        </v-layout>
-                        <v-layout align-content-center column>
-                            <v-divider
-                                style="margin: 20px auto; max-height: calc(100% - 40px);"
-                                inset
-                                :vertical="true"
-                            ></v-divider>
-                        </v-layout>
-                        <v-layout column>
-                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
-                                <v-layout>
-                                    <span class="caption grey--text">Total value</span>
-                                    <v-spacer />
-                                    <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
-                                </v-layout>
-                                <v-layout>
-                                    <span class="caption grey--text">Estimated fee</span>
-                                    <v-spacer />
-                                    <Tooltip bottom :disabled="!(estimation.gas>0)">
-                                        <Amount
-                                            prepend="-"
-                                            sym=" VTHO "
-                                            slot="activator"
-                                        >{{fee.toString(10)}}</Amount>
-                                        <span>Estimated gas {{estimation.gas}}</span>
-                                    </Tooltip>
-                                </v-layout>
-                                <v-layout>
-                                    <span class="caption grey--text">Priority</span>
-                                    <v-spacer />
-                                    <Priority
-                                        v-model="gasPriceCoef"
-                                        :readonly="signing || step === 2"
-                                    />
-                                </v-layout>
-                            </v-card-text>
-                        </v-layout>
-                    </v-layout>
-                </div>
                 <v-layout
                     column
                     justify-start
-                    style="overflow:auto;background-color:rgba(0,0,0,0.1); position: relative"
+                    style="
+                        overflow: auto;
+                        background-color:rgba(0,0,0,0.1);
+                        position: absolute;
+                        height: 315px;
+                         width: 100%;
+                        top: 130px
+                    "
                 >
-                    <v-layout column style="overflow-y:auto;flex:0 1 auto" class="py-1">
+                    <v-layout column style="flex:0 1 auto" class="py-1">
                         <Tip v-if="estimation.error" class="ma-1" type="error">
                             <v-layout>
                                 Error got while estimating fee
@@ -150,7 +107,6 @@
                                 <p class="grey--text text--darken-1">The wallet is unlocked</p>
                             </v-card-text>
                             <div style="position:absolute;left:0;bottom:0; width: 100%">
-                                <v-divider />
                                 <v-progress-linear
                                     v-show="signing"
                                     class="ma-0"
@@ -162,6 +118,57 @@
                         </template>
                     </v-layout>
                 </v-layout>
+                <div class="signing-content-top">
+                    <v-layout row>
+                        <v-layout column align-content-center>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <WalletSeeker
+                                    full-size
+                                    :wallets="wallets"
+                                    v-model="arg.selectedWallet"
+                                    :disabled="signing || step === 2"
+                                />
+                            </v-card-text>
+                        </v-layout>
+                        <v-layout align-content-center column>
+                            <v-divider
+                                style="margin: 20px auto; max-height: calc(100% - 40px);"
+                                inset
+                                :vertical="true"
+                            ></v-divider>
+                        </v-layout>
+                        <v-layout column>
+                            <v-card-text style="width: 300px; padding: 10px; margin: auto">
+                                <v-layout>
+                                    <span class="caption grey--text">Total value</span>
+                                    <v-spacer />
+                                    <Amount prepend="-" sym=" VET  ">{{value.toString(10)}}</Amount>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Estimated fee</span>
+                                    <v-spacer />
+                                    <Tooltip bottom :disabled="!(estimation.gas>0)">
+                                        <Amount
+                                            prepend="-"
+                                            sym=" VTHO "
+                                            slot="activator"
+                                        >{{fee.toString(10)}}</Amount>
+                                        <span>Estimated gas {{estimation.gas}}</span>
+                                    </Tooltip>
+                                </v-layout>
+                                <v-layout>
+                                    <span class="caption grey--text">Priority</span>
+                                    <v-spacer />
+                                    <Priority
+                                        v-model="gasPriceCoef"
+                                        :readonly="signing || step === 2"
+                                    />
+                                </v-layout>
+                            </v-card-text>
+                        </v-layout>
+                    </v-layout>
+                </div>
+                <div class="signing-content-bottom"></div>
             </v-layout>
             <v-card-actions style="flex: 0 0 auto;">
                 <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
@@ -404,5 +411,19 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
 <style scoped>
 .theme--dark .bg {
     background-color: #303030;
+}
+.signing-content-top {
+    box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);
+    height: 130px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.signing-content-bottom {
+    box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.15);
+    height: 44px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 </style>
