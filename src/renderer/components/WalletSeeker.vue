@@ -13,7 +13,7 @@
             </v-layout>
         </v-window-item>
         <v-layout
-            v-show="wallets.length > 1"
+            v-show="!noseek && wallets.length > 1"
             row
             align-center
             style="position:absolute;left:0;top:0;width:100%;height:100%"
@@ -51,6 +51,7 @@ export default class WalletSeeker extends Vue {
     @Prop(Boolean) disabled!: boolean
     @Prop(Number) value!: number
     @Prop(Boolean) fullSize!: boolean
+    @Prop(Boolean) noseek!: boolean
 }
 </script>
 

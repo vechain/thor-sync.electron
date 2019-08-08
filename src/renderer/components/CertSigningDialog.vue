@@ -93,7 +93,7 @@
                                     full-size
                                     :wallets="arg.wallets"
                                     v-model="arg.selectedWallet"
-                                    :disabled="signing || step === 2"
+                                    :noseek="step===2"
                                 />
                             </v-card-text>
                         </v-layout>
@@ -119,20 +119,27 @@
             <v-card-actions class="signing-footer" style="flex: 0 0 auto;">
                 <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
                 <v-spacer />
-                <template v-if="step === 2">
-                    <v-btn small flat dark :disabled="signing" class="secondary" @click="back">Back</v-btn>
-                    <v-btn
-                        small
-                        flat
-                        dark
-                        :disabled="signing"
-                        class="green darken-1"
-                        @click="sign"
-                    >Sign</v-btn>
-                </template>
                 <v-btn
+                    v-show="step === 2"
                     small
-                    v-if="step === 1"
+                    flat
+                    dark
+                    :disabled="signing"
+                    class="secondary"
+                    @click="back"
+                >Back</v-btn>
+                <v-btn
+                    v-show="step === 2"
+                    small
+                    flat
+                    dark
+                    :disabled="signing"
+                    class="green darken-1"
+                    @click="sign"
+                >Sign</v-btn>
+                <v-btn
+                    v-show="step === 1"
+                    small
                     flat
                     dark
                     :disabled="signing"
