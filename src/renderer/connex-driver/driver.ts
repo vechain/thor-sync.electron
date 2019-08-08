@@ -12,7 +12,7 @@ export class Driver extends DriverNoVendor {
         const configId = blake2b256(JSON.stringify(NODE_CONFIG)).toString('hex')
         const knownHead = remote.app.EXTENSION.knownHeads.get(configId)
         super(
-            new SimpleNet(NODE_CONFIG.url),
+            new SimpleNet(NODE_CONFIG.url, 30 * 1000),
             NODE_CONFIG.genesis,
             knownHead)
         this.configId = configId
