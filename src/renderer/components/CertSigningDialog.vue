@@ -11,38 +11,15 @@
     >
         <v-card class="bg">
             <v-layout column style="height:445px;">
-                <div style="height: 130px">
-                    <v-layout row>
-                        <v-layout column align-content-center>
-                            <v-card-text style="width: 270px; padding: 10px; margin: auto">
-                                <WalletSeeker
-                                    full-size
-                                    :wallets="arg.wallets"
-                                    v-model="arg.selectedWallet"
-                                    :disabled="signing || step === 2"
-                                />
-                            </v-card-text>
-                        </v-layout>
-                        <v-layout align-content-center column>
-                            <v-divider
-                                style="margin: 20px auto; max-height: calc(100% - 40px);"
-                                inset
-                                :vertical="true"
-                            ></v-divider>
-                        </v-layout>
-                        <v-layout column>
-                            <v-card-text style="width: 280px">
-                                <div
-                                    class="lighten-5"
-                                >Your signature is being requested. Please review the content before you signed. Always make sure you trust the sites you interact with.</div>
-                            </v-card-text>
-                        </v-layout>
-                    </v-layout>
-                </div>
                 <v-layout
                     column
                     justify-center
-                    style="background-color:rgba(0,0,0,0.1); position: relative"
+                    style="overflow: auto;
+                        background-color:rgba(0,0,0,0.1);
+                        position: absolute;
+                        height: 315px;
+                        width: 100%;
+                        top: 130px"
                 >
                     <template v-if="step ===1">
                         <div>
@@ -63,7 +40,11 @@
                         </v-layout>
                     </template>
                     <template v-else-if="step === 2">
-                        <v-card-text style="width: 500px; margin: auto" class="mt-4" v-show="!privateKey">
+                        <v-card-text
+                            style="width: 500px; margin: auto"
+                            class="mt-4"
+                            v-show="!privateKey"
+                        >
                             <p
                                 style="text-align: center; font-size: 16px;margin-bottom: 50px"
                             >Please input your wallet's password to sign the certificate</p>
@@ -94,7 +75,6 @@
                             <p class="grey--text text--darken-1">The wallet is unlocked</p>
                         </v-card-text>
                         <div style="position:absolute;left:0;bottom:0; width: 100%">
-                            <v-divider />
                             <v-progress-linear
                                 v-show="signing"
                                 class="ma-0"
@@ -105,10 +85,38 @@
                         </div>
                     </template>
                 </v-layout>
-                <v-divider />
+                <div class="signing-content-top" style="height: 130px">
+                    <v-layout row>
+                        <v-layout column align-content-center>
+                            <v-card-text style="width: 270px; padding: 10px; margin: auto">
+                                <WalletSeeker
+                                    full-size
+                                    :wallets="arg.wallets"
+                                    v-model="arg.selectedWallet"
+                                    :disabled="signing || step === 2"
+                                />
+                            </v-card-text>
+                        </v-layout>
+                        <v-layout align-content-center column>
+                            <v-divider
+                                style="margin: 20px auto; max-height: calc(100% - 40px);"
+                                inset
+                                :vertical="true"
+                            ></v-divider>
+                        </v-layout>
+                        <v-layout column>
+                            <v-card-text style="width: 280px">
+                                <div
+                                    class="lighten-5"
+                                >Your signature is being requested. Please review the content before you signed. Always make sure you trust the sites you interact with.</div>
+                            </v-card-text>
+                        </v-layout>
+                    </v-layout>
+                </div>
+                <div class="signing-content-bottom"></div>
             </v-layout>
 
-            <v-card-actions style="flex: 0 0 auto;">
+            <v-card-actions class="signing-footer" style="flex: 0 0 auto;">
                 <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
                 <v-spacer />
                 <template v-if="step === 2">
@@ -262,5 +270,20 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
 }
 .theme--dark .bg {
     background-color: #303030;
+}
+
+.signing-content-top {
+    box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);
+    height: 130px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.signing-content-bottom {
+    box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.15);
+    height: 44px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 </style>
