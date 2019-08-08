@@ -3,7 +3,7 @@ import { remote } from 'electron'
 import { ipcServe, ipcCall } from '../ipc'
 import { SimpleNet } from '@vechain/connex.driver-nodejs/dist/simple-net'
 import { blake2b256 } from 'thor-devkit/dist/cry/blake2b'
-
+import { Throttle } from './throttle'
 
 export class Driver extends DriverNoVendor {
     private readonly configId: string
@@ -68,15 +68,16 @@ export class Driver extends DriverNoVendor {
     }
 
     private serveForApp() {
+        const throttleMap = new Map<number, Throttle>()
         ipcServe('driver', async (fromWebContentsId, method, args) => {
             try {
+                const wc = remote.webContents.fromId(fromWebContentsId)
                 const fn = (this as any)[method]
                 if (fn instanceof Function) {
                     if (method === 'signTx') {
                         if (!window.VENDOR) {
                             throw new Error('not ready')
                         }
-                        const wc = remote.webContents.fromId(fromWebContentsId)
                         let delegationHandler
                         if (args[2]) {
                             delegationHandler = (arg: any) => {
@@ -100,7 +101,6 @@ export class Driver extends DriverNoVendor {
                         if (!window.VENDOR) {
                             throw new Error('not ready')
                         }
-                        const wc = remote.webContents.fromId(fromWebContentsId)
                         return await window.VENDOR.signCert(args[0], args[1], {
                             webContentsId: wc.id,
                             referer: {
@@ -111,7 +111,22 @@ export class Driver extends DriverNoVendor {
                     } else if (method === 'pollHead') {
                         return await this._pollHead()
                     } else {
-                        return await fn.apply(this, args)
+                        let th = throttleMap.get(fromWebContentsId)
+                        if (!th) {
+                            th = new Throttle(15, 200)
+                            throttleMap.set(fromWebContentsId, th)
+                            wc.once('destroyed', () => {
+                                throttleMap.delete(fromWebContentsId)
+                            })
+                        }
+                        const r = th.throttle(() => fn.apply(this, args))
+                        if (th.concurrent >= th.softLimit && th.concurrent < th.hardLimit) {
+                            wc.executeJavaScript(
+                                `console.warn('connex: request pending (concurrent soft limit ${th.softLimit})')`)
+                                // tslint:disable-next-line: no-console
+                                .catch(err => console.warn('log to webview', err))
+                        }
+                        return await r
                     }
                 }
                 throw { name: 'Error', message: 'not impl' }
