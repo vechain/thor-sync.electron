@@ -81,7 +81,8 @@ export function buildTx(
 
     const genesis = connex.thor.genesis
     const bestId = connex.thor.status.head.id
-    const tx = new Transaction({
+
+    const txBody: Transaction.Body = {
         chainTag: Number.parseInt(genesis.id.slice(genesis.id.length - 2), 16),
         blockRef: bestId.slice(0, 18),
         expiration: 18, // about 3 mins
@@ -90,11 +91,19 @@ export function buildTx(
         gas,
         dependsOn,
         nonce: '0x' + randomBytes(8).toString('hex')
-    })
+    }
     return {
-        sign: (privateKey: Buffer) => {
-            tx.signature = undefined
-            tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
+        unsignedRaw: '0x' + new Transaction({ ...txBody, reserved: { features: 1 } }).encode().toString('hex'),
+        sign: (privateKey: Buffer, delegatorSig?: string) => {
+            let tx
+            if (delegatorSig) {
+                tx = new Transaction({ ...txBody, reserved: { features: 1 } })
+                const originSig = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
+                tx.signature = Buffer.concat([originSig, Buffer.from(delegatorSig.slice(2), 'hex')])
+            } else {
+                tx = new Transaction(txBody)
+                tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
+            }
             return {
                 txid: tx.id!,
                 rawTx: '0x' + tx.encode().toString('hex')

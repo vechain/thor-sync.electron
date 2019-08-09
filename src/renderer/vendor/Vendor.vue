@@ -93,7 +93,8 @@ export default class Vendor extends Vue {
                 selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
                 suggestedGas: option.gas || 0,
                 txComment: option.comment || '',
-                dependsOn: option.dependsOn || null
+                dependsOn: option.dependsOn || null,
+                delegationHandler: option.delegationHandler
             })
 
             await BDB.activities.add({
