@@ -70,9 +70,32 @@
                         </template>
                         <template v-if="step === 2">
                             <v-card-text
+                                v-show="!!arg.delegationHandler"
+                                style="text-align: center"
+                            >
+                                <div style="min-width:50%">
+                                    <div v-show="delegation.calling">
+                                        <v-progress-circular indeterminate color="green" size="20" />
+                                        <span>Contacting fee delegator ...</span>
+                                    </div>
+                                </div>
+                                <v-btn
+                                    :disabled="signing"
+                                    v-show="!!delegation.error"
+                                    color="warning"
+                                    @click="buildTx"
+                                    style="text-transform:none"
+                                >Request tx fee for free</v-btn>
+                                <b
+                                    v-show="!!delegation.signature"
+                                    class="green--text"
+                                >Tx fee will be paid by app!!!</b>
+                            </v-card-text>
+
+                            <v-card-text
                                 style="width: 500px; margin: auto"
                                 class="pt-4"
-                                v-show="!privateKey"
+                                v-show="!delegation.calling && !privateKey"
                             >
                                 <p
                                     style="text-align: center; font-size: 16px;margin-bottom: 50px"
@@ -99,7 +122,7 @@
                                 </div>
                             </v-card-text>
                             <v-card-text
-                                v-show="!!privateKey"
+                                v-show="!delegation.calling && !!privateKey"
                                 class="text-xs-center mt-4 subheading"
                             >
                                 <p class="title">Please sign the transaction</p>
@@ -126,7 +149,7 @@
                                     full-size
                                     :wallets="wallets"
                                     v-model="arg.selectedWallet"
-                                    :disabled="signing || step === 2"
+                                    :noseek="step === 2"
                                 />
                             </v-card-text>
                         </v-layout>
@@ -173,11 +196,33 @@
             <v-card-actions style="flex: 0 0 auto;">
                 <v-btn :disabled="signing" small flat @click="decline">Decline</v-btn>
                 <v-spacer />
-                <v-btn dark small flat class="green" v-if="step === 1" @click="step++">Next</v-btn>
-                <template v-if="step === 2">
-                    <v-btn small flat dark :disabled="signing" class="secondary" @click="back">Back</v-btn>
-                    <v-btn dark small flat :disabled="!readyToSign" class="green" @click="sign">Sign</v-btn>
-                </template>
+                <v-btn
+                    dark
+                    small
+                    flat
+                    class="green"
+                    v-show="step === 1"
+                    @click="goNext"
+                    :disabled="delegation.calling"
+                >Next</v-btn>
+                <v-btn
+                    v-show="step === 2"
+                    small
+                    flat
+                    dark
+                    :disabled="signing || delegation.calling"
+                    class="secondary"
+                    @click="back"
+                >Back</v-btn>
+                <v-btn
+                    v-show="step === 2"
+                    dark
+                    small
+                    flat
+                    :disabled="!readyToSign || delegation.calling"
+                    class="green"
+                    @click="sign"
+                >Sign</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
@@ -200,6 +245,7 @@ type Arg = {
     suggestedGas: number
     txComment: string
     dependsOn: string | null
+    delegationHandler?: Connex.Vendor.DelegationHandler
 }
 
 type Result = {
@@ -231,6 +277,13 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     debouncedEstimateGas!: () => void
     keepUnlocked = false
     step = 1
+    delegation = {
+        calling: false,
+        signature: '',
+        error: null as (Error | null)
+    }
+
+    builtTx = null as ReturnType<typeof buildTx> | null
 
     get suggestedGas() { return this.arg.suggestedGas }
     get txComment() { return this.arg.txComment || describeClauses(this.arg.message) }
@@ -336,6 +389,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     async goNext() {
         if (this.step === 1) {
             this.step++
+            await this.buildTx()
         } else {
             await this.sign()
         }
@@ -345,6 +399,35 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         this.keepUnlocked = false
         this.password = ''
     }
+
+    async buildTx() {
+        this.builtTx = null
+        this.delegation.signature = ''
+        this.delegation.error = null
+
+        const builtTx = buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas, this.arg.dependsOn)
+        if (this.arg.delegationHandler) {
+            try {
+                this.delegation.calling = true
+                const r = await Promise.race([
+                    this.arg.delegationHandler({
+                        raw: builtTx.unsignedRaw,
+                        origin: this.wallet.address
+                    }),
+                    new Promise<{ signature: string }>((_, reject) => {
+                        setTimeout(() => reject(new Error('timeout')), 10000)
+                    })
+                ])
+                this.delegation.signature = r.signature
+            } catch (err) {
+                this.delegation.error = err
+            } finally {
+                this.delegation.calling = false
+            }
+        }
+        this.builtTx = builtTx
+    }
+
     async sign() {
         if (!this.readyToSign) {
             return
@@ -370,8 +453,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             }
 
             const timestamp = connex.thor.status.head.timestamp
-            const result = buildTx(this.clauses, this.gasPriceCoef, this.estimation.gas, this.arg.dependsOn)
-                .sign(privateKey)
+            const result = this.builtTx!
+                .sign(privateKey, this.delegation.signature)
 
             this.opened = false
             this.$resolve({
