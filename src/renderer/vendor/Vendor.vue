@@ -49,7 +49,7 @@ export default class Vendor extends Vue {
                 return this.signCert(msg, options, caller.referer)
             },
             isAddressOwned: addr => {
-                return !!this.wallets.find(w => w.address === addr)
+                return Promise.resolve(!!this.wallets.find(w => w.address === addr))
             }
         }
     }

@@ -21,7 +21,7 @@ declare global {
                     webContentsId: number
                 }
             ): Promise<Connex.Driver.SignCertResult>
-            isAddressOwned(addr: string): boolean
+            isAddressOwned(addr: string): Promise<boolean>
         }
     }
 }
