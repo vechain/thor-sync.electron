@@ -60,7 +60,7 @@ export class Driver extends DriverNoVendor {
             }
         })
     }
-    public isAddressOwned(addr: string): boolean {
+    public isAddressOwned(addr: string) {
         if (!window.VENDOR) {
             throw new Error('not ready')
         }

@@ -88,8 +88,8 @@ export class AppDriver implements Connex.Driver {
     ): Promise<Connex.Vendor.CertResponse> {
         return this.callToHost('signCert', msg, option)
     }
-    public isAddressOwned(addr: string): boolean {
-        return remote.app.EXTENSION.isWalletOwned(remote.getCurrentWindow().id, addr)
+    public isAddressOwned(addr: string) {
+        return this.callToHost('isAddressOwned', addr)
     }
 
     private async callToHost(method: string, ...args: any[]) {
