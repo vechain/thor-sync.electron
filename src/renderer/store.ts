@@ -165,10 +165,6 @@ class Store extends Vuex.Store<Store.Model> {
 
         const queryAndUpdateWallets = async () => {
             const wallets = await BDB.wallets.toArray()
-            remote.app.EXTENSION.setOwnedWallets(
-                remote.getCurrentWindow().id,
-                wallets.map(w => w.address)
-            )
             this.commit(Store.UPDATE_WALLETS, wallets)
         }
         const queryAndUpdatePreferences = async () => {
