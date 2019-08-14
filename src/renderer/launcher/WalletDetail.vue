@@ -67,6 +67,18 @@
                                         </Tooltip>
                                     </div>
                                 </QRCodeDialog>
+                                <Tooltip top>
+                                    <v-btn
+                                        class="my-0"
+                                        slot="activator"
+                                        icon
+                                        small
+                                        @click="viewTransferLogs"
+                                    >
+                                        <v-icon small>mdi-file-find-outline</v-icon>
+                                    </v-btn>
+                                    <span>View transfer logs</span>
+                                </Tooltip>
                             </v-layout>
                         </div>
                         <v-spacer />
@@ -453,6 +465,11 @@ export default class WalletDetail extends Mixins(ActivitiesLoader, AccountLoader
             content: msg,
             contentClass: 'cert-msg-dialog'
         })
+    }
+
+    viewTransferLogs() {
+        const href = `https://insight.vecha.in/#/accounts/${this.address}/transfers`
+        BUS.$emit('open-tab', { href })
     }
 
     created() {
