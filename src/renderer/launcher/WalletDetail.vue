@@ -419,7 +419,9 @@ export default class WalletDetail extends Mixins(ActivitiesLoader, AccountLoader
         let result: string = ''
         if (item.type === 'tx') {
             const data = item.data as entities.Activity.Tx
-            if (data.message.length > 1) {
+            if (data.message.length === 0) {
+                result = 'Unknown'
+            } else if (data.message.length > 1) {
                 result = 'Multi'
             } else {
                 const msg = data.message[0]
