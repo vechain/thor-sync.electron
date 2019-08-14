@@ -58,7 +58,6 @@ class WindowManager {
                 this.actives.splice(i, 1)
             }
             win.removeAllListeners()
-            app.EXTENSION.setOwnedWallets(windowId, [])
             if (this.activeCount === 0) {
                 if (this.about) {
                     this.about.close()
