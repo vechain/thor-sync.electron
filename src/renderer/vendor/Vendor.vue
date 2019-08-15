@@ -97,10 +97,15 @@ export default class Vendor extends Vue {
                 delegationHandler: option.delegationHandler
             })
 
+            PREFS.store.put({
+                key: connex.thor.genesis.id + '-lastSigner',
+                value: result.signer.toLowerCase()
+            })
+
             await BDB.activities.add({
                 type: 'tx',
                 createdTime: Date.now(),
-                referer: referer,
+                referer,
                 closed: 0,
                 data: {
                     id: result.txid,
@@ -150,6 +155,11 @@ export default class Vendor extends Vue {
                 domain: UrlUtils.hostnameOf(referer.url)
             })
 
+            PREFS.store.put({
+                key: connex.thor.genesis.id + '-lastSigner',
+                value: result.annex.signer.toLowerCase()
+            })
+
             const id = '0x' + cry.blake2b256(Certificate.encode({
                 ...arg,
                 ...result.annex,
@@ -159,7 +169,7 @@ export default class Vendor extends Vue {
             await BDB.activities.add({
                 type: 'cert',
                 createdTime: Date.now(),
-                referer: referer,
+                referer,
                 closed: 1,
                 data: {
                     id,
