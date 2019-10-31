@@ -79,7 +79,7 @@ Vue.directive('focus', {
       // tslint:disable-next-line:no-unused-expression
       tempEl.focus && tempEl.focus()
 
-      if (el.tagName.toLocaleUpperCase() === 'input') {
+      if (tempEl.tagName.toLowerCase() === 'input') {
         // tslint:disable-next-line:no-unused-expression
         tempEl.select && tempEl.select()
       }
