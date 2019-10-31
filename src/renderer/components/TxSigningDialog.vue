@@ -269,9 +269,9 @@ import { estimateGas, buildTx, EstimateGasResult } from '../tx-utils'
 import AccountLoader from '@/renderer/mixins/account-loader'
 import { describeClauses } from '@/common/formatter'
 import { setUnlocked, getUnlocked } from '../unlocked'
-import { cry } from 'thor-devkit'
 import ledger from '@/common/ledger'
 import LedgerStatus from './LedgerStatus.vue'
+import * as Keystore from '@/common/keystore'
 
 type walletList = {
     sectionName: string
@@ -569,7 +569,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
                 privateKey = this.privateKey
                 setUnlocked(_wallet.id!, privateKey)
             } else {
-                privateKey = await cry.Keystore.decrypt(_wallet.keystore, this.password)
+                privateKey = await Keystore.decrypt(_wallet.keystore, this.password)
                 if (this.keepUnlocked) {
                     setUnlocked(_wallet.id!, privateKey)
                 }

@@ -60,6 +60,7 @@ import ContentForm from '../launcher/WalletContentForm.vue'
 import NameAndPass from '../launcher/NameAndPass.vue'
 import { cry } from 'thor-devkit'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
+import * as Keystore from '@/common/keystore'
 
 @Component({
     components: {
@@ -166,7 +167,7 @@ export default class ImportWalletDialog extends Mixins(
                 try {
                     const privateKey = this.pk
 
-                    const ks = await cry.Keystore.encrypt(
+                    const ks = await Keystore.encrypt(
                         privateKey!,
                         this.nameAndPass.password
                     )

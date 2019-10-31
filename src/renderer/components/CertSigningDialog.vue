@@ -213,6 +213,8 @@ import DialogHelper from '@/renderer/mixins/dialog-helper'
 import { Certificate, cry } from 'thor-devkit'
 import { setUnlocked, getUnlocked } from '../unlocked'
 import ledger from '@/common/ledger'
+import * as Keystore from '@/common/keystore'
+
 type walletList = {
     sectionName: string
     key?: string
@@ -386,7 +388,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
                 privateKey = this.privateKey
                 setUnlocked(wallet.id!, privateKey)
             } else {
-                privateKey = await cry.Keystore.decrypt(wallet.keystore, this.password)
+                privateKey = await Keystore.decrypt(wallet.keystore, this.password)
                 if (this.keepUnlocked) {
                     setUnlocked(wallet.id!, privateKey)
                 }

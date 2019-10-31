@@ -43,6 +43,7 @@ import {
 } from 'vue-property-decorator'
 import { cry } from 'thor-devkit'
 import { watch } from 'fs'
+import * as Keystore from '@/common/keystore'
 
 interface IContentForm {
     getPrivateKey(): Promise<Buffer>
@@ -146,7 +147,7 @@ export default class ContentForm extends Vue implements IContentForm {
                 return 'Keystore is invalid'
             }
 
-            return cry.Keystore.wellFormed(ks)
+            return Keystore.wellFormed(ks)
         } else {
             return 'Keystore is required'
         }
@@ -195,7 +196,7 @@ export default class ContentForm extends Vue implements IContentForm {
             case 1:
                 const ks = JSON.parse(this.form.content)
                 try {
-                    result = await cry.Keystore.decrypt(ks, this.form.pwd)
+                    result = await Keystore.decrypt(ks, this.form.pwd)
                     this.error.isError = false
                     this.error.messages = ''
                 } catch (error) {
