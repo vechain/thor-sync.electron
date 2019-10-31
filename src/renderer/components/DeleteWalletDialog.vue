@@ -46,9 +46,7 @@
 <script lang="ts">
 import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import { cry } from 'thor-devkit'
-import AccountMixin from '@/renderer/mixins/Account'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { setTimeout } from 'timers'
 
 type Arg = {
     name: string
