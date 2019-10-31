@@ -2,6 +2,7 @@ import Vuex from 'vuex'
 import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
 import Vue from 'vue'
+import { cry } from 'thor-devkit'
 
 namespace Store {
     export type Model = {
@@ -14,6 +15,7 @@ namespace Store {
         shortcuts: entities.Shortcut[]
         nodes: entities.Node[]
         wallets: entities.Wallet[]
+        ledgers: entities.LedgerDevice[]
         preferences: { [key: string]: any }
         ready: boolean
     }
@@ -28,6 +30,7 @@ class Store extends Vuex.Store<Store.Model> {
     public static readonly UPDATE_PREFERENCES = 'updatePreferences'
     public static readonly UPDATE_SET_READY = 'updateSetReady'
     public static readonly UPDATE_TX_RESEND_TIME = 'updateTxResendTime'
+    public static readonly UPDATE_LEDGER_DEVICES = 'updateLedgerDevices'
 
     constructor() {
         super({
@@ -40,6 +43,7 @@ class Store extends Vuex.Store<Store.Model> {
                 txResendTime: {},
                 shortcuts: [],
                 nodes: [],
+                ledgers: [],
                 wallets: [],
                 preferences: {},
                 ready: false,
@@ -65,6 +69,21 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 lastSigner(state) {
                     return state.preferences[connex.thor.genesis.id + '-lastSigner']
+                },
+                ledgerAccounts(state) {
+                    return state.ledgers.map((item: entities.LedgerDevice) => {
+                        const accounts: string[] = []
+                        const pub = Buffer.from(item.publicKey, 'hex')
+                        const chainCode = Buffer.from(item.chainCode, 'hex')
+                        const hdNode = cry.HDNode.fromPublicKey(pub, chainCode)
+                        for (let i = 0; i < 5; i++) {
+                            accounts.push(hdNode.derive(i).address)
+                        }
+                        return {
+                            ...item,
+                            accounts
+                        }
+                    })
                 }
             },
             mutations: {
@@ -82,6 +101,9 @@ class Store extends Vuex.Store<Store.Model> {
                 },
                 [Store.UPDATE_WALLETS](state, payload) {
                     state.wallets = payload
+                },
+                [Store.UPDATE_LEDGER_DEVICES](state, payload) {
+                    state.ledgers = payload
                 },
                 [Store.UPDATE_PREFERENCES](state, payload: entities.Preference[]) {
                     const prefs = {} as typeof state.preferences
@@ -172,11 +194,17 @@ class Store extends Vuex.Store<Store.Model> {
             this.commit(Store.UPDATE_PREFERENCES, prefs)
         }
 
+        const queryAndUpdateLedgerDevices = async () => {
+            const ledgers = await LDDB.devices.toArray()
+            this.commit(Store.UPDATE_LEDGER_DEVICES, ledgers)
+        }
+
         await Promise.all([
             queryAndUpdateShortcuts(),
             queryAndUpdateNodes(),
             queryAndUpdateWallets(),
-            queryAndUpdatePreferences()
+            queryAndUpdatePreferences(),
+            queryAndUpdateLedgerDevices()
         ])
 
         this.commit(Store.UPDATE_SET_READY)
@@ -192,6 +220,10 @@ class Store extends Vuex.Store<Store.Model> {
         })
         PREFS.store.subscribe(() => {
             queryAndUpdatePreferences()
+        })
+
+        LDDB.devices.subscribe(() => {
+            queryAndUpdateLedgerDevices()
         })
     }
 }

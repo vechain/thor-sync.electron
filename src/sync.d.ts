@@ -91,6 +91,15 @@ declare namespace entities {
         }[]
     }
 
+    type LedgerDevice = {
+        id?: number
+        publicKey: string
+        chainCode: string
+        name: string
+        createdTime?: number
+        product: string
+    }
+
     type Wallet = {
         id?: number
         address: string

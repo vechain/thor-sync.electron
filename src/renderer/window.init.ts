@@ -1,6 +1,6 @@
 import { Vue } from 'vue-property-decorator'
 import { remote, ipcRenderer } from 'electron'
-import { GlobalDatabase, BoundedDatabase, Preferences } from './database'
+import { GlobalDatabase, BoundedDatabase, Preferences, LedgerDatabase } from './database'
 import env from '@/env'
 import { trackTxLoop } from './tx-tracker'
 import Log from 'electron-log'
@@ -25,6 +25,7 @@ declare global {
     const GDB: GlobalDatabase
     const PREFS: Preferences
     const BDB: BoundedDatabase
+    const LDDB: LedgerDatabase
     const BUS: Vue
 }
 
@@ -57,6 +58,11 @@ Object.defineProperty(window, 'BDB', {
     value: new BoundedDatabase(NODE_CONFIG.genesis.id),
     enumerable: true
 })
+Object.defineProperty(window, 'LDDB', {
+    value: new LedgerDatabase(NODE_CONFIG.genesis.id + '-ledger'),
+    enumerable: true
+})
+
 Object.defineProperty(window, 'PREFS', {
     value: new Preferences(),
     enumerable: true
