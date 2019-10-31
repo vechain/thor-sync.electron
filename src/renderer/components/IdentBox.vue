@@ -20,8 +20,9 @@ export default class IdentBox extends Vue {
             cache.set(text, svg)
         }
         return {
-            background: `no-repeat url('data:image/svg+xml;utf8,${svg}')`,
-            'background-size': 'cover'
+            'background-image': `url('data:image/svg+xml;utf8,${svg}')`,
+            'background-size': 'cover',
+            'background-repeat': 'no-repeat'
         }
     }
 }
