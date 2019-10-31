@@ -70,19 +70,18 @@
     </v-expansion-panel-content>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
+import  { Vue, Component, Prop, Emit, Mixins } from 'vue-property-decorator'
+import ActivityItemMixin from './mixins/ActivityItem.vue'
 import { State } from 'vuex-class'
 import { describeClauses } from '@/common/formatter'
 import * as UrlUtils from '@/common/url-utils'
-import TimeAgo from 'timeago.js'
 import { Transaction } from 'thor-devkit'
 import BigNumber from 'bignumber.js'
 import { remote } from 'electron'
-
-const timeAgo = TimeAgo()
+import Activities from './ActivitiesLoader.vue'
 
 @Component
-export default class TxActivityItem extends Vue {
+export default class TxActivityItem extends Mixins(ActivityItemMixin) {
     @Prop(Object) item !: entities.Activity<'tx'>
 
     @State
@@ -94,7 +93,7 @@ export default class TxActivityItem extends Vue {
     get reverted() { return this.item.data.receipt ? this.item.data.receipt.reverted : false }
     get time() {
         this.$store.state.syncStatus // pulse
-        return timeAgo.format(this.item.createdTime)
+        return this.timeAgo.format(this.item.createdTime)
     }
     get txid() { return this.item.data.id }
     get signer() { return this.item.data.signer }
@@ -105,11 +104,6 @@ export default class TxActivityItem extends Vue {
         return '0x' + this.item.data.message.reduce((sum, c) => {
             return sum.plus(c.value)
         }, new BigNumber(0)).toString(16)
-    }
-
-    get wallet() {
-        const wallets = this.$store.state.wallets as entities.Wallet[]
-        return wallets.find(w => w.address === this.signer)
     }
 
     get status() {
@@ -136,6 +130,7 @@ export default class TxActivityItem extends Vue {
 
         return 'sending'
     }
+
     get statusDesc() {
         switch (this.status) {
             case 'confirmed': return 'Confirmed'
@@ -173,7 +168,6 @@ export default class TxActivityItem extends Vue {
     resend() {
         remote.app.EXTENSION.txer.enqueue(this.item.data.id, this.item.data.raw, NODE_CONFIG.url)
         this.$store.commit('updateTxResendTime', { id: this.item.data.id, value: Date.now() / 1000 })
-        // this.$set(this.$store.state.txResendTime, this.item.data.id, Date.now() / 1000)
     }
 
     reveal() {
@@ -191,13 +185,6 @@ export default class TxActivityItem extends Vue {
         const href = `https://insight.vecha.in/#/txs/${this.txid}`
         BUS.$emit('open-tab', { href })
         this.emitAction()
-    }
-
-    openWallet() {
-        if (this.wallet) {
-            BUS.$emit('open-tab', { href: `sync://wallets/${this.wallet.address}`, mode: 'inplace-builtin' })
-            this.emitAction()
-        }
     }
 }
 </script>

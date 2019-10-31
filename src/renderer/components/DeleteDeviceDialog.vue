@@ -7,26 +7,26 @@
         max-width="450px"
     >
         <v-card>
-            <v-card-title class="subheading">Delete Wallet</v-card-title>
+            <v-card-title class="subheading">Remove Ledger</v-card-title>
             <v-card-text>
                 <p>
-                    This action
-                    <strong>CANNOT</strong> be undone. Unless you have backed up your wallet beforehand, your wallet will be
-                    <strong>PERMANENTLY</strong> deleted.
+                    When you remove this Ledger , you
+                    <strong>CANNOT</strong> select this ledger
+                    (<strong>{{arg.name}}</strong>) as a singer.You can import this device if you needed.
                 </p>
                 <v-text-field
                     ref="nameInput"
                     type="text"
                     v-focus
                     validate-on-blur
-                    placeholder="Please type the wallet name to confirm"
-                    label="Wallet Name"
+                    placeholder="Please input the device name to confirm"
+                    label="Device Name"
                     v-model="name"
                     :rules="[checkName]"
                     :loading="checking"
                 ></v-text-field>
             </v-card-text>
-            <v-divider/>
+            <v-divider />
             <v-card-actions>
                 <v-btn small flat @click.stop="close">Abort</v-btn>
                 <v-spacer></v-spacer>
@@ -47,13 +47,14 @@
 import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import { cry } from 'thor-devkit'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
+import { setTimeout } from 'timers'
 
 type Arg = {
     name: string
     id?: number
 }
 @Component
-export default class DeleteWalletDialog extends Mixins(
+export default class DeleteDeviceDialog extends Mixins(
     class extends DialogHelper<Arg, void> { }
 ) {
     name = ''
@@ -75,7 +76,7 @@ export default class DeleteWalletDialog extends Mixins(
         if (this.name === this.arg.name) {
             return true
         } else {
-            return 'Invalid wallet name'
+            return 'Invalid device name'
         }
     }
 
@@ -96,7 +97,7 @@ export default class DeleteWalletDialog extends Mixins(
 
     async deleteWallet() {
         if (this.arg) {
-            await BDB.wallets.delete(this.arg.id || 0)
+            await LDDB.devices.delete(this.arg.id || 0)
         }
     }
 

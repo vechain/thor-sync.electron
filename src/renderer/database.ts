@@ -123,6 +123,17 @@ export class BoundedDatabase extends Database {
     }
 }
 
+export class LedgerDatabase extends Database {
+    public readonly devices!: Table<entities.LedgerDevice, number>
+    constructor(network: string) {
+        super(network, (dexie: Dexie) => {
+            dexie.version(1).stores({
+                devices: '++id, &publicKey, chainCode, name'
+            })
+        })
+    }
+}
+
 // from now on, we use one table per db strategy to resolve migration problem
 export class Preferences extends Database {
     public readonly store !: Table<entities.Preference, string>

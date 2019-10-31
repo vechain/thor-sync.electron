@@ -950,7 +950,7 @@ html {
     cursor: default;
 }
 
-a:not(.v-list__tile):hover {
+a:not(.v-list__tile):not(.v-tabs__item):hover{
     color: #2a94ff;
 }
 

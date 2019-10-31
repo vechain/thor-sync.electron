@@ -47,6 +47,13 @@ import AppHub from './AppHub.vue'
 import AppHubItem from './AppHubItem.vue'
 import ContentDialog from './ContentDialog.vue'
 import Decoded from './Decoded.vue'
+import ImportLedgerDialog from './ImportLedgerDialog.vue'
+import LedgerStatus from './LedgerStatus.vue'
+import TxListForDialog from './TxListForDialog.vue'
+import SvgLedger from './SvgLedger.vue'
+import DeleteDeviceDialog from './DeleteDeviceDialog.vue'
+import RenameDeviceDialog from './RenameDeviceDialog.vue'
+import ActivitiesTable from './ActivitiesTable.vue'
 
 export {
     AccessHistoryPanel,
@@ -97,5 +104,12 @@ export {
     AppHub,
     AppHubItem,
     ContentDialog,
-    Decoded
+    Decoded,
+    ImportLedgerDialog,
+    LedgerStatus,
+    TxListForDialog,
+    SvgLedger,
+    DeleteDeviceDialog,
+    RenameDeviceDialog,
+    ActivitiesTable
 }

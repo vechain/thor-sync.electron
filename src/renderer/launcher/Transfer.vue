@@ -1,8 +1,18 @@
 <template>
     <v-layout column align-center>
         <v-layout column align-center style="max-width:1000px;width:100%;" pa-3>
-            <div class="subheading py-4">From</div>
-            <WalletSeeker style="width:270px" full-size :wallets="wallets" v-model="from"/>
+            <!-- <div class="subheading py-4">From</div> -->
+            <v-flex xs12 sm6 d-flex>
+                <v-select
+                    v-model="group"
+                    return-object
+                    item-text="sectionName"
+                    :items="groups"
+                    label="From"
+                    @change="onGroupChange"
+                ></v-select>
+            </v-flex>
+            <WalletSeeker style="width:270px" full-size :wallets="group.list" v-model="from" />
             <v-icon large class="my-3 arrow-icon">mdi-arrow-down-bold</v-icon>
             <v-card flat class="card-border" style="width:480px;">
                 <v-card-text>
@@ -29,7 +39,7 @@
                             />
                             <v-list dense two-line>
                                 <template v-for="(item,i) in history">
-                                    <v-divider v-if="i>0" :key="item.addr + '-divider'"/>
+                                    <v-divider v-if="i>0" :key="item.addr + '-divider'" />
                                     <v-list-tile :key="item.addr" @click="selectAddress(item.addr)">
                                         <v-list-tile-content>
                                             <v-list-tile-title>{{item.addr}}</v-list-tile-title>
@@ -61,7 +71,7 @@
                 </v-card-text>
                 <v-card-actions>
                     <div class="error--text">{{errMsg}}</div>
-                    <v-spacer/>
+                    <v-spacer />
                     <v-btn small class="primary" @click="send">Send</v-btn>
                 </v-card-actions>
             </v-card>
@@ -70,7 +80,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { State } from 'vuex-class';
+import { State, Getter } from 'vuex-class';
 import BigNumber from 'bignumber.js'
 import { cry } from 'thor-devkit'
 
@@ -80,6 +90,7 @@ export default class Transfer extends Vue {
     amount = ''
     to = ''
     from = 0
+    group: any = null
     errMsg = ''
     showHistory = false
     history: {
@@ -103,14 +114,66 @@ export default class Transfer extends Vue {
         (v: string) => new BigNumber(0).lte(v) || 'Invalid amount'
     ]
 
+    @Getter ledgerAccounts!: (entities.LedgerDevice & { accounts: string[] })[]
+
+    get groups() {
+        let temp = []
+        if (this.wallets.length) {
+            temp.push({
+                sectionName: 'Local',
+                key: 'local',
+                list: this.wallets.slice()
+            })
+        }
+        return [
+            ...temp,
+            ...this.ledgerAccounts.map(item => {
+                return {
+                    sectionName: item.name,
+                    key: item.publicKey,
+                    list: item.accounts.map((acc, i) => {
+                        return {
+                            name: Vue.filter('ledgerName')(item!.name, i),
+                            address: acc
+                        }
+                    })
+                }
+            })
+        ]
+    }
+    onGroupChange() {
+        const index = this.group.list.findIndex((item: any) => {
+            return item.address === this.$route.query['from']
+        })
+        this.from = index < 0 ? 0 : index
+    }
+
+    initSetting(addr: string) {
+        let index = this.wallets.findIndex(wallet => wallet.address === addr)
+        if (index >= 0) {
+            this.from = index
+            this.group = this.groups[0]
+        } else {
+            let index = this.ledgerAccounts.findIndex(item => {
+                return item.accounts.indexOf(addr) >= 0
+            })
+            if (index >= 0) {
+                this.from = this.ledgerAccounts[index].accounts.findIndex(item => { return item === addr })
+                if (this.wallets.length) {
+                    this.group = this.groups[index + 1]
+                } else {
+                    this.group = this.groups[index]
+                }
+            }
+        }
+    }
+
+
     created() {
+        this.group = this.groups[0]
         let fromAddr = this.$route.query['from']
         if (fromAddr) {
-            fromAddr = fromAddr.toLowerCase()
-            const index = this.wallets.findIndex(wallet => wallet.address === fromAddr)
-            if (index >= 0) {
-                this.from = index
-            }
+            this.initSetting(fromAddr)
         }
     }
 
@@ -121,7 +184,7 @@ export default class Transfer extends Vue {
         }
         try {
             const value = '0x' + new BigNumber('1' + '0'.repeat(18)).times(this.amount!).integerValue().toString(16)
-            await connex.vendor.sign('tx').signer(this.wallets[this.from].address!).request([{
+            await connex.vendor.sign('tx').signer(this.group.list[this.from].address!).request([{
                 to: this.to,
                 value,
                 data: '0x'
