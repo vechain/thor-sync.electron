@@ -49,15 +49,6 @@ Vue.filter('shortAddr', (addr: string) => {
 Vue.filter('shortTxId', (txId: string) => {
     return txId.slice(0, 8) + '…' + txId.slice(txId.length - 9)
 })
-// Vue.filter('date', (val: number) => {
-//   const date = new Date(val * 10e2)
-//   return date.toLocaleString('', {
-//     // formatMatcher: 'year, month, day',
-//     year: 'numeric',
-//     month: '2-digit',
-//     day: '2-digit'
-//   })
-// })
 
 Vue.filter('dateTime', (val: number) => {
     const date = new Date(val)
@@ -70,6 +61,10 @@ Vue.filter('checksum', (val: string) => {
     } catch (err) {
         return err.toString()
     }
+})
+
+Vue.filter('ledgerName', (val: string, index: string) => {
+    return val + ' - ' + (parseInt(index, 10) + 1)
 })
 
 Vue.filter('faceColor', (href: string) => {
