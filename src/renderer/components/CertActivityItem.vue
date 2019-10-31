@@ -37,13 +37,14 @@
     </v-expansion-panel-content>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
+import { Vue, Component, Prop, Emit, Mixins } from 'vue-property-decorator'
+import ActivityItemMixin from './mixins/ActivityItem.vue'
 import TimeAgo from 'timeago.js'
 import * as UrlUtils from '@/common/url-utils'
 const timeAgo = TimeAgo()
 
 @Component
-export default class CertActivityItem extends Vue {
+export default class CertActivityItem extends Mixins(ActivityItemMixin) {
     @Prop(Object) item !: entities.Activity<'cert'>
 
     @Emit('action')
@@ -56,10 +57,6 @@ export default class CertActivityItem extends Vue {
     }
     get hostname() { return UrlUtils.hostnameOf(this.item.referer.url) }
     get signer() { return this.item.data.signer }
-    get wallet() {
-        const wallets = this.$store.state.wallets as entities.Wallet[]
-        return wallets.find(w => w.address === this.signer)
-    }
 
     reveal() {
         let href: string
@@ -74,7 +71,11 @@ export default class CertActivityItem extends Vue {
 
     openWallet() {
         if (this.wallet) {
-            BUS.$emit('open-tab', { href: `sync://wallets/${this.wallet.address}`, mode: 'inplace-builtin' })
+            let type = this.wallet.chainCode ? 'ledger' : 'local'
+            let aOc = this.wallet.chainCode ? this.wallet.chainCode : this.wallet.address
+            let query = this.wallet.chainCode ? `?index=${this.wallet.index}` : ''
+            BUS.$emit('open-tab', { href: `sync://wallets/${type}/${aOc}${query}`, mode: 'inplace-builtin' })
+            this.emitAction()
         }
     }
 }
