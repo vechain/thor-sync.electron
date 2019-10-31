@@ -10,7 +10,7 @@
         transition="sign-dialog-transition"
     >
         <v-card class="bg">
-            <v-layout column style="height:445px;">
+            <v-layout column style="height:495px;">
                 <v-layout
                     column
                     justify-center
@@ -19,8 +19,9 @@
                         position: absolute;
                         height: 315px;
                         width: 100%;
-                        top: 130px"
+                        top: 180px"
                 >
+                <Tip class="ma-1" v-if="!isLocal && connected" type="info">Please double check the transaction and confirm on your device</Tip>
                     <template v-if="step ===1">
                         <div>
                             <v-layout column>
@@ -40,59 +41,114 @@
                         </v-layout>
                     </template>
                     <template v-else-if="step === 2">
-                        <v-card-text
-                            style="width: 500px; margin: auto"
-                            class="mt-4"
-                            v-show="!privateKey"
-                        >
-                            <p
-                                style="text-align: center; font-size: 16px;margin-bottom: 50px"
-                            >Please input your wallet's password to sign the certificate</p>
-                            <div style="width: 350px; margin: auto">
-                                <v-text-field
-                                    v-focus
-                                    :disabled="signing"
-                                    v-model="password"
-                                    label="Password"
-                                    type="password"
-                                    maxlength="20"
-                                    :error-messages="passwordError"
-                                    ref="passwordElem"
-                                    @focus="onPasswordFocused"
-                                />
-                                <v-checkbox
-                                    class="mt-1"
-                                    color="primary"
-                                    hide-details
-                                    label="Keep unlocked for 5 minutes"
-                                    v-model="keepUnlocked"
+                        <template v-if="isLocal">
+                            <v-card-text
+                                style="width: 500px; margin: auto"
+                                class="mt-4"
+                                v-show="!privateKey"
+                            >
+                                <p
+                                    style="text-align: center; font-size: 16px;margin-bottom: 50px"
+                                >Please input your wallet's password to sign the certificate</p>
+                                <div style="width: 350px; margin: auto">
+                                    <v-text-field
+                                        v-focus
+                                        :disabled="signing"
+                                        v-model="password"
+                                        label="Password"
+                                        type="password"
+                                        maxlength="20"
+                                        :error-messages="passwordError"
+                                        ref="passwordElem"
+                                        @focus="onPasswordFocused"
+                                    />
+                                    <v-checkbox
+                                        class="mt-1"
+                                        color="primary"
+                                        hide-details
+                                        label="Keep unlocked for 5 minutes"
+                                        v-model="keepUnlocked"
+                                    />
+                                </div>
+                            </v-card-text>
+                            <v-card-text
+                                v-show="!!privateKey"
+                                class="text-xs-center mt-4 subheading"
+                            >
+                                <p class="title">Please sign the certificate</p>
+                                <v-icon class="mr-2 display-2">mdi-lock-open</v-icon>
+                                <p class="grey--text text--darken-1">The wallet is unlocked</p>
+                            </v-card-text>
+                            <div style="position:absolute;left:0;bottom:0; width: 100%">
+                                <v-progress-linear
+                                    v-show="signing"
+                                    class="ma-0"
+                                    height="2"
+                                    color="success"
+                                    indeterminate
                                 />
                             </div>
-                        </v-card-text>
-                        <v-card-text v-show="!!privateKey" class="text-xs-center mt-4 subheading">
-                            <p class="title">Please sign the certificate</p>
-                            <v-icon class="mr-2 display-2">mdi-lock-open</v-icon>
-                            <p class="grey--text text--darken-1">The wallet is unlocked</p>
-                        </v-card-text>
-                        <div style="position:absolute;left:0;bottom:0; width: 100%">
-                            <v-progress-linear
-                                v-show="signing"
-                                class="ma-0"
-                                height="2"
-                                color="success"
-                                indeterminate
-                            />
-                        </div>
+                        </template>
+                        <template v-else>
+                            <div
+                                v-show="!connected  && !ledgerError"
+                                style="width: 500px; margin: auto"
+                                class="text-md-center pt-1"
+                            >
+                                <h3>Please connecting to device</h3>
+                                <LedgerStatus
+                                    ref="ledgerStatus"
+                                    :publicKey="currentGroup.key"
+                                    @deviceInfo="onConnectedLedger"
+                                    @timeout="onLedgerTimeout"
+                                    style="background: transparent"
+                                />
+                            </div>
+                            <div style="width: 700px; margin: auto"
+                                class="text-sm-center mt-5" v-show="connected && !ledgerError">
+                                <h3 class="title">Confirm and sign the message</h3>
+                                <p class="pt-4">
+                                    <span  style="font-family: 'Roboto Mono', monospace" class="display-2 d-inline-block px-2 mx-2" :class="{'elevation-1': i!== 4}" v-for="(e, i) in unsignedHexStr" :key="i">
+                                        {{e}}
+                                    </span>
+                                </p>
+                                <span class="grey--text text--darken-2">Waiting for the confirmation...</span>
+                            </div>
+                            <div class="text-md-center pt-1" style="width: 500px; margin: auto" v-if="!!ledgerError">
+                                    <v-icon color="error" class="display-3">mdi-alert-circle-outline</v-icon>
+                                    <p class="error--text">{{ledgerError.message}}</p>
+                                </div>
+                        </template>
                     </template>
                 </v-layout>
-                <div class="signing-content-top" style="height: 130px">
+                <div class="signing-content-top" style="height: 180px">
+                    <v-menu :disabled="step === 2 || groups.length === 1" offset-y>
+                        <template>
+                            <v-btn
+                                :disabled="step === 2 || groups.length === 1"
+                                :flat="!(step === 2 || groups.length === 1)"
+                                small
+                                slot="activator"
+                            >
+                                {{currentGroup.name}}
+                                <v-icon right>mdi-menu-down</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-tile v-for="(item, index) in groups" :key="index">
+                                <v-list-tile-content>
+                                    <v-btn small flat @click="onGroupSelect(item)">{{ item.name }}</v-btn>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </v-list>
+                    </v-menu>
                     <v-layout row>
                         <v-layout column align-content-center>
                             <v-card-text style="width: 270px; padding: 10px; margin: auto">
                                 <WalletSeeker
                                     full-size
-                                    :wallets="arg.wallets"
-                                    v-model="arg.selectedWallet"
+                                    :wallets="wallets"
+                                    v-model="seekIndex"
                                     :noseek="step===2"
                                 />
                             </v-card-text>
@@ -129,6 +185,7 @@
                     @click="back"
                 >Back</v-btn>
                 <v-btn
+                    v-if="isLocal"
                     v-show="step === 2"
                     small
                     flat
@@ -144,22 +201,27 @@
                     dark
                     :disabled="signing"
                     class="green darken-1"
-                    @click="step++"
+                    @click="goNext"
                 >Next</v-btn>
             </v-card-actions>
         </v-card>
     </DialogEx>
 </template>
 <script lang="ts">
-import { Vue, Component, Mixins } from 'vue-property-decorator'
+import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
 import { Certificate, cry } from 'thor-devkit'
 import { setUnlocked, getUnlocked } from '../unlocked'
-
+import ledger from '@/common/ledger'
+type walletList = {
+    sectionName: string
+    key?: string
+    list: entities.Wallet[] | { name: string, address: string }[]
+}[]
 type Arg = {
     message: Connex.Vendor.CertMessage
-    wallets: entities.Wallet[]
-    selectedWallet: number
+    wallets: walletList
+    selectedWallet: string
     domain: string
 }
 
@@ -169,12 +231,81 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     password = ''
     passwordError = ''
     signing = false
+    ledgerError: any = null
     step = 1
-    get wallet() { return this.arg.wallets[this.arg.selectedWallet] }
-    keepUnlocked = false
-    get privateKey() { return getUnlocked(this.wallet.id!) }
+    connected = false
+    seekIndex = 0
+    unsignedHex: String = ''
+    currentGroup: {
+        name: string,
+        key: string
+    } = {
+            name: '',
+            key: ''
+        }
 
+    keepUnlocked = false
+    get privateKey() {
+        const _wallet = this.wallet as entities.Wallet
+        return getUnlocked(_wallet.id! || -1)
+    }
+    get groups() {
+        return this.arg.wallets.map(item => {
+            return {
+                name: item.sectionName,
+                key: item.key
+            }
+        })
+    }
+    get isLocal() {
+        return this.currentGroup.key === 'local'
+    }
+    get wallets(): entities.Wallet[] | { name: string, address: string }[] {
+        const wallets = this.arg.wallets.find(item => { return item.key === this.currentGroup!.key })
+        if (wallets) {
+            return wallets.list
+        } else {
+            return []
+        }
+    }
+    get wallet(): entities.Wallet | { name: string, address: string } | null {
+        if (this.wallets.length) {
+            return this.wallets[this.seekIndex] || null
+        } else {
+            return null
+        }
+    }
+
+    get unsignedHexStr() {
+        return this.unsignedHex
+            ? this.unsignedHex.toUpperCase().slice(0, 4) + '…' + this.unsignedHex.toUpperCase().slice(this.unsignedHex.toUpperCase().length - 4) : ''
+    }
+    onConnectedLedger(r: any) {
+        if (r.publicKey === this.currentGroup.key) {
+            setTimeout(() => {
+                this.connected = true
+                this.ledgerSign()
+            }, 500)
+        } else {
+            this.signing = false
+        }
+    }
+
+    onLedgerTimeout() {
+        this.signing = false
+        this.ledgerError = new Error('Unable to connect your devce, please retry!')
+    }
+    onGroupSelect(item: { name: string, key: string }) {
+        this.currentGroup = item
+    }
+    @Watch('currentGroup')
+    setWalletThings() {
+        const i = this.wallets.findIndex(w => { return w.address === this.arg.selectedWallet })
+        this.seekIndex = i < 0 ? 0 : i
+    }
     mounted() {
+        this.setWalletThings()
+        this.currentGroup = { key: this.arg.wallets[0].key!, name: this.arg.wallets[0].sectionName }
         this.opened = true
     }
     get passwordInputElem() {
@@ -184,11 +315,54 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     async goNext() {
         if (this.step === 1) {
             this.step++
+            if (!this.isLocal) {
+                this.signing = true
+            }
         } else {
             await this.sign()
         }
     }
+
     async sign() {
+        if (this.isLocal) {
+            await this.localSign()
+        } else {
+            await this.ledgerSign()
+        }
+
+    }
+    async ledgerSign() {
+        try {
+            this.signing = true
+            const wallet = this.wallet as entities.Wallet
+            const annex = {
+                domain: this.arg.domain,
+                timestamp: connex.thor.status.head.timestamp,
+                signer: wallet!.address!
+            }
+            const unsigned = Certificate.encode({ ...this.arg.message, ...annex })
+            this.unsignedHex = cry.blake2b256(unsigned).toString('hex')
+            const signature = await ledger.signCert(this.seekIndex, Buffer.from(unsigned))
+            this.opened = false
+            this.$resolve({
+                annex,
+                signature: '0x' + signature.toString('hex')
+            })
+        } catch (error) {
+            console.log(error)
+            LOG.log(error.message)
+            // user decline
+            if (error.statusText === 'CONDITIONS_OF_USE_NOT_SATISFIED' || error.name === 'DisconnectedDevice') {
+                this.signing = false
+                this.decline()
+            } else {
+                this.ledgerError = error
+            }
+        } finally {
+            this.signing = false
+        }
+    }
+    async localSign() {
         if (this.signing) {
             return
         }
@@ -200,21 +374,21 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             this.signing = true
             this.passwordError = ''
 
-            const wallet = this.wallet
+            const wallet = this.wallet as entities.Wallet
             const annex = {
                 domain: this.arg.domain,
                 timestamp: connex.thor.status.head.timestamp,
-                signer: wallet.address!
+                signer: wallet!.address!
             }
 
             let privateKey
             if (this.privateKey) {
                 privateKey = this.privateKey
-                setUnlocked(this.wallet.id!, privateKey)
+                setUnlocked(wallet.id!, privateKey)
             } else {
-                privateKey = await cry.Keystore.decrypt(this.wallet.keystore, this.password)
+                privateKey = await cry.Keystore.decrypt(wallet.keystore, this.password)
                 if (this.keepUnlocked) {
-                    setUnlocked(this.wallet.id!, privateKey)
+                    setUnlocked(wallet.id!, privateKey)
                 }
             }
 
@@ -232,7 +406,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             })
         } catch (err) {
             LOG.warn('CertSigningDialog:', 'sign error', err)
-            if (err.message === 'message authentication code mismatch') {
+            if (err.message === 'invalid password') {
                 this.passwordError = 'Incorrect password'
                 setTimeout(() => {
                     this.passwordInputElem.select()
@@ -247,6 +421,9 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         this.step--
         this.keepUnlocked = false
         this.password = ''
+        this.signing = false
+        this.connected = false
+        this.ledgerError = null
     }
 
     decline() {

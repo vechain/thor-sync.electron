@@ -10,17 +10,18 @@
         height="490px"
     >
         <v-card class="bg">
-            <v-layout column style="height:445px;">
+            <v-layout column style="height:495px;">
                 <v-layout
                     column
                     justify-start
+                    class="pb-3"
                     style="
                         overflow: auto;
                         background-color:rgba(0,0,0,0.1);
                         position: absolute;
                         height: 315px;
-                         width: 100%;
-                        top: 130px
+                        width: 100%;
+                        top: 180px
                     "
                 >
                     <v-layout column style="flex:0 1 auto" class="py-1">
@@ -44,33 +45,19 @@
                             <br />
                             <i v-if="estimation.revertReason">"{{estimation.revertReason}}"</i>
                         </Tip>
-                        <template v-if="step === 1">
-                            <div class="pb-2">
-                                <div class="py-2 px-3">
-                                    <div class="subheading text-truncate">Transaction</div>
-                                    <div class="text-truncate">
-                                        <i :title="txComment">{{txComment}}</i>
-                                    </div>
-                                </div>
-                                <v-expansion-panel
-                                    expand
-                                    popout
-                                    class="pa-1"
-                                    style="overflow:auto;"
-                                >
-                                    <ClauseItem
-                                        tabindex="-1"
-                                        v-for="(clause,i) in clauses"
-                                        :key="i"
-                                        :index="i"
-                                        :clause="clause"
-                                    />
-                                </v-expansion-panel>
-                            </div>
-                        </template>
+                        <Tip
+                            class="ma-1"
+                            v-if="!isLocal && connected && !delegation.calling"
+                            type="info"
+                        >Please double check the transaction and confirm on your device</Tip>
+                        <TxListForDialog
+                            v-show="step === 1"
+                            :clauses="clauses"
+                            :txComment="txComment"
+                        />
                         <template v-if="step === 2">
                             <v-card-text
-                                v-show="!!arg.delegationHandler"
+                                v-show="!!arg.delegationHandler && !ledgerError"
                                 style="text-align: center"
                             >
                                 <div style="min-width:50%">
@@ -79,77 +66,123 @@
                                         <span>Contacting fee delegator ...</span>
                                     </div>
                                 </div>
-                                <v-btn
-                                    :disabled="signing"
-                                    v-show="!!delegation.error"
-                                    color="warning"
-                                    @click="buildTx"
-                                    style="text-transform:none"
-                                >Request tx fee for free</v-btn>
                                 <b
-                                    v-show="!!delegation.signature"
+                                    v-show="!!delegation.error"
+                                    class="error--text"
+                                >Failed to connect delegator, tx fee will be paid by you.</b>
+                                <b
+                                    v-show="!!delegation.signature && (isLocal || connected)"
                                     class="green--text"
                                 >Tx fee will be paid by app!!!</b>
                             </v-card-text>
-
-                            <v-card-text
-                                style="width: 500px; margin: auto"
-                                class="pt-4"
-                                v-show="!delegation.calling && !privateKey"
-                            >
-                                <p
-                                    style="text-align: center; font-size: 16px;margin-bottom: 50px"
-                                >Please input your wallet's password to sign the transaction</p>
-                                <div style="width: 350px; margin: auto">
-                                    <v-text-field
-                                        v-focus
-                                        :disabled="signing"
-                                        v-model="password"
-                                        label="Password"
-                                        type="password"
-                                        maxlength="20"
-                                        :error-messages="passwordError"
-                                        ref="passwordElem"
-                                        @focus="onPasswordFocused"
-                                    />
-                                    <v-checkbox
-                                        class="mt-1"
-                                        color="primary"
-                                        hide-details
-                                        label="Keep unlocked for 5 minutes"
-                                        v-model="keepUnlocked"
+                            <template v-if="!isLocal && !delegation.calling">
+                                <div
+                                    v-show="!connected && !ledgerError"
+                                    style="width: 500px; margin: auto"
+                                    class="text-md-center pt-1"
+                                >
+                                    <h3>Please connecting to device</h3>
+                                    <LedgerStatus
+                                        ref="ledgerStatus"
+                                        :publicKey="currentGroup.key"
+                                        @deviceInfo="onConnectedLedger"
+                                        @timeout="onLedgerTimeout"
+                                        style="background: transparent"
                                     />
                                 </div>
-                            </v-card-text>
-                            <v-card-text
-                                v-show="!delegation.calling && !!privateKey"
-                                class="text-xs-center mt-4 subheading"
-                            >
-                                <p class="title">Please sign the transaction</p>
-                                <v-icon class="mr-2 display-2">mdi-lock-open</v-icon>
-                                <p class="grey--text text--darken-1">The wallet is unlocked</p>
-                            </v-card-text>
-                            <div style="position:absolute;left:0;bottom:0; width: 100%">
-                                <v-progress-linear
-                                    v-show="signing"
-                                    class="ma-0"
-                                    height="2"
-                                    color="success"
-                                    indeterminate
+                                <TxListForDialog
+                                    v-if="!isLocal"
+                                    v-show="connected && !ledgerError"
+                                    :clauses="clauses"
+                                    :txComment="txComment"
                                 />
-                            </div>
+                                <div class="text-md-center pt-1" style="width: 500px; margin: auto" v-if="!!ledgerError">
+                                    <v-icon color="error" class="display-3">mdi-alert-circle-outline</v-icon>
+                                    <p class="error--text">{{ledgerError.message}}</p>
+                                </div>
+                            </template>
+                            <template
+                                v-if="isLocal || (isLocal && !!arg.delegationHandler && !delegation.calling)"
+                            >
+                                <v-card-text
+                                    style="width: 500px; margin: auto"
+                                    class="pt-4"
+                                    v-show="!privateKey"
+                                >
+                                    <p
+                                        style="text-align: center; font-size: 16px;margin-bottom: 50px"
+                                    >Please input your wallet's password to sign the transaction</p>
+                                    <div style="width: 350px; margin: auto">
+                                        <v-text-field
+                                            v-focus
+                                            :disabled="signing"
+                                            v-model="password"
+                                            label="Password"
+                                            type="password"
+                                            maxlength="20"
+                                            :error-messages="passwordError"
+                                            ref="passwordElem"
+                                            @focus="onPasswordFocused"
+                                        />
+                                        <v-checkbox
+                                            class="mt-1"
+                                            color="primary"
+                                            hide-details
+                                            label="Keep unlocked for 5 minutes"
+                                            v-model="keepUnlocked"
+                                        />
+                                    </div>
+                                </v-card-text>
+                                <v-card-text
+                                    v-show="!!privateKey"
+                                    class="text-xs-center mt-4 subheading"
+                                >
+                                    <p class="title">Please sign the transaction</p>
+                                    <v-icon class="mr-2 display-2">mdi-lock-open</v-icon>
+                                    <p class="grey--text text--darken-1">The wallet is unlocked</p>
+                                </v-card-text>
+                            </template>
                         </template>
                     </v-layout>
                 </v-layout>
+                <div style="position:absolute;left:0;bottom: 44px; width: 100%">
+                    <v-progress-linear
+                        v-show="signing"
+                        class="ma-0"
+                        height="2"
+                        color="success"
+                        indeterminate
+                    />
+                </div>
                 <div class="signing-content-top">
+                    <v-menu :disabled="step === 2 || groups.length === 1" offset-y>
+                        <template>
+                            <v-btn
+                                small
+                                :disabled="step === 2 || groups.length === 1"
+                                :flat="!(step === 2 || groups.length === 1)"
+                                slot="activator"
+                            >
+                                {{currentGroup.name}}
+                                <v-icon right>mdi-menu-down</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-tile v-for="(item, index) in groups" :key="index">
+                                <v-list-tile-content>
+                                    <v-btn small flat @click="onGroupSelect(item)">{{ item.name }}</v-btn>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </v-list>
+                    </v-menu>
                     <v-layout row>
                         <v-layout column align-content-center>
                             <v-card-text style="width: 300px; padding: 10px; margin: auto">
                                 <WalletSeeker
                                     full-size
                                     :wallets="wallets"
-                                    v-model="arg.selectedWallet"
-                                    :noseek="step === 2"
+                                    v-model="seekIndex"
+                                    :noseek="(step === 2) || !!arg.selectedWallet"
                                 />
                             </v-card-text>
                         </v-layout>
@@ -215,7 +248,7 @@
                     @click="back"
                 >Back</v-btn>
                 <v-btn
-                    v-show="step === 2"
+                    v-show="step === 2 && isLocal"
                     dark
                     small
                     flat
@@ -237,11 +270,18 @@ import AccountLoader from '@/renderer/mixins/account-loader'
 import { describeClauses } from '@/common/formatter'
 import { setUnlocked, getUnlocked } from '../unlocked'
 import { cry } from 'thor-devkit'
+import ledger from '@/common/ledger'
+import LedgerStatus from './LedgerStatus.vue'
 
+type walletList = {
+    sectionName: string
+    key?: string
+    list: entities.Wallet[] | { name: string, address: string }[]
+}[]
 type Arg = {
     message: Connex.Driver.SignTxArg
-    wallets: entities.Wallet[]
-    selectedWallet: number
+    wallets: walletList
+    selectedWallet: string
     suggestedGas: number
     txComment: string
     dependsOn: string | null
@@ -269,6 +309,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         baseGasPrice: new BigNumber(0),
         error: ''
     }
+    ledgerError: any = null
     password = ''
     passwordError = ''
     gasPriceCoef = 0
@@ -282,14 +323,47 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         signature: '',
         error: null as (Error | null)
     }
-
+    connected = false
     builtTx = null as ReturnType<typeof buildTx> | null
-
+    seekIndex = 0
+    currentGroup: {
+        name: string,
+        key: string
+    } = {
+            name: '',
+            key: ''
+        }
     get suggestedGas() { return this.arg.suggestedGas }
     get txComment() { return this.arg.txComment || describeClauses(this.arg.message) }
-    get wallets() { return this.arg.wallets }
-    get wallet() { return this.wallets[this.arg.selectedWallet] }
-    get address() { return this.wallet.address! }
+    get wallets(): entities.Wallet[] | { name: string, address: string }[] {
+        const wallets = this.arg.wallets.find(item => { return item.key === this.currentGroup!.key })
+        if (wallets) {
+            return wallets.list
+        } else {
+            return []
+        }
+    }
+    get isLocal() {
+        return this.currentGroup.key === 'local'
+    }
+    get groups() {
+        return this.arg.wallets.map(item => {
+            return {
+                name: item.sectionName,
+                key: item.key
+            }
+        })
+    }
+    get wallet(): entities.Wallet | { name: string, address: string } | null {
+        if (this.wallets.length) {
+            return this.wallets[this.seekIndex] || null
+        } else {
+            return null
+        }
+    }
+    get address() { return this.wallet ? this.wallet.address : '' }
+
+    // wallet = this.wallets[0]
     get clauses() { return this.arg.message }
     get fee() {
         if (this.estimation.gas > 0) {
@@ -315,18 +389,34 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.estimation.gas
     }
 
-    get privateKey() { return getUnlocked(this.wallet.id!) }
+    get privateKey() {
+        const _wallet = this.wallet as entities.Wallet
+        return getUnlocked(_wallet.id! || -1)
+    }
+
+    onLedgerTimeout() {
+        this.signing = false
+        this.ledgerError = new Error('Unable to connect your devce, please retry!')
+        // this.back()
+    }
 
     @Watch('password')
     passwordChanged() {
         this.passwordError = ''
     }
+
     @Watch('$store.state.chainHead')
     headChanged() {
         this.debouncedEstimateGas()
     }
 
-    @Watch('arg.selectedWallet')
+    @Watch('currentGroup')
+    setWalletThings() {
+        const i = this.wallets.findIndex(w => { return w.address === this.arg.selectedWallet })
+        this.reestimateGas()
+        this.seekIndex = i < 0 ? 0 : i
+    }
+    @Watch('seekIndex')
     reestimateGas() {
         this.estimation.gas = 0
         this.estimation.error = ''
@@ -339,6 +429,21 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             this.estimateGas()
         } else {
             this.debouncedEstimateGas()
+        }
+    }
+
+    onGroupSelect(item: { name: string, key: string }) {
+        this.currentGroup = item
+    }
+
+    onConnectedLedger(r: any) {
+        if (r.publicKey === this.currentGroup.key) {
+            setTimeout(() => {
+                this.connected = true
+                this.ledgerSign()
+            }, 700)
+        } else {
+            this.signing = false
         }
     }
 
@@ -376,6 +481,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
 
     created() {
         this.debouncedEstimateGas = debounce(() => this.estimateGas(), 500)
+        this.setWalletThings()
+        this.currentGroup = { key: this.arg.wallets[0].key!, name: this.arg.wallets[0].sectionName }
         this.estimateGas()
     }
 
@@ -388,8 +495,11 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
     async goNext() {
         if (this.step === 1) {
-            this.step++
             await this.buildTx()
+            this.step++
+            if (!this.isLocal) {
+                this.signing = true
+            }
         } else {
             await this.sign()
         }
@@ -398,6 +508,9 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         this.step--
         this.keepUnlocked = false
         this.password = ''
+        this.signing = false
+        this.connected = false
+        this.ledgerError = null
     }
 
     async buildTx() {
@@ -411,8 +524,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
                 this.delegation.calling = true
                 const r = await Promise.race([
                     this.arg.delegationHandler({
-                        raw: builtTx.unsignedRaw,
-                        origin: this.wallet.address
+                        raw: '0x' + builtTx.unsignedTx(true).encode().toString('hex'),
+                        origin: this.wallet!.address
                     }),
                     new Promise<{ signature: string }>((_, reject) => {
                         setTimeout(() => reject(new Error('timeout')), 10000)
@@ -429,6 +542,14 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
 
     async sign() {
+        if (this.isLocal) {
+            await this.localSign()
+        } else {
+            await this.ledgerSign()
+        }
+    }
+
+    async localSign() {
         if (!this.readyToSign) {
             return
         }
@@ -437,6 +558,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             return
         }
 
+        const _wallet = this.wallet as entities.Wallet
+
         try {
             this.signing = true
             this.passwordError = ''
@@ -444,17 +567,20 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             let privateKey
             if (this.privateKey) {
                 privateKey = this.privateKey
-                setUnlocked(this.wallet.id!, privateKey)
+                setUnlocked(_wallet.id!, privateKey)
             } else {
-                privateKey = await cry.Keystore.decrypt(this.wallet.keystore, this.password)
+                privateKey = await cry.Keystore.decrypt(_wallet.keystore, this.password)
                 if (this.keepUnlocked) {
-                    setUnlocked(this.wallet.id!, privateKey)
+                    setUnlocked(_wallet.id!, privateKey)
                 }
             }
 
             const timestamp = connex.thor.status.head.timestamp
-            const result = this.builtTx!
-                .sign(privateKey, this.delegation.signature)
+            const signedTx = this.builtTx!.signTx(privateKey, this.delegation.signature)
+            const result = {
+                txid: signedTx.id!,
+                rawTx: '0x' + signedTx.encode().toString('hex')
+            }
 
             this.opened = false
             this.$resolve({
@@ -465,11 +591,44 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             })
         } catch (err) {
             LOG.warn('TxSigningDialog:', 'sign error', err)
-            if (err.message === 'message authentication code mismatch') {
+            if (err.message === 'invalid password') {
                 this.passwordError = 'Incorrect password'
                 setTimeout(() => {
                     this.passwordInputElem.select()
                 }, 0)
+            }
+        } finally {
+            this.signing = false
+        }
+    }
+
+    async ledgerSign() {
+        try {
+            const tx = this.builtTx!.unsignedTx(this.delegation.signature ? true : false)
+
+            tx.signature = await ledger.signTransaction(
+                this.seekIndex,
+                tx.encode(),
+                this.delegation.signature
+            )
+
+            this.opened = false
+            this.$resolve({
+                txid: tx.id!,
+                rawTx: '0x' + tx.encode().toString('hex'),
+                signer: this.address!,
+                estimatedFee: this.fee.toString(10),
+                timestamp: connex.thor.status.head.timestamp
+            })
+        } catch (error) {
+            console.log(error)
+            LOG.log(error)
+            // user decline
+            if (error.statusText === 'CONDITIONS_OF_USE_NOT_SATISFIED' || error.name === 'DisconnectedDevice') {
+                this.signing = false
+                this.decline()
+            } else {
+                this.ledgerError = error
             }
         } finally {
             this.signing = false
@@ -497,7 +656,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
 }
 .signing-content-top {
     box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);
-    height: 130px;
+    height: 180px;
     position: absolute;
     top: 0;
     width: 100%;

@@ -13,7 +13,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { remote } from 'electron'
 import { TxSigningDialog, CertSigningDialog } from '@/renderer/components'
-import { State } from 'vuex-class'
+import { State, Getter } from 'vuex-class'
 import * as UrlUtils from '@/common/url-utils'
 import { ipcServe } from '../ipc'
 import { Certificate, cry } from 'thor-devkit'
@@ -36,7 +36,84 @@ export default class Vendor extends Vue {
         return i < 0 ? 0 : i
     }
 
+    get ledgerAccountList() {
+        let result: string[] = []
+        this.ledgerAccounts.forEach(item => {
+            result = [...result, ...item.accounts]
+        })
+        return result
+    }
+
+    @Getter ledgerAccounts!: (entities.LedgerDevice & { accounts: string[] })[]
     @State wallets!: entities.Wallet[]
+
+    isAddressOwned(addr: string) {
+        const temp = addr.toLowerCase()
+        return !!this.wallets.find(w => w.address.toLowerCase() === temp)
+            || !!this.ledgerAccountList!.find(w => w.toLowerCase() === temp)
+    }
+
+    getArgWallets(addr?: string) {
+        if (addr) {
+            let local = this.wallets.find(item => {
+                return item.address.toLowerCase() === addr
+            })
+            if (!!local) {
+                return [
+                    {
+                        sectionName: 'Local',
+                        key: 'local',
+                        list: this.wallets.slice()
+                    },
+                ]
+            } else {
+                let ledger = this.ledgerAccounts.find(item => {
+                    return item.accounts.indexOf(addr) >= 0
+                })
+                // let index = ledger!.accounts.findIndex(item => { return item === addr })
+                if (ledger) {
+                    return [
+                        {
+                            sectionName: ledger!.name,
+                            key: ledger!.publicKey,
+                            list: ledger!.accounts.map((item, index) => {
+                                return {
+                                    name: Vue.filter('ledgerName')(ledger!.name, index),
+                                    address: item
+                                }
+                            })
+                        }
+                    ]
+                } else {
+                    return []
+                }
+            }
+        } else {
+            let temp = []
+            if (this.wallets.length) {
+                temp.push({
+                    sectionName: 'Local',
+                    key: 'local',
+                    list: this.wallets.slice()
+                })
+            }
+            return [
+                ...temp,
+                ...this.ledgerAccounts.map(item => {
+                    return {
+                        sectionName: item.name,
+                        key: item.publicKey,
+                        list: item.accounts.map((acc, i) => {
+                            return {
+                                name: Vue.filter('ledgerName')(item!.name, i),
+                                address: acc
+                            }
+                        })
+                    }
+                })
+            ]
+        }
+    }
 
     mounted() {
         window.VENDOR = {
@@ -49,14 +126,14 @@ export default class Vendor extends Vue {
                 return this.signCert(msg, options, caller.referer)
             },
             isAddressOwned: addr => {
-                return Promise.resolve(!!this.wallets.find(w => w.address === addr))
+                return Promise.resolve(this.isAddressOwned(addr))
             }
         }
     }
 
     async precheck(contentsId: number) {
         if (this.dialogOpened) { throw new Error('request is in progress') }
-        if (!this.wallets.length) {
+        if (!this.getArgWallets().length) {
             this.snack.open = true
             this.snack.message = 'You have no wallet yet'
             this.snack.actionName = 'Create Now'
@@ -76,11 +153,15 @@ export default class Vendor extends Vue {
 
     async signTx(arg: Connex.Driver.SignTxArg, option: Connex.Driver.SignTxOption, referer: Referer): Promise<Connex.Vendor.TxResponse> {
 
-        let enforcedWallet
+        let enforcedWallet = ''
+        let walletsCollection = this.getArgWallets()
         if (option.signer) {
-            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === option.signer!.toLowerCase())
+            const signer = option.signer!.toLowerCase()
+            enforcedWallet = this.isAddressOwned(signer) ? signer : ''
             if (!enforcedWallet) {
                 throw new Error('required signer unavailable')
+            } else {
+                walletsCollection = this.getArgWallets(signer)
             }
         }
 
@@ -89,8 +170,8 @@ export default class Vendor extends Vue {
             const result = await this.$dialog(TxSigningDialog, {
                 message: arg,
                 // enforce using wallet
-                wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
-                selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
+                wallets: walletsCollection,
+                selectedWallet: enforcedWallet,
                 suggestedGas: option.gas || 0,
                 txComment: option.comment || '',
                 dependsOn: option.dependsOn || null,
@@ -137,21 +218,25 @@ export default class Vendor extends Vue {
 
     async signCert(arg: Connex.Driver.SignCertArg, option: Connex.Driver.SignCertOption, referer: Referer) {
 
-        let enforcedWallet
+
+        let enforcedWallet = ''
+        let walletsCollection = this.getArgWallets()
         if (option.signer) {
-            enforcedWallet = this.wallets.find(w => w.address!.toLowerCase() === option.signer!.toLowerCase())
+            const signer = option.signer!.toLowerCase()
+            enforcedWallet = this.isAddressOwned(signer) ? signer : ''
             if (!enforcedWallet) {
                 throw new Error('required signer unavailable')
+            } else {
+                walletsCollection = this.getArgWallets(signer)
             }
         }
-
         try {
             this.dialogOpened = true
             const result = await this.$dialog(CertSigningDialog, {
                 message: arg,
                 // enforce using wallet
-                wallets: enforcedWallet ? [enforcedWallet] : this.wallets.slice(),
-                selectedWallet: enforcedWallet ? 0 : this.lastWalletIndex,
+                wallets: walletsCollection,
+                selectedWallet: enforcedWallet,
                 domain: UrlUtils.hostnameOf(referer.url)
             })
 

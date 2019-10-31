@@ -93,8 +93,18 @@ export function buildTx(
         nonce: '0x' + randomBytes(8).toString('hex')
     }
     return {
-        unsignedRaw: '0x' + new Transaction({ ...txBody, reserved: { features: 1 } }).encode().toString('hex'),
-        sign: (privateKey: Buffer, delegatorSig?: string) => {
+        unsignedTx: (features?: boolean) => {
+            let reserved = {}
+            if (features) {
+                reserved = {
+                    reserved: {
+                        features: 1
+                    }
+                }
+            }
+            return new Transaction({...txBody, ...reserved})
+        },
+        signTx: (privateKey: Buffer, delegatorSig?: string) => {
             let tx
             if (delegatorSig) {
                 tx = new Transaction({ ...txBody, reserved: { features: 1 } })
@@ -104,10 +114,7 @@ export function buildTx(
                 tx = new Transaction(txBody)
                 tx.signature = cry.secp256k1.sign(cry.blake2b256(tx.encode()), privateKey)
             }
-            return {
-                txid: tx.id!,
-                rawTx: '0x' + tx.encode().toString('hex')
-            }
+            return tx
         }
     }
 }
