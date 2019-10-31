@@ -158,7 +158,7 @@ const routes: RouteConfig[] = [
         }
     },
     {
-        path: '/wallets/:address',
+        path: '/wallets/:type/:addressOrCode',
         name: 'wallet-detail',
         component: WalletDetail,
         meta: {
