@@ -6,11 +6,13 @@
                 <v-select
                     v-model="group"
                     return-object
-                    item-text="sectionName"
                     :items="groups"
                     label="From"
+                    item-text="sectionName"
+                    item-value="key"
                     @change="onGroupChange"
-                ></v-select>
+                >
+                </v-select>
             </v-flex>
             <WalletSeeker style="width:270px" full-size :wallets="group.list" v-model="from" />
             <v-icon large class="my-3 arrow-icon">mdi-arrow-down-bold</v-icon>
