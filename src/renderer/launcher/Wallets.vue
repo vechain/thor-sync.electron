@@ -7,20 +7,26 @@
                         <h2 class="ml-3 display-1">Wallets</h2>
                     </div>
                     <div>
-                        <v-btn icon flat @click="onCreate">
-                            <v-icon>mdi-plus-circle-outline</v-icon>
-                        </v-btn>
-                        <v-btn flat icon @click="onImport">
-                            <v-icon>mdi-download-outline</v-icon>
-                        </v-btn>
+                        <Tooltip bottom>
+                            <v-btn slot="activator" icon flat @click="onCreate">
+                                <v-icon>mdi-plus-circle-outline</v-icon>
+                            </v-btn>
+                            <span>Create</span>
+                        </Tooltip>
+                        <Tooltip bottom>
+                            <v-btn slot="activator" flat icon @click="onImport">
+                                <v-icon>mdi-download-outline</v-icon>
+                            </v-btn>
+                            <span>Import</span>
+                        </Tooltip>
                         <v-btn flat @click="onLedger">
                             <SvgLedger width="75px" />
                         </v-btn>
                     </div>
                 </v-layout>
             </div>
-            <div>
-                <div class="tabs text-xs-center">
+            <div class="pt-1">
+                <div class="tabs pb-2 text-xs-center">
                     <span
                         :class="{active: currentTab === 'local'}"
                         @click="onTabChange('local')"
@@ -130,6 +136,7 @@ import {
 
 @Component
 export default class Wallets extends Vue {
+    show = true
     currentTab: string = 'local'
     get wallets() { return this.$store.state.wallets as entities.Wallet[] }
     get storeReady() { return this.$store.state.ready }
