@@ -8,10 +8,10 @@
                     </div>
                     <div>
                         <v-btn icon flat @click="onCreate">
-                            <v-icon >mdi-plus-circle-outline</v-icon>
+                            <v-icon>mdi-plus-circle-outline</v-icon>
                         </v-btn>
                         <v-btn flat icon @click="onImport">
-                            <v-icon >mdi-download-outline</v-icon>
+                            <v-icon>mdi-download-outline</v-icon>
                         </v-btn>
                         <v-btn flat @click="onLedger">
                             <SvgLedger width="75px" />
@@ -20,9 +20,34 @@
                 </v-layout>
             </div>
             <div>
-                <v-tabs centered color="transparent" slider-color="primary">
-                    <v-tab class="px-2" key="local" color="gray text--dark-2">Local</v-tab>
-                    <v-tab-item key="local">
+                <div class="tabs text-xs-center">
+                    <span
+                        :class="{active: currentTab === 'local'}"
+                        @click="onTabChange('local')"
+                        v-ripple
+                        class="d-inline-block mx-2 pa-2 title gray text--dark-2 font-weight-regular"
+                    >
+                        Local
+                        <span></span>
+                    </span>
+                    <span
+                        :class="{active: currentTab === item.publicKey}"
+                        @click="onTabChange(item.publicKey)"
+                        v-ripple
+                        class="d-inline-block mx-2 pa-2 title gray text--dark-2 font-weight-regular"
+                        v-for="item in ledgers"
+                        :key="item.publicKey"
+                    >
+                        {{item.name}}
+                        <span></span>
+                    </span>
+                </div>
+                <transition
+                    mode="out-in"
+                    :enter-active-class="`animated faster slide-in`"
+                    :leave-active-class="`animated faster fade-out`"
+                >
+                    <div v-if="currentTab === 'local'">
                         <v-layout
                             v-if="wallets.length>0"
                             row
@@ -50,10 +75,9 @@
                                 class="headline grey--text font-weight-light"
                             >Time To Create Your Wallet!</div>
                         </div>
-                    </v-tab-item>
+                    </div>
                     <template v-for="item in ledgers">
-                        <v-tab class="px-2" :key="item.publicKey">{{item.name}}</v-tab>
-                        <v-tab-item :key="item.publicKey">
+                        <div v-if="currentTab === item.publicKey" :key="item.publicKey">
                             <v-layout justify-center align-center>
                                 <v-btn
                                     color="primary"
@@ -86,9 +110,9 @@
                                     ></WalletCard>
                                 </v-flex>
                             </v-layout>
-                        </v-tab-item>
+                        </div>
                     </template>
-                </v-tabs>
+                </transition>
             </div>
         </v-layout>
     </v-layout>
@@ -102,11 +126,11 @@ import {
     ImportLedgerDialog,
     DeleteDeviceDialog,
     RenameDeviceDialog
-    } from '@/renderer/components'
+} from '@/renderer/components'
 
 @Component
 export default class Wallets extends Vue {
-    private currentTab = 'local'
+    currentTab: string = 'local'
     get wallets() { return this.$store.state.wallets as entities.Wallet[] }
     get storeReady() { return this.$store.state.ready }
 
@@ -145,6 +169,10 @@ export default class Wallets extends Vue {
         this.$dialog(ImportWalletDialog, null)
     }
 
+    onTabChange(key: string) {
+        this.currentTab = key
+    }
+
     onCreate() {
         this.$dialog(CreateWalletDialog, undefined)
     }
@@ -164,11 +192,14 @@ export default class Wallets extends Vue {
         })
     }
 
-    beforeUpdate() {
-        this.currentTab = 'local'
+    @Watch('ledgers')
+    onChange(v: any[], ov: any[]) {
+        if (v.length !== ov.length) {
+            this.currentTab = this.ledgers.length ? this.ledgers[this.ledgers.length - 1].publicKey : 'local'
+        }
     }
 
-    async onRemoveDevice (name: string, id: number) {
+    async onRemoveDevice(name: string, id: number) {
         await this.$dialog(DeleteDeviceDialog, {
             name,
             id
@@ -176,3 +207,36 @@ export default class Wallets extends Vue {
     }
 }
 </script>
+
+<style scoped>
+.tabs > span {
+    position: relative;
+    opacity: 0.7;
+}
+.tabs > span.active {
+    opacity: 1;
+}
+.tabs span span {
+    display: block;
+    height: 2px;
+    bottom: -2px;
+    position: absolute;
+    margin: auto;
+    left: -8px;
+    width: calc(100% + 16px);
+}
+.tabs span span::after {
+    content: "";
+    display: block;
+    width: 0;
+    opacity: 0;
+    height: 100%;
+    background-color: #1976d2;
+    margin: auto;
+    transition: all 0.2s ease-in-out;
+}
+.tabs span.active span::after {
+    opacity: 0.87;
+    width: 100%;
+}
+</style>
