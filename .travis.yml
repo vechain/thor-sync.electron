@@ -10,6 +10,10 @@ matrix:
     - os: linux
       language: node_js
       node_js: "10"
+      addons:
+        apt:
+          packages:
+          - libudev-dev
 cache:
   directories:
     - node_modules
