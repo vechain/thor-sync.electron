@@ -13,11 +13,12 @@
                     ref="nameInput"
                     type="text"
                     v-focus
+                    required
                     validate-on-blur
                     placeholder="Please type a device name"
                     label="Device Name"
                     :counter="20"
-                    v-model="name"
+                    v-model.trim="name"
                     :rules="nameRules"
                     :loading="checking"
                 ></v-text-field>
@@ -57,7 +58,7 @@ export default class RenameDeviceDialog extends Mixins(
     show = false
     checking = false
     nameRules = [
-        (v: string) => !!v || 'Device name is required',
+        (v: string) => (!!v && !!v.trim()) || 'Device name is required',
         (v: string) => v.length <= 20 || 'Device name must be less than 20 characters'
     ]
 

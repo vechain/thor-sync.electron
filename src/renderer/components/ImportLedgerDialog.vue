@@ -24,7 +24,7 @@
                         <v-stepper-content step="2">
                             <v-form v-if="step === 2" ref="form" v-model="valid" @submit.prevent>
                                 <v-text-field
-                                    v-model="deviceName"
+                                    v-model.trim="deviceName"
                                     validate-on-blur
                                     v-focus
                                     :counter="20"
@@ -115,7 +115,7 @@ export default class ImportLedgerDialog extends Mixins(
     overWriteErrorMsg: string[] = []
 
     nameRules = [
-        (v: string) => !!v || 'Device name is required',
+        (v: string) => (!!v && !!v.trim()) || 'Device name is required',
         (v: string) => v.length <= 20 || 'Device name must be less than 20 characters'
     ]
 
