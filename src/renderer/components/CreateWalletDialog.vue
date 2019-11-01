@@ -115,6 +115,7 @@
 import { Vue, Component, Mixins, Watch } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
 import { cry } from 'thor-devkit'
+import * as Keystore from '@/common/keystore'
 
 @Component
 export default class CreateWalletDialog extends Mixins(
@@ -218,7 +219,7 @@ export default class CreateWalletDialog extends Mixins(
     async encryptAndSave() {
         try {
             const privateKey = cry.mnemonic.derivePrivateKey(this.words)
-            const ks = await cry.Keystore.encrypt(privateKey, this.password)
+            const ks = await Keystore.encrypt(privateKey, this.password)
             const entity = {
                 name: this.name.trim(),
                 address: '0x' + ks.address,

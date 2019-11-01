@@ -53,7 +53,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
-import { cry } from 'thor-devkit'
+import * as Keystore from '@/common/keystore'
 
 type Arg = {
     wallet: entities.Wallet
@@ -93,7 +93,7 @@ export default class UnlockWalletDialog extends Mixins(
         }
         this.processing = true
         try {
-            const privateKey = await cry.Keystore.decrypt(
+            const privateKey = await Keystore.decrypt(
                 this.wallet.keystore,
                 this.password
             )

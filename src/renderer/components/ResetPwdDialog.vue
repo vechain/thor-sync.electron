@@ -48,9 +48,9 @@ type Arg = {
     id?: number
 }
 import { Vue, Component, Watch, Prop, Mixins } from 'vue-property-decorator'
-import { cry } from 'thor-devkit'
 import DialogHelper from '@/renderer/mixins/dialog-helper'
 import Account from '@/renderer/mixins/Account'
+import * as Keystore from '@/common/keystore'
 
 @Component
 export default class ResetPwdDialog extends Mixins(
@@ -119,7 +119,7 @@ export default class ResetPwdDialog extends Mixins(
 
         try {
             if (this.arg.privateKey) {
-                const ks = await cry.Keystore.encrypt(
+                const ks = await Keystore.encrypt(
                     this.arg.privateKey,
                     this.newPassword
                 )
