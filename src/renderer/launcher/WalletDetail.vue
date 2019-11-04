@@ -260,4 +260,7 @@ input.editable-name {
     border-radius: 2px;
     background-color: #efefef;
 }
+.cert-msg-dialog .theme--dark .v-card__text > div {
+    background-color: #505050;
+}
 </style>
