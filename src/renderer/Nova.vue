@@ -968,4 +968,7 @@ a:not(.v-list__tile):not(.v-tabs__item):hover{
 .v-text-field__details {
     overflow: visible;
 }
+.theme--dark .secondary {
+    background-color: #777;
+}
 </style>
