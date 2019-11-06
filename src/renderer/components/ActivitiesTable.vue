@@ -203,6 +203,8 @@ export default class ActivitiesTable extends TableLoader<entities.Activity<'tx' 
         if (qStatus === 'sent' && headTs > sendTime + 10 * 6) {
             return 'timeout'
         }
+
+        return 'sending'
     }
 
     showComment(msg: string) {
