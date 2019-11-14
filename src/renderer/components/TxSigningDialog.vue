@@ -591,7 +591,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             })
         } catch (err) {
             LOG.warn('TxSigningDialog:', 'sign error', err)
-            if (err.message === 'invalid password') {
+            if (err.message === 'message authentication code mismatch') {
                 this.passwordError = 'Incorrect password'
                 setTimeout(() => {
                     this.passwordInputElem.select()
