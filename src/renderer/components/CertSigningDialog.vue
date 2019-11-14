@@ -408,7 +408,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             })
         } catch (err) {
             LOG.warn('CertSigningDialog:', 'sign error', err)
-            if (err.message === 'invalid password') {
+            if (err.message === 'message authentication code mismatch') {
                 this.passwordError = 'Incorrect password'
                 setTimeout(() => {
                     this.passwordInputElem.select()
