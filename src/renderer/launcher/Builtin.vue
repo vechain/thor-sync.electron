@@ -5,7 +5,7 @@
             :leave-active-class="`animated faster ${leaveClass}`"
         >
             <router-view
-                :key="$route.fullPath"
+                :key="$route.name"
                 style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"
             />
         </transition>
@@ -16,6 +16,7 @@ import { Vue, Component, Watch, Prop, Emit } from 'vue-property-decorator'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Portal from './Portal.vue'
 import Wallets from './Wallets.vue'
+import WalletsList from './WalletsList.vue'
 import WalletDetail from './WalletDetail.vue'
 import Settings from './Settings.vue'
 import Transfer from './Transfer.vue'
@@ -153,12 +154,17 @@ const routes: RouteConfig[] = [
         path: '/wallets',
         name: 'wallets',
         component: Wallets,
-        meta: {
-            title: 'Wallets'
-        }
+        children: [{
+            name: 'wallets-list',
+            path: '/wallets/:group',
+            component: WalletsList,
+            meta: {
+                title: 'Wallets'
+            }
+        }]
     },
     {
-        path: '/wallets/:type/:addressOrCode',
+        path: '/wallets/:group/:indexOrId',
         name: 'wallet-detail',
         component: WalletDetail,
         meta: {

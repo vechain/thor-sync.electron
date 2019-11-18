@@ -53,71 +53,7 @@
                     :enter-active-class="`animated faster slide-in`"
                     :leave-active-class="`animated faster fade-out`"
                 >
-                    <div v-if="currentTab === 'local'">
-                        <v-layout
-                            v-if="wallets.length>0"
-                            row
-                            wrap
-                            :justify-center="wallets.length<4"
-                        >
-                            <v-flex
-                                v-for="wallet in wallets"
-                                :key="wallet.address"
-                                xs3
-                                class="py-3"
-                            >
-                                <WalletCard
-                                    flat
-                                    class="card-border-thin"
-                                    style="border-radius:9px;width:170px;margin:auto;"
-                                    @click.native="onLoclaClick(wallet.address)"
-                                    :wallet="wallet"
-                                    ripple
-                                ></WalletCard>
-                            </v-flex>
-                        </v-layout>
-                        <div v-else-if="storeReady" class="text-xs-center py-5">
-                            <div
-                                class="headline grey--text font-weight-light"
-                            >Time To Create Your Wallet!</div>
-                        </div>
-                    </div>
-                    <template v-for="item in ledgers">
-                        <div v-if="currentTab === item.publicKey" :key="item.publicKey">
-                            <v-layout justify-center align-center>
-                                <v-btn
-                                    color="primary"
-                                    small
-                                    flat
-                                    @click="onRenameDevice(item.name, item.id)"
-                                >Rename</v-btn>
-                                <v-btn
-                                    color="error"
-                                    small
-                                    flat
-                                    @click="onRemoveDevice(item.name, item.id)"
-                                >Remove</v-btn>
-                            </v-layout>
-                            <v-layout row wrap>
-                                <v-flex
-                                    v-for="(address, index) in item.accounts"
-                                    :key="address"
-                                    xs3
-                                    class="py-3"
-                                >
-                                    <WalletCard
-                                        flat
-                                        class="card-border-thin"
-                                        @click.native="onLedgerClick(item.chainCode, index)"
-                                        style="border-radius:9px;width:170px;margin:auto;"
-                                        :wallet="{ name: getName(item.name, index),
-                                                address: address }"
-                                        ripple
-                                    ></WalletCard>
-                                </v-flex>
-                            </v-layout>
-                        </div>
-                    </template>
+                    <router-view :key="$route.fullPath"></router-view>
                 </transition>
             </div>
         </v-layout>
@@ -129,18 +65,13 @@ import { cry } from 'thor-devkit'
 import {
     ImportWalletDialog,
     CreateWalletDialog,
-    ImportLedgerDialog,
-    DeleteDeviceDialog,
-    RenameDeviceDialog
+    ImportLedgerDialog
 } from '@/renderer/components'
 
 @Component
 export default class Wallets extends Vue {
     show = true
-    currentTab: string = 'local'
-    get wallets() { return this.$store.state.wallets as entities.Wallet[] }
     get storeReady() { return this.$store.state.ready }
-
     get ledgers() {
         return this.$store.getters.ledgerAccounts
     }
@@ -155,12 +86,12 @@ export default class Wallets extends Vue {
         })
     }
 
-    onLedgerClick(chainCode: string, index: number) {
+    onLedgerClick(pubKey: string, index: number) {
         this.$router.push({
             name: 'wallet-detail',
             params: {
                 type: 'ledger',
-                addressOrCode: chainCode
+                addressOrCode: pubKey
             },
             query: {
                 index: index.toString()
@@ -168,8 +99,8 @@ export default class Wallets extends Vue {
         })
     }
 
-    getName(ledgerName: string, index: string) {
-        return Vue.filter('ledgerName')(ledgerName, index)
+    get currentTab() {
+        return this.$route.params.group
     }
 
     onImport() {
@@ -177,7 +108,12 @@ export default class Wallets extends Vue {
     }
 
     onTabChange(key: string) {
-        this.currentTab = key
+        this.$router.replace({
+            name: 'wallets-list',
+            params: {
+                group: key
+            }
+        })
     }
 
     onCreate() {
@@ -192,26 +128,15 @@ export default class Wallets extends Vue {
         this.$dialog(ImportLedgerDialog, null)
     }
 
-    onRenameDevice(name: string, id: number) {
-        this.$dialog(RenameDeviceDialog, {
-            name,
-            id
-        })
-    }
-
     @Watch('ledgers')
     onChange(v: any[], ov: any[]) {
         if (v.length !== ov.length) {
-            this.currentTab = this.ledgers.length ? this.ledgers[this.ledgers.length - 1].publicKey : 'local'
+            const group = this.ledgers.length ? this.ledgers[this.ledgers.length - 1].chainCode : 'local'
+            this.onTabChange(group)
         }
     }
 
-    async onRemoveDevice(name: string, id: number) {
-        await this.$dialog(DeleteDeviceDialog, {
-            name,
-            id
-        })
-    }
+
 }
 </script>
 
