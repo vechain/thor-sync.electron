@@ -545,7 +545,7 @@ export default class Nova extends Vue {
         (this.$refs.swiper as any).handleWheel(delta.x, delta.y)
     }
     onWallets() {
-        this.openTab('sync://wallets', 'inplace-builtin')
+        this.openTab('sync://wallets/local', 'inplace-builtin')
     }
 
     get menuItems(): WindowMenu.Item[] {
@@ -603,7 +603,7 @@ export default class Nova extends Vue {
         }, {
             label: 'Wallets',
             keys: [],
-            action: () => { this.openTab('sync://wallets', 'inplace-builtin') },
+            action: () => { this.openTab('sync://wallets/local', 'inplace-builtin') },
             divider: true
         }, {
             label: 'Settings',
