@@ -131,7 +131,7 @@ export default class Wallets extends Vue {
     @Watch('ledgers')
     onChange(v: any[], ov: any[]) {
         if (v.length !== ov.length) {
-            const group = this.ledgers.length ? this.ledgers[this.ledgers.length - 1].chainCode : 'local'
+            const group = this.ledgers.length ? this.ledgers[this.ledgers.length - 1].publicKey : 'local'
             this.onTabChange(group)
         }
     }
