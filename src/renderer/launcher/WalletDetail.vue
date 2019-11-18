@@ -119,26 +119,26 @@ export default class WalletDetail extends Mixins(AccountLoader) {
     txResendTime!: { [id: string]: number }
 
     get isLocal() {
-        return this.$route.params.type === 'local'
+        return this.$route.params.group === 'local'
     }
 
-    get pk() {
-        return this.$route.params.addressOrCode
+    get indexOrId() {
+        return parseInt(this.$route.params.indexOrId)
     }
 
     get wallet() {
         let result: any
         if (this.isLocal) {
-            result = this.wallets.find(item => {
-                return item.address === this.pk
+            result = this.wallets.find((item: entities.Wallet) => {
+                return item.id === this.indexOrId
             })
         } else {
             let temp = this.$store.getters.ledgerAccounts.find((item: any) => {
-                return item.chainCode === this.pk
+                return item.publicKey === this.$route.params.group
             })
             result = {
-                address: temp.accounts[this.$route.query.index],
-                name: Vue.filter('ledgerName')(temp.name, this.$route.query.index)
+                address: temp.accounts[this.indexOrId],
+                name: Vue.filter('ledgerName')(temp.name, this.indexOrId)
             }
         }
         return result
