@@ -29,7 +29,7 @@ export default class ActivityItemMixin extends Vue {
                 temp = {
                     name: Vue.filter('ledgerName')(ledger.name, index),
                     address: ledger.accounts[index],
-                    chainCode: ledger.chainCode,
+                    publicKey: ledger.publicKey,
                     index: index
                 }
             }
@@ -43,10 +43,9 @@ export default class ActivityItemMixin extends Vue {
 
     openWallet() {
         if (this.wallet) {
-            let type = this.wallet.chainCode ? 'ledger' : 'local'
-            let aOc = this.wallet.chainCode ? this.wallet.chainCode : this.wallet.address
-            let query = this.wallet.chainCode ? `?index=${this.wallet.index}` : ''
-            BUS.$emit('open-tab', { href: `sync://wallets/${type}/${aOc}${query}`, mode: 'inplace-builtin' })
+            let group = this.wallet.publicKey || 'local'
+            let aOc = this.wallet.publicKey ? this.wallet.index : this.wallet.id
+            BUS.$emit('open-tab', { href: `sync://wallets/${group}/${aOc}`, mode: 'inplace-builtin' })
             this.emitAction()
         }
     }

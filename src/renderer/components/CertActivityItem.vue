@@ -68,15 +68,5 @@ export default class CertActivityItem extends Mixins(ActivityItemMixin) {
         BUS.$emit('open-tab', { href })
         this.emitAction()
     }
-
-    openWallet() {
-        if (this.wallet) {
-            let type = this.wallet.chainCode ? 'ledger' : 'local'
-            let aOc = this.wallet.chainCode ? this.wallet.chainCode : this.wallet.address
-            let query = this.wallet.chainCode ? `?index=${this.wallet.index}` : ''
-            BUS.$emit('open-tab', { href: `sync://wallets/${type}/${aOc}${query}`, mode: 'inplace-builtin' })
-            this.emitAction()
-        }
-    }
 }
 </script>
