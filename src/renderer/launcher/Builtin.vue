@@ -5,7 +5,7 @@
             :leave-active-class="`animated faster ${leaveClass}`"
         >
             <router-view
-                :key="$route.name"
+                :key="routerKey"
                 style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto"
             />
         </transition>
@@ -30,6 +30,13 @@ export default class BuiltinBase extends Vue {
     updateHref(val: string) { }
     @Emit('update:status')
     updateStatus(status: WebStatus) { }
+
+    get routerKey() {
+        if (this.$route.matched.find(i => i.name === 'wallets')) {
+            return 'wallets'
+        }
+        return this.$route.fullPath
+    }
 
     status: WebStatus = {
         title: '',
