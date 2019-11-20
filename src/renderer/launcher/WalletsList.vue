@@ -66,7 +66,7 @@ import {
 export default class WalletsList extends Vue {
 
     get wallets() { return this.$store.state.wallets as entities.Wallet[] }
-
+    get storeReady() { return this.$store.state.ready }
     get currentTab() {
         return this.$route.params.group
     }
