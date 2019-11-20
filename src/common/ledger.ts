@@ -29,8 +29,14 @@ const getVet = async () => {
 
 const getAccount = async () => {
   const vet = await getVet()
-  const result = await vet!.instance.getAccount(`44'/818'/0'/0`, false, true)
-  await vet!.close()
+  let result
+  try {
+    result = await vet!.instance.getAccount(`44'/818'/0'/0`, false, true)
+  } catch (error) {
+    throw error
+  } finally {
+    await vet!.close()
+  }
   return result
 }
 
@@ -46,12 +52,14 @@ const signTransaction = async (index: number, rawTx: Buffer, delegatorSig?: stri
         vet!.instance.signTransaction(`44'/818'/0'/0/${index}`, rawTx)
           .then(originSig => {
             clearTimeout(timer)
+            vet!.close()
             if (delegatorSig) {
               return res(Buffer.concat([originSig, Buffer.from(delegatorSig.slice(2), 'hex')]))
             } else {
               return res(originSig)
             }
           }).catch(e => {
+            vet!.close()
             clearTimeout(timer)
             return rej(e)
           })
@@ -71,9 +79,11 @@ const signCert = async (index: number, rawJson: Buffer) => {
         rej(new Error('Ledger confirmation timeout!'))
       }, 30000)
       vet!.instance.signJSON(`44'/818'/0'/0/${index}`, rawJson).then(originSig => {
+        vet!.close()
         clearTimeout(timer)
         return res(originSig)
       }).catch(e => {
+        vet!.close()
         clearTimeout(timer)
         return rej(e)
       })

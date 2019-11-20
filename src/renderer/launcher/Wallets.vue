@@ -71,7 +71,7 @@ import {
 @Component
 export default class Wallets extends Vue {
     show = true
-    get storeReady() { return this.$store.state.ready }
+
     get ledgers() {
         return this.$store.getters.ledgerAccounts
     }
