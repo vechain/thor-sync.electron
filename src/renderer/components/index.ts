@@ -54,6 +54,7 @@ import SvgLedger from './SvgLedger.vue'
 import DeleteDeviceDialog from './DeleteDeviceDialog.vue'
 import RenameDeviceDialog from './RenameDeviceDialog.vue'
 import ActivitiesTable from './ActivitiesTable.vue'
+import ShowLedgerAddressDialog from './ShowLedgerAddressDialog.vue'
 
 export {
     AccessHistoryPanel,
@@ -111,5 +112,6 @@ export {
     SvgLedger,
     DeleteDeviceDialog,
     RenameDeviceDialog,
-    ActivitiesTable
+    ActivitiesTable,
+    ShowLedgerAddressDialog
 }
