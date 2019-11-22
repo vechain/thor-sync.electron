@@ -4,6 +4,7 @@ import { app } from 'electron'
 import { readFile, writeFile } from 'fs'
 import UUID from 'uuid'
 import * as log from 'electron-log'
+import { lookup } from 'dns'
 
 export class Analytics {
     private readonly ga: any
@@ -41,10 +42,17 @@ export class Analytics {
 
     public startup() {
         this.initClientId().then(id => {
-            const report = (action: string) => this.ga.event(
-                `app-${app.getVersion()}`,
-                action,
-                { clientID: id })
+            const report = (action: string) => {
+                lookup('www.google-analytics.com', err => {
+                    if (err) {
+                        return
+                    }
+                    this.ga.event(
+                        `app-${app.getVersion()}`,
+                        action,
+                        { clientID: id })
+                })
+            }
 
             report('startup')
             setInterval(
