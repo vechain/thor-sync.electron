@@ -197,7 +197,11 @@ export default class WalletDetail extends Mixins(AccountLoader) {
 
     async showVerify() {
         try {
-            await this.$dialog(ShowLedgerAddressDialog, this.wallet)
+            await this.$dialog(ShowLedgerAddressDialog,
+                {
+                    ...this.wallet,
+                    publicKey: this.$route.params.group
+                })
         } catch (error) {
             LOG.error(error)
         }

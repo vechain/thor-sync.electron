@@ -24,7 +24,7 @@
                             <div
                                 class="title font-weight-light pl-4 pt-4"
                             >Please Launch VeChain application on your Ledger</div>
-                            <LedgerStatus @deviceInfo="onGetDeviceInfo" />
+                            <LedgerStatus :publicKey="arg.publicKey" @deviceInfo="onGetDeviceInfo" />
                         </v-stepper-content>
                         <v-stepper-content step="2">
                             <div
@@ -64,7 +64,8 @@ import DialogHelper from '@/renderer/mixins/dialog-helper'
 import ledger from '@/common/ledger'
 type arg = {
     name: string
-    address: string
+    address: string,
+    publicKey: string
 }
 @Component
 export default class ShowLedgerAddressDialog extends Mixins(
@@ -87,14 +88,16 @@ export default class ShowLedgerAddressDialog extends Mixins(
         return parseInt(this.arg.name.substr(this.arg.name.length - 1, this.arg.name.length), 10) - 1
     }
 
-    async onGetDeviceInfo() {
-        this.step = 2
-        try {
-          await ledger.showAccount(this.addressIndex)
-        } catch (error) {
-          LOG.error(error)
-        } finally {
-          this.close()
+    async onGetDeviceInfo(device: any) {
+        if (device.publicKey === this.arg.publicKey) {
+            this.step = 2
+            try {
+                await ledger.showAccount(this.addressIndex)
+            } catch (error) {
+                LOG.error(error)
+            } finally {
+                this.close()
+            }
         }
 
     }
