@@ -5,6 +5,7 @@
                 <a v-if="isLocal" class="top-link" @click="showReset">Reset Password</a>
                 <a v-if="isLocal" class="top-link" @click="showExport">Backup</a>
                 <a class="top-link" @click="showTransfer">Transfer</a>
+                <a v-if="!isLocal" class="top-link" @click="showVerify">Verify</a>
                 <a v-if="isLocal" class="top-link error--text" @click="showDelete">Delete</a>
             </v-layout>
             <v-card flat class="card-border">
@@ -103,7 +104,8 @@ import {
     ResetPwdDialog,
     UnlockWalletDialog,
     DeleteWalletDialog,
-    ExportWalletDialog
+    ExportWalletDialog,
+    ShowLedgerAddressDialog
 } from '@/renderer/components'
 import AccountLoader from '../mixins/account-loader'
 import { remote } from 'electron'
@@ -188,6 +190,14 @@ export default class WalletDetail extends Mixins(AccountLoader) {
                     id: this.wallet!.id
                 })
             }
+        } catch (error) {
+            LOG.error(error)
+        }
+    }
+
+    async showVerify() {
+        try {
+            await this.$dialog(ShowLedgerAddressDialog, this.wallet)
         } catch (error) {
             LOG.error(error)
         }
