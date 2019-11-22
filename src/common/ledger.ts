@@ -34,7 +34,6 @@ const showAccount = async (index: number) => {
   } catch (error) {
     throw error
   } finally {
-    console.log('123123', 'aa')
     await vet!.close()
   }
 }
