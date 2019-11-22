@@ -1,4 +1,5 @@
 import { randomBytes } from 'crypto'
+// tslint:disable-next-line: variable-name no-var-requires
 const Keythereum = require('keythereum')
 
 // code copied from old version of devkit
