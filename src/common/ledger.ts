@@ -27,6 +27,17 @@ const getVet = async () => {
   }
 }
 
+const showAccount = async (index: number) => {
+  const vet = await getVet()
+  try {
+    await vet!.instance.getAccount(`44'/818'/0'/0/${index}`, true, false)
+  } catch (error) {
+    throw error
+  } finally {
+    await vet!.close()
+  }
+}
+
 const getAccount = async () => {
   const vet = await getVet()
   let result
@@ -133,5 +144,6 @@ export default {
   getAccount,
   getDevice,
   signTransaction,
-  signCert
+  signCert,
+  showAccount
 }
