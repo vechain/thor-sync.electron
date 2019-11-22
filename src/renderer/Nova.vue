@@ -416,10 +416,10 @@ export default class Nova extends Vue {
             this.activePage.href = newHref
         }
     }
-    mounted() {
-        (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
-    }
+
     async created() {
+        (document.querySelector('.splash')! as HTMLElement).style.display = 'none'
+
         const mq = remote.app.EXTENSION.mq
         const tabActionTopic = `TabAction-${remote.getCurrentWindow().id}`
         const initTabAction = mq.peek(tabActionTopic) as (TabAction | null)
