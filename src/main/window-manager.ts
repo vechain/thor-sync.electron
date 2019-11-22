@@ -99,6 +99,10 @@ class WindowManager {
         })
     }
 
+    public closeAll() {
+        const actives = [...this.actives]
+        actives.forEach(i => i.win.close())
+    }
 
     public registerWindowEvent(id: number, events: string[]) {
         const entry = this.actives.find(a => a.win.id === id)

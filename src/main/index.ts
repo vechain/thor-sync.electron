@@ -1,4 +1,4 @@
-import { app, CertificateVerifyProcRequest, crashReporter } from 'electron'
+import { app, CertificateVerifyProcRequest, crashReporter, powerMonitor } from 'electron'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import { MQ } from './mq'
@@ -117,6 +117,11 @@ if (env.devMode || app.requestSingleInstanceLock()) {
         })
     }).on('ready', () => {
         log.debug('App:', 'ready')
+        powerMonitor.on('suspend', () => {
+            if (process.platform === 'win32') {
+                winMgr.closeAll()
+            }
+        })
         setupMenu()
         if (initExternalUrl) {
             if (!winMgr.openUrl(initExternalUrl)) {
