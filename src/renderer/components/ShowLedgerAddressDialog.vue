@@ -7,7 +7,7 @@
         max-width="650px"
     >
         <v-card>
-            <v-card-title class="subheading">Display Ladger Address</v-card-title>
+            <v-card-title class="subheading">Display Ledger Address</v-card-title>
             <v-card-text class="pt-0">
                 <v-stepper
                     style="max-height: 400px;overflow: auto;"
