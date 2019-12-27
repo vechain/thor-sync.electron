@@ -13,6 +13,7 @@ export class Analytics {
         // tslint:disable-next-line:variable-name
         const GA = require('electron-google-analytics')
         this.ga = new GA.default('UA-132391998-1', { debug: env.devMode, userAgent })
+        this.ga.set('anonymizeIp', true)
     }
 
     public initClientId() {
