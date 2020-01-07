@@ -5,11 +5,13 @@
                 <v-list-tile-title v-text="item.text"></v-list-tile-title>
             </v-list-tile-content>
             <v-list-tile-action>
-                <v-icon
-                    v-if="item.isChecked"
-                    :class="item.isOk ? '': 'checkStatus'"
-                    :color="item.isOk ? 'green' : 'blue'"
-                >{{item.isOk ? 'mdi-check' :'mdi-autorenew'}}</v-icon>
+                <template v-if="item.isChecked">
+                    <v-icon
+                        v-show="i <= status"
+                        :class="item.isOk ? '': 'checkStatus'"
+                        :color="item.isOk ? 'green' : 'blue'"
+                    >{{item.isOk ? 'mdi-check' :'mdi-autorenew'}}</v-icon>
+                </template>
                 <v-icon v-else color="red">info</v-icon>
             </v-list-tile-action>
         </v-list-tile>
@@ -31,19 +33,24 @@ export default class LedgerStatus extends Vue {
         return !!this.publicKey
     }
 
-    connectStatesDefault = [{
-        text: '1. Connect and unlock your Ledger device',
-        isOk: false
-    }, {
-        text: '2. Navigate to the Dashboard',
-        isOk: false
-    }, {
-        text: '3. Navigate to VeChain app',
-        isOk: false
-    }, {
-        text: `4. ${this.isCheck ? 'Checking' : 'Getting'} account info`,
-        isOk: false
-    }]
+    connectStatesDefault = [
+        {
+            text: '1. Connect and unlock your Ledger device',
+            isOk: false
+        },
+        {
+            text: '2. Navigate to the Dashboard',
+            isOk: false
+        },
+        {
+            text: '3. Navigate to VeChain app',
+            isOk: false
+        },
+        {
+            text: `4. ${this.isCheck ? 'Checking' : 'Getting'} account info`,
+            isOk: false
+        }
+    ]
 
     status = 0
     usbM: UsbMonitor | null = ledger.getUsbM()
@@ -83,18 +90,21 @@ export default class LedgerStatus extends Vue {
             }, 1000)
         } else {
             if (this.account) {
-                this.$emit('deviceInfo', { ...this.account, product: device!.product })
+                this.$emit('deviceInfo', {
+                    ...this.account,
+                    product: device!.product
+                })
             }
             Vue.set(this, 'status', status)
         }
-
     }
 
     get connectStates() {
         return this.connectStatesDefault.map((item, index) => {
             let isChecked = true
             if (this.isCheck && this.status === 4 && index === 3) {
-                isChecked = this.publicKey === (this.account && this.account.publicKey)
+                isChecked =
+                    this.publicKey === (this.account && this.account.publicKey)
             }
             return {
                 text: item.text,
