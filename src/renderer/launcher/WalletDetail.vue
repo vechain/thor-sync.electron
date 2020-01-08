@@ -75,7 +75,8 @@
                                         slot="activator"
                                         icon
                                         small
-                                        @click="viewTransferLogs"
+                                        v-explore.transfer="address"
+                                        
                                     >
                                         <v-icon small>mdi-file-find-outline</v-icon>
                                     </v-btn>
@@ -168,11 +169,6 @@ export default class WalletDetail extends Mixins(AccountLoader) {
                 this.$router.push({ name: 'portal' })
             }
         }
-    }
-
-    viewTransferLogs() {
-        const href = `https://insight.vecha.in/#/accounts/${this.address}/transfers`
-        BUS.$emit('open-tab', { href })
     }
 
     created() {

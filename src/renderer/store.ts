@@ -3,6 +3,7 @@ import { sleep } from '@/common/sleep'
 import { remote } from 'electron'
 import Vue from 'vue'
 import { cry } from 'thor-devkit'
+import env from '@/env'
 
 namespace Store {
     export type Model = {
@@ -61,6 +62,9 @@ class Store extends Vuex.Store<Store.Model> {
                             }
                         }
                     )
+                },
+                explorer(state) {
+                    return state.preferences['explorer'] || (env.devMode ? 'insight' : 'vechain-explorer')
                 },
                 darkTheme(state) {
                     const value = state.preferences['dark-theme']

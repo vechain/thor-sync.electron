@@ -54,7 +54,7 @@
                     <Priority :readonly="true" :priority="gasPriceCoef" />
                 </v-layout>
                 <v-layout class="my-1">
-                    <a class="caption" @click="insight">
+                    <a class="caption" v-explore.tx="txid" @click="emitAction">
                         <v-icon style="font-size:110%;color:currentColor">search</v-icon>
                         {{txid | shortTxId}}
                     </a>
@@ -177,12 +177,6 @@ export default class TxActivityItem extends Mixins(ActivityItemMixin) {
         } else {
             href = this.item.referer.url
         }
-        BUS.$emit('open-tab', { href })
-        this.emitAction()
-    }
-
-    insight() {
-        const href = `https://insight.vecha.in/#/txs/${this.txid}`
         BUS.$emit('open-tab', { href })
         this.emitAction()
     }

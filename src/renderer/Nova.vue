@@ -384,7 +384,7 @@ export default class Nova extends Vue {
     }
 
     openTab(href: string, mode?: 'append' | 'append-active' | 'inplace' | 'inplace-builtin') {
-        const formalized = UrlUtils.formalize(href)
+        const formalized = UrlUtils.formalize(href, this.$store.getters.explorer)
         if (mode === 'append-active') {
             const page = new Page(formalized)
             this.pages.splice(this.activePageIndex + 1, 0, page)
@@ -409,7 +409,7 @@ export default class Nova extends Vue {
     }
 
     navigateTo(href: string) {
-        const newHref = UrlUtils.formalize(href)
+        const newHref = UrlUtils.formalize(href, this.$store.getters.explorer)
         if (newHref === this.activePage.href) {
             this.activePage.action.reGo++
         } else {

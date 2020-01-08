@@ -1,6 +1,7 @@
 import { Vue } from 'vue-property-decorator'
 import { clipboard } from 'electron'
 import { VNode } from '../../node_modules/vue'
+import { getExploreUrl } from '@/explorer-configs'
 
 function write(str: string) {
   clipboard.writeText(str)
@@ -9,10 +10,10 @@ function write(str: string) {
 declare global {
   interface HTMLElement {
     _onclick?: {
-      callback: () => void;
+      callback: () => void
     }
     _focusout?: {
-      callback: (event: any) => void;
+      callback: (event: any) => void
     }
     _needFocusout?: boolean
   }
@@ -73,8 +74,8 @@ Vue.directive('focus', {
       tags.indexOf(el.tagName.toLocaleLowerCase()) >= 0
         ? (el as any)
         : el.getElementsByTagName('input')[0] ||
-          el.getElementsByTagName('textarea')[0] ||
-          el.getElementsByTagName('select')[0]
+        el.getElementsByTagName('textarea')[0] ||
+        el.getElementsByTagName('select')[0]
     setTimeout(() => {
       // tslint:disable-next-line:no-unused-expression
       tempEl.focus && tempEl.focus()
@@ -86,3 +87,17 @@ Vue.directive('focus', {
     }, 0)
   }
 })
+
+Vue.directive('explore', {
+  bind(el: HTMLElement, binding: any, vnode: VNode) {
+    const open = () => {
+      const keys = Object.keys(binding.modifiers)
+      const href = getExploreUrl(vnode.context!.$store.getters.explorer, keys[0], binding.value)
+      const mode = (['append', 'append-active', 'inplace', 'inplace-builtin'].indexOf(binding.arg) >= 0) ? binding.arg : ''
+      BUS.$emit('open-tab', { href, mode })
+    }
+    el.addEventListener('click', open)
+  }
+})
+
+
