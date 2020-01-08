@@ -17,6 +17,7 @@ import { State, Getter } from 'vuex-class'
 import * as UrlUtils from '@/common/url-utils'
 import { ipcServe } from '../ipc'
 import { Certificate, cry } from 'thor-devkit'
+import { getExploreUrl } from '@/explorer-configs'
 
 @Component
 export default class Vendor extends Vue {
@@ -204,7 +205,8 @@ export default class Vendor extends Vue {
             new Notification('Tx Signed', {
                 body: result.txid
             }).onclick = () => {
-                BUS.$emit('open-tab', { href: `https://insight.vecha.in/#/txs/${result.txid}` })
+                const href = getExploreUrl(this.$store.getters.explorer, 'tx', result.txid)
+                BUS.$emit('open-tab', { href })
             }
 
             return {

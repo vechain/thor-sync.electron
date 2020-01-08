@@ -1,5 +1,6 @@
 import * as NodeUrl from 'url'
 import * as V from './validator'
+import { getExploreUrl } from '@/explorer-configs'
 const knownProtocols = [
     'http:',
     'https:',
@@ -10,14 +11,14 @@ const knownProtocols = [
 const validIpAddressRegex =
     /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
 
-export function formalize(input: string, fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing') {
+export function formalize(input: string, chainSearchEngine: 'insight' | 'vechain-explorer', fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing') {
     input = (input || '').trim()
     if (!input) {
         return ''
     }
     if (V.isAddress(input) || V.isBytes32(input) ||
         (parseInt(input, 10).toString() === input && V.isUint32(parseInt(input, 10)))) {
-        return `https://insight.vecha.in/#/search?q=${input}`
+        return getExploreUrl(chainSearchEngine, 'search', input)
     }
 
     let url = NodeUrl.parse(input)

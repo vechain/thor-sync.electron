@@ -15,7 +15,7 @@
                     <v-flex xs4>
                         <Tooltip top>
                             <a
-                                @click="lookupAccount(targetAddress)"
+                                v-explore:append-active.account="targetAddress"
                                 slot="activator"
                             >{{ targetAddress | shortAddr}}</a>
                             <span>Lookup Account</span>
@@ -35,7 +35,7 @@
         </v-list-tile-content>
         <v-list-tile-action class="ml-3">
             <Tooltip top>
-                <v-btn slot="activator" flat icon @click="lookupTx(item.meta.txID)">
+                <v-btn slot="activator" v-explore:append-active.tx="item.meta.txID" flat icon>
                     <v-icon color="primary" style="font-size:150%">search</v-icon>
                 </v-btn>
                 <span>Lookup Tx Detail</span>
@@ -50,21 +50,11 @@ export default class TransferItem extends Vue {
     @Prop(Object) item!: Connex.Thor.Transfer
     @Prop(String) address!: string
 
-    get isSender() { return this.item.sender === this.address }
-    get targetAddress() { return this.isSender ? this.item.recipient : this.item.sender }
-
-    lookupTx(txid: string) {
-        BUS.$emit('open-tab', {
-            href: `https://insight.vecha.in/#/txs/${txid}`,
-            mode: 'append-active'
-        })
+    get isSender() {
+        return this.item.sender === this.address
     }
-
-    lookupAccount(addr: string) {
-        BUS.$emit('open-tab', {
-            href: `https://insight.vecha.in/#/accounts/${addr}`,
-            mode: 'append-active'
-        })
+    get targetAddress() {
+        return this.isSender ? this.item.recipient : this.item.sender
     }
 }
 </script>

@@ -60,7 +60,7 @@
                         <td class="text-xs-left">
                             <v-btn
                                 :ripple="false"
-                                @click="insight(props.item.txId)"
+                                v-explore.tx="props.item.txId"
                                 v-if="props.item.txId && props.item.receipt"
                                 icon
                                 flat
@@ -177,11 +177,6 @@ export default class ActivitiesTable extends TableLoader<entities.Activity<'tx' 
 
     reveal(url: string) {
         BUS.$emit('open-tab', { href: url })
-    }
-
-    insight(id: string) {
-        const href = `https://insight.vecha.in/#/txs/${id}`
-        BUS.$emit('open-tab', { href })
     }
 
     getStatus(item: entities.Activity<'tx'>, headTs: number) {
