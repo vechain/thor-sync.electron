@@ -328,7 +328,7 @@ export default class CertSigningDialog extends Mixins(
     }
     @Watch('currentGroup')
     setWalletThings() {
-        const i = this.wallets.findIndex(w => { return w.address === this.arg.selectedWallet })
+        const i = this.wallets.findIndex(w => { return w.address === (this.arg.selectedWallet || this.lastSigner) })
         this.seekIndex = i < 0 ? 0 : i
     }
     mounted() {
