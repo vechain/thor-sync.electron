@@ -18,7 +18,11 @@ const defaultWindowOptions: BrowserWindowConstructorOptions = {
     minHeight: 600,
     backgroundColor: '#fafafa',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
-    frame: process.platform === 'darwin'
+    frame: process.platform === 'darwin',
+    webPreferences: {
+        nodeIntegration: true,
+        webviewTag: true
+    }
 }
 
 class WindowManager {
@@ -64,7 +68,7 @@ class WindowManager {
                 }
             }
         })
-        win.webContents.on('context-menu', ({ sender }, props) => {
+        win.webContents.on('context-menu', ({ sender }: any, props) => {
             const items = buildContextMenu(sender, props)
             if (items.length > 0) {
                 Menu.buildFromTemplate(items).popup({})
@@ -90,6 +94,10 @@ class WindowManager {
             closable: true,
             maximizable: false,
             minimizable: false,
+            webPreferences: {
+                nodeIntegration: true,
+                webviewTag: true
+            }
         })
         win.setMenu(null)
         win.loadURL(env.about)

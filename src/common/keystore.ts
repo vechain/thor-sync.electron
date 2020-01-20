@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 // tslint:disable-next-line: variable-name no-var-requires
-const Keythereum = require('keythereum')
+// const Keythereum = require('keythereum')
 
 // code copied from old version of devkit
 // the purpose is to use native module to speed up encrypt/decrypt
@@ -12,17 +12,17 @@ const Keythereum = require('keythereum')
  */
 export function encrypt(privateKey: Buffer, password: string) {
     return new Promise<Keystore>(resolve => {
-        Keythereum.dump(password, privateKey, randomBytes(32), randomBytes(16), {
-            cipher: 'aes-128-ctr',
-            kdf: 'scrypt',
-            kdfparams: {
-                dklen: 32,
-                memory: 280000000,
-                n: 262144,
-                p: 1,
-                r: 8,
-            },
-        }, resolve)
+        // Keythereum.dump(password, privateKey, randomBytes(32), randomBytes(16), {
+        //     cipher: 'aes-128-ctr',
+        //     kdf: 'scrypt',
+        //     kdfparams: {
+        //         dklen: 32,
+        //         memory: 280000000,
+        //         n: 262144,
+        //         p: 1,
+        //         r: 8,
+        //     },
+        // }, resolve)
     })
 }
 
@@ -34,12 +34,12 @@ export function encrypt(privateKey: Buffer, password: string) {
  */
 export function decrypt(ks: Keystore, password: string) {
     return new Promise<Buffer>((resolve, reject) => {
-        Keythereum.recover(password, validate(normalize(ks)), (r: Buffer | Error) => {
-            if (!Buffer.isBuffer(r)) {
-                return reject(r)
-            }
-            resolve(r)
-        })
+        // Keythereum.recover(password, validate(normalize(ks)), (r: Buffer | Error) => {
+        //     if (!Buffer.isBuffer(r)) {
+        //         return reject(r)
+        //     }
+        //     resolve(r)
+        // })
     })
 }
 

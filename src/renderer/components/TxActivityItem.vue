@@ -93,7 +93,7 @@ export default class TxActivityItem extends Mixins(ActivityItemMixin) {
     get reverted() { return this.item.data.receipt ? this.item.data.receipt.reverted : false }
     get time() {
         this.$store.state.syncStatus // pulse
-        return this.timeAgo.format(this.item.createdTime)
+        return this.timeAgo(this.item.createdTime)
     }
     get txid() { return this.item.data.id }
     get signer() { return this.item.data.signer }

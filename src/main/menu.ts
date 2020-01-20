@@ -4,16 +4,16 @@ export function setupMenu() {
     if (process.platform === 'darwin') {
         const template: MenuItemConstructorOptions[] = [
             {
-                label: app.getName(),
+                label: app.name,
                 submenu: [{
-                    label: `About ${app.getName()}`,
+                    label: `About ${app.name}`,
                     click: () => app.EXTENSION.showAbout()
                 },
                 { type: 'separator' },
-                { role: 'services', submenu: [] },
+                { role: 'services'},
                 { type: 'separator' },
                 { role: 'hide' },
-                { role: 'hideothers' },
+                { role: 'hideOthers' },
                 { role: 'unhide' },
                 { type: 'separator' },
                 { role: 'quit' }
@@ -27,15 +27,15 @@ export function setupMenu() {
                     { role: 'cut' },
                     { role: 'copy' },
                     { role: 'paste' },
-                    { role: 'pasteandmatchstyle' },
+                    { role: 'pasteAndMatchStyle' },
                     { role: 'delete' },
-                    { role: 'selectall' },
+                    { role: 'selectAll' },
                     { type: 'separator' },
                     {
                         label: 'Speech',
                         submenu: [
-                            { role: 'startspeaking' },
-                            { role: 'stopspeaking' }
+                            { role: 'startSpeaking' },
+                            { role: 'stopSpeaking' }
                         ]
                     }
                 ]

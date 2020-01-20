@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator'
-import TimeAgo from 'timeago.js'
+import * as TimeAgo from 'timeago.js'
 import { State } from 'vuex-class'
 
 @Component
@@ -9,11 +9,11 @@ export default class ActivityItemMixin extends Vue {
     item !: entities.Activity<'tx' | 'cert'>
     signer !:string
 
-    timeAgo = TimeAgo()
+    timeAgo = TimeAgo.format
 
     get time() {
         this.$store.state.syncStatus // pulse
-        return this.timeAgo.format(this.item.createdTime)
+        return this.timeAgo(this.item.createdTime)
     }
 
     get wallet() {

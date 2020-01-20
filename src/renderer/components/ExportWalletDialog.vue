@@ -1,20 +1,23 @@
 <template>
-    <DialogEx
-        persistent
-        v-model="show"
-        @action:ok="onOk"
-        @action:cancel="close"
-        max-width="500px"
-    >
+    <DialogEx persistent v-model="show" @action:ok="onOk" @action:cancel="close" max-width="500px">
         <v-card ref="card">
             <v-card-title class="subheading">Backup</v-card-title>
             <v-card-text class="py-0">
-                <v-textarea v-focus class="caption" label="Keystore" readonly rows="12" no-resize box v-model="ks"/>
+                <v-textarea
+                    v-focus
+                    class="caption"
+                    label="Keystore"
+                    readonly
+                    rows="12"
+                    no-resize
+                    box
+                    v-model="ks"
+                />
             </v-card-text>
-            <v-divider/>
+            <v-divider />
             <v-card-actions>
                 <v-btn small flat @click="close">Abort</v-btn>
-                <v-spacer/>
+                <v-spacer />
                 <v-btn small ref="submit" flat @click="save" class="primary">Save</v-btn>
             </v-card-actions>
         </v-card>
@@ -33,7 +36,7 @@ const fs = require('fs')
 @Component
 export default class ExportWalletDialog extends Mixins(
     AccountMixin,
-    class extends DialogHelper<entities.Wallet, void> { }
+    class extends DialogHelper<entities.Wallet, void> {}
 ) {
     password: string = ''
     show = false
@@ -46,9 +49,9 @@ export default class ExportWalletDialog extends Mixins(
         isError: boolean
         messages: string[]
     } = {
-            isError: false,
-            messages: []
-        }
+        isError: false,
+        messages: []
+    }
 
     @Watch('show')
     showChanged(val: boolean) {
@@ -119,16 +122,14 @@ export default class ExportWalletDialog extends Mixins(
                 this.filenName() + '.txt'
             )
 
-            remote.dialog.showSaveDialog(
-                remote.getCurrentWindow(),
-                {
-                    title: 'Save Keystore',
-                    defaultPath: defaultPath
-                },
-                (path: string) => {
-                    resolve(path)
+            remote.dialog.showSaveDialog(remote.getCurrentWindow(), {
+                title: 'Save Keystore',
+                defaultPath: defaultPath
+            }).then(r => {
+                if (!r.canceled) {
+                    resolve(r.filePath)
                 }
-            )
+            })
         })
     }
 }

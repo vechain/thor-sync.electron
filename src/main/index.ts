@@ -1,4 +1,4 @@
-import { app, CertificateVerifyProcRequest, crashReporter, powerMonitor } from 'electron'
+import { app, ProcRequest, crashReporter, powerMonitor } from 'electron'
 import { setupMenu } from './menu'
 import WindowManager from './window-manager'
 import { MQ } from './mq'
@@ -51,7 +51,7 @@ declare module 'electron' {
                 options?: BrowserWindowConstructorOptions
             ): BrowserWindow
             showAbout(): void
-            getCertificate(hostname: string): CertificateVerifyProcRequest | undefined
+            getCertificate(hostname: string): ProcRequest | undefined
 
             registerBrowserWindowEvent(windowId: number, event: string[]): void
 
@@ -60,7 +60,7 @@ declare module 'electron' {
     }
 }
 
-app.setName('Sync')
+app.name = 'Sync'
 if (env.devMode) {
     app.setPath('userData', app.getPath('userData') + '-dev')
 }
@@ -78,11 +78,11 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     const updateChecker = createUpdateChecker()
     const mq = new MQ()
     const winMgr = new WindowManager()
-    const certs = new Map<string, CertificateVerifyProcRequest>()
+    const certs = new Map<string, ProcRequest>()
 
     let initExternalUrl = (env.devMode ? '' : process.argv[1]) || ''
 
-    const certVerifyProc = (req: CertificateVerifyProcRequest, callback: (verificationResult: number) => void) => {
+    const certVerifyProc = (req: ProcRequest, callback: (verificationResult: number) => void) => {
         log.debug('Certificate request:', req.hostname, req.verificationResult)
         certs.set(req.hostname, req)
         if (req.verificationResult === 'net::OK') {
@@ -108,7 +108,7 @@ if (env.devMode || app.requestSingleInstanceLock()) {
     app.on('web-contents-created', (ev, contents) => {
         log.debug('App:', 'web-contents-created', `#${contents.id}`)
         if (!analytics) {
-            analytics = new Analytics(contents.getUserAgent())
+            analytics = new Analytics(contents.userAgent)
             analytics.startup()
         }
         contents.on('did-attach-webview', (_ev, wc) => {

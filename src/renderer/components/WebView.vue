@@ -42,7 +42,6 @@ export default class WebView extends Vue {
     @Prop(String) href!: string
     @Prop(Object) action!: WebAction
 
-
     emitHref(val: string) {
         if (!this.action.suspend) {
             this.$emit('update:href', val)
@@ -55,7 +54,7 @@ export default class WebView extends Vue {
         }
     }
 
-    emitWheel(delta: { x: number, y: number }) {
+    emitWheel(delta: { x: number; y: number }) {
         if (!this.action.suspend) {
             this.$emit('update:wheel', delta)
         }
@@ -78,9 +77,11 @@ export default class WebView extends Vue {
         canGoBack: false
     }
     backgroundColor = ''
-    error: { code: number, name: string, desc: string } | null = null
+    error: { code: number; name: string; desc: string } | null = null
 
-    get currentUrl() { return NodeUrl.parse(this.currentHref) }
+    get currentUrl() {
+        return NodeUrl.parse(this.currentHref)
+    }
 
     @Watch('href')
     hrefChanged(val: string) {
@@ -94,10 +95,9 @@ export default class WebView extends Vue {
         this.emitStatus({ ...this.status })
     }
 
-
     @Watch('action.goBack')
     goBack() {
-        // should be guarded by committed status, or the history will incorrect when 
+        // should be guarded by committed status, or the history will incorrect when
         // fast back/forward
         if (this.webview.canGoBack() && this.status.committed) {
             this.webview.goBack()
@@ -112,27 +112,36 @@ export default class WebView extends Vue {
         }
     }
     @Watch('action.reload')
-    reload() { this.webview.reload() }
+    reload() {
+        this.webview.reload()
+    }
     @Watch('action.reloadIgnoringCache')
-    reloadIgnoreCache() { this.webview.reloadIgnoringCache() }
+    reloadIgnoreCache() {
+        this.webview.reloadIgnoringCache()
+    }
     @Watch('action.stop')
-    stop() { this.status.progress = 1; this.webview.stop() }
+    stop() {
+        this.status.progress = 1
+        this.webview.stop()
+    }
     @Watch('action.reGo')
-    reGo() { this.webview.goToOffset(0) }
+    reGo() {
+        this.webview.goToOffset(0)
+    }
     @Watch('action.zoomIn')
     zoomIn() {
         if (this.status.domReady) {
-            this.webContents.getZoomFactor(f => {
-                this.webContents.setZoomFactor(Math.min(3, f + 0.2))
-            })
+            this.webContents.setZoomFactor(
+                Math.min(3, this.webContents.getZoomFactor() + 0.2)
+            )
         }
     }
     @Watch('action.zoomOut')
     zoomOut() {
         if (this.status.domReady) {
-            this.webContents.getZoomFactor(f => {
-                this.webContents.setZoomFactor(Math.max(0.5, f - 0.1))
-            })
+            this.webContents.setZoomFactor(
+                Math.max(0.5, this.webContents.getZoomFactor() - 0.2)
+            )
         }
     }
     @Watch('action.zoomReset')
@@ -159,8 +168,8 @@ export default class WebView extends Vue {
         }
     }
 
-    webview !: Electron.WebviewTag
-    webContents !: Electron.WebContents
+    webview!: Electron.WebviewTag
+    webContents!: Electron.WebContents
 
     setup() {
         if (this.webview === this.$refs.webview) {
@@ -178,7 +187,7 @@ export default class WebView extends Vue {
         const updateProgress = () => {
             this.status.progress += (1 - this.status.progress) / 10
         }
-        this.webContents.on('context-menu', ({ sender }, props) => {
+        this.webContents.on('context-menu', ({ sender }: any, props) => {
             const items = buildContextMenu(sender, props)
             if (items.length > 0) {
                 remote.Menu.buildFromTemplate(items).popup({})
@@ -228,7 +237,10 @@ export default class WebView extends Vue {
         })
         this.webview.addEventListener('page-favicon-updated', ev => {
             LOG.debug('webview:', ev.type)
-            this.status.favicon = ev.favicons.find(i => i.includes('32x32')) || ev.favicons[0] || ''
+            this.status.favicon =
+                ev.favicons.find(i => i.includes('32x32')) ||
+                ev.favicons[0] ||
+                ''
         })
         this.webview.addEventListener('page-title-updated', ev => {
             LOG.debug('webview:', ev.type, ev.title)
@@ -239,7 +251,10 @@ export default class WebView extends Vue {
             if (ev.isMainFrame) {
                 this.status.committed = true
                 if (ev.url !== this.currentHref) {
-                    if (NodeUrl.parse(this.currentHref).host !== NodeUrl.parse(ev.url).host) {
+                    if (
+                        NodeUrl.parse(this.currentHref).host !==
+                        NodeUrl.parse(ev.url).host
+                    ) {
                         this.status.title = ''
                         this.status.favicon = ''
                         this.status.cert = null
@@ -278,7 +293,10 @@ export default class WebView extends Vue {
 
                 this.error = {
                     code: ev.errorCode,
-                    ...(errorMap.get(ev.errorCode) || { name: 'UNKNOWN_ERROR', desc: '' })
+                    ...(errorMap.get(ev.errorCode) || {
+                        name: 'UNKNOWN_ERROR',
+                        desc: ''
+                    })
                 }
             }
         })
@@ -374,8 +392,12 @@ export default class WebView extends Vue {
         this.stopQueryCert()
         const query = () => {
             const url = this.currentUrl
-            if (url.hostname && (url.protocol === 'https:' || url.protocol === 'wss:')) {
-                this.status.cert = remote.app.EXTENSION.getCertificate(url.hostname) || null
+            if (
+                url.hostname &&
+                (url.protocol === 'https:' || url.protocol === 'wss:')
+            ) {
+                this.status.cert =
+                    remote.app.EXTENSION.getCertificate(url.hostname) || null
                 return !!this.status.cert
             }
             return true
@@ -389,7 +411,6 @@ export default class WebView extends Vue {
         }
     }
 
-
     get elementVisible() {
         return this.$el.offsetWidth > 0 && this.$el.offsetHeight > 0
     }
@@ -401,5 +422,4 @@ declare module 'electron' {
         currentIndex: number
     }
 }
-
 </script>

@@ -130,7 +130,7 @@ type WebStatus = {
     title: string
     favicon: string
     progress: number
-    cert: Electron.CertificateVerifyProcRequest | null
+    cert: Electron.ProcRequest | null
     committed: boolean
     domReady: boolean
     canGoForward: boolean

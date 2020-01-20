@@ -39,9 +39,9 @@
 <script lang="ts">
 import { Vue, Component, Prop, Emit, Mixins } from 'vue-property-decorator'
 import ActivityItemMixin from './mixins/ActivityItem.vue'
-import TimeAgo from 'timeago.js'
+import * as TimeAgo from 'timeago.js'
 import * as UrlUtils from '@/common/url-utils'
-const timeAgo = TimeAgo()
+const timeAgo = TimeAgo.format
 
 @Component
 export default class CertActivityItem extends Mixins(ActivityItemMixin) {
@@ -53,7 +53,7 @@ export default class CertActivityItem extends Mixins(ActivityItemMixin) {
     get purpose() { return this.item.data.message.purpose }
     get time() {
         this.$store.state.syncStatus // pulse
-        return timeAgo.format(this.item.createdTime)
+        return timeAgo(this.item.createdTime)
     }
     get hostname() { return UrlUtils.hostnameOf(this.item.referer.url) }
     get signer() { return this.item.data.signer }

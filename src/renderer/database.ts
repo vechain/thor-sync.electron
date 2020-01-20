@@ -61,28 +61,30 @@ class Database extends Dexie {
                         }
                     }
 
-                    table.hook('creating', function() {
+                    table.hook('creating', function () {
                         this.onsuccess = () => dispatch('creating')
                     })
-                    table.hook('updating', function() {
+                    table.hook('updating', function () {
                         this.onsuccess = () => dispatch('updating')
                     })
-                    table.hook('deleting', function() {
+                    table.hook('deleting', function () {
                         this.onsuccess = () => dispatch('deleting')
                     })
                 })
             })
             .catch(err => {
                 LOG.warn('Database:', 'open error', err)
-                const btnIndex = remote.dialog.showMessageBox(
+                let btnIndex = 0
+                remote.dialog.showMessageBox(
                     remote.getCurrentWindow(), {
-                        type: 'error',
-                        buttons: ['Exit', 'Continue'],
-                        defaultId: 0,
-                        title: 'Critical Error',
-                        message: `Failed to open IndexedDB\n
-${err.toString()}`
-                    })
+                    type: 'error',
+                    buttons: ['Exit', 'Continue'],
+                    defaultId: 0,
+                    title: 'Critical Error',
+                    message: `Failed to open IndexedDB\n${err.toString()}`
+                }).then((r: Electron.MessageBoxReturnValue) => {
+                    btnIndex = r.response
+                })
                 if (btnIndex === 0) {
                     remote.app.quit()
                 }

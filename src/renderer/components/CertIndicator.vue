@@ -12,28 +12,32 @@ import errorMap from '../net-error-list'
 
 @Component
 export default class CertIndicator extends Vue {
-    @Prop(Object) cert!: Electron.CertificateVerifyProcRequest
+    @Prop(Object) cert!: Electron.ProcRequest
 
-    get secure() { return this.cert.verificationResult === 'net::OK' }
+    get secure() {
+        return this.cert.verificationResult === 'net::OK'
+    }
 
     onClick() {
         let message
         if (this.secure) {
             message = `Securely accessing '${this.cert.hostname}'`
         } else {
-            const err = errorMap.get(this.cert.errorCode) || { name: '', desc: '' }
+            const err = errorMap.get(this.cert.errorCode) || {
+                name: '',
+                desc: ''
+            }
             message = `Connection is not secure!
-
-${this.cert.verificationResult}
-
-${err.desc}`
+                ${this.cert.verificationResult}
+                ${err.desc}`
         }
-        remote.dialog
-            .showCertificateTrustDialog(
-                remote.getCurrentWindow(), {
-                    certificate: this.cert.certificate,
-                    message
-                }, () => { })
+        remote.dialog.showCertificateTrustDialog(
+            remote.getCurrentWindow(),
+            {
+                certificate: this.cert.certificate,
+                message
+            }
+        )
     }
 }
 </script>
