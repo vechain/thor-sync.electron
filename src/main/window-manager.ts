@@ -68,7 +68,8 @@ class WindowManager {
                 }
             }
         })
-        win.webContents.on('context-menu', ({ sender }: any, props) => {
+        win.webContents.on('context-menu', (ev, props) => {
+            const { sender } = ev as Electron.Event & { sender: Electron.WebContents }
             const items = buildContextMenu(sender, props)
             if (items.length > 0) {
                 Menu.buildFromTemplate(items).popup({})
