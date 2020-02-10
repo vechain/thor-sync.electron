@@ -11,7 +11,11 @@ const knownProtocols = [
 const validIpAddressRegex =
     /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
 
-export function formalize(input: string, chainSearchEngine: 'insight' | 'vechain-explorer', fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing') {
+export function formalize(
+    input: string,
+    chainSearchEngine: 'insight' | 'vechain-explorer',
+    fallbackSearchEngine?: 'duckduckgo' | 'google' | 'bing'
+) {
     input = (input || '').trim()
     if (!input) {
         return ''

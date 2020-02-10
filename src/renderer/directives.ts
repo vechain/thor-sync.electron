@@ -93,11 +93,10 @@ Vue.directive('explore', {
     const open = () => {
       const keys = Object.keys(binding.modifiers)
       const href = getExploreUrl(vnode.context!.$store.getters.explorer, keys[0], binding.value)
-      const mode = (['append', 'append-active', 'inplace', 'inplace-builtin'].indexOf(binding.arg) >= 0) ? binding.arg : ''
+      const mode = (['append', 'append-active', 'inplace', 'inplace-builtin'].indexOf(binding.arg) >= 0)
+        ? binding.arg : ''
       BUS.$emit('open-tab', { href, mode })
     }
     el.addEventListener('click', open)
   }
 })
-
-

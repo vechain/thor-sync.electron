@@ -61,13 +61,13 @@ class Database extends Dexie {
                         }
                     }
 
-                    table.hook('creating', function () {
+                    table.hook('creating', function() {
                         this.onsuccess = () => dispatch('creating')
                     })
-                    table.hook('updating', function () {
+                    table.hook('updating', function() {
                         this.onsuccess = () => dispatch('updating')
                     })
-                    table.hook('deleting', function () {
+                    table.hook('deleting', function() {
                         this.onsuccess = () => dispatch('deleting')
                     })
                 })
