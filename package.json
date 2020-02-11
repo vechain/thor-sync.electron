@@ -23,6 +23,7 @@
     "productName": "Sync",
     "appId": "org.vechain.sync",
     "artifactName": "${productName}-${os}-${arch}-${version}.${ext}",
+    "afterSign": "build/assets/notarize.js",
     "directories": {
       "output": "build"
     },
@@ -63,7 +64,11 @@
     },
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.icns",
+      "entitlements": "build/assets/entitlements.mac.plist",
+      "entitlementsInherit": "build/assets/entitlements.mac.plist",
+      "gatekeeperAssess": false,
+      "hardenedRuntime": true
     },
     "win": {
       "icon": "build/icons/icon.ico"
@@ -117,6 +122,7 @@
     "electron-dl": "^1.12.0",
     "electron-google-analytics": "^0.1.0",
     "electron-log": "^2.2.17",
+    "electron-notarize": "^0.2.1",
     "electron-rebuild": "^1.8.2",
     "electron-settings": "^3.2.0",
     "electron-updater": "^4.0.6",

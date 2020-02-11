@@ -1,7 +1,7 @@
 matrix:
   include:
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode11.3
       language: node_js
       node_js: "10"
       env:
@@ -24,6 +24,10 @@ if: tag IS present
 
 script:
   - echo 'no action on regular hook'
+
+before_deploy:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -fr ~/private_keys && mkdir ~/private_keys                                    ; fi 
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then echo $AUTH_PRIVATE_KEY | base64 -D > ~/private_keys/AuthKey_${APPLE_API_KEY}.p8  ; fi 
 
 deploy:
   - provider: script
