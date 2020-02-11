@@ -40,6 +40,9 @@ if (isFirstTimeRun) {
         }, {
             title: 'Gitter',
             href: 'https://gitter.im/vechain/sync'
+        }, {
+            title: 'VeChain Explorer',
+            href: 'https://explore.vechain.org'
         }])
     }, true)
 
