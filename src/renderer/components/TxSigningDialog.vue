@@ -354,6 +354,9 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
             }
         })
     }
+    get lastSigner() {
+        return this.$store.getters.lastSigner
+    }
     get wallet(): entities.Wallet | { name: string, address: string } | null {
         if (this.wallets.length) {
             return this.wallets[this.seekIndex] || null
@@ -412,7 +415,7 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
 
     @Watch('currentGroup')
     setWalletThings() {
-        const i = this.wallets.findIndex(w => { return w.address === this.arg.selectedWallet })
+        const i = this.wallets.findIndex(w => { return w.address === (this.arg.selectedWallet || this.lastSigner) })
         this.reestimateGas()
         this.seekIndex = i < 0 ? 0 : i
     }
@@ -479,10 +482,31 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         }
     }
 
+    getDefaultGroup() {
+        if (this.arg.wallets.length > 1) {
+            const group = this.arg.wallets.find(item => {
+                const temp = item.list.find(wallet => {
+                    return wallet.address === this.lastSigner
+                })
+                return !!temp
+            })
+            if (group) {
+                return {
+                    key: group.key!,
+                    name: group.sectionName
+                }
+            }
+        }
+        return {
+            key: this.arg.wallets[0].key!,
+            name: this.arg.wallets[0].sectionName
+        }
+    }
+
     created() {
         this.debouncedEstimateGas = debounce(() => this.estimateGas(), 500)
         this.setWalletThings()
-        this.currentGroup = { key: this.arg.wallets[0].key!, name: this.arg.wallets[0].sectionName }
+        this.currentGroup = this.getDefaultGroup()
         this.estimateGas()
     }
 

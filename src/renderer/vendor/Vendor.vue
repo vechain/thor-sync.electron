@@ -28,14 +28,6 @@ export default class Vendor extends Vue {
         actionName: '',
         action: () => { },
     }
-    get lastSigner() {
-        return this.$store.getters.lastSigner
-    }
-
-    get lastWalletIndex() {
-        const i = this.wallets.findIndex(w => w.address!.toLowerCase() === this.lastSigner)
-        return i < 0 ? 0 : i
-    }
 
     get ledgerAccountList() {
         let result: string[] = []

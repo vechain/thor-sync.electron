@@ -149,7 +149,7 @@
                                     full-size
                                     :wallets="wallets"
                                     v-model="seekIndex"
-                                    :noseek="step===2"
+                                    :noseek="step===2 || !!arg.selectedWallet"
                                 />
                             </v-card-text>
                         </v-layout>
@@ -218,7 +218,7 @@ import * as Keystore from '@/common/keystore'
 type walletList = {
     sectionName: string
     key?: string
-    list: entities.Wallet[] | { name: string, address: string }[]
+    list: entities.Wallet[] | { name: string; address: string }[]
 }[]
 type Arg = {
     message: Connex.Vendor.CertMessage
@@ -228,7 +228,9 @@ type Arg = {
 }
 
 @Component
-export default class CertSigningDialog extends Mixins(class extends DialogHelper<Arg, Connex.Vendor.CertResponse>{ }) {
+export default class CertSigningDialog extends Mixins(
+    class extends DialogHelper<Arg, Connex.Vendor.CertResponse> {}
+) {
     opened = false
     password = ''
     passwordError = ''
@@ -239,12 +241,12 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
     seekIndex = 0
     unsignedHex: String = ''
     currentGroup: {
-        name: string,
+        name: string
         key: string
     } = {
-            name: '',
-            key: ''
-        }
+        name: '',
+        key: ''
+    }
 
     keepUnlocked = false
     get privateKey() {
@@ -259,6 +261,9 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             }
         })
     }
+    get lastSigner() {
+        return this.$store.getters.lastSigner
+    }
     get isLocal() {
         return this.currentGroup.key === 'local'
     }
@@ -270,7 +275,7 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
             return []
         }
     }
-    get wallet(): entities.Wallet | { name: string, address: string } | null {
+    get wallet(): entities.Wallet | { name: string; address: string } | null {
         if (this.wallets.length) {
             return this.wallets[this.seekIndex] || null
         } else {
@@ -293,21 +298,42 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         }
     }
 
+    getDefaultGroup() {
+        if (this.arg.wallets.length > 1) {
+            const group = this.arg.wallets.find(item => {
+                const temp = item.list.find(wallet => {
+                    return wallet.address === this.lastSigner
+                })
+                return !!temp
+            })
+            if (group) {
+                return {
+                    key: group.key!,
+                    name: group.sectionName
+                }
+            }
+        }
+        return {
+            key: this.arg.wallets[0].key!,
+            name: this.arg.wallets[0].sectionName
+        }
+    }
+
     onLedgerTimeout() {
         this.signing = false
         this.ledgerError = new Error('Unable to connect your devce, please retry!')
     }
-    onGroupSelect(item: { name: string, key: string }) {
+    onGroupSelect(item: { name: string; key: string }) {
         this.currentGroup = item
     }
     @Watch('currentGroup')
     setWalletThings() {
-        const i = this.wallets.findIndex(w => { return w.address === this.arg.selectedWallet })
+        const i = this.wallets.findIndex(w => { return w.address === (this.arg.selectedWallet || this.lastSigner) })
         this.seekIndex = i < 0 ? 0 : i
     }
     mounted() {
         this.setWalletThings()
-        this.currentGroup = { key: this.arg.wallets[0].key!, name: this.arg.wallets[0].sectionName }
+        this.currentGroup = this.getDefaultGroup()
         this.opened = true
     }
     get passwordInputElem() {
@@ -331,7 +357,6 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         } else {
             await this.ledgerSign()
         }
-
     }
     async ledgerSign() {
         try {
@@ -441,7 +466,6 @@ export default class CertSigningDialog extends Mixins(class extends DialogHelper
         }
     }
 }
-
 </script>
 <style scoped>
 .payload {
