@@ -100,7 +100,7 @@ export default class Wallets extends Vue {
     }
 
     get currentTab() {
-        return this.$route.params.group
+        return this.$route.params.group || 'local'
     }
 
     onImport() {

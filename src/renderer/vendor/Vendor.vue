@@ -132,7 +132,7 @@ export default class Vendor extends Vue {
             this.snack.actionName = 'Create Now'
             this.snack.action = () => {
                 this.snack.open = false
-                BUS.$emit('open-tab', { href: 'sync://wallets', mode: 'inplace-builtin' })
+                BUS.$emit('open-tab', { href: 'sync://wallets/local', mode: 'inplace-builtin' })
             }
             throw new Error('no wallet available')
         }
