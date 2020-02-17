@@ -161,6 +161,12 @@ const routes: RouteConfig[] = [
         path: '/wallets',
         name: 'wallets',
         component: Wallets,
+        redirect: {
+            path: '/wallets/local'
+        },
+        meta: {
+                title: 'Wallets'
+        },
         children: [{
             name: 'wallets-list',
             path: '/wallets/:group',
