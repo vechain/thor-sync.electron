@@ -14,7 +14,8 @@ init:
 
 install:
   - ps: Install-Product node 10 x64
-  - npm install
+  - npm i npm@latest -g
+  - npm ci
 
 build_script:
   - echo 'no action on regular hook'
