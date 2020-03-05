@@ -519,8 +519,8 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
     }
     async goNext() {
         if (this.step === 1) {
-            await this.buildTx()
             this.step++
+            await this.buildTx()
             if (!this.isLocal) {
                 this.signing = true
             }
