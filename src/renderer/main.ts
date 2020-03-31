@@ -36,7 +36,7 @@ if (isFirstTimeRun) {
     GDB.on('ready', () => {
         GDB.shortcuts.bulkAdd([{
             title: 'Online Help',
-            href: 'https://github.com/vechain/thor-sync.electron/wiki'
+            href: 'https://docs.vechain.org/sync/user-guide/'
         }, {
             title: 'Gitter',
             href: 'https://gitter.im/vechain/sync'
