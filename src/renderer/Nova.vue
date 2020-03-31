@@ -624,7 +624,7 @@ export default class Nova extends Vue {
         }, {
             label: 'Online Help',
             keys: [],
-            action: () => { this.openTab('https://github.com/vechain/thor-sync.electron/wiki') },
+            action: () => { this.openTab('https://docs.vechain.org/sync/user-guide/') },
         }, {
             label: 'About',
             keys: [],

@@ -8,7 +8,7 @@
 
 <p align=center>
 <a href="https://env.vechain.org/#sync">Download</a> ·
-<a href="https://github.com/vechain/thor-sync.electron/wiki">User Guide</a> ·
+<a href="https://docs.vechain.org/sync/user-guide/"></a> ·
 <a href="http://faucet.vecha.in">TestNet Faucet</a>
 </p>
 
@@ -28,7 +28,7 @@ npm run build
 ```
 
 ## Contributing
-Please take a quick look at the [Report Issue](https://github.com/vechain/thor-sync.electron/wiki/Report-Issue) / [Contributing](https://github.com/vechain/thor-sync.electron/wiki/Contributing) before opening an issue or pull request.
+Please take a quick look at the [Report Issue](https://docs.vechain.org/sync/user-guide/report-issue.html) / [Contributing](https://docs.vechain.org/sync/user-guide/contribute.html) before opening an issue or pull request.
 
 ## Acknowledgement
 Special thanks to following projects:
