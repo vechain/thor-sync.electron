@@ -115,7 +115,7 @@
     "devtron": "^1.4.0",
     "dexie": "^2.0.4",
     "draggabilly": "2.2.0",
-    "electron": "3.0.16",
+    "electron": "7.2.4",
     "electron-builder": "^22.3.2",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
