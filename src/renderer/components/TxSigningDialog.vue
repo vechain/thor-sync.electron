@@ -99,6 +99,13 @@
                                 <div class="text-md-center pt-1" style="width: 500px; margin: auto" v-if="!!ledgerError">
                                     <v-icon color="error" class="display-3">mdi-alert-circle-outline</v-icon>
                                     <p class="error--text">{{ledgerError.message}}</p>
+                                    <p class="grey--text text--darken-1">
+                                        For more information please visit
+                                        <a
+                                            @click="openTroubleshooting"
+                                            href="javascript:;"
+                                        >Ledger troubleshooting</a>
+                                    </p>
                                 </div>
                             </template>
                             <template
@@ -272,6 +279,7 @@ import { setUnlocked, getUnlocked } from '../unlocked'
 import ledger from '@/common/ledger'
 import LedgerStatus from './LedgerStatus.vue'
 import * as Keystore from '@/common/keystore'
+import { shell } from 'electron'
 
 type walletList = {
     sectionName: string
@@ -448,6 +456,12 @@ export default class TxSigningDialog extends Mixins(class extends DialogHelper<A
         } else {
             this.signing = false
         }
+    }
+
+    openTroubleshooting() {
+        shell.openExternal(
+            'https://docs.vechain.org/sync/user-guide/import-ledger.html#troubleshooting'
+        )
     }
 
     async estimateGas() {
