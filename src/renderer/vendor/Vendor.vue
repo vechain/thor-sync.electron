@@ -18,6 +18,7 @@ import * as UrlUtils from '@/common/url-utils'
 import { ipcServe } from '../ipc'
 import { Certificate, cry } from 'thor-devkit'
 import { getExploreUrl } from '@/explorer-configs'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
 
 @Component
 export default class Vendor extends Vue {
@@ -144,7 +145,7 @@ export default class Vendor extends Vue {
         }
     }
 
-    async signTx(arg: Connex.Driver.SignTxArg, option: Connex.Driver.SignTxOption, referer: Referer): Promise<Connex.Vendor.TxResponse> {
+    async signTx(arg: DriverInterface.SignTxArg, option: DriverInterface.SignTxOption, referer: Referer): Promise<Connex.Vendor.TxResponse> {
 
         let enforcedWallet = ''
         let walletsCollection = this.getArgWallets()
@@ -210,7 +211,7 @@ export default class Vendor extends Vue {
         }
     }
 
-    async signCert(arg: Connex.Driver.SignCertArg, option: Connex.Driver.SignCertOption, referer: Referer) {
+    async signCert(arg: DriverInterface.SignCertArg, option: DriverInterface.SignCertOption, referer: Referer) {
 
 
         let enforcedWallet = ''

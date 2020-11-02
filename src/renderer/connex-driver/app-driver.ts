@@ -1,10 +1,11 @@
 import { remote } from 'electron'
 import { ipcCall, ipcServe } from '../ipc'
 import { blake2b256 } from 'thor-devkit/dist/cry/blake2b'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
 import UUID from 'uuid'
 const wc = remote.getCurrentWebContents()
 
-export class AppDriver implements Connex.Driver {
+export class AppDriver implements DriverInterface {
     public readonly genesis: Connex.Thor.Block
     public head: Connex.Thor.Status['head']
     constructor() {
@@ -35,8 +36,8 @@ export class AppDriver implements Connex.Driver {
     public getBlock(revision: string | number): Promise<Connex.Thor.Block | null> {
         return this.callToHost('getBlock', revision)
     }
-    public getTransaction(id: string): Promise<Connex.Thor.Transaction | null> {
-        return this.callToHost('getTransaction', id)
+    public getTransaction(id: string, allowPending: boolean): Promise<Connex.Thor.Transaction | null> {
+        return this.callToHost('getTransaction', id, allowPending)
     }
     public getReceipt(id: string): Promise<Connex.Thor.Receipt | null> {
         return this.callToHost('getReceipt', id)
@@ -51,21 +52,21 @@ export class AppDriver implements Connex.Driver {
         return this.callToHost('getStorage', addr, key, revision)
     }
     public explain(
-        arg: Connex.Driver.ExplainArg,
+        arg: DriverInterface.ExplainArg,
         revision: string,
         cacheTies?: string[]
     ): Promise<Connex.Thor.VMOutput[]> {
         return this.callToHost('explain', arg, revision, cacheTies)
     }
-    public filterEventLogs(arg: Connex.Driver.FilterEventLogsArg): Promise<Connex.Thor.Event[]> {
+    public filterEventLogs(arg: DriverInterface.FilterEventLogsArg): Promise<Connex.Thor.Event[]> {
         return this.callToHost('filterEventLogs', arg)
     }
-    public filterTransferLogs(arg: Connex.Driver.FilterTransferLogsArg): Promise<Connex.Thor.Transfer[]> {
+    public filterTransferLogs(arg: DriverInterface.FilterTransferLogsArg): Promise<Connex.Thor.Transfer[]> {
         return this.callToHost('filterTransferLogs', arg)
     }
     public signTx(
-        msg: Connex.Driver.SignTxArg,
-        option: Connex.Driver.SignTxOption
+        msg: DriverInterface.SignTxArg,
+        option: DriverInterface.SignTxOption
     ): Promise<Connex.Vendor.TxResponse> {
         let delegationHandlerId
         if (option.delegationHandler) {
@@ -83,8 +84,8 @@ export class AppDriver implements Connex.Driver {
         return this.callToHost('signTx', msg, option, delegationHandlerId)
     }
     public signCert(
-        msg: Connex.Vendor.CertMessage,
-        option: Connex.Driver.SignCertOption
+        msg: DriverInterface.SignCertArg,
+        option: DriverInterface.SignCertOption
     ): Promise<Connex.Vendor.CertResponse> {
         return this.callToHost('signCert', msg, option)
     }

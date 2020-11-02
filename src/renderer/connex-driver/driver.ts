@@ -1,9 +1,10 @@
-import { DriverNoVendor } from '@vechain/connex.driver-nodejs/dist/driver-no-vendor'
+import { DriverNoVendor } from '@vechain/connex-driver/dist/driver-no-vendor'
 import { remote } from 'electron'
 import { ipcServe, ipcCall } from '../ipc'
-import { SimpleNet } from '@vechain/connex.driver-nodejs/dist/simple-net'
+import { SimpleNet } from '@vechain/connex-driver/dist/simple-net'
 import { blake2b256 } from 'thor-devkit/dist/cry/blake2b'
 import { Throttle } from './throttle'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
 
 export class Driver extends DriverNoVendor {
     private readonly configId: string
@@ -29,9 +30,9 @@ export class Driver extends DriverNoVendor {
         return super.pollHead()
     }
     public signTx(
-        msg: Connex.Driver.SignTxArg,
-        option: Connex.Driver.SignTxOption
-    ): Promise<Connex.Driver.SignTxResult> {
+        msg: DriverInterface.SignTxArg,
+        option: DriverInterface.SignTxOption
+    ): Promise<DriverInterface.SignTxResult> {
         if (!window.VENDOR) {
             throw new Error('not ready')
         }
@@ -45,8 +46,8 @@ export class Driver extends DriverNoVendor {
         })
     }
     public signCert(
-        msg: Connex.Vendor.CertMessage,
-        options: Connex.Driver.SignCertOption
+        msg: DriverInterface.SignCertArg,
+        options: DriverInterface.SignCertOption
     ): Promise<Connex.Vendor.CertResponse> {
         if (!window.VENDOR) {
             throw new Error('not ready')
