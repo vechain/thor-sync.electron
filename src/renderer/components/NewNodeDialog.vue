@@ -183,7 +183,7 @@ export default class NewNodeDialog extends Mixins(
     }
 }
 
-import { SimpleNet } from '@vechain/connex.driver-nodejs/dist/simple-net'
+import { SimpleNet } from '@vechain/connex-driver/dist/simple-net'
 
 async function discoverNode(url: string) {
     const net = new SimpleNet(url)

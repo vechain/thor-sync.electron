@@ -20,10 +20,12 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
+
 @Component
 export default class TxListForDialog extends Vue {
   @Prop()
-  clauses?: Connex.Driver.SignTxArg
+  clauses?: DriverInterface.SignTxArg
 
   @Prop()
   txComment?: string

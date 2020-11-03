@@ -23,9 +23,9 @@ export default class OverlayedMenu extends Vue {
         if (this.value) {
             const menu = this.$refs['menu'] as any
             this.overlay.style.zIndex = (menu.styles.zIndex - 1) as any
-            this.overlay.style.display = null
+            this.overlay.style.display = ''
         } else {
-            this.overlay.style.zIndex = null
+            this.overlay.style.zIndex = ''
             this.overlay.style.display = 'none'
         }
     }

@@ -1,4 +1,5 @@
 import Vendor from './Vendor.vue'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
 
 export default Vendor
 
@@ -6,21 +7,21 @@ declare global {
     interface Window {
         VENDOR: {
             signTx(
-                msg: Connex.Driver.SignTxArg,
-                option: Connex.Driver.SignTxOption,
+                msg: DriverInterface.SignTxArg,
+                option: DriverInterface.SignTxOption,
                 caller: {
                     referer: Referer
                     webContentsId: number
                 }
-            ): Promise<Connex.Driver.SignTxResult>
+            ): Promise<DriverInterface.SignTxResult>
             signCert(
-                msg: Connex.Driver.SignCertArg,
-                option: Connex.Driver.SignCertOption,
+                msg: DriverInterface.SignCertArg,
+                option: DriverInterface.SignCertOption,
                 caller: {
                     referer: Referer
                     webContentsId: number
                 }
-            ): Promise<Connex.Driver.SignCertResult>
+            ): Promise<DriverInterface.SignCertResult>
             isAddressOwned(addr: string): Promise<boolean>
         }
     }

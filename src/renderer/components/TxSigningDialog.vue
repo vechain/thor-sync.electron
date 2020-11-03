@@ -280,6 +280,7 @@ import ledger from '@/common/ledger'
 import LedgerStatus from './LedgerStatus.vue'
 import * as Keystore from '@/common/keystore'
 import { shell } from 'electron'
+import { DriverInterface } from '@vechain/connex-driver/dist/driver-interface'
 
 type walletList = {
     sectionName: string
@@ -287,7 +288,7 @@ type walletList = {
     list: entities.Wallet[] | { name: string, address: string }[]
 }[]
 type Arg = {
-    message: Connex.Driver.SignTxArg
+    message: DriverInterface.SignTxArg
     wallets: walletList
     selectedWallet: string
     suggestedGas: number
