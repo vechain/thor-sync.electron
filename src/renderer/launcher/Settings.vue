@@ -108,7 +108,7 @@
                 <v-list two-line class="card-border" style="border-radius:2px;">
                     <template v-for="(node,i) in nodes">
                         <v-divider :key="i+'d'" v-if="i>0" />
-                        <v-list-tile :key="i">
+                        <v-list-tile :key="node.id || node.genesis.id">
                             <v-list-tile-action>
                                 <v-radio color="primary" :value="node"></v-radio>
                             </v-list-tile-action>
