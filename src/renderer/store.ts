@@ -71,6 +71,15 @@ class Store extends Vuex.Store<Store.Model> {
                     return value === undefined ?
                         (remote.app.EXTENSION.mainSettings.get('dark-theme') || false) : value as boolean
                 },
+                defaultNode(state) {
+                    const val = state.preferences['default-node']
+                    const temp = remote.app.EXTENSION.mainSettings.get('default-node')
+                    if (val || temp) {
+                        return JSON.parse(val || temp)
+                    } else {
+                        return null
+                    }
+                },
                 lastSigner(state) {
                     return state.preferences[connex.thor.genesis.id + '-lastSigner']
                 },

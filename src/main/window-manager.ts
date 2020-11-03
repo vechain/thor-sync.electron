@@ -30,7 +30,10 @@ class WindowManager {
         config?: NodeConfig,
         options?: BrowserWindowConstructorOptions
     ) {
-        config = config || (() =>
+        const defaultNodeStr = app.EXTENSION.mainSettings.get('default-node')
+        const defaultNode = (defaultNodeStr ? JSON.parse(defaultNodeStr) : undefined) as NodeConfig
+
+        config = config || defaultNode || (() =>
             presets.find(n => nameOfNetwork(n.genesis.id) === (env.devMode ? 'test' : 'main'))!
         )()
         options = { ...defaultWindowOptions, ...(options || {}) }
