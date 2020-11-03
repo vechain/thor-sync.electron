@@ -64,9 +64,10 @@
                             dense
                             flat
                         ></v-select>
-                        <div v-if="isDisableExplorer"
-                            class=" grey--text text--darken-1 caption d-flex text-left">
-                            current network only insight is supported</div>
+                        <div
+                            v-if="isDisableExplorer"
+                            class="grey--text text--darken-1 caption d-flex text-left"
+                        >current network only insight is supported</div>
                     </v-list-tile-action>
                 </v-list-tile>
                 <v-divider />
@@ -87,7 +88,7 @@
                 </v-list-tile>
             </v-list>
             <v-layout align-end>
-                <v-subheader>Nodes</v-subheader>
+                <v-subheader>Default Node</v-subheader>
                 <v-spacer />
                 <v-btn
                     class="caption"
@@ -98,30 +99,40 @@
                     @click="addNode"
                 >Add Node</v-btn>
             </v-layout>
-            <v-list two-line class="card-border" style="border-radius:2px;">
-                <template v-for="(node,i) in nodes">
-                    <v-divider :key="i+'d'" v-if="i>0" />
-                    <v-list-tile :key="i">
-                        <v-list-tile-content>
-                            <v-list-tile-title>
-                                <NetworkName class="mr-2" :genesis="node.genesis.id" />
-                                {{node.name}}
-                            </v-list-tile-title>
-                            <v-list-tile-sub-title>{{node.url}}</v-list-tile-sub-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                            <v-btn
-                                v-if="!node.isPreset"
-                                style="text-transform:none"
-                                flat
-                                small
-                                color="primary"
-                                @click="editNode(node)"
-                            >Edit</v-btn>
-                        </v-list-tile-action>
-                    </v-list-tile>
-                </template>
-            </v-list>
+            <v-radio-group
+                class="d-block pt-0 mt-0"
+                :value-comparator="nodeComparator"
+                @change="updateDefaultNode"
+                v-model="currentDNode"
+            >
+                <v-list two-line class="card-border" style="border-radius:2px;">
+                    <template v-for="(node,i) in nodes">
+                        <v-divider :key="i+'d'" v-if="i>0" />
+                        <v-list-tile :key="i">
+                            <v-list-tile-action>
+                                <v-radio color="primary" :value="node"></v-radio>
+                            </v-list-tile-action>
+                            <v-list-tile-content>
+                                <v-list-tile-title>
+                                    <NetworkName class="mr-2" :genesis="node.genesis.id" />
+                                    {{node.name}}
+                                </v-list-tile-title>
+                                <v-list-tile-sub-title>{{node.url}}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                            <v-list-tile-action>
+                                <v-btn
+                                    v-if="!node.isPreset"
+                                    style="text-transform:none"
+                                    flat
+                                    small
+                                    color="primary"
+                                    @click="editNode(node)"
+                                >Edit</v-btn>
+                            </v-list-tile-action>
+                        </v-list-tile>
+                    </template>
+                </v-list>
+            </v-radio-group>
         </div>
     </div>
 </template>
@@ -163,18 +174,32 @@ export default class Settings extends Vue {
     explorers = [
         {
             text: 'Insight',
-            value: 'insight'
+            value: 'insight',
         },
         {
             text: 'VeChain Explorer',
             value: 'vechain-explorer'
-        }
+        },
     ]
 
-    isDisableExplorer = ['main', 'test'].indexOf( nameOfNetwork(NODE_CONFIG.genesis.id)) < 0
+    isDisableExplorer =
+        ['main', 'test'].indexOf(nameOfNetwork(NODE_CONFIG.genesis.id)) < 0
+
+    currentDNode = this.defaultNode
+
+    @Watch('defaultNode')
+    onDefaultNodeChanged(v: entities.Node) {
+        this.currentDNode = v
+    }
 
     get defaultExplorer() {
         return this.isDisableExplorer ? 'insight' : this.$store.getters.explorer
+    }
+
+    get defaultNode(): entities.Node {
+        return (
+            this.$store.getters.defaultNode || this.nodes[ENV.devMode ? 1 : 0]
+        )
     }
 
     get autoUpdateStatusText() {
@@ -229,11 +254,11 @@ export default class Settings extends Vue {
         return remote.app.getVersion()
     }
 
-    get nodes(): Array<NodeConfig & { isPreset: boolean }> {
+    get nodes(): Array<entities.Node & { isPreset: boolean }> {
         return presets
-            .map(n => ({ ...n, isPreset: true }))
+            .map((n) => ({ ...n, isPreset: true }))
             .concat(
-                this.$store.state.nodes.map((n: NodeConfig) => ({
+                this.$store.state.nodes.map((n: entities.Node) => ({
                     ...n,
                     isPreset: false
                 }))
@@ -246,6 +271,10 @@ export default class Settings extends Vue {
 
     darkThemeSwitchDisabled = false
 
+    nodeComparator(va: entities.Node, vb: entities.Node) {
+        return va.id === vb.id && va.genesis.id === vb.genesis.id
+    }
+
     updateTheme(dark: boolean) {
         this.darkThemeSwitchDisabled = true
         setTimeout(() => {
@@ -254,6 +283,14 @@ export default class Settings extends Vue {
 
         remote.app.EXTENSION.mainSettings.set('dark-theme', dark)
         PREFS.store.put({ key: 'dark-theme', value: dark })
+    }
+
+    updateDefaultNode(node: NodeConfig) {
+        remote.app.EXTENSION.mainSettings.set(
+            'default-node',
+            JSON.stringify(node)
+        )
+        PREFS.store.put({ key: 'default-node', value: JSON.stringify(node) })
     }
 
     updateExplorer(item: string) {
@@ -269,8 +306,16 @@ export default class Settings extends Vue {
         this.$dialog(NewNodeDialog, null)
     }
 
-    editNode(node: NodeConfig) {
-        this.$dialog(NewNodeDialog, node)
+    editNode(node: entities.Node) {
+        this.$dialog(NewNodeDialog, node).then((result) => {
+            if (!(result && result.node)) {
+                return
+            }
+            if (result.node && this.currentDNode.id === result.node.id) {
+                result.action === 'edit' && this.updateDefaultNode(result.node)
+                result.action === 'delete' && this.updateDefaultNode(this.nodes[ENV.devMode ? 1 : 0])
+            }
+        })
     }
 
     openReleaseNotes() {
