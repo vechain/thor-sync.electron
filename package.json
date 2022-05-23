@@ -113,7 +113,7 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "draggabilly": "2.2.0",
     "electron": "3.0.16",
     "electron-builder": "^22.3.2",
