@@ -1,28 +1,57 @@
-import { UsbMonitor } from '@vechain/usb-monitor'
-import VET from '@vechain/hw-app-vet'
+import Transport from 'ledgerhq__hw-transport'
+import { default as App, StatusCodes } from '@vechain/hw-app-vet'
+import HdNoEvent, { getDevices } from '@ledgerhq/hw-transport-node-hid-noevents'
+import { sleep } from './sleep'
 import 'babel-polyfill'
-import * as TransportNodeHid from '@ledgerhq/hw-transport-node-hid'
 
-let transporting = false
-const usbM = new UsbMonitor(11415)
-const getUsbM = () => {
-  return usbM
+const connector: { connect(): Promise<Transport>, product: () => string | undefined } | null = (() => {
+  return {
+    connect: () => HdNoEvent.open(''),
+    product: () => getDevices()[0].product
+  }
+})()
+
+const supported = !!connector
+
+const path = `44'/818'/0'/0`
+
+function connect() {
+  if (!connector) {
+    throw new Error('unsupported')
+  }
+
+  return connector.connect()
 }
 
 const getVet = async () => {
-  const path = getDevice()!.path
-  if (transporting) {
-    Promise.reject('')
-  }
-  if (path) {
-    transporting = true
-    const tspt = await TransportNodeHid.default.open(path)
-    return {
-      instance: new VET(tspt),
-      close: async () => {
-        await tspt.close()
-        transporting = false
+  for (; ;) {
+    let tr: any
+    try {
+      try {
+        tr = await connect()
+      } catch (error) {
+        console.warn(error)
+        await sleep(2000)
+        continue
       }
+
+      const app = await new App(tr)
+      try {
+        const account = await app.getAccount(path, false, true)
+        return {
+          instance: app,
+          close: async () => {
+            tr && await tr.close().catch(() => { })
+          }
+        }
+      } catch (error) {
+        console.warn(error)
+        await sleep(2000)
+        continue
+      }
+    } catch (error) {
+      console.warn(error)
+      tr && await tr.close().catch(() => { })
     }
   }
 }
@@ -30,25 +59,12 @@ const getVet = async () => {
 const showAccount = async (index: number) => {
   const vet = await getVet()
   try {
-    await vet!.instance.getAccount(`44'/818'/0'/0/${index}`, true, false)
+    await vet!.instance.getAccount(`${path}/${index}`, true, false)
   } catch (error) {
     throw error
   } finally {
     await vet!.close()
   }
-}
-
-const getAccount = async () => {
-  const vet = await getVet()
-  let result
-  try {
-    result = await vet!.instance.getAccount(`44'/818'/0'/0`, false, true)
-  } catch (error) {
-    throw error
-  } finally {
-    await vet!.close()
-  }
-  return result
 }
 
 const signTransaction = async (index: number, rawTx: Buffer, delegatorSig?: string) => {
@@ -60,7 +76,7 @@ const signTransaction = async (index: number, rawTx: Buffer, delegatorSig?: stri
           vet!.close()
           rej(new Error('Ledger confirmation timeout!'))
         }, 30000)
-        vet!.instance.signTransaction(`44'/818'/0'/0/${index}`, rawTx)
+        vet!.instance.signTransaction(`${path}/${index}`, rawTx)
           .then(originSig => {
             clearTimeout(timer)
             vet!.close()
@@ -89,7 +105,7 @@ const signCert = async (index: number, rawJson: Buffer) => {
         vet!.close()
         rej(new Error('Ledger confirmation timeout!'))
       }, 30000)
-      vet!.instance.signJSON(`44'/818'/0'/0/${index}`, rawJson).then(originSig => {
+      vet!.instance.signJSON(`${path}/${index}`, rawJson).then(originSig => {
         vet!.close()
         clearTimeout(timer)
         return res(originSig)
@@ -105,45 +121,14 @@ const signCert = async (index: number, rawJson: Buffer) => {
   })
 }
 
-const getStatus = () => {
-  let result = 0
-  const devices = usbM.devices()
-  if (devices.length) {
-    result = 1
-  }
-  const list = devices.filter((dvc) => {
-    return ['win32', 'darwin'].indexOf(process.platform) >= 0
-      ? dvc.usagePage === 0xffa0
-      : dvc.interface === 0
-  })
-
-  if (list.length) {
-    result = 2
-  }
-
-  return result
-}
-
-const getDevice = () => {
-  const devices = usbM.devices()
-  const list = devices.filter((dvc) => {
-    return ['win32', 'darwin'].indexOf(process.platform) >= 0
-      ? dvc.usagePage === 0xffa0
-      : dvc.interface === 0
-  })
-  if (list.length) {
-    return list[0]
-  } else {
-    return null
-  }
-}
-
 export default {
-  getUsbM,
-  getStatus,
-  getAccount,
-  getDevice,
+  supported,
+  connector,
+  connect,
+  App,
+  path,
+  StatusCodes,
+  showAccount,
   signTransaction,
-  signCert,
-  showAccount
+  signCert
 }
