@@ -20,14 +20,15 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import ledger from '@/common/ledger'
-import { UsbMonitor } from '@vechain/usb-monitor'
-import { stat } from 'fs'
+import Deferred from '@/common/deferred'
+import { sleep } from '@/common/sleep'
 @Component
 export default class LedgerStatus extends Vue {
     @Prop(String)
     publicKey?: ''
 
     account: any = null
+    signal = new Deferred<never>()
 
     get isCheck() {
         return !!this.publicKey
@@ -53,7 +54,6 @@ export default class LedgerStatus extends Vue {
     ]
 
     status = 0
-    usbM: UsbMonitor | null = ledger.getUsbM()
     updateTimer: any = null
     timeoutTimer: any = null
 
@@ -63,39 +63,39 @@ export default class LedgerStatus extends Vue {
     }
 
     async syncStatus() {
-        if (this.updateTimer) {
-            clearTimeout(this.updateTimer)
-            this.updateTimer = null
-        }
-        let status = ledger.getStatus()
-        let device: any
-        if (status === 2) {
-            device = ledger.getDevice()
-            if (device) {
+        for (; ;) {
+            let tr
+            try {
                 try {
-                    this.account = await ledger.getAccount()
-                    status = 3
+                    tr = await ledger.connect()
+                    Vue.set(this, 'status', 2)
                 } catch (error) {
                     LOG.info(error)
+                    await Promise.race([sleep(2000), this.signal])
+                    continue
                 }
-            }
 
-            if (this.account) {
-                status = 4
+                const app = new ledger.App(tr as any)
+                try {
+                    this.account = await Promise.race([app.getAccount(ledger.path, false, true), this.signal])
+                    Vue.set(this, 'status', 3)
+                    if (this.account) {
+                        this.$emit('deviceInfo', {
+                            ...this.account,
+                            product: ledger.connector.product()
+                        })
+                        Vue.set(this, 'status', 4)
+                    }
+                } catch (error) {
+                    console.warn(error)
+                    await Promise.race([sleep(2000), this.signal])
+                    continue
+                }
+
+            } finally {
+                tr && await tr.close().catch(() => { })
             }
-        }
-        if (status < 2) {
-            this.updateTimer = setTimeout(() => {
-                Vue.set(this, 'status', status)
-            }, 1000)
-        } else {
-            if (this.account) {
-                this.$emit('deviceInfo', {
-                    ...this.account,
-                    product: device!.product
-                })
-            }
-            Vue.set(this, 'status', status)
+            break
         }
     }
 
@@ -131,18 +131,14 @@ export default class LedgerStatus extends Vue {
     }
 
     async mounted() {
-        this.usbM!.on('change', this.syncStatus)
         await this.syncStatus()
         this.initTimeout()
     }
 
     beforeDestroy() {
-        this.usbM!.removeListener('change', this.syncStatus)
+        this.signal.reject(new Error('interrupted'))
         if (this.timeoutTimer) {
             clearTimeout(this.timeoutTimer)
-        }
-        if (this.updateTimer) {
-            clearTimeout(this.updateTimer)
         }
     }
 }
@@ -151,6 +147,7 @@ export default class LedgerStatus extends Vue {
 .checkStatus::before {
     animation: spinAround 1s infinite linear;
 }
+
 @keyframes spinAround {
     from {
         transform: rotate(0);
